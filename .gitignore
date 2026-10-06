@@ -1,0 +1,25 @@
+# Entorno
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Node
+node_modules/
+.next/
+out/
+
+# Docker y sistema
+*.log
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
