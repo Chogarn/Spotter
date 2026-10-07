@@ -5,26 +5,28 @@ Etiquetas sugeridas: `backend`, `frontend`, `ia`, `docker`, `docs`, `complementa
 Columnas del tablero: Backlog, En curso, Revisión, Hecho.
 
 ## S1: Planificación y setup
-- [ ] Definir idea y alcance del proyecto `docs`
-- [ ] Crear repo en GitHub con estructura base `docs`
-- [ ] Crear tablero de GitHub Projects con este backlog `docs`
-- [ ] Escribir el README (idea, stack, estructura) `docs`
+- [x] Definir idea y alcance del proyecto `docs`
+- [x] Crear repo en GitHub con estructura base `docs`
+- [x] Crear tablero de GitHub Projects con este backlog `docs`
+- [x] Escribir el README (idea, stack, estructura) `docs`
 - [ ] Docker Compose de desarrollo (backend, frontend, PostgreSQL) `docker`
 - [ ] Docker Compose de producción `docker`
 - [ ] Esqueleto de FastAPI con endpoint de salud `backend`
 - [ ] Esqueleto de Next.js con TypeScript `frontend`
 - [ ] Configurar Alembic y primer modelo de datos `backend`
-- [ ] Diseñar el modelo de datos (usuario, ejercicio, rutina, sesión) `backend` `docs`
+- [x] Diseñar el modelo de datos `backend` `docs`
 - [ ] Publicación LinkedIn 1: el problema y la idea `docs`
 
 ## S2: Core de funcionalidades
-- [ ] Catálogo de ejercicios con datos iniciales (seed) `backend`
+- [ ] Tabla de ejercicios que se completa al guardar el plan `backend`
 - [ ] CRUD de rutinas (API) `backend`
 - [ ] Registro de sesiones: peso, repeticiones, esfuerzo (API) `backend`
-- [ ] Vista del catálogo y de rutinas `frontend`
+- [ ] Vista de planes semanales `frontend`
 - [ ] Formulario de registro de sesión `frontend`
 - [ ] Estado global en el frontend `frontend`
-- [ ] Perfil del usuario (objetivo, nivel, días, equipamiento, limitaciones) `backend` `frontend`
+- [ ] Perfil del usuario (edad, peso, altura, nivel, días, equipamiento, limitaciones) `backend` `frontend`
+- [ ] Elegir objetivo (obligatorio) y camino A o B `backend` `frontend`
+- [ ] Formulario de rutina actual (camino B): nombre, series x repeticiones, peso en kg `frontend`
 - [ ] Publicación LinkedIn 2: primer avance con capturas `docs`
 
 ## S3: Autenticación
@@ -41,6 +43,8 @@ Columnas del tablero: Backlog, En curso, Revisión, Hecho.
 - [ ] Pantalla de resumen semanal `frontend`
 - [ ] Ajuste conversando (regenera la semana y la guarda) `ia`
 - [ ] Topes de uso de Gemini (diario y por minuto) `ia` `backend`
+- [ ] Propuestas de la IA con vista previa (aceptar o descartar) `ia` `backend` `frontend`
+- [ ] Nota de cómo me sentí al terminar la sesión (botones y texto) `backend` `frontend`
 - [ ] Refactor y mejoras de UX `backend` `frontend`
 - [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs`
 

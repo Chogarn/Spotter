@@ -23,7 +23,7 @@ El usuario registra cada sesión (peso, repeticiones y esfuerzo percibido). Al c
 ### Base
 - Registro e inicio de sesión (JWT).
 - Perfil: objetivo, nivel, días disponibles, equipamiento y limitaciones.
-- Catálogo de ejercicios (tabla fija; la IA elige solo de ahí).
+- Objetivo obligatorio (masa muscular, fuerza, perder grasa, condición general o mantenerme activo) y dos caminos para empezar: que la app cree la primera rutina o cargar la que ya hace para que la IA la mejore.
 - Crear y editar rutinas.
 - Registro de sesiones: peso, repeticiones y esfuerzo (1 a 10).
 
@@ -33,7 +33,7 @@ La IA trabaja sobre los datos del usuario y cada interacción modifica la aplica
 1. **Cierre semanal:** analiza el historial y devuelve qué subir, qué mantener, qué cambiar por estancamiento y dónde hay fatiga. Genera la semana siguiente y un resumen de evolución.
 2. **Ajuste conversando:** "solo puedo 3 días", "no tengo esa máquina", "me molesta el hombro". La IA regenera la semana y el cambio queda guardado en la rutina.
 3. **Explicación por ejercicio:** botón "¿por qué esto?" con la razón basada en los números del usuario.
-4. **Sustitución:** el usuario rechaza un ejercicio y elige entre 2 alternativas equivalentes del catálogo.
+4. **Sustitución:** el usuario rechaza un ejercicio y elige entre 2 alternativas equivalentes propuestas por la IA.
 
 ### Fuera del alcance del MVP
 Nutrición, wearables, video y consejos médicos. La app mostrará un aviso legal visible.
@@ -78,10 +78,15 @@ Variables de entorno: copiar `.env.example` a `.env` y completar los valores. El
 | Semana | Objetivo | Contenido |
 |---|---|---|
 | S1 | Planificación y setup | Idea, repo, backlog en GitHub Projects, Docker dev/prod, esqueleto, modelo de datos |
-| S2 | Core | Catálogo de ejercicios, rutinas, registro de sesiones, vistas, API REST |
+| S2 | Core | Perfil y objetivo, rutinas y planes semanales, registro de sesiones, vistas, API REST |
 | S3 | Autenticación | Registro/login JWT, rutas protegidas, tests básicos |
 | S4 | IA | Cierre semanal con IA, ajuste conversando, límites de uso |
 | S5 | Calidad y deploy | Explicación y sustitución, deploy en producción, tests, README completo |
 | S6 | Demo Day | Video demo, post final y plan a 30 días |
 
 El detalle de tareas y las publicaciones de LinkedIn están en [`docs/backlog.md`](docs/backlog.md).
+
+## Documentación
+
+- [Flujo de la app](docs/flujo-app.md): cómo se usa de principio a fin.
+- [Modelo de datos](docs/modelo-datos.md): tablas y relaciones.
