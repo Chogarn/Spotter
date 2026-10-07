@@ -1,0 +1,57 @@
+# Entorno de desarrollo: código montado desde tu PC y recarga automática.
+# Uso: docker compose -f docker-compose.dev.yml up --build
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-spotter}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-spotter_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-spotter}
+    ports:
+      # 5434 en tu PC (el 5432 lo usa el Postgres de Windows). Solo accesible desde localhost.
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - spotter_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-spotter} -d ${POSTGRES_DB:-spotter}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-spotter}:${POSTGRES_PASSWORD:-spotter_dev}@db:5432/${POSTGRES_DB:-spotter}
+      JWT_SECRET: ${JWT_SECRET:-solo-para-desarrollo-local}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_DAILY_LIMIT: ${GEMINI_DAILY_LIMIT:-}
+      GEMINI_RPM_LIMIT: ${GEMINI_RPM_LIMIT:-}
+      WATCHFILES_FORCE_POLLING: "true"
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      WATCHPACK_POLLING: "true"
+    ports:
+      # 3001 en tu PC (el 3000 suele estar ocupado por otros proyectos)
+      - "127.0.0.1:3001:3000"
+    volumes:
+      - ./frontend:/app
+      # Mantiene las dependencias instaladas en la imagen, sin pisarlas con la carpeta de tu PC
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+
+volumes:
+  spotter_db_data:

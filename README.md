@@ -65,13 +65,33 @@ spotter/
 └── README.md
 ```
 
-Los archivos `docker-compose.dev.yml` y `docker-compose.prod.yml` se agregan en la semana 1.
+En la raíz está `docker-compose.dev.yml`; el de producción (`docker-compose.prod.yml`) se agrega en la semana 1.
 
 ## Cómo levantar el proyecto
 
-A completar en la semana 1, cuando estén listos los archivos de Docker Compose.
+### Desarrollo (Docker)
 
-Variables de entorno: copiar `.env.example` a `.env` y completar los valores. El archivo `.env` no se sube al repositorio.
+Requiere Docker Desktop abierto. Desde la raíz del proyecto:
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+| Servicio | URL / puerto |
+|---|---|
+| Frontend (Next.js) | http://localhost:3001 |
+| Backend (FastAPI) | http://localhost:8000 (documentación en `/docs`, salud en `/health`) |
+| PostgreSQL | `localhost:5434` |
+
+El código se monta desde tu PC y se recarga solo al guardar. Para apagar todo: `docker compose -f docker-compose.dev.yml down` (agregá `-v` para borrar también los datos de la base).
+
+### Variables de entorno
+
+Para desarrollo con Docker alcanzan los valores por defecto. Si querés cambiarlos o usar tu clave de Gemini, copiá `.env.example` a `.env` y completalo. El archivo `.env` no se sube al repositorio.
+
+### Producción
+
+A completar con el Docker Compose de producción (`docker-compose.prod.yml`).
 
 ## Plan de 6 semanas
 
