@@ -2,6 +2,16 @@
 
 Este documento define las tablas de la base de datos (PostgreSQL). Parte del flujo descrito en [`flujo-app.md`](flujo-app.md) y es la base para los modelos de SQLAlchemy y las migraciones de Alembic.
 
+## Estado de implementación
+
+Las migraciones de Alembic crean estas tablas por etapas:
+
+| Migración | Tablas | Estado |
+|---|---|---|
+| `0001` núcleo | `users`, `profiles`, `exercises`, `week_plans`, `plan_days`, `plan_exercises`, `workout_sessions`, `set_entries` | Implementada |
+| Semana 4 | `plan_proposals`, `ai_calls` | Pendiente: se agregan cuando se construya la IA |
+| Cuando haga falta | `body_weight_logs` | Pendiente |
+
 ## Diagrama
 
 ```mermaid

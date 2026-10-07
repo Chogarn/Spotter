@@ -13,7 +13,7 @@ Columnas del tablero: Backlog, En curso, Revisión, Hecho.
 - [ ] Docker Compose de producción `docker`
 - [ ] Esqueleto de FastAPI con endpoint de salud `backend`
 - [ ] Esqueleto de Next.js con TypeScript `frontend`
-- [ ] Configurar Alembic y primer modelo de datos `backend`
+- [x] Configurar Alembic y primer modelo de datos `backend`
 - [x] Diseñar el modelo de datos `backend` `docs`
 - [x] Publicación LinkedIn 1: el problema y la idea `docs`
 

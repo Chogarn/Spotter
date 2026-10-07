@@ -85,6 +85,24 @@ docker compose -f docker-compose.dev.yml up --build
 
 El código se monta desde tu PC y se recarga solo al guardar. Para apagar todo: `docker compose -f docker-compose.dev.yml down` (agregá `-v` para borrar también los datos de la base).
 
+### Base de datos (migraciones)
+
+Las tablas se crean con Alembic. Con el entorno de desarrollo levantado, desde la raíz del proyecto:
+
+```bash
+docker compose -f docker-compose.dev.yml exec backend alembic upgrade head
+```
+
+Otros comandos útiles (mismo prefijo `docker compose ... exec backend`):
+
+| Comando | Para qué sirve |
+|---|---|
+| `alembic current` | Ver qué migración está aplicada |
+| `alembic revision --autogenerate -m "descripción"` | Generar una migración nueva a partir de los cambios en `backend/app/models.py` (revisarla antes de aplicarla) |
+| `alembic downgrade -1` | Deshacer la última migración |
+
+Las migraciones **no se aplican solas** al arrancar: se corren a mano para no tocar los datos por sorpresa.
+
 ### Variables de entorno
 
 Para desarrollo con Docker alcanzan los valores por defecto. Si querés cambiarlos o usar tu clave de Gemini, copiá `.env.example` a `.env` y completalo. El archivo `.env` no se sube al repositorio.
