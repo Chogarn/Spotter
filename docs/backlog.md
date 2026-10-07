@@ -15,7 +15,7 @@ Columnas del tablero: Backlog, En curso, Revisión, Hecho.
 - [ ] Esqueleto de Next.js con TypeScript `frontend`
 - [ ] Configurar Alembic y primer modelo de datos `backend`
 - [x] Diseñar el modelo de datos `backend` `docs`
-- [ ] Publicación LinkedIn 1: el problema y la idea `docs`
+- [x] Publicación LinkedIn 1: el problema y la idea `docs`
 
 ## S2: Core de funcionalidades
 - [ ] Tabla de ejercicios que se completa al guardar el plan `backend`
