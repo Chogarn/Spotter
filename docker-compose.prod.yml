@@ -1,0 +1,74 @@
+# Entorno de producción: imágenes construidas, sin código montado ni recarga automática.
+# Requiere un archivo .env con las contraseñas (ver .env.example); si falta alguna, el compose se niega a arrancar.
+# Uso: docker compose -f docker-compose.prod.yml up --build -d
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-spotter}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Falta POSTGRES_PASSWORD en el archivo .env}
+      POSTGRES_DB: ${POSTGRES_DB:-spotter}
+    # Sin "ports": la base solo es accesible desde los otros contenedores.
+    volumes:
+      - spotter_prod_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-spotter} -d ${POSTGRES_DB:-spotter}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Paso único: aplica las migraciones de la base y termina. El backend espera a que termine bien.
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    command: alembic upgrade head
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-spotter}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-spotter}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-spotter}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-spotter}
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el archivo .env}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_DAILY_LIMIT: ${GEMINI_DAILY_LIMIT:-}
+      GEMINI_RPM_LIMIT: ${GEMINI_RPM_LIMIT:-}
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        # Se incrusta en el código al compilar: es la URL pública del backend.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3001}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  spotter_prod_db_data:

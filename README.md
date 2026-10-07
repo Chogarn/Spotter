@@ -65,7 +65,7 @@ spotter/
 └── README.md
 ```
 
-En la raíz está `docker-compose.dev.yml`; el de producción (`docker-compose.prod.yml`) se agrega en la semana 1.
+En la raíz están `docker-compose.dev.yml` (desarrollo) y `docker-compose.prod.yml` (producción).
 
 ## Cómo levantar el proyecto
 
@@ -107,9 +107,29 @@ Las migraciones **no se aplican solas** al arrancar: se corren a mano para no to
 
 Para desarrollo con Docker alcanzan los valores por defecto. Si querés cambiarlos o usar tu clave de Gemini, copiá `.env.example` a `.env` y completalo. El archivo `.env` no se sube al repositorio.
 
-### Producción
+### Producción (Docker)
 
-A completar con el Docker Compose de producción (`docker-compose.prod.yml`).
+Imágenes construidas, sin código montado ni recarga automática, con los servicios corriendo sin privilegios de administrador y la base sin puerto expuesto hacia afuera.
+
+1. Crear el archivo `.env` (copiando `.env.example`) con **contraseñas reales**. `POSTGRES_PASSWORD` y `JWT_SECRET` son obligatorios: sin ellos el compose se niega a arrancar.
+2. Si el backend va a estar en otra dirección, definir `NEXT_PUBLIC_API_URL` en el `.env` (se incrusta al compilar el frontend).
+3. Levantar todo:
+
+```bash
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+Las migraciones de la base se aplican solas en un paso previo (servicio `migrate`) y el backend arranca recién cuando terminan bien. Para apagar: `docker compose -f docker-compose.prod.yml down`.
+
+Este compose sirve para correr la aplicación completa como en producción (en tu PC o en un servidor propio). El despliegue en la nube se define en la semana 5.
+
+### Tests del backend
+
+Las dependencias de desarrollo (pytest) están en `backend/requirements-dev.txt`; la imagen de producción no las incluye:
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm --no-deps backend python -m pytest -q
+```
 
 ## Plan de 6 semanas
 

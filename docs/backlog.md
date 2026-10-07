@@ -9,10 +9,10 @@ Columnas del tablero: Backlog, En curso, Revisión, Hecho.
 - [x] Crear repo en GitHub con estructura base `docs`
 - [x] Crear tablero de GitHub Projects con este backlog `docs`
 - [x] Escribir el README (idea, stack, estructura) `docs`
-- [ ] Docker Compose de desarrollo (backend, frontend, PostgreSQL) `docker`
-- [ ] Docker Compose de producción `docker`
-- [ ] Esqueleto de FastAPI con endpoint de salud `backend`
-- [ ] Esqueleto de Next.js con TypeScript `frontend`
+- [x] Docker Compose de desarrollo (backend, frontend, PostgreSQL) `docker`
+- [x] Docker Compose de producción `docker`
+- [x] Esqueleto de FastAPI con endpoint de salud `backend`
+- [x] Esqueleto de Next.js con TypeScript `frontend`
 - [x] Configurar Alembic y primer modelo de datos `backend`
 - [x] Diseñar el modelo de datos `backend` `docs`
 - [x] Publicación LinkedIn 1: el problema y la idea `docs`
