@@ -9,6 +9,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | Migración | Tablas | Estado |
 |---|---|---|
 | `0001` núcleo | `users`, `profiles`, `exercises`, `week_plans`, `plan_days`, `plan_exercises`, `workout_sessions`, `set_entries` | Implementada |
+| `0002` fin de sesión y cierre de semana | Agrega `week_plans.closed_at` y `workout_sessions.finished_at` | Implementada |
 | Semana 4 | `plan_proposals`, `ai_calls` | Pendiente: se agregan cuando se construya la IA |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
@@ -69,6 +70,7 @@ erDiagram
         int id PK
         int user_id FK
         date week_start
+        datetime closed_at
         string status
         string origin
         json original_routine
@@ -97,6 +99,7 @@ erDiagram
         int user_id FK
         int plan_day_id FK
         datetime performed_at
+        datetime finished_at
         string feeling
         text notes
     }
@@ -170,18 +173,19 @@ Ejercicios conocidos por la app. **No hay catálogo precargado**: la tabla crece
 | muscle_group | Opcional; lo propone la IA |
 
 ### week_plans
-Un plan por semana. Las semanas anteriores se conservan como historial.
+Un plan por semana. Las semanas anteriores se conservan como historial. La semana se cierra **a mano**, con un botón; nunca se genera sola por fecha.
 
 | Campo | Detalle |
 |---|---|
-| week_start | Fecha de inicio de la semana |
+| week_start | Cuándo el usuario activó la semana. No tiene que ser un lunes: la semana es un ciclo |
+| closed_at | Cuándo el usuario la cerró con el botón. Vacío mientras sigue abierta |
 | status | `draft`, `active` o `closed` |
 | origin | `generated` (camino A) o `improved` (camino B) |
 | original_routine | JSON con la rutina que cargó el usuario; solo en el camino B |
 | ai_summary | Resumen de evolución que genera la IA al cerrar la semana |
 
 ### plan_days
-Días de entrenamiento de una semana. `day_index` va de 1 a 7 y `title` es el nombre del día (por ejemplo, "Pecho y tríceps").
+Días de entrenamiento de una semana. `day_index` va de 1 a 7 y es el **orden** dentro de la semana ("Día 1", "Día 2"...), no un día del calendario. `title` describe el foco del día (por ejemplo, "Pecho y tríceps").
 
 ### plan_exercises
 Lo **planificado**: qué toca hacer en cada día.
@@ -200,7 +204,8 @@ Una sesión de entrenamiento realizada.
 | Campo | Detalle |
 |---|---|
 | plan_day_id | Día del plan que se entrenó (opcional) |
-| performed_at | Cuándo se hizo |
+| performed_at | Cuándo se empezó |
+| finished_at | Cuándo el usuario tocó "Día completado". Vacío mientras la sesión está en curso; volver a dejarlo vacío la reabre |
 | feeling | `easy`, `good`, `hard` o `pain` |
 | notes | Texto libre opcional ("cómo me sentí") |
 
@@ -236,3 +241,6 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 4. **`ai_calls` no se borra.** Igual que el tope diario de Gemini, depende de contar filas; borrarlas permitiría saltearse el límite. Por eso no hay endpoint para eliminarlas.
 5. **Historial de semanas.** Cada semana es un `week_plan` propio con su estado; al cerrarla pasa a `closed` y se conserva.
 6. **Ediciones manuales respetadas.** `edited_by_user` evita que la IA pise los cambios que hizo el usuario al armar la semana siguiente.
+7. **La semana es un ciclo que el usuario cierra.** `closed_at` queda vacío hasta que el usuario toca "Cerrar semana". Se puede cerrar con días sin hacer: esos días se cuentan como no hechos y viajan a la IA como información.
+8. **Los días se llaman Día 1, Día 2.** `day_index` es un orden, no un día de la semana, así que la semana se puede correr sin que nada se rompa.
+9. **La sesión se cierra con un botón.** `finished_at` distingue una sesión en curso de una terminada, y permite reabrirla. Los datos se guardan a medida que se cargan, no recién al terminar.

@@ -106,7 +106,10 @@ class WeekPlan(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    # Cuándo el usuario activó la semana. No tiene que ser un lunes: la semana es un ciclo.
     week_start: Mapped[date] = mapped_column(Date)
+    # Cuándo el usuario la cerró con el botón. Vacío mientras la semana sigue abierta.
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     status: Mapped[PlanStatus] = mapped_column(
         enum_column(PlanStatus), default=PlanStatus.DRAFT, server_default="draft"
     )
@@ -139,6 +142,7 @@ class PlanDay(Base):
     week_plan_id: Mapped[int] = mapped_column(
         ForeignKey("week_plans.id", ondelete="CASCADE")
     )
+    # Orden dentro de la semana: 1 = "Día 1", 2 = "Día 2"... No es un día del calendario.
     day_index: Mapped[int] = mapped_column(Integer)
     title: Mapped[str] = mapped_column(String(100))
 
@@ -189,6 +193,9 @@ class WorkoutSession(Base):
     performed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    # Cuándo el usuario tocó "Día completado". Vacío mientras la sesión está en curso;
+    # volver a dejarlo vacío reabre la sesión.
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     feeling: Mapped[Feeling | None] = mapped_column(enum_column(Feeling))
     notes: Mapped[str | None] = mapped_column(Text)
 
