@@ -1,0 +1,69 @@
+# Spotter: contexto para asistentes de IA
+
+Spotter es una app web de entrenamiento: el usuario registra lo que entrena y, al cerrar la semana, una IA (Gemini) analiza lo planificado frente a lo real y propone la semana siguiente. Detalle del producto en `README.md`, `docs/flujo-app.md` y `docs/modelo-datos.md`.
+
+## Cómo trabajar acá
+
+- **El usuario está al mando; la IA propone.** Es un proyecto de aprendizaje con un tutor que evalúa que el criterio sea del estudiante. Antes de construir algo, mostrá lo que vas a hacer (maqueta, cambio de tablas, fragmento clave) para que lo corrija. No tomes decisiones de diseño por tu cuenta: preguntalas.
+- Al terminar cada entrega, decí **qué revisar** y **qué decidiste vos sin preguntar**.
+- Explicá en español rioplatense y en lenguaje simple; usá analogías con lo que el usuario ya conoce (Next.js, Git).
+- **Tareas bien definidas.** Cada tarea del backlog debe decir: para qué sirve, cómo se accede, qué ve el usuario, qué acciones puede hacer, si es una vista o componentes, qué datos usa y criterios de aceptación comprobables. Evitar tareas como "Implementar interfaz de usuario".
+- No hacer `git commit` ni `git push` sin que el usuario lo pida o lo apruebe en un plan.
+- Si algo no está confirmado (planes gratuitos de Gemini, Vercel, Render o Railway, límites de uso), no lo des por hecho: verificalo en la fuente oficial.
+
+## Stack
+
+FastAPI + Pydantic + SQLAlchemy 2.x + Alembic + PostgreSQL 17 + JWT (backend, Python 3.12 en Docker) · Next.js 16 + TypeScript (frontend) · Gemini (IA) · pytest · Docker Compose (dev y prod).
+Usamos SQLAlchemy solo, **sin SQLModel**. Pydantic valida la API y las respuestas de la IA.
+
+## Estructura
+
+`backend/app/` (main.py, db.py, enums.py, models.py), `backend/migrations/`, `backend/tests/`, `frontend/src/app/`, `docs/`, `docker-compose.dev.yml`, `docker-compose.prod.yml`.
+
+## Comandos
+
+```bash
+# Levantar desarrollo
+docker compose -f docker-compose.dev.yml up --build -d
+# Migraciones (a mano en desarrollo)
+docker compose -f docker-compose.dev.yml exec backend alembic upgrade head
+# Tests del backend
+docker compose -f docker-compose.dev.yml run --rm --no-deps backend python -m pytest -q
+# Producción local (requiere .env con POSTGRES_PASSWORD y JWT_SECRET)
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+Puertos de desarrollo: frontend **3001**, backend **8000**, PostgreSQL **5434**.
+
+## Restricción dura: la IA nunca debe generar costo
+
+El plan gratuito de Gemini no puede superarse. La IA todavía no está implementada; cuando se haga:
+- Cada llamada a Gemini escribe una fila en `ai_calls`, que **no se borra nunca**. Los topes diario y por minuto se calculan contando esas filas. No agregar endpoints que las eliminen.
+- El tope diario y el de llamadas por minuto se aplican **antes** de llamar a Gemini. Los valores se configuran por entorno (`GEMINI_DAILY_LIMIT`, `GEMINI_RPM_LIMIT`) y hay que fijarlos con los límites vigentes verificados.
+- La IA se llama solo cuando el usuario toca un botón (cierre de semana, ajuste, mejora). Nunca en segundo plano ni por fecha.
+
+## Decisiones de producto (tomadas por el usuario)
+
+- **El objetivo es obligatorio.** Son 5: masa, fuerza, perder grasa, condición general y mantenerme activo. Después hay dos caminos: la app crea la primera rutina, o el usuario carga la que ya hace.
+- **La IA propone y el usuario decide.** Toda propuesta (ajuste, cierre de semana, mejora) se guarda primero y se escribe en el plan **solo al aceptarla**, con vista previa antes/después.
+- **El cierre de semana es manual**, con un botón. Nunca se genera la semana siguiente por fecha. La semana es un ciclo: `week_start` es cuándo se activó y `closed_at` cuándo se cerró. Se puede cerrar con días sin hacer: esos días viajan a la IA como información.
+- **Los días se llaman "Día 1, Día 2"**, no lunes o martes. `plan_days.day_index` es un orden, no un día del calendario.
+- **Planificado y real van separados:** `plan_exercises` (lo que toca) y `set_entries` (lo que se hizo). El análisis sale de esa diferencia.
+- **Un tilde por ejercicio:** sin cambios significa "lo hice como estaba planificado"; si el usuario edita los números, queda lo real. Un botón "Día completado" cierra la sesión (`workout_sessions.finished_at`); los datos se guardan a medida que se cargan, no al final.
+- **Los ejercicios crecen solos:** no hay catálogo precargado. La IA elige libremente y la tabla `exercises` se completa al guardar el plan, deduplicando por `name_normalized`.
+- El usuario puede **editar a mano** series, repeticiones y peso; la IA respeta esas ediciones.
+- Fuera del MVP: nutrición, wearables, video y consejos médicos. La IA no da diagnósticos; ante dolor puede bajar la carga o cambiar el ejercicio y muestra un aviso legal.
+
+Ideas futuras (sin definir, no implementar): rachas, logros, entrada por voz y notificaciones. Están en `docs/backlog.md`.
+
+## Trampas del entorno (descubiertas probando)
+
+- **Alembic + Enum:** `--autogenerate` repite cada restricción CHECK de los enumerados (error de nombre duplicado en PostgreSQL). **Leer siempre la migración generada** y dejar una sola copia antes de aplicarla. No editar migraciones ya aplicadas: crear una nueva.
+- `backend/migrations/env.py` lee `DATABASE_URL` (se adapta a `postgresql+psycopg://` en `app/db.py`); la URL de `alembic.ini` está comentada a propósito.
+- **Next.js 16 tiene cambios incompatibles** con lo que se suele conocer. Antes de escribir código de frontend, leer `frontend/AGENTS.md` y la documentación local en `frontend/node_modules/next/dist/docs/`. Tras instalar, `npx next typegen` genera tipos como `LayoutProps`.
+- **El frontend de desarrollo en Docker usa `--webpack`:** en volúmenes de Windows hace falta sondeo de archivos (`WATCHPACK_POLLING`) y Turbopack, el empaquetador por defecto, no lo usa; sin eso no recarga.
+- `NEXT_PUBLIC_*` se incrusta al compilar: en producción es un argumento de build.
+- **Puertos:** el 5432 lo ocupa un Postgres nativo de Windows y el 3000 suele estar ocupado por otros proyectos; por eso Spotter usa 5434 y 3001. No tocar los contenedores de otros proyectos (`gestor-gastos`, `image_identifier_db`).
+- El `gh` (GitHub CLI) no está en el PATH: `C:\Program Files\GitHub CLI\gh.exe`. En PowerShell, los comandos con rutas entre comillas en una sola línea fallan a veces: usar un archivo `.ps1`.
+- **GitHub Projects:** el tablero es el proyecto 1 de `Chogarn` con columnas Todo, Esta semana, In Progress y Done. **Modificar las opciones del campo Status regenera todos los IDs y deja las tareas sin estado**: guardar el estado antes y restaurarlo después.
+- Los avisos de git sobre LF y CRLF son inofensivos en este equipo.

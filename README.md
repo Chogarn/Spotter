@@ -2,9 +2,7 @@
 
 > Un entrenador que mira tu progreso real y te arma la semana siguiente.
 
-Spotter es una aplicación web para quienes entrenan solos en el gimnasio. El usuario registra sus sesiones y, al cerrar cada semana, una IA analiza su historial y le arma la semana siguiente: qué subir, qué mantener y qué cambiar.
-
-> Estado: planificación (semana 1). Este README se irá completando durante el desarrollo.
+Spotter es una aplicación web para quienes entrenan solos en el gimnasio. El usuario registra lo que entrena y, cuando cierra la semana, una IA analiza su historial y le propone la siguiente: qué subir, qué mantener y qué cambiar. El usuario siempre decide si acepta o descarta lo que la IA propone.
 
 ## Problema
 
@@ -14,29 +12,39 @@ Quien entrena solo no sabe cuándo subir el peso, cuándo cambiar un ejercicio n
 
 Personas que entrenan por su cuenta (de principiante a intermedio) y no pueden pagar un entrenador personal.
 
-## Solución
+## Cómo funciona
 
-El usuario registra cada sesión (peso, repeticiones y esfuerzo percibido). Al cerrar la semana, Spotter analiza ese historial y genera la semana siguiente, que se puede ajustar conversando con la IA.
+1. El usuario se registra y completa sus datos: edad, peso, altura, nivel, días de entrenamiento, duración de las sesiones, equipamiento y limitaciones.
+2. **Elige su objetivo** (obligatorio): ganar masa muscular, ganar fuerza, perder grasa, mejorar la condición general o mantenerse activo.
+3. Empieza de una de dos formas:
+   - **La app crea su primera rutina** a partir del perfil y el objetivo.
+   - **Carga la rutina que ya hace** (ejercicio, series × repeticiones y peso en kilos) y la IA se la mejora.
+4. La semana se organiza en días: **Día 1, Día 2, Día 3**... en lugar de lunes o martes, así el usuario entrena a su ritmo.
+5. En cada día, cada ejercicio muestra lo planificado (por ejemplo, press banca 3 × 8 con 50 kg). El usuario lo **tilda** si lo hizo tal cual, o carga lo que realmente hizo (3 × 10 con 40 kg).
+6. Al terminar, toca **"Día completado"** y, si quiere, cuenta cómo se sintió.
+7. Cuando decide, toca **"Cerrar semana"**: la IA compara lo planificado con lo real (incluidos los días que no se hicieron) y propone la semana siguiente.
+
+El cierre es siempre manual: nada se genera solo por fecha.
 
 ## Funcionalidades
 
 ### Base
 - Registro e inicio de sesión (JWT).
-- Perfil: objetivo, nivel, días disponibles, equipamiento y limitaciones.
-- Objetivo obligatorio (masa muscular, fuerza, perder grasa, condición general o mantenerme activo) y dos caminos para empezar: que la app cree la primera rutina o cargar la que ya hace para que la IA la mejore.
-- Crear y editar rutinas.
-- Registro de sesiones: peso, repeticiones y esfuerzo (1 a 10).
+- Perfil con objetivo obligatorio.
+- Rutinas semanales organizadas en días y ejercicios, con edición manual (series, repeticiones y peso).
+- Registro de sesiones: lo realizado frente a lo planificado, con esfuerzo del 1 al 10 y una nota de cómo se sintió.
 
 ### Valor de la IA
-La IA trabaja sobre los datos del usuario y cada interacción modifica la aplicación; no es un chat genérico.
+La IA trabaja sobre los datos del usuario y siempre **propone**: el usuario ve una vista previa de los cambios y los acepta o los descarta. No es un chat genérico.
 
-1. **Cierre semanal:** analiza el historial y devuelve qué subir, qué mantener, qué cambiar por estancamiento y dónde hay fatiga. Genera la semana siguiente y un resumen de evolución.
-2. **Ajuste conversando:** "solo puedo 3 días", "no tengo esa máquina", "me molesta el hombro". La IA regenera la semana y el cambio queda guardado en la rutina.
-3. **Explicación por ejercicio:** botón "¿por qué esto?" con la razón basada en los números del usuario.
-4. **Sustitución:** el usuario rechaza un ejercicio y elige entre 2 alternativas equivalentes propuestas por la IA.
+1. **Primera rutina o mejora de la existente**, según el objetivo.
+2. **Cierre de semana:** analiza el historial y devuelve qué subir, qué mantener, qué cambiar por estancamiento y dónde hay fatiga, y propone la semana siguiente con un resumen de evolución.
+3. **Ajuste conversando:** "solo puedo 3 días", "no tengo esa máquina", "me molesta el hombro". La IA propone una versión modificada de la semana.
+4. **Explicación por ejercicio:** botón "¿por qué esto?" con la razón basada en los números del usuario.
+5. **Sustitución:** el usuario rechaza un ejercicio y elige entre 2 alternativas propuestas por la IA.
 
 ### Fuera del alcance del MVP
-Nutrición, wearables, video y consejos médicos. La app mostrará un aviso legal visible.
+Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal visible.
 
 ## Tecnologías
 
@@ -44,7 +52,7 @@ Nutrición, wearables, video y consejos médicos. La app mostrará un aviso lega
 |---|---|
 | FastAPI | API del backend en Python; genera la documentación (`/docs`) automáticamente |
 | Pydantic | Valida los datos del usuario y las respuestas de la IA antes de guardarlas |
-| SQLAlchemy / SQLModel | Trabajar con la base de datos usando clases de Python |
+| SQLAlchemy | Trabajar con la base de datos usando clases de Python |
 | PostgreSQL | Base de datos relacional |
 | Alembic | Migraciones: versiona los cambios de estructura de la base de datos |
 | JWT | Autenticación de usuarios |
@@ -52,20 +60,30 @@ Nutrición, wearables, video y consejos médicos. La app mostrará un aviso lega
 | pytest | Tests automáticos del backend |
 | Docker Compose | Entornos de desarrollo y producción en contenedores |
 | Gemini | IA: plan gratuito, respuestas en JSON, con topes de uso diarios y por minuto |
-| Vercel + Render/Railway | Deploy (a confirmar según los planes gratuitos vigentes) |
 
 ## Estructura de carpetas
 
 ```
 spotter/
-├── backend/        # API FastAPI (app/, tests/, Dockerfile)
-├── frontend/       # Next.js + TypeScript (src/, Dockerfile)
-├── docs/           # Documentación y backlog
-├── .env.example    # Variables de entorno de ejemplo
+├── backend/
+│   ├── app/                  # API: main.py, db.py, enums.py, models.py
+│   ├── migrations/           # Migraciones de Alembic
+│   ├── tests/                # Tests con pytest
+│   ├── Dockerfile            # Imagen de desarrollo
+│   ├── Dockerfile.prod       # Imagen de producción
+│   ├── requirements.txt      # Dependencias de producción
+│   └── requirements-dev.txt  # Dependencias de desarrollo (pytest)
+├── frontend/
+│   ├── src/app/              # Páginas (Next.js, App Router)
+│   ├── Dockerfile            # Imagen de desarrollo
+│   └── Dockerfile.prod       # Imagen de producción
+├── docs/                     # Flujo, modelo de datos y backlog
+├── docker-compose.dev.yml    # Entorno de desarrollo
+├── docker-compose.prod.yml   # Entorno de producción
+├── .env.example              # Variables de entorno de ejemplo
+├── CLAUDE.md                 # Contexto del proyecto para asistentes de IA
 └── README.md
 ```
-
-En la raíz están `docker-compose.dev.yml` (desarrollo) y `docker-compose.prod.yml` (producción).
 
 ## Cómo levantar el proyecto
 
@@ -101,7 +119,7 @@ Otros comandos útiles (mismo prefijo `docker compose ... exec backend`):
 | `alembic revision --autogenerate -m "descripción"` | Generar una migración nueva a partir de los cambios en `backend/app/models.py` (revisarla antes de aplicarla) |
 | `alembic downgrade -1` | Deshacer la última migración |
 
-Las migraciones **no se aplican solas** al arrancar: se corren a mano para no tocar los datos por sorpresa.
+En desarrollo las migraciones **no se aplican solas**: se corren a mano para no tocar los datos por sorpresa.
 
 ### Variables de entorno
 
@@ -119,9 +137,9 @@ Imágenes construidas, sin código montado ni recarga automática, con los servi
 docker compose -f docker-compose.prod.yml up --build -d
 ```
 
-Las migraciones de la base se aplican solas en un paso previo (servicio `migrate`) y el backend arranca recién cuando terminan bien. Para apagar: `docker compose -f docker-compose.prod.yml down`.
+Las migraciones se aplican solas en un paso previo (servicio `migrate`) y el backend arranca recién cuando terminan bien. Para apagar: `docker compose -f docker-compose.prod.yml down`.
 
-Este compose sirve para correr la aplicación completa como en producción (en tu PC o en un servidor propio). El despliegue en la nube se define en la semana 5.
+Este compose corre la aplicación completa como en producción, en tu PC o en un servidor propio. El despliegue en la nube todavía no está definido.
 
 ### Tests del backend
 
@@ -131,20 +149,9 @@ Las dependencias de desarrollo (pytest) están en `backend/requirements-dev.txt`
 docker compose -f docker-compose.dev.yml run --rm --no-deps backend python -m pytest -q
 ```
 
-## Plan de 6 semanas
-
-| Semana | Objetivo | Contenido |
-|---|---|---|
-| S1 | Planificación y setup | Idea, repo, backlog en GitHub Projects, Docker dev/prod, esqueleto, modelo de datos |
-| S2 | Core | Perfil y objetivo, rutinas y planes semanales, registro de sesiones, vistas, API REST |
-| S3 | Autenticación | Registro/login JWT, rutas protegidas, tests básicos |
-| S4 | IA | Cierre semanal con IA, ajuste conversando, límites de uso |
-| S5 | Calidad y deploy | Explicación y sustitución, deploy en producción, tests, README completo |
-| S6 | Demo Day | Video demo, post final y plan a 30 días |
-
-El detalle de tareas y las publicaciones de LinkedIn están en [`docs/backlog.md`](docs/backlog.md).
-
 ## Documentación
 
 - [Flujo de la app](docs/flujo-app.md): cómo se usa de principio a fin.
 - [Modelo de datos](docs/modelo-datos.md): tablas y relaciones.
+- [Backlog](docs/backlog.md): tareas e ideas para más adelante.
+- [CLAUDE.md](CLAUDE.md): decisiones y convenciones del proyecto para asistentes de IA.

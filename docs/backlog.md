@@ -61,3 +61,18 @@ Columnas del tablero: Backlog, En curso, Revisión, Hecho.
 - [ ] Video demo `docs`
 - [ ] Publicación LinkedIn final con la demo `docs`
 - [ ] Plan a 30 días `docs`
+
+## Ideas para después (fuera del MVP, sin definir)
+
+Ideas anotadas durante el diseño. No son tareas todavía: antes de convertirlas en issues hay que definirlas (qué ve el usuario, qué acciones tiene, criterios de aceptación).
+
+- **Sistema de rachas por día, semana y mes.** Premiar la constancia, apoyado en el botón "Día completado" (sesión terminada) para que el usuario sienta satisfacción y motivación.
+  - A definir: qué cuenta como día cumplido, como semana cumplida y como mes cumplido; qué rompe una racha; dónde se muestra.
+  - Punto a decidir: la racha diaria debería contar los **días planificados**, no los días del calendario, para que un día de descanso no la rompa.
+  - Se podría calcular con datos que ya existen (sesiones terminadas y series reales), sin tablas nuevas.
+- **Logros y récords personales** (relacionado con las rachas): marcas como "mejor peso en press banca".
+- **Entrada por voz** para contar cómo se sintió el usuario (hoy solo texto y botones rápidos).
+- **Notificaciones al usuario.** Avisos que ayudan a seguir el plan, por ejemplo: "Hoy te toca el Día 3", "Tenés pendiente el Día 2" o "Te salteaste el Día 4".
+  - A definir: por qué canal llegan (dentro de la app, correo, avisos del navegador o del celular), cuándo se envían, qué eventos las disparan y cómo se desactivan.
+  - Punto a decidir: respetar el control del usuario. Como el cierre de la semana es manual y los días se llaman "Día 1, Día 2" (no lunes ni martes), los avisos deberían **sugerir** ("completaste todos los días, ¿cerrar la semana?") y nunca hacer nada solos.
+  - Se podrían calcular con datos que ya existen (el plan activo y las sesiones terminadas); lo nuevo sería el envío y las preferencias del usuario.

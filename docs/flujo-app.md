@@ -1,6 +1,6 @@
 # Flujo de Spotter
 
-Este documento describe cómo se usa la aplicación de principio a fin. Es la base para definir las pantallas, la API y el modelo de datos.
+Este documento describe cómo se usa la aplicación de principio a fin. Es la base para definir las pantallas, la API y el modelo de datos. Las decisiones de producto reflejadas acá las tomó el usuario; los puntos que todavía no están decididos figuran al final.
 
 ## Resumen en pasos
 
@@ -9,10 +9,11 @@ Este documento describe cómo se usa la aplicación de principio a fin. Es la ba
 3. Elige cómo empezar:
    - **Camino A:** la app crea su primera rutina.
    - **Camino B:** carga la rutina que ya hace y la app se la mejora.
-4. Entrena y registra lo que realmente hizo, comparado con lo planificado.
-5. Si necesita un cambio durante la semana, se lo pide a la IA, que propone y el usuario confirma.
-6. Cierra la semana: la IA analiza lo ocurrido y propone la semana siguiente.
-7. Vuelve al paso 4.
+4. La semana se organiza en días: **Día 1, Día 2, Día 3**... El usuario entrena a su ritmo.
+5. En cada día **tilda** los ejercicios que hizo como estaban planificados o carga lo que realmente hizo, y termina con **"Día completado"**.
+6. Si necesita un cambio durante la semana, se lo pide a la IA, que propone y el usuario decide.
+7. Cuando él decide, toca **"Cerrar semana"**: la IA analiza lo planificado frente a lo real y propone la semana siguiente.
+8. Vuelve al paso 5.
 
 ## Diagrama
 
@@ -25,26 +26,26 @@ flowchart TD
     D -->|B| F[Cargar mi rutina actual<br/>nombre, series x reps, peso kg]
     F --> G[La IA propone una versión mejorada]
     G --> H{Usuario revisa}
-    H -->|Acepta| I[Semana 1 activa]
+    H -->|Acepta| I[Semana activa<br/>Día 1, Día 2, Día 3...]
     H -->|Descarta| F
     E --> J{Usuario revisa}
     J -->|Acepta| I
     J -->|Descarta| E
-    I --> K[Entrenar: registrar lo real<br/>vs. lo planificado]
-    K --> L[Cómo me sentí<br/>botones + texto, opcional]
-    L --> M{¿Hay ejercicios que se<br/>repiten en la semana?}
-    M -->|Sí| N[La IA propone ajustar<br/>la próxima sesión]
-    N --> O{Usuario confirma}
-    O -->|Acepta o descarta| P
-    M -->|No| P{¿Fin de semana?}
-    P -->|No| K
-    P -->|Sí| Q[Cerrar semana]
-    Q --> R[La IA analiza, resume<br/>y propone la semana siguiente]
-    R --> S{Usuario revisa}
+    I --> K[Elegir un día y entrenar<br/>tildar o cargar lo real]
+    K --> L[Día completado<br/>cómo me sentí, opcional]
+    L --> M{¿Hay ejercicios que se<br/>repiten más adelante?}
+    M -->|Sí| N[La IA propone ajustar<br/>la próxima vez]
+    N --> O{Usuario revisa}
+    O --> P
+    M -->|No| P{¿Cerrar la semana?}
+    P -->|Todavía no| K
+    P -->|Sí, botón| Q[Cerrar semana<br/>aunque falten días]
+    Q --> R[La IA analiza lo hecho,<br/>lo no hecho y cómo se sintió]
+    R --> S{Usuario revisa<br/>la semana propuesta}
     S -->|Acepta| T[Nueva semana activa]
     T --> K
     I -. pedido de ajuste .-> U[La IA propone cambio<br/>con vista previa]
-    U -.-> V{Usuario confirma}
+    U -.-> V{Usuario decide}
     V -.->|Acepta| I
 ```
 
@@ -70,7 +71,7 @@ Se piden una sola vez y se pueden editar después.
 - Altura (cm)
 - Nivel de experiencia: principiante, intermedio o avanzado
 - Objetivo (uno de los 5)
-- Días por semana que puede entrenar
+- Cantidad de días de entrenamiento de la semana (de 1 a 7). No se eligen días concretos del calendario
 - Duración aproximada de cada sesión
 - Equipamiento: gimnasio completo, mancuernas o en casa
 
@@ -95,38 +96,56 @@ Se piden una sola vez y se pueden editar después.
 2. La IA devuelve una versión mejorada según su objetivo, con el motivo de cada cambio.
 3. La rutina original se conserva. El usuario acepta o descarta los cambios.
 
-## Ciclo semanal
+## La semana y los días
 
-### Cadencia
-La reestructuración completa se hace una vez por semana. Hasta el cierre, la IA no cambia el plan sola: solo propone ajustes y el usuario los acepta. Cada semana queda guardada como un plan propio, así se arma un historial.
+### La semana es un ciclo
+La semana no está atada al calendario: empieza cuando el usuario la activa y termina cuando la cierra con el botón. Si tarda más de siete días en completarla, sigue siendo la misma semana. Solo hay una semana activa a la vez, y las semanas anteriores se conservan como historial.
+
+### Días: "Día 1, Día 2"
+Los días se nombran por orden y no por día de la semana (no hay "lunes" ni "martes"). Cada día tiene un título que describe su foco, por ejemplo "Día 1 · Pecho y tríceps". La app puede sugerir el siguiente: el primer día que todavía no se hizo.
+
+## Entrenar un día
 
 ### Planificado vs. real
 Cada día indica qué toca hacer por ejercicio. Ejemplo:
 
-> Hoy toca press banca **3 × 8 con 50 kg**.
+> Toca press banca **3 × 8 con 50 kg**.
 
-El usuario registra lo que realmente hizo:
+El usuario tiene dos formas de registrarlo, con un solo tilde por ejercicio:
 
-> Hice **3 × 10 con 40 kg**.
+| Lo que hace | Qué queda guardado |
+|---|---|
+| Tilda el ejercicio sin cambiar nada | Se interpreta que lo hizo tal cual: 3 × 8 con 50 kg |
+| Carga lo que realmente hizo (3 × 10 con 40 kg) | Queda lo que escribió y el ejercicio se marca como hecho solo |
+| No toca nada | El ejercicio queda como no hecho |
 
-La app guarda ambos lados y los compara ejercicio por ejercicio: si cumplió, si superó lo planificado o si no llegó, y con más o menos carga. De esa diferencia salen el análisis y la reestructuración.
+Si se tilda sin cambios, se generan las series reales copiando el plan, así "hecho" siempre significa "tiene series reales". Destildar borra esas series. De la diferencia entre lo planificado y lo real salen el análisis y la reestructuración.
 
-### Ejercicios que se repiten en la semana
-Si un ejercicio aparece en más de un día (por ejemplo, press banca el lunes y el jueves), lo registrado en la primera sesión también ajusta la segunda.
+### Día completado
+Al final del día el usuario toca **"Día completado"**:
 
-Al terminar una sesión, la app detecta los ejercicios que se repiten más adelante en la semana. Si hay alguno, la IA propone el cambio para esa próxima aparición, con vista previa y confirmación del usuario. Es una llamada a Gemini por sesión y solo cuando hay ejercicios repetidos.
+- La sesión queda cerrada, y se puede reabrir para corregir.
+- Los ejercicios sin tildar quedan como no hechos.
+- Los datos se guardan a medida que se cargan, no recién al terminar: si se corta la app a mitad del entrenamiento no se pierde nada.
+- Un día está completo cuando todos sus ejercicios están hechos, y a medias si solo algunos.
+- Es también un cierre con sensación de logro para el usuario: un resumen de lo que hizo y el avance de la semana ("3 de 4 días").
 
 ### Cómo me sentí
-Al terminar la sesión, de forma opcional:
+Al terminar el día, de forma opcional:
 - Botones rápidos: fácil, bien, duro, con dolor.
 - Un campo de texto libre ("me quedé sin aire en la tercera serie", "me molestó la rodilla").
 
-Se guarda con la sesión y la IA lo lee junto con los números al cerrar la semana, sin llamada extra a Gemini. Si indica dolor, la IA puede bajar la carga o cambiar el ejercicio, pero no da diagnósticos y se muestra el aviso de consultar a un profesional. La entrada por voz queda como mejora futura.
+Se guarda con la sesión y la IA lo lee junto con los números al cerrar la semana, sin llamada extra a Gemini. Si indica dolor, la IA puede bajar la carga o cambiar el ejercicio, pero no da diagnósticos y se muestra el aviso de consultar a un profesional.
+
+### Ejercicios que se repiten en la semana
+Si un ejercicio aparece en más de un día (por ejemplo, press banca en el Día 1 y en el Día 3), lo registrado la primera vez también ajusta la segunda. Al completar un día, la app detecta los ejercicios que se repiten más adelante y, si hay alguno, la IA propone el cambio para esa próxima aparición, con vista previa y confirmación. Es una llamada a Gemini por día completado y solo cuando hay ejercicios repetidos.
 
 ### Edición manual
 Sin pasar por la IA, el usuario puede cambiar series, repeticiones y peso, o quitar un ejercicio. Esos cambios quedan marcados y la IA los respeta al armar la semana siguiente.
 
-### Ajuste a mitad de semana con IA
+## La IA propone, el usuario decide
+
+### Ajuste durante la semana
 El usuario escribe un pedido dentro de la pantalla de la semana ("solo puedo 3 días", "no tengo esa máquina", "me molesta el hombro"). La IA devuelve una **propuesta**, no un cambio directo:
 
 1. Se muestra una vista previa antes y después (qué día, ejercicio o carga cambia y por qué).
@@ -136,10 +155,14 @@ El usuario escribe un pedido dentro de la pantalla de la semana ("solo puedo 3 d
 Cada pedido cuenta como una llamada a Gemini.
 
 ### Cerrar la semana
-1. La IA analiza lo registrado contra lo planificado y los cambios manuales.
-2. Muestra un resumen de evolución: qué subió, qué se estancó y dónde hay fatiga.
-3. Propone la semana siguiente.
-4. El usuario la revisa y la acepta antes de que quede activa.
+El cierre es siempre **manual**, con un botón. Nunca se genera la semana siguiente por fecha: el usuario puede haber descansado o haberse atrasado, y el control es suyo.
+
+1. El usuario toca "Cerrar semana". Puede hacerlo aunque falten días.
+2. Los días no hechos se cuentan como no hechos y viajan a la IA como información, junto con lo planificado, lo real, las ediciones manuales y cómo se sintió.
+3. La IA muestra un resumen de evolución (qué subió, qué se estancó y dónde hay fatiga) y propone la semana siguiente. Para un día no hecho puede sugerir recuperarlo, repartirlo o dejarlo, siempre como propuesta.
+4. El usuario revisa la semana propuesta y la acepta antes de que quede activa. Mientras no cierre la semana, no se genera nada.
+
+Como el cierre es una acción del usuario, el gasto en IA es predecible: una llamada por cierre.
 
 ## Pantallas
 
@@ -148,26 +171,29 @@ Cada pedido cuenta como una llamada a Gemini.
 3. Elegir objetivo (obligatoria)
 4. Elegir camino A o B
 5. Formulario de rutina actual (camino B)
-6. Semana y día
-7. Registro de sesión (con "cómo me sentí")
-8. Resumen semanal
+6. Semana y sus días
+7. Día de entrenamiento (tildar o cargar, y "Día completado")
+8. Resumen del día y "cómo me sentí"
+9. Cierre y resumen de la semana
 
 ## Puntos abiertos
 
 Todavía no están decididos:
 
-- El ajuste de ejercicios repetidos dentro de la semana: ¿lo hace la IA (una llamada por sesión) o una regla simple sin IA, más barata y predecible?
-- ¿Cómo se dispara el cierre de semana? Se recomienda un botón "Cerrar semana", en lugar de un cierre automático.
-- ¿Dónde vive el pedido de ajuste? Se recomienda una caja de texto dentro de la pantalla de la semana, en lugar de un chat aparte.
+- **Reabrir un día completado.** Se propone permitirlo, para poder corregir un número.
+- **Cerrar con días sin hacer.** El cierre está permitido; se propone que la app avise qué días faltan y pida confirmación antes de cerrar.
+- **Avisos al usuario.** Se propone, a futuro, algo suave que sugiera sin hacer nada solo (por ejemplo, "completaste todos los días, ¿cerrar la semana?"). Ver las ideas en `docs/backlog.md`.
+- **Ajuste de ejercicios repetidos.** ¿Lo hace la IA (una llamada por día completado) o una regla simple sin IA, más barata y predecible?
+- **Dónde vive el pedido de ajuste.** Se recomienda una caja de texto dentro de la pantalla de la semana, en lugar de un chat aparte.
 
 ## Efectos sobre el modelo de datos
 
-Se anotan acá y se aplican cuando se defina el modelo (issue #10):
+Lo ya aplicado está en `docs/modelo-datos.md`. Resumen de cómo se refleja este flujo:
 
 - `profiles`: edad, peso, altura, sexo (opcional) y duración de sesión; el objetivo es obligatorio y uno de los 5 valores.
-- `week_plans`: campo de origen (`generated` o `improved`) y, en el camino B, la rutina original cargada por el usuario.
-- `plan_proposals`: lo que propone la IA (ajuste, cierre semanal o mejora del camino B), con estado `pending`, `accepted` o `discarded`. Solo al aceptar se escribe en `week_plans`.
+- `week_plans`: `week_start` es cuándo se activó la semana, `closed_at` cuándo se cerró, y un campo de origen (`generated` o `improved`) con la rutina original en el camino B.
+- `plan_days`: `day_index` es el orden (Día 1, Día 2...), no un día del calendario.
 - `plan_exercises`: lo planificado (series, repeticiones, peso objetivo), con un marcador `edited_by_user`.
 - `set_entries`: lo real (series, repeticiones, peso en kg y esfuerzo opcional), enlazado al ejercicio planificado para comparar.
-- `workout_sessions`: `feeling` (easy, good, hard o pain) y `notes` (texto libre opcional).
-- `ai_calls`: una fila por cada llamada a la IA, para aplicar los topes de uso de Gemini.
+- `workout_sessions`: `finished_at` (se completa con "Día completado"), `feeling` (easy, good, hard o pain) y `notes`.
+- `plan_proposals` y `ai_calls`: propuestas de la IA (`pending`, `accepted` o `discarded`; solo al aceptar se escribe en el plan) y registro de cada llamada para los topes de Gemini. Se crean cuando se construya la IA.
