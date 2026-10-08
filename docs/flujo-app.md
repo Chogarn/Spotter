@@ -139,6 +139,10 @@ Cada ejercicio muestra una **fila compacta** con un solo tilde. Si el usuario la
 - **Tilde sin cambios:** se crea una serie real por cada serie planificada, con su propio peso.
 - **Indicaciones de ejecución:** cada ejercicio puede mostrar su indicación ("bajar lento, pausa de 2 segundos arriba"). El usuario la escribe o la edita, y la IA puede proponerla al armar o mejorar la rutina. Se muestran como orientativas, no como consejo de un profesional, junto con el aviso legal.
 
+### Descanso y movilidad
+- **Descanso:** cada ejercicio muestra el **descanso entre series** sugerido por la IA (por ejemplo, "2 min"). El usuario lo puede cambiar. Es un campo propio del ejercicio, no se calcula.
+- **Movilidad y equilibrio:** cada día puede traer un **texto** con la movilidad y el equilibrio del día (por ejemplo, "5 a 10 min de movilidad de cadera"), en dos días por semana. No tiene series ni tilde: es una indicación que el usuario lee y puede editar.
+
 ### Cardio
 El cardio (cinta, bicicleta, remo, caminata) es **un ejercicio más de la rutina**, pero se mide en **minutos** en vez de series y repeticiones.
 

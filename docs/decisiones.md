@@ -140,6 +140,30 @@ Reglas para perder grasa (fuerza y cardio), condición general y mantenerse acti
 - **Descartaste:** *(completar)*
 - **Ojo:** R20, R24 y R25 son síntesis del investigador, y R29 es una deducción sin verificar en la tabla original.
 
+### 23. El descanso es un campo propio y editable
+Cada ejercicio guarda su descanso entre series (`rest_seconds`). La IA lo propone según el tipo de ejercicio y el usuario lo puede cambiar.
+- **Origen:** tuya (elegiste el campo propio entre mis opciones).
+- **Por qué:** querés que el descanso sea editable y no un cálculo. *(completar el resto)*
+- **Descartaste:** calcularlo sin guardarlo; no mostrar el descanso.
+
+### 24. La movilidad y el equilibrio van como un texto del día
+Un texto opcional por día (`mobility_notes`), sin series ni tilde.
+- **Origen:** tuya ("quizás texto").
+- **Por qué:** *(completar)*
+- **Descartaste:** otro tipo de ejercicio con series (queda como posibilidad futura).
+
+### 25. Se aprueban C1 y C5 como R32 y R33
+El objetivo "perder grasa" incluye cardio (R32) y su intensidad se indica en las indicaciones de ejecución (R33).
+- **Origen:** tuya.
+- **Por qué:** *(completar)*
+
+### 26. Umbrales de fatiga y dolor
+Se sugiere una semana más liviana si el rendimiento del mismo ejercicio baja en 2 sesiones seguidas con esfuerzo de 9 a 10, o si ese esfuerzo se sostiene 3 sesiones o más. Para el dolor se usa el semáforo de 0 a 10: hasta 2 seguir, de 3 a 5 bajar carga o cambiar el ejercicio, más de 5 o dolor de riesgo parar y derivar (R30 y R31).
+- **Origen:** elegida entre opciones (propuestas por la IA a partir de la investigación).
+- **Por qué:** *(completar)*
+- **Descartaste:** una descarga a calendario fijo.
+- **Ojo:** los estudios no dan umbrales validados; son una elección de diseño. Queda abierto cuánto se reduce el volumen.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
