@@ -32,6 +32,11 @@ class PlanOrigin(str, enum.Enum):
     IMPROVED = "improved"
 
 
+class ExerciseKind(str, enum.Enum):
+    STRENGTH = "strength"
+    CARDIO = "cardio"
+
+
 class Feeling(str, enum.Enum):
     EASY = "easy"
     GOOD = "good"

@@ -24,7 +24,15 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
-from app.enums import Equipment, Feeling, Goal, Level, PlanOrigin, PlanStatus
+from app.enums import (
+    Equipment,
+    ExerciseKind,
+    Feeling,
+    Goal,
+    Level,
+    PlanOrigin,
+    PlanStatus,
+)
 
 
 def enum_column(enum_cls: type) -> Enum:
@@ -95,6 +103,12 @@ class Exercise(Base):
     # Minúsculas y sin tildes: evita duplicados tipo "Press banca" / "press de banca".
     name_normalized: Mapped[str] = mapped_column(String(150), unique=True)
     muscle_group: Mapped[str | None] = mapped_column(String(50))
+    # strength: se mide en series y repeticiones. cardio: se mide en minutos.
+    kind: Mapped[ExerciseKind] = mapped_column(
+        enum_column(ExerciseKind),
+        default=ExerciseKind.STRENGTH,
+        server_default="strength",
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -193,6 +207,11 @@ class PlanSet(Base):
     __tablename__ = "plan_sets"
     __table_args__ = (
         UniqueConstraint("plan_exercise_id", "set_number", name="uq_plan_sets_exercise_num"),
+        # Una serie se mide en repeticiones (fuerza) o en minutos (cardio): una cosa o la otra.
+        CheckConstraint(
+            "(reps IS NOT NULL) <> (duration_minutes IS NOT NULL)",
+            name="ck_plan_sets_reps_or_duration",
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -200,8 +219,10 @@ class PlanSet(Base):
         ForeignKey("plan_exercises.id", ondelete="CASCADE")
     )
     set_number: Mapped[int] = mapped_column(Integer)
-    reps: Mapped[int] = mapped_column(Integer)
-    # Vacío en ejercicios con peso corporal.
+    reps: Mapped[int | None] = mapped_column(Integer)
+    # Minutos planificados, solo en ejercicios de cardio.
+    duration_minutes: Mapped[int | None] = mapped_column(Integer)
+    # Vacío en ejercicios con peso corporal y en cardio.
     target_weight_kg: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
 
     plan_exercise: Mapped[PlanExercise] = relationship(back_populates="sets")
@@ -240,6 +261,11 @@ class SetEntry(Base):
     __tablename__ = "set_entries"
     __table_args__ = (
         CheckConstraint("effort BETWEEN 1 AND 10", name="ck_set_entries_effort"),
+        # Una serie realizada se mide en repeticiones (fuerza) o en minutos (cardio).
+        CheckConstraint(
+            "(reps IS NOT NULL) <> (duration_minutes IS NOT NULL)",
+            name="ck_set_entries_reps_or_duration",
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -255,8 +281,11 @@ class SetEntry(Base):
     )
     exercise_id: Mapped[int] = mapped_column(ForeignKey("exercises.id"))
     set_number: Mapped[int] = mapped_column(Integer)
-    reps: Mapped[int] = mapped_column(Integer)
-    weight_kg: Mapped[Decimal] = mapped_column(Numeric(6, 2))
+    reps: Mapped[int | None] = mapped_column(Integer)
+    # Minutos realizados, solo en ejercicios de cardio.
+    duration_minutes: Mapped[int | None] = mapped_column(Integer)
+    # Vacío en ejercicios con peso corporal y en cardio.
+    weight_kg: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
     effort: Mapped[int | None] = mapped_column(Integer)
 
     session: Mapped[WorkoutSession] = relationship(back_populates="sets")

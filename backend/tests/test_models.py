@@ -41,6 +41,27 @@ def test_el_ejercicio_planificado_ya_no_guarda_series_ni_pesos():
     assert "execution_notes" in columnas
 
 
+def _restricciones_check(tabla):
+    return {c.name for c in Base.metadata.tables[tabla].constraints if c.name}
+
+
+def test_una_serie_se_mide_en_repeticiones_o_en_minutos():
+    assert "ck_plan_sets_reps_or_duration" in _restricciones_check("plan_sets")
+    assert "ck_set_entries_reps_or_duration" in _restricciones_check("set_entries")
+
+
+def test_el_cardio_se_registra_en_minutos_y_sin_peso():
+    plan = Base.metadata.tables["plan_sets"]
+    real = Base.metadata.tables["set_entries"]
+    assert "duration_minutes" in plan.c and "duration_minutes" in real.c
+    assert plan.c.reps.nullable and real.c.reps.nullable
+    assert real.c.weight_kg.nullable
+
+
+def test_el_ejercicio_tiene_tipo_fuerza_o_cardio():
+    assert "kind" in Base.metadata.tables["exercises"].c
+
+
 def test_database_url_usa_el_driver_psycopg(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "postgresql://u:p@db:5432/spotter")
     assert get_database_url() == "postgresql+psycopg://u:p@db:5432/spotter"

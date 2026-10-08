@@ -11,6 +11,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0001` núcleo | `users`, `profiles`, `exercises`, `week_plans`, `plan_days`, `plan_exercises`, `workout_sessions`, `set_entries` | Implementada |
 | `0002` fin de sesión y cierre de semana | Agrega `week_plans.closed_at` y `workout_sessions.finished_at` | Implementada |
 | `0003` series planificadas e indicaciones | Crea `plan_sets`; agrega `plan_exercises.execution_notes` y `set_entries.plan_set_id`; quita `sets`, `reps` y `target_weight_kg` de `plan_exercises` | Implementada |
+| `0004` cardio con duración | Agrega `exercises.kind` y `duration_minutes` en `plan_sets` y `set_entries`; hace opcionales `reps` (en ambas) y `set_entries.weight_kg`; agrega la restricción "repeticiones o minutos" | Implementada |
 | Semana 4 | `plan_proposals`, `ai_calls` | Pendiente: se agregan cuando se construya la IA |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
@@ -67,6 +68,7 @@ erDiagram
         string name
         string name_normalized UK
         string muscle_group
+        string kind
         datetime created_at
     }
     WEEK_PLANS {
@@ -100,6 +102,7 @@ erDiagram
         int plan_exercise_id FK
         int set_number
         int reps
+        int duration_minutes
         decimal target_weight_kg
     }
     WORKOUT_SESSIONS {
@@ -119,6 +122,7 @@ erDiagram
         int exercise_id FK
         int set_number
         int reps
+        int duration_minutes
         decimal weight_kg
         int effort
     }
@@ -180,6 +184,7 @@ Ejercicios conocidos por la app. **No hay catálogo precargado**: la tabla crece
 | name | Nombre tal como lo escribió la IA o el usuario |
 | name_normalized | **Único.** Minúsculas y sin tildes, para evitar duplicados |
 | muscle_group | Opcional; lo propone la IA |
+| kind | `strength` (se mide en series y repeticiones) o `cardio` (se mide en minutos). Por defecto `strength` |
 
 ### week_plans
 Un plan por semana. Las semanas anteriores se conservan como historial. La semana se cierra **a mano**, con un botón; nunca se genera sola por fecha.
@@ -213,8 +218,11 @@ Una fila por **serie planificada**. Permite que cada serie tenga sus propias rep
 |---|---|
 | plan_exercise_id | Ejercicio planificado al que pertenece (se borra en cascada) |
 | set_number | Número de serie. **Único** dentro de cada ejercicio |
-| reps | Repeticiones planificadas |
-| target_weight_kg | Peso planificado en kilos. Vacío en ejercicios con peso corporal |
+| reps | Repeticiones planificadas. Vacío en cardio |
+| duration_minutes | Minutos planificados. Solo en cardio |
+| target_weight_kg | Peso planificado en kilos. Vacío en ejercicios con peso corporal y en cardio |
+
+La base exige que cada serie tenga **repeticiones o minutos, nunca las dos ni ninguna**.
 
 El resumen "4 × 10 con 50 kg" **se calcula** a partir de estas filas, no se guarda: si las series son iguales se muestra así, y si difieren se muestra un rango ("10 a 4 reps · 50 a 65 kg").
 
@@ -237,7 +245,12 @@ Lo **real**: cada serie que el usuario hizo.
 | plan_exercise_id | Ejercicio planificado al que corresponde (opcional) |
 | plan_set_id | Serie planificada con la que se compara. Vacío en las series extra que no estaban en el plan |
 | exercise_id | Ejercicio realizado |
-| set_number, reps, weight_kg | Número de serie, repeticiones y peso en kilos |
+| set_number | Número de serie |
+| reps | Repeticiones realizadas. Vacío en cardio |
+| duration_minutes | Minutos realizados. Solo en cardio |
+| weight_kg | Peso en kilos. Vacío en ejercicios con peso corporal y en cardio |
+
+Igual que en `plan_sets`, la base exige repeticiones **o** minutos.
 | effort | Esfuerzo de 1 a 10 (opcional) |
 
 ### plan_proposals
@@ -267,3 +280,5 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 9. **La sesión se cierra con un botón.** `finished_at` distingue una sesión en curso de una terminada, y permite reabrirla. Los datos se guardan a medida que se cargan, no recién al terminar.
 10. **Las series se guardan una por una.** `plan_sets` tiene una fila por serie planificada, así cada serie puede tener sus propias repeticiones y su propio peso, y se compara serie por serie con lo realizado (`set_entries.plan_set_id`). Con una sola fuente de verdad no hay dos lugares que puedan contradecirse.
 11. **Las indicaciones de ejecución son de la rutina.** `execution_notes` vive en el ejercicio planificado, no en el ejercicio general: el usuario la escribe o la edita, y la IA puede proponerla.
+12. **El cardio es un ejercicio con duración.** No hay una tabla aparte: un ejercicio de cardio es un `exercises` con `kind = cardio` y sus series se miden en `duration_minutes`. Así entra en el mismo flujo (tilde, "Día completado", planificado frente a real). La intensidad (ritmo moderado, "que puedas hablar") va en `execution_notes`.
+13. **Una serie se mide en repeticiones o en minutos.** Una restricción de la base lo garantiza. Además, `set_entries.weight_kg` pasó a ser opcional, lo que también permite registrar ejercicios con peso corporal.
