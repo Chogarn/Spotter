@@ -89,6 +89,18 @@ La app solo aplica las reglas R1 a R16 de [`criterios-entrenamiento.md`](criteri
 - **Por qué:** *(completar)*
 - **Descartaste:** que la IA decida las reglas de entrenamiento por su cuenta o de memoria.
 
+### 15. "Perder grasa" significa más cardio y menos fuerza
+Es un objetivo con más cardio y menos énfasis en la fuerza; la fuerza se mantiene en el mínimo (al menos 2 días por semana). La alimentación queda fuera de la app y se da por hecho que la persona la maneja.
+- **Origen:** tuya.
+- **Por qué:** "perder grasa es algo más al estilo un poco más de cardio, no tanta fuerza, es para bajar de peso". *(completar el resto)*
+- **Descartaste:** el mismo entrenamiento de fuerza con una sugerencia de cardio en texto; sacar el objetivo del MVP.
+
+### 16. El cardio es un ejercicio con duración
+Un ejercicio de cardio se mide en minutos y entra en el mismo flujo que los demás (tilde, "Día completado", planificado frente a real).
+- **Origen:** elegida entre opciones.
+- **Por qué:** *(completar)*
+- **Descartaste:** un bloque de cardio aparte por día; dejar el cardio solo como sugerencia de la IA.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):

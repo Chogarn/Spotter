@@ -26,7 +26,7 @@ Columnas del tablero: Backlog, En curso, Revisión, Hecho.
 - [ ] Estado global en el frontend `frontend`
 - [ ] Perfil del usuario (edad, peso, altura, nivel, días, equipamiento, limitaciones) `backend` `frontend`
 - [ ] Elegir objetivo (obligatorio) y camino A o B `backend` `frontend`
-- [ ] Formulario de rutina actual (camino B): nombre, series x repeticiones, peso en kg, series desglosables e indicaciones `frontend`
+- [ ] Formulario de rutina actual (camino B): nombre, series x repeticiones, peso en kg, series desglosables, cardio con duración e indicaciones `frontend`
 - [ ] Publicación LinkedIn 2: primer avance con capturas `docs`
 
 ## S3: Autenticación

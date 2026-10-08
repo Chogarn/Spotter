@@ -10,7 +10,7 @@ Spotter es una app web de entrenamiento: el usuario registra lo que entrena y, a
 - **Tareas bien definidas.** Cada tarea del backlog debe decir: para qué sirve, cómo se accede, qué ve el usuario, qué acciones puede hacer, si es una vista o componentes, qué datos usa y criterios de aceptación comprobables. Evitar tareas como "Implementar interfaz de usuario".
 - No hacer `git commit` ni `git push` sin que el usuario lo pida o lo apruebe en un plan.
 - Si algo no está confirmado (planes gratuitos de Gemini, Vercel, Render o Railway, límites de uso), no lo des por hecho: verificalo en la fuente oficial.
-- **Reglas de entrenamiento:** las únicas permitidas son **R1 a R16**, aprobadas por el usuario el 2026-10-08 y escritas en `docs/criterios-entrenamiento.md` (con su fuente, certeza, si las comprueba el código o se explican a Gemini, y en qué momento). No inventes reglas de series, repeticiones, cargas o descansos de memoria. Siguen **abiertas** (no las resuelvas tú): qué significa "perder grasa", si 10 series semanales es mucho para principiantes, la equivalencia entre repeticiones en reserva y esfuerzo, y dónde vive el descanso (R8).
+- **Reglas de entrenamiento:** las únicas permitidas son **R1 a R16**, aprobadas por el usuario el 2026-10-08 y escritas en `docs/criterios-entrenamiento.md` (con su fuente, certeza, si las comprueba el código o se explican a Gemini, y en qué momento). No inventes reglas de series, repeticiones, cargas o descansos de memoria. Siguen **abiertas** (no las resuelvas tú): si 10 series semanales es mucho para principiantes, la equivalencia entre repeticiones en reserva y esfuerzo, dónde vive el descanso (R8) y los **minutos de cardio** para "perder grasa" (reglas candidatas C1 a C5, sin aprobar).
 
 ## Stack
 
@@ -46,6 +46,7 @@ El plan gratuito de Gemini no puede superarse. La IA todavía no está implement
 ## Decisiones de producto (tomadas por el usuario)
 
 - **El objetivo es obligatorio.** Son 5: masa, fuerza, perder grasa, condición general y mantenerme activo. Después hay dos caminos: la app crea la primera rutina, o el usuario carga la que ya hace.
+- **"Perder grasa" = más cardio y menos fuerza**, con la fuerza al mínimo de R1 y sin nutrición (fuera de la app). **El cardio es un ejercicio con duración:** `exercises.kind = cardio`, sus series se miden en `duration_minutes` y no en repeticiones; la base exige repeticiones **o** minutos.
 - **La IA propone y el usuario decide.** Toda propuesta (ajuste, cierre de semana, mejora) se guarda primero y se escribe en el plan **solo al aceptarla**, con vista previa antes/después.
 - **El cierre de semana es manual**, con un botón. Nunca se genera la semana siguiente por fecha. La semana es un ciclo: `week_start` es cuándo se activó y `closed_at` cuándo se cerró. Se puede cerrar con días sin hacer: esos días viajan a la IA como información.
 - **Los días se llaman "Día 1, Día 2"**, no lunes o martes. `plan_days.day_index` es un orden, no un día del calendario.

@@ -31,7 +31,7 @@ El cierre es siempre manual: nada se genera solo por fecha.
 ### Base
 - Registro e inicio de sesión (JWT).
 - Perfil con objetivo obligatorio.
-- Rutinas semanales organizadas en días y ejercicios, con series desglosables (cada serie con sus repeticiones y su peso), indicaciones de ejecución y edición manual.
+- Rutinas semanales organizadas en días y ejercicios, con series desglosables (cada serie con sus repeticiones y su peso), indicaciones de ejecución y edición manual. El cardio es un ejercicio más, medido en minutos.
 - Registro de sesiones: lo realizado frente a lo planificado, con esfuerzo del 1 al 10 y una nota de cómo se sintió.
 
 ### Valor de la IA

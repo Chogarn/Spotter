@@ -57,7 +57,7 @@ El usuario debe elegir uno. Sin objetivo no se puede avanzar.
 |---|---|
 | Ganar masa muscular | Volumen moderado-alto, rangos de repeticiones medios, progresión gradual de carga |
 | Ganar fuerza | Cargas altas con pocas repeticiones, ejercicios básicos, descansos largos |
-| Perder grasa | Combinar fuerza con más trabajo general, sesiones eficientes, mantener la masa |
+| Perder grasa | **Más cardio y menos fuerza**: la fuerza se mantiene en el mínimo (al menos 2 días por semana) y el resto se completa con cardio. La alimentación queda fuera de la app y se da por hecho que el usuario la maneja |
 | Mejorar condición física general | Rutinas equilibradas de cuerpo completo y variedad |
 | Mantenerme activo | Rutinas simples, pocas sesiones y progresión suave |
 
@@ -132,6 +132,14 @@ Cada ejercicio muestra una **fila compacta** con un solo tilde. Si el usuario la
 - **Qué edita cada cosa durante el día:** si el usuario cambia una serie mientras entrena, registra **lo que hizo**; el plan queda visible como referencia ("tocaba 8 × 55 kg"). Así se conserva la comparación entre lo planificado y lo real. Cambiar el plan en sí es una edición aparte (edición manual).
 - **Tilde sin cambios:** se crea una serie real por cada serie planificada, con su propio peso.
 - **Indicaciones de ejecución:** cada ejercicio puede mostrar su indicación ("bajar lento, pausa de 2 segundos arriba"). El usuario la escribe o la edita, y la IA puede proponerla al armar o mejorar la rutina. Se muestran como orientativas, no como consejo de un profesional, junto con el aviso legal.
+
+### Cardio
+El cardio (cinta, bicicleta, remo, caminata) es **un ejercicio más de la rutina**, pero se mide en **minutos** en vez de series y repeticiones.
+
+- **Fila compacta:** "cinta · 30 min", con el mismo tilde que los demás ejercicios.
+- **Tilde sin cambios:** se interpreta que hizo los minutos planificados. Si hizo otros, carga los minutos reales.
+- **Intensidad:** se indica en las indicaciones de ejecución ("ritmo moderado, que puedas hablar").
+- Se compara lo planificado con lo real igual que en fuerza.
 
 ### Día completado
 Al final del día el usuario toca **"Día completado"**:

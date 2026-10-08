@@ -68,14 +68,13 @@ Es historia: el ACSM 2026 la reemplaza.
 - No da minutos específicos para entrenamiento de fuerza.
 - La revisión sistemática de 2025 (de segunda mano) coincide: combinar entrenamiento de fuerza con restricción calórica conserva la masa muscular.
 
-**Consecuencia importante para el producto:** la evidencia no dice que "perder grasa" requiera una rutina de fuerza distinta. Lo que cambia es el **cardio** y la **alimentación**, y Spotter no cubre ninguna de las dos. Habrá que decidir qué significa ese objetivo en la app (por ejemplo, mantener el volumen de fuerza y sugerir actividad aeróbica, sin tocar la dieta).
+**Consecuencia para el producto:** la evidencia no dice que "perder grasa" requiera una rutina de fuerza distinta; lo que cambia es el **cardio** y la **alimentación**. **Decisión del estudiante (2026-10-08):** "perder grasa" es un objetivo con **más cardio y menos fuerza**, y la alimentación queda fuera de la app (se da por hecho que la persona la maneja). El cardio se planifica y se registra como un ejercicio con duración en minutos. La fuerza se mantiene al mínimo de R1 (al menos 2 días por semana). Los minutos exactos de cardio siguen **pendientes de aprobación** (ver más abajo).
 
 ## Sigue pendiente
 
 - **Texto completo del ACSM 2009:** solo se leyó el resumen oficial; el artículo completo es de pago. Para PubMed no se pudo usar (pide cookies), se usó Europe PMC.
 - **Revisión por una persona con formación en educación física.** Idealmente alguien que revise el borrador una vez.
 - **Leer el resto del ACSM 2026** (el material de apoyo) si se quiere más detalle.
-- **Decidir qué se hace con "perder grasa"** (ver arriba).
 
 ## Qué implica para Spotter
 
@@ -140,10 +139,22 @@ Es historia: el ACSM 2026 la reemplaza.
 
 Estas dudas **no están resueltas** y no las decide la IA:
 
-- **"Perder grasa":** la evidencia no da una rutina de fuerza distinta para ese objetivo. ¿Mismo entrenamiento de fuerza y la app sugiere actividad aeróbica, sin tocar la dieta?
+- **Minutos de cardio por semana** para "perder grasa" y cuánta fuerza queda por encima del mínimo de R1: ver las reglas candidatas de más abajo.
 - **Principiantes y R3:** 10 series semanales por grupo muscular puede ser mucho para quien empieza. La fuente no distingue.
 - **Esfuerzo:** la equivalencia entre "2 o 3 repeticiones en reserva" y un esfuerzo de 7 u 8 sobre 10 es habitual en la práctica, pero **no está verificada**.
 - **Descanso (R8):** dónde vive el dato. Hoy el modelo no tiene un campo de descanso y la regla depende de las etiquetas de R13. Opciones: campo propio editable, calcularlo sin guardarlo, o no mostrarlo.
+
+### Reglas candidatas de cardio (pendientes de aprobación)
+
+**No están aprobadas.** Salen de fuentes ya verificadas y las tiene que elegir el estudiante. Si las acepta, pasan a la tabla de arriba con su número.
+
+| # | Regla candidata | Tipo | Fuente y certeza | Cómo se aplicaría |
+|---|---|---|---|---|
+| C1 | Para el objetivo **perder grasa**, el plan incluye **cardio** además de la fuerza | Decisión de producto (ya tomada) | ACSM 2009: la actividad aeróbica es lo que más pesa para bajar de peso | Gemini |
+| C2 | Con ese objetivo, la fuerza **no baja del mínimo de R1** (2 días por semana) | Evidencia | OMS 2020 y ACSM 2026. La fuerza ayuda a conservar masa muscular (ACSM 2009; revisión de 2025 de segunda mano) | Código |
+| C3 | **Minutos de cardio por semana**, a elegir: **150 a 250** (pérdida de peso modesta) · **más de 250** (pérdida clínicamente significativa) · **150 a 300** (salud general, intensidad moderada) | Evidencia | ACSM 2009 (Donnelly, resumen oficial) y OMS 2020. Para un principiante puede ser mucho | Código (suma de minutos) |
+| C4 | **R3 (10 series semanales por músculo) no se aplica** a "perder grasa": es de masa muscular | Decisión de diseño | ACSM 2026 (R3 es de hipertrofia) | Código |
+| C5 | La **intensidad** del cardio se indica en las indicaciones de ejecución (por ejemplo, "ritmo moderado, que puedas hablar") | Convención | Sin fuente específica | Gemini |
 
 ## Fuentes
 
