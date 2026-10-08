@@ -68,6 +68,17 @@ def test_el_perfil_no_pide_dias_ni_duracion_de_la_sesion():
     assert "session_minutes" not in columnas
 
 
+def test_el_ejercicio_lleva_las_etiquetas_cerradas_de_r13():
+    tabla = Base.metadata.tables["exercises"]
+    etiquetas = {
+        "region", "direction", "primary_muscle", "secondary_muscles",
+        "mechanic", "equipment", "level",
+    }
+    assert etiquetas <= set(tabla.c.keys())
+    for nombre in etiquetas:
+        assert not tabla.c[nombre].nullable, nombre
+
+
 def test_el_descanso_es_un_campo_propio_y_opcional_del_ejercicio_planificado():
     tabla = Base.metadata.tables["plan_exercises"]
     assert "rest_seconds" in tabla.c

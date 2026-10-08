@@ -26,10 +26,15 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db import Base
 from app.enums import (
     Equipment,
+    ExerciseDirection,
+    ExerciseEquipment,
     ExerciseKind,
+    ExerciseMechanic,
+    ExerciseRegion,
     Feeling,
     Goal,
     Level,
+    Muscle,
     PlanOrigin,
     PlanStatus,
 )
@@ -99,6 +104,18 @@ class Exercise(Base):
     # Minúsculas y sin tildes: evita duplicados tipo "Press banca" / "press de banca".
     name_normalized: Mapped[str] = mapped_column(String(150), unique=True)
     muscle_group: Mapped[str | None] = mapped_column(String(50))
+    # Etiquetas cerradas (R13). Las asigna la IA y el código las valida; sirven para contar
+    # series por músculo (R3, R20, R24, R25), las indirectas a 0,5 (R5) y el equilibrio (R14).
+    region: Mapped[ExerciseRegion] = mapped_column(enum_column(ExerciseRegion))
+    direction: Mapped[ExerciseDirection] = mapped_column(enum_column(ExerciseDirection))
+    primary_muscle: Mapped[Muscle] = mapped_column(enum_column(Muscle))
+    # Lista de músculos secundarios (valores de Muscle); la valida Pydantic, no la base.
+    secondary_muscles: Mapped[list[str]] = mapped_column(
+        JSON().with_variant(JSONB(), "postgresql"), default=list, server_default="[]"
+    )
+    mechanic: Mapped[ExerciseMechanic] = mapped_column(enum_column(ExerciseMechanic))
+    equipment: Mapped[ExerciseEquipment] = mapped_column(enum_column(ExerciseEquipment))
+    level: Mapped[Level] = mapped_column(enum_column(Level))
     # strength: se mide en series y repeticiones. cardio: se mide en minutos.
     kind: Mapped[ExerciseKind] = mapped_column(
         enum_column(ExerciseKind),

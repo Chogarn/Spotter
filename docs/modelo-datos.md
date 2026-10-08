@@ -11,6 +11,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0001` núcleo | `users`, `profiles`, `exercises`, `week_plans`, `plan_days`, `plan_exercises`, `workout_sessions`, `set_entries` | Implementada |
 | `0002` fin de sesión y cierre de semana | Agrega `week_plans.closed_at` y `workout_sessions.finished_at` | Implementada |
 | `0003` series planificadas e indicaciones | Crea `plan_sets`; agrega `plan_exercises.execution_notes` y `set_entries.plan_set_id`; quita `sets`, `reps` y `target_weight_kg` de `plan_exercises` | Implementada |
+| `0008` etiquetas de ejercicio | Agrega a `exercises` las etiquetas cerradas de R13: `region`, `direction`, `primary_muscle`, `secondary_muscles`, `mechanic`, `equipment` y `level` | Implementada |
 | `0007` descanso y movilidad | Agrega `plan_exercises.rest_seconds` (descanso entre series) y `plan_days.mobility_notes` (texto de movilidad y equilibrio) | Implementada |
 | `0006` sin duración de sesión en el perfil | Quita `profiles.session_minutes`: la duración de la sesión la determina la IA | Implementada |
 | `0005` sin días por semana en el perfil | Quita `profiles.days_per_week` y su restricción: la cantidad de días se calcula a partir de `plan_days` | Implementada |
@@ -70,6 +71,13 @@ erDiagram
         string name_normalized UK
         string muscle_group
         string kind
+        string region
+        string direction
+        string primary_muscle
+        json secondary_muscles
+        string mechanic
+        string equipment
+        string level
         datetime created_at
     }
     WEEK_PLANS {
@@ -188,6 +196,15 @@ Ejercicios conocidos por la app. **No hay catálogo precargado**: la tabla crece
 | name_normalized | **Único.** Minúsculas y sin tildes, para evitar duplicados |
 | muscle_group | Opcional; lo propone la IA |
 | kind | `strength` (se mide en series y repeticiones) o `cardio` (se mide en minutos). Por defecto `strength` |
+| region | `upper`, `lower`, `core` o `full_body` (cardio y cuerpo entero) |
+| direction | `push`, `pull` o `none` (piernas, core y cardio) |
+| primary_muscle | `chest`, `back`, `shoulders`, `biceps`, `triceps`, `quadriceps`, `hamstrings`, `glutes`, `calves`, `core` o `full_body` |
+| secondary_muscles | Lista de músculos secundarios (los mismos valores). Vacía por defecto. Se cuenta a 0,5 (R5). La valida Pydantic, no la base |
+| mechanic | `compound` (multiarticular) o `isolation` (monoarticular) |
+| equipment | `barbell`, `dumbbell`, `machine`, `cable`, `bodyweight`, `band`, `kettlebell` u `other` |
+| level | `principiante`, `intermedio` o `avanzado` |
+
+Las etiquetas son **obligatorias** y las asigna la IA; el código las valida (R13) y la base rechaza cualquier valor fuera de las listas. Con ellas se cuentan las series por músculo (R3, R20, R24, R25), las indirectas (R5) y el equilibrio entre tirón y empuje (R14).
 
 ### week_plans
 Un plan por semana. Las semanas anteriores se conservan como historial. La semana se cierra **a mano**, con un botón; nunca se genera sola por fecha.
@@ -294,3 +311,4 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 15. **La duración de la sesión tampoco está en el perfil.** La determina la IA, igual que los días. Por eso se quitó `profiles.session_minutes`. El usuario puede pedir más (más días o sesiones más largas), nunca menos.
 16. **El descanso es un campo propio y editable.** `plan_exercises.rest_seconds` guarda el descanso entre series de cada ejercicio. La IA lo propone según el tipo de ejercicio y el usuario lo cambia. Con ese dato el código podrá estimar cuánto dura una sesión.
 17. **La movilidad y el equilibrio son un texto del día.** `plan_days.mobility_notes` es un texto libre, sin series ni tilde. Es lo más simple y se puede pasar a un tipo de ejercicio más adelante si hace falta registrarlos.
+18. **Las etiquetas del ejercicio son obligatorias y cerradas.** Región, dirección, músculo primario, mecánica, equipamiento y nivel no admiten valores libres, y los ejercicios de cardio o de cuerpo entero usan `full_body`. Así el código puede contar series por músculo sin depender de texto libre.
