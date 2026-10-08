@@ -92,7 +92,10 @@ Se piden una sola vez y se pueden editar después.
 1. El usuario completa un formulario, ejercicio por ejercicio y por día, con:
    - nombre del ejercicio,
    - series × repeticiones,
-   - peso en kilos.
+   - peso en kilos,
+   - opcionalmente, indicaciones de ejecución ("bajar lento, pausa arriba").
+
+   Cada ejercicio se puede **desglosar serie por serie** para que cada una tenga sus propias repeticiones y su propio peso (ver "Series desglosables").
 2. La IA devuelve una versión mejorada según su objetivo, con el motivo de cada cambio.
 3. La rutina original se conserva. El usuario acepta o descarta los cambios.
 
@@ -115,11 +118,20 @@ El usuario tiene dos formas de registrarlo, con un solo tilde por ejercicio:
 
 | Lo que hace | Qué queda guardado |
 |---|---|
-| Tilda el ejercicio sin cambiar nada | Se interpreta que lo hizo tal cual: 3 × 8 con 50 kg |
+| Tilda el ejercicio sin cambiar nada | Se interpreta que lo hizo tal cual: cada serie con sus repeticiones y su peso planificados |
 | Carga lo que realmente hizo (3 × 10 con 40 kg) | Queda lo que escribió y el ejercicio se marca como hecho solo |
 | No toca nada | El ejercicio queda como no hecho |
 
 Si se tilda sin cambios, se generan las series reales copiando el plan, así "hecho" siempre significa "tiene series reales". Destildar borra esas series. De la diferencia entre lo planificado y lo real salen el análisis y la reestructuración.
+
+### Series desglosables
+Cada ejercicio muestra una **fila compacta** con un solo tilde. Si el usuario la despliega, ve una fila por serie, y cada serie tiene sus propias repeticiones y su propio peso (por ejemplo, una pirámide: 10 × 50, 8 × 55, 6 × 60, 4 × 65).
+
+- **Fila compacta:** si todas las series son iguales, muestra "4 × 10 · 50 kg". Si difieren, muestra un rango ("10 a 4 reps · 50 a 65 kg"). Ese resumen se calcula; no se guarda.
+- **El tilde es por ejercicio.** No hay tilde por serie.
+- **Qué edita cada cosa durante el día:** si el usuario cambia una serie mientras entrena, registra **lo que hizo**; el plan queda visible como referencia ("tocaba 8 × 55 kg"). Así se conserva la comparación entre lo planificado y lo real. Cambiar el plan en sí es una edición aparte (edición manual).
+- **Tilde sin cambios:** se crea una serie real por cada serie planificada, con su propio peso.
+- **Indicaciones de ejecución:** cada ejercicio puede mostrar su indicación ("bajar lento, pausa de 2 segundos arriba"). El usuario la escribe o la edita, y la IA puede proponerla al armar o mejorar la rutina. Se muestran como orientativas, no como consejo de un profesional, junto con el aviso legal.
 
 ### Día completado
 Al final del día el usuario toca **"Día completado"**:
@@ -141,7 +153,7 @@ Se guarda con la sesión y la IA lo lee junto con los números al cerrar la sema
 Si un ejercicio aparece en más de un día (por ejemplo, press banca en el Día 1 y en el Día 3), lo registrado la primera vez también ajusta la segunda. Al completar un día, la app detecta los ejercicios que se repiten más adelante y, si hay alguno, la IA propone el cambio para esa próxima aparición, con vista previa y confirmación. Es una llamada a Gemini por día completado y solo cuando hay ejercicios repetidos.
 
 ### Edición manual
-Sin pasar por la IA, el usuario puede cambiar series, repeticiones y peso, o quitar un ejercicio. Esos cambios quedan marcados y la IA los respeta al armar la semana siguiente.
+Sin pasar por la IA, el usuario puede cambiar las series, las repeticiones y el peso de cada serie, las indicaciones de ejecución, o quitar un ejercicio. Esos cambios quedan marcados y la IA los respeta al armar la semana siguiente.
 
 ## La IA propone, el usuario decide
 
@@ -193,7 +205,8 @@ Lo ya aplicado está en `docs/modelo-datos.md`. Resumen de cómo se refleja este
 - `profiles`: edad, peso, altura, sexo (opcional) y duración de sesión; el objetivo es obligatorio y uno de los 5 valores.
 - `week_plans`: `week_start` es cuándo se activó la semana, `closed_at` cuándo se cerró, y un campo de origen (`generated` o `improved`) con la rutina original en el camino B.
 - `plan_days`: `day_index` es el orden (Día 1, Día 2...), no un día del calendario.
-- `plan_exercises`: lo planificado (series, repeticiones, peso objetivo), con un marcador `edited_by_user`.
-- `set_entries`: lo real (series, repeticiones, peso en kg y esfuerzo opcional), enlazado al ejercicio planificado para comparar.
+- `plan_exercises`: el ejercicio planificado, con `execution_notes` (indicaciones) y un marcador `edited_by_user`.
+- `plan_sets`: una fila por serie planificada, con sus repeticiones y su peso.
+- `set_entries`: lo real (repeticiones, peso en kg y esfuerzo opcional), enlazado a la serie planificada (`plan_set_id`) para comparar serie por serie.
 - `workout_sessions`: `finished_at` (se completa con "Día completado"), `feeling` (easy, good, hard o pain) y `notes`.
 - `plan_proposals` y `ai_calls`: propuestas de la IA (`pending`, `accepted` o `discarded`; solo al aceptar se escribe en el plan) y registro de cada llamada para los topes de Gemini. Se crean cuando se construya la IA.

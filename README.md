@@ -20,7 +20,7 @@ Personas que entrenan por su cuenta (de principiante a intermedio) y no pueden p
    - **La app crea su primera rutina** a partir del perfil y el objetivo.
    - **Carga la rutina que ya hace** (ejercicio, series × repeticiones y peso en kilos) y la IA se la mejora.
 4. La semana se organiza en días: **Día 1, Día 2, Día 3**... en lugar de lunes o martes, así el usuario entrena a su ritmo.
-5. En cada día, cada ejercicio muestra lo planificado (por ejemplo, press banca 3 × 8 con 50 kg). El usuario lo **tilda** si lo hizo tal cual, o carga lo que realmente hizo (3 × 10 con 40 kg).
+5. En cada día, cada ejercicio muestra lo planificado (por ejemplo, press banca 3 × 8 con 50 kg) y, si el usuario lo despliega, **cada serie** con sus propias repeticiones y su propio peso. Lo **tilda** si lo hizo tal cual, o carga lo que realmente hizo (3 × 10 con 40 kg). Cada ejercicio puede traer indicaciones de ejecución (por ejemplo, "bajar lento, pausa arriba").
 6. Al terminar, toca **"Día completado"** y, si quiere, cuenta cómo se sintió.
 7. Cuando decide, toca **"Cerrar semana"**: la IA compara lo planificado con lo real (incluidos los días que no se hicieron) y propone la semana siguiente.
 
@@ -31,7 +31,7 @@ El cierre es siempre manual: nada se genera solo por fecha.
 ### Base
 - Registro e inicio de sesión (JWT).
 - Perfil con objetivo obligatorio.
-- Rutinas semanales organizadas en días y ejercicios, con edición manual (series, repeticiones y peso).
+- Rutinas semanales organizadas en días y ejercicios, con series desglosables (cada serie con sus repeticiones y su peso), indicaciones de ejecución y edición manual.
 - Registro de sesiones: lo realizado frente a lo planificado, con esfuerzo del 1 al 10 y una nota de cómo se sintió.
 
 ### Valor de la IA
@@ -153,5 +153,7 @@ docker compose -f docker-compose.dev.yml run --rm --no-deps backend python -m py
 
 - [Flujo de la app](docs/flujo-app.md): cómo se usa de principio a fin.
 - [Modelo de datos](docs/modelo-datos.md): tablas y relaciones.
+- [Decisiones](docs/decisiones.md): qué se decidió, por qué y qué se descartó.
+- [Criterios de entrenamiento](docs/criterios-entrenamiento.md): lo que dice la evidencia, con sus fuentes, como base de las reglas de la IA.
 - [Backlog](docs/backlog.md): tareas e ideas para más adelante.
 - [CLAUDE.md](CLAUDE.md): decisiones y convenciones del proyecto para asistentes de IA.

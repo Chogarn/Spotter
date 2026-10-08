@@ -1,6 +1,6 @@
 # Spotter: contexto para asistentes de IA
 
-Spotter es una app web de entrenamiento: el usuario registra lo que entrena y, al cerrar la semana, una IA (Gemini) analiza lo planificado frente a lo real y propone la semana siguiente. Detalle del producto en `README.md`, `docs/flujo-app.md` y `docs/modelo-datos.md`.
+Spotter es una app web de entrenamiento: el usuario registra lo que entrena y, al cerrar la semana, una IA (Gemini) analiza lo planificado frente a lo real y propone la semana siguiente. Detalle del producto en `README.md`, `docs/flujo-app.md` y `docs/modelo-datos.md`. Las decisiones del usuario, con su motivo, están en `docs/decisiones.md`: no las contradigas sin preguntar.
 
 ## Cómo trabajar acá
 
@@ -10,6 +10,7 @@ Spotter es una app web de entrenamiento: el usuario registra lo que entrena y, a
 - **Tareas bien definidas.** Cada tarea del backlog debe decir: para qué sirve, cómo se accede, qué ve el usuario, qué acciones puede hacer, si es una vista o componentes, qué datos usa y criterios de aceptación comprobables. Evitar tareas como "Implementar interfaz de usuario".
 - No hacer `git commit` ni `git push` sin que el usuario lo pida o lo apruebe en un plan.
 - Si algo no está confirmado (planes gratuitos de Gemini, Vercel, Render o Railway, límites de uso), no lo des por hecho: verificalo en la fuente oficial.
+- **Reglas de entrenamiento:** deben salir de `docs/criterios-entrenamiento.md` (con su fuente y su certeza) y las elige el usuario. No inventes reglas de series, repeticiones, cargas o descansos de memoria.
 
 ## Stack
 
@@ -48,10 +49,10 @@ El plan gratuito de Gemini no puede superarse. La IA todavía no está implement
 - **La IA propone y el usuario decide.** Toda propuesta (ajuste, cierre de semana, mejora) se guarda primero y se escribe en el plan **solo al aceptarla**, con vista previa antes/después.
 - **El cierre de semana es manual**, con un botón. Nunca se genera la semana siguiente por fecha. La semana es un ciclo: `week_start` es cuándo se activó y `closed_at` cuándo se cerró. Se puede cerrar con días sin hacer: esos días viajan a la IA como información.
 - **Los días se llaman "Día 1, Día 2"**, no lunes o martes. `plan_days.day_index` es un orden, no un día del calendario.
-- **Planificado y real van separados:** `plan_exercises` (lo que toca) y `set_entries` (lo que se hizo). El análisis sale de esa diferencia.
+- **Planificado y real van separados:** `plan_exercises` + `plan_sets` (lo que toca, una fila por serie con sus repeticiones y su peso) y `set_entries` (lo que se hizo, enlazado con `plan_set_id`). El análisis sale de esa diferencia. El "4 × 10 con 50 kg" se **calcula**, no se guarda; si las series difieren se muestra un rango.
 - **Un tilde por ejercicio:** sin cambios significa "lo hice como estaba planificado"; si el usuario edita los números, queda lo real. Un botón "Día completado" cierra la sesión (`workout_sessions.finished_at`); los datos se guardan a medida que se cargan, no al final.
 - **Los ejercicios crecen solos:** no hay catálogo precargado. La IA elige libremente y la tabla `exercises` se completa al guardar el plan, deduplicando por `name_normalized`.
-- El usuario puede **editar a mano** series, repeticiones y peso; la IA respeta esas ediciones.
+- El usuario puede **editar a mano** series, repeticiones, peso y las indicaciones de ejecución (`plan_exercises.execution_notes`); la IA respeta esas ediciones. Durante el día, editar una serie registra **lo real** y el plan queda visible; cambiar el plan es una edición aparte. El tilde es por ejercicio, no por serie.
 - Fuera del MVP: nutrición, wearables, video y consejos médicos. La IA no da diagnósticos; ante dolor puede bajar la carga o cambiar el ejercicio y muestra un aviso legal.
 
 Ideas futuras (sin definir, no implementar): rachas, logros, entrada por voz y notificaciones. Están en `docs/backlog.md`.
