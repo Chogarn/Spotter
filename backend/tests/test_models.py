@@ -11,6 +11,8 @@ TABLAS_ESPERADAS = {
     "plan_days",
     "plan_exercises",
     "plan_sets",
+    "plan_proposals",
+    "ai_calls",
     "workout_sessions",
     "set_entries",
 }
@@ -95,3 +97,22 @@ def test_el_dia_puede_llevar_un_texto_de_movilidad_y_equilibrio():
 def test_database_url_usa_el_driver_psycopg(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "postgresql://u:p@db:5432/spotter")
     assert get_database_url() == "postgresql+psycopg://u:p@db:5432/spotter"
+
+
+def _checks(tabla):
+    from sqlalchemy import CheckConstraint
+
+    return {c.name: str(c.sqltext) for c in tabla.constraints if isinstance(c, CheckConstraint)}
+
+
+def test_una_serie_planificada_se_mide_en_repeticiones_minutos_o_segundos():
+    for nombre in ("plan_sets", "set_entries"):
+        columnas = Base.metadata.tables[nombre].c
+        assert "duration_seconds" in columnas
+        checks = _checks(Base.metadata.tables[nombre])
+        assert "duration_seconds" in checks[f"ck_{nombre}_reps_or_duration"]
+
+
+def test_el_tipo_de_ejercicio_incluye_el_isometrico():
+    tabla = Base.metadata.tables["exercises"]
+    assert set(tabla.c.kind.type.enums) == {"strength", "cardio", "isometric"}

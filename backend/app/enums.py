@@ -33,8 +33,9 @@ class PlanOrigin(str, enum.Enum):
 
 
 class ExerciseKind(str, enum.Enum):
-    STRENGTH = "strength"
-    CARDIO = "cardio"
+    STRENGTH = "strength"  # se mide en repeticiones
+    CARDIO = "cardio"  # se mide en minutos
+    ISOMETRIC = "isometric"  # se mide en segundos (plancha, sentadilla en pared)
 
 
 class ExerciseRegion(str, enum.Enum):
@@ -85,3 +86,27 @@ class Feeling(str, enum.Enum):
     GOOD = "good"
     HARD = "hard"
     PAIN = "pain"
+
+
+class ProposalKind(str, enum.Enum):
+    GENERATE = "generate"  # camino A: la primera rutina
+    ADJUST = "adjust"
+    WEEK_CLOSE = "week_close"
+    IMPROVE = "improve"
+    REPEAT_EXERCISE = "repeat_exercise"
+
+
+class ProposalStatus(str, enum.Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    DISCARDED = "discarded"
+
+
+class AiCallKind(str, enum.Enum):
+    """Para qué se llamó a Gemini. Mismos valores que ProposalKind."""
+
+    GENERATE = "generate"
+    ADJUST = "adjust"
+    WEEK_CLOSE = "week_close"
+    IMPROVE = "improve"
+    REPEAT_EXERCISE = "repeat_exercise"

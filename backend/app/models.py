@@ -25,6 +25,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
 from app.enums import (
+    AiCallKind,
     Equipment,
     ExerciseDirection,
     ExerciseEquipment,
@@ -37,6 +38,16 @@ from app.enums import (
     Muscle,
     PlanOrigin,
     PlanStatus,
+    ProposalKind,
+    ProposalStatus,
+)
+
+
+# Portable (Postgres y SQLite de los tests): suma de "tiene valor" = 1.
+MEASURE_ONE_OF_THREE = (
+    "(CASE WHEN reps IS NOT NULL THEN 1 ELSE 0 END"
+    " + CASE WHEN duration_minutes IS NOT NULL THEN 1 ELSE 0 END"
+    " + CASE WHEN duration_seconds IS NOT NULL THEN 1 ELSE 0 END) = 1"
 )
 
 
@@ -116,7 +127,7 @@ class Exercise(Base):
     mechanic: Mapped[ExerciseMechanic] = mapped_column(enum_column(ExerciseMechanic))
     equipment: Mapped[ExerciseEquipment] = mapped_column(enum_column(ExerciseEquipment))
     level: Mapped[Level] = mapped_column(enum_column(Level))
-    # strength: se mide en series y repeticiones. cardio: se mide en minutos.
+    # strength: series y repeticiones. cardio: minutos. isometric: segundos.
     kind: Mapped[ExerciseKind] = mapped_column(
         enum_column(ExerciseKind),
         default=ExerciseKind.STRENGTH,
@@ -226,11 +237,9 @@ class PlanSet(Base):
     __tablename__ = "plan_sets"
     __table_args__ = (
         UniqueConstraint("plan_exercise_id", "set_number", name="uq_plan_sets_exercise_num"),
-        # Una serie se mide en repeticiones (fuerza) o en minutos (cardio): una cosa o la otra.
-        CheckConstraint(
-            "(reps IS NOT NULL) <> (duration_minutes IS NOT NULL)",
-            name="ck_plan_sets_reps_or_duration",
-        ),
+        # Una serie se mide en repeticiones (fuerza), minutos (cardio) o segundos (isométrico):
+        # exactamente una de las tres.
+        CheckConstraint(MEASURE_ONE_OF_THREE, name="ck_plan_sets_reps_or_duration"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -241,6 +250,8 @@ class PlanSet(Base):
     reps: Mapped[int | None] = mapped_column(Integer)
     # Minutos planificados, solo en ejercicios de cardio.
     duration_minutes: Mapped[int | None] = mapped_column(Integer)
+    # Segundos planificados, solo en ejercicios isométricos (plancha).
+    duration_seconds: Mapped[int | None] = mapped_column(Integer)
     # Vacío en ejercicios con peso corporal y en cardio.
     target_weight_kg: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
 
@@ -280,11 +291,8 @@ class SetEntry(Base):
     __tablename__ = "set_entries"
     __table_args__ = (
         CheckConstraint("effort BETWEEN 1 AND 10", name="ck_set_entries_effort"),
-        # Una serie realizada se mide en repeticiones (fuerza) o en minutos (cardio).
-        CheckConstraint(
-            "(reps IS NOT NULL) <> (duration_minutes IS NOT NULL)",
-            name="ck_set_entries_reps_or_duration",
-        ),
+        # Una serie realizada se mide en repeticiones, minutos o segundos: exactamente una.
+        CheckConstraint(MEASURE_ONE_OF_THREE, name="ck_set_entries_reps_or_duration"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -303,9 +311,62 @@ class SetEntry(Base):
     reps: Mapped[int | None] = mapped_column(Integer)
     # Minutos realizados, solo en ejercicios de cardio.
     duration_minutes: Mapped[int | None] = mapped_column(Integer)
+    # Segundos realizados, solo en ejercicios isométricos (plancha).
+    duration_seconds: Mapped[int | None] = mapped_column(Integer)
     # Vacío en ejercicios con peso corporal y en cardio.
     weight_kg: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
     effort: Mapped[int | None] = mapped_column(Integer)
 
     session: Mapped[WorkoutSession] = relationship(back_populates="sets")
     exercise: Mapped[Exercise] = relationship()
+
+
+class PlanProposal(Base):
+    """Lo que propone la IA antes de aplicarse: solo al aceptar se escribe en el plan."""
+
+    __tablename__ = "plan_proposals"
+    __table_args__ = (Index("ix_plan_proposals_user_status", "user_id", "status"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    # Vacío en la primera rutina (kind = generate): todavía no existe ninguna semana.
+    week_plan_id: Mapped[int | None] = mapped_column(
+        ForeignKey("week_plans.id", ondelete="SET NULL")
+    )
+    kind: Mapped[ProposalKind] = mapped_column(enum_column(ProposalKind))
+    request_text: Mapped[str | None] = mapped_column(Text)
+    # Los cambios propuestos; los valida Pydantic antes de guardarse.
+    proposed_changes: Mapped[dict[str, Any]] = mapped_column(
+        JSON().with_variant(JSONB(), "postgresql")
+    )
+    status: Mapped[ProposalStatus] = mapped_column(
+        enum_column(ProposalStatus),
+        default=ProposalStatus.PENDING,
+        server_default="pending",
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class AiCall(Base):
+    """Una fila por cada llamada a Gemini. NUNCA se borra: los topes se calculan contándolas.
+
+    Se escribe ANTES de llamar, así una caída a mitad de la llamada igual queda contada.
+    Los límites de Gemini son por proyecto, por eso se cuentan las filas de todos los usuarios.
+    """
+
+    __tablename__ = "ai_calls"
+    __table_args__ = (Index("ix_ai_calls_created_at", "created_at"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    # RESTRICT a propósito: borrar un usuario no puede borrar las llamadas ya hechas.
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"))
+    kind: Mapped[AiCallKind] = mapped_column(enum_column(AiCallKind))
+    model: Mapped[str] = mapped_column(String(64))
+    # Vacío mientras la llamada está en curso (o si la app se cayó en el medio).
+    succeeded: Mapped[bool | None] = mapped_column(Boolean)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
