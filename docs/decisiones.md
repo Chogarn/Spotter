@@ -83,6 +83,12 @@ Un texto opcional, por ejemplo "bajar lento, mantener la fuerza arriba". Es prop
 - **Por qué:** los ejercicios a veces traen indicaciones de cómo hacerlos, como hacerlos lento o mantener la fuerza arriba. *(completar el resto)*
 - **Descartaste:** una descripción general de técnica por ejercicio generada por la IA; dejarlo para más adelante.
 
+### 14. Las reglas de entrenamiento salen de un documento con fuentes
+La app solo aplica las reglas R1 a R16 de [`criterios-entrenamiento.md`](criterios-entrenamiento.md), cada una con su fuente y su nivel de certeza. Las que se pueden medir las comprueba el código; el resto se le explica a Gemini en una skill.
+- **Origen:** tuya (las aprobaste).
+- **Por qué:** *(completar)*
+- **Descartaste:** que la IA decida las reglas de entrenamiento por su cuenta o de memoria.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):

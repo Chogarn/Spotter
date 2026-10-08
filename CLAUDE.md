@@ -10,7 +10,7 @@ Spotter es una app web de entrenamiento: el usuario registra lo que entrena y, a
 - **Tareas bien definidas.** Cada tarea del backlog debe decir: para qué sirve, cómo se accede, qué ve el usuario, qué acciones puede hacer, si es una vista o componentes, qué datos usa y criterios de aceptación comprobables. Evitar tareas como "Implementar interfaz de usuario".
 - No hacer `git commit` ni `git push` sin que el usuario lo pida o lo apruebe en un plan.
 - Si algo no está confirmado (planes gratuitos de Gemini, Vercel, Render o Railway, límites de uso), no lo des por hecho: verificalo en la fuente oficial.
-- **Reglas de entrenamiento:** deben salir de `docs/criterios-entrenamiento.md` (con su fuente y su certeza) y las elige el usuario. No inventes reglas de series, repeticiones, cargas o descansos de memoria.
+- **Reglas de entrenamiento:** las únicas permitidas son **R1 a R16**, aprobadas por el usuario el 2026-10-08 y escritas en `docs/criterios-entrenamiento.md` (con su fuente, certeza, si las comprueba el código o se explican a Gemini, y en qué momento). No inventes reglas de series, repeticiones, cargas o descansos de memoria. Siguen **abiertas** (no las resuelvas tú): qué significa "perder grasa", si 10 series semanales es mucho para principiantes, la equivalencia entre repeticiones en reserva y esfuerzo, y dónde vive el descanso (R8).
 
 ## Stack
 

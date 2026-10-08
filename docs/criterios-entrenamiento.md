@@ -86,7 +86,64 @@ Es historia: el ACSM 2026 la reemplaza.
 
 ## Reglas que elijo
 
-*(completar)* Acá van los criterios que aceptás para tus skills, cada uno con su valor y la fuente. Por ejemplo, el volumen semanal que usarías por grupo muscular y por qué.
+**Reglas aprobadas por el estudiante, 2026-10-08.** Son las únicas reglas de entrenamiento que la app puede aplicar. **Evidencia** = respaldada por un estudio o una guía oficial; **Convención** = costumbre de la práctica o propuesta de diseño.
+
+**Cómo se aplica:** *Código* = el código la comprueba después de que Gemini responde (se puede medir). *Gemini* = se le explica en una skill.
+
+### Frecuencia y volumen
+
+| # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
+|---|---|---|---|---|---|
+| R1 | Mínimo de **2 días de fuerza por semana**, cubriendo todos los grupos musculares grandes | Evidencia | ACSM 2026 y OMS 2020. Certeza moderada | Código | Crear |
+| R2 | Por defecto, **cada grupo grande se trabaja 2 veces por semana**. Una sola vez no es error si el volumen alcanza | Convención con apoyo indirecto | Meta-análisis de frecuencia: con volumen igual, la frecuencia casi no cambia el resultado | Gemini | Crear |
+| R3 | **Masa muscular:** apuntar a **10 series o más por semana** por grupo muscular y no pasar de unas 18 a 20 | Evidencia | ACSM 2026. Certeza media; el texto no concilia el piso con el tope | Código | Crear |
+| R4 | **Fuerza:** **2 a 3 series por ejercicio**, cargas de 80 % del máximo o más, y el ejercicio principal al comienzo de la sesión | Evidencia | ACSM 2026 | Código (series por ejercicio) y Gemini (carga y orden) | Crear |
+| R5 | Las series **indirectas cuentan como 0,5** y las directas como 1 | Convención con apoyo parcial | Pelland 2026, solo resumen. No es norma oficial | Código | Siempre |
+
+### Carga, esfuerzo y descanso
+
+| # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
+|---|---|---|---|---|---|
+| R6 | **No hace falta llegar al fallo:** dejar **2 o 3 repeticiones en reserva** | Evidencia | ACSM 2026. Sin número exacto por falta de datos | Gemini | Siempre |
+| R7 | **Masa muscular:** no imponer un rango fijo de repeticiones; la app sugiere uno práctico, editable | Evidencia (que no hay rango fijo) | ACSM 2026: cargas de 30 % a 100 % sin diferencias claras | Gemini | Crear |
+| R8 | **Descanso autorregulado** ("el que necesites para repetir con buena técnica"), con una guía editable: **2 a 3 min** en multiarticulares pesados y **1 a 2 min** en accesorios | Convención con apoyo parcial | ACSM 2026 no recomienda tiempos; la guía numérica es secundaria | Gemini | Crear |
+
+### Progresión
+
+| # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
+|---|---|---|---|---|---|
+| R9 | Si el usuario supera las repeticiones objetivo en **1 o 2**, subir la carga entre **2 % y 10 %** | Convención | ACSM 2009 (reemplazada en 2026), confirmada en su resumen oficial | Gemini | Cerrar semana |
+| R10 | **No subir la carga** si el esfuerzo registrado fue muy alto o hubo dolor | Convención de seguridad | Sin fuente específica | Gemini | Cerrar semana y ajustar |
+
+### Reparto de días
+
+| # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
+|---|---|---|---|---|---|
+| R11 | Reparto por defecto según los días: **2** cuerpo completo A/B · **3** cuerpo completo ×3 · **4** torso/pierna ×2 · **5** híbrido · **6** empuje/tirón/pierna ×2 | Convención pura | Propuesta de diseño: ninguna fuente prescribe un reparto por días | Gemini | Crear |
+| R12 | **Principiantes:** cuerpo completo, 2 o 3 días | Convención compatible con la evidencia | ACSM 2009 lo recomendaba para novatos | Gemini | Crear |
+
+### Clasificación y equilibrio
+
+| # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
+|---|---|---|---|---|---|
+| R13 | Cada ejercicio lleva **etiquetas cerradas**: región, empuje o tirón, músculo primario y secundario, mecánica, equipamiento y nivel | Parcial | Solo "superior/inferior × empuje/tirón" lo respalda el ACSM 2026 | Código (validadas con Pydantic) | Crear y mejorar |
+| R14 | **Tirón igual o mayor que empuje** en volumen | Convención, evidencia débil | No hay ensayo que lo ligue a prevenir lesiones | Código (se calcula y se avisa) | Cerrar semana |
+| R15 | **Orden en la sesión:** grandes antes que pequeños, multiarticulares antes que monoarticulares | Convención | ACSM 2009 | Gemini | Crear |
+
+### Seguridad
+
+| # | Regla | Tipo | Fuente | Cómo se aplica | Cuándo |
+|---|---|---|---|---|---|
+| R16 | Ante dolor o lesión, la IA **no diagnostica**: baja la carga o cambia el ejercicio y muestra el aviso legal | Decisión de producto | El ACSM no cubre lesiones | Gemini | Ajustar y siempre |
+
+### Decisiones que siguen abiertas
+
+Estas dudas **no están resueltas** y no las decide la IA:
+
+- **"Perder grasa":** la evidencia no da una rutina de fuerza distinta para ese objetivo. ¿Mismo entrenamiento de fuerza y la app sugiere actividad aeróbica, sin tocar la dieta?
+- **Principiantes y R3:** 10 series semanales por grupo muscular puede ser mucho para quien empieza. La fuente no distingue.
+- **Esfuerzo:** la equivalencia entre "2 o 3 repeticiones en reserva" y un esfuerzo de 7 u 8 sobre 10 es habitual en la práctica, pero **no está verificada**.
+- **Descanso (R8):** dónde vive el dato. Hoy el modelo no tiene un campo de descanso y la regla depende de las etiquetas de R13. Opciones: campo propio editable, calcularlo sin guardarlo, o no mostrarlo.
 
 ## Fuentes
 
