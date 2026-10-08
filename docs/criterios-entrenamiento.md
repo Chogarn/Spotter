@@ -85,7 +85,7 @@ Es historia: el ACSM 2026 la reemplaza.
 
 ## Reglas que elijo
 
-**Reglas aprobadas por el estudiante (R1 a R34, 2026-10-08).** Son las únicas reglas de entrenamiento que la app puede aplicar. **Evidencia** = respaldada por un estudio o una guía oficial; **Convención** = costumbre de la práctica o propuesta de diseño.
+**Reglas aprobadas por el estudiante (R1 a R35, 2026-10-08).** Son las únicas reglas de entrenamiento que la app puede aplicar. **Evidencia** = respaldada por un estudio o una guía oficial; **Convención** = costumbre de la práctica o propuesta de diseño.
 
 **Cómo se aplica:** *Código* = el código la comprueba después de que Gemini responde (se puede medir). *Gemini* = se le explica en una skill.
 
@@ -149,6 +149,7 @@ Es historia: el ACSM 2026 la reemplaza.
 |---|---|---|---|---|---|
 | R18 | **La IA determina la duración de cada sesión** (el usuario no la ingresa) con una **referencia según el perfil**, que es una guía y **no un tope**: principiante **cerca de 60 min** · mantenerme activo **cerca de 60 min** · condición general **60 min** · intermedio con masa o fuerza **60 a 90 min** · perder grasa **60 min de fuerza, más el cardio (R17)**. Si el volumen del objetivo lo necesita, o si el usuario pide más tiempo, puede pasarse. No se arman sesiones de 90 minutos para un principiante o para quien quiere mantenerse activo | Decisión de producto | Sin fuente: el ACSM 2026 no fija una duración. Son valores propuestos por la IA y ajustados por el estudiante (el 80 de la propuesta pasó a 90) | Gemini decide; el código solo avisa si se aleja mucho de la referencia | Crear y ajustar |
 | R34 | **Duración estimada de una sesión = suma de:** el tiempo de las series (**repeticiones × unos 3 segundos** por repetición) + el descanso (**series menos una × `rest_seconds`**) + el **cambio entre ejercicios** (**1 a 2 minutos**) + los minutos de cardio planificados + la movilidad (5 a 10 minutos en los días que la tenga). El código **solo avisa** si la suma se aleja mucho de la referencia de R18; no rechaza la rutina | Convención con una pieza respaldada | ACSM 2009 (resumen): velocidad moderada, 1 a 2 s subiendo y 1 a 2 s bajando, o sea 2 a 4 s por repetición (se toma el punto medio). El cambio entre ejercicios es una estimación sin fuente | Código | Crear y ajustar |
+| R35 | **Si el volumen de R3 no entra en la duración de referencia (R18)**, la IA lo resuelve **en este orden**: **1)** suma días, hasta el máximo del nivel (3 para principiantes por R12, hasta 6 para el resto por R11); **2)** si aún no entra, deja la sesión **más larga que la referencia y se lo avisa al usuario** (la referencia es una guía, no un tope); **3)** **solo como último recurso**, recorta las series de menor prioridad y se lo avisa. **Menor prioridad = los ejercicios accesorios (monoarticulares) y los músculos chicos** (bíceps, tríceps, gemelos y core); los multiarticulares principales no se recortan primero | Decisión de producto | Sin fuente: es una regla de diseño. Se apoya en que R18 es una referencia y no un tope | Gemini decide; el código comprueba el orden y que haya aviso | Crear y ajustar |
 
 ### Perder grasa: fuerza y cardio
 
@@ -185,7 +186,7 @@ Las cifras de R24 y R25 son una **interpolación** del informe de investigación
 Estas dudas **no están resueltas** y no las decide la IA:
 
 - **Minutos de cardio según el nivel:** R17 fija el rango, pero la evidencia no dice cómo variar entre un principiante (cerca de 150) y alguien con más experiencia (cerca de 300). Queda a criterio de la IA dentro del rango.
-- **Si el volumen no entra:** un principiante con 2 o 3 días de unos 60 minutos puede no llegar a las 10 series por grupo de R3 (unas 60 por semana contando solo series directas). Se puede aliviar contando las series indirectas a 0,5 (R5) y la IA puede subir los días hasta 6, pero falta decidir qué cede si igual no entra: el volumen o el tiempo.
+- **A qué músculos aplica R3:** R3 dice "por grupo muscular" y no se aclaró si cuenta los 10 músculos o solo los 6 grupos grandes (pecho, espalda, hombros, cuádriceps, isquios y glúteos). Cambia mucho el resultado: en el ejemplo de un principiante de 2 días, aplicarla a los 10 lleva el día a unos 83 minutos y aplicarla a los 6 grandes a unos 75.
 - **Esfuerzo (R29):** la equivalencia entre "2 o 3 repeticiones en reserva" y un esfuerzo de 7 u 8 está aprobada como deducción, pero **sigue sin verificarse en la tabla original** de Zourdos 2016.
 - **Cuánto reducir en la semana liviana (R30):** se mantiene la carga y se baja el volumen, pero no hay cifra (¿la mitad de las series, un porcentaje?). Sin respaldo en la evidencia; falta que lo definas.
 

@@ -178,11 +178,20 @@ Tiempo de series (repeticiones por unos 3 segundos) más descanso, más 1 a 2 mi
 - **Descartaste:** rechazar la rutina cuando no entra, porque la duración es una referencia y no un tope.
 - **Ojo:** el cambio entre ejercicios no tiene fuente.
 
+### 29. Qué hacer si el volumen no entra en la duración de referencia
+La IA primero **suma días** (hasta el máximo del nivel), después deja la sesión **más larga y avisa**, y solo como último recurso **recorta series** y avisa (R35). Las de menor prioridad son los **ejercicios accesorios y los músculos chicos** (bíceps, tríceps, gemelos y core): lo definiste vos; la lista de músculos chicos es una interpretación de la IA.
+- **Origen:** elegida entre opciones (propuestas por la IA tras un ejemplo calculado; el orden lo aprobaste).
+- **Por qué:** *(completar)*
+- **Descartaste:** recortar el volumen primero; rechazar la rutina cuando no entra.
+- **Ojo:** el ejemplo (principiante de masa con 2 días: 83 minutos contra una referencia de 60; con 3 días, 54) usa supuestos de la IA, como el cambio entre ejercicios.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
 
-- Login: antes de la semana 2, con un usuario de prueba, o un login mínimo.
+- **Login:** antes de la semana 2, con un usuario de prueba, o un login mínimo.
+- **A qué músculos aplica R3:** los 10 de la lista o solo los 6 grupos grandes (pecho, espalda, hombros, cuádriceps, isquios y glúteos).
+- **Cuánto reducir el volumen** en la semana liviana (R30).
 - Reabrir un día ya completado.
 - Pedir confirmación al cerrar la semana con días sin hacer.
 - Avisos al usuario.
