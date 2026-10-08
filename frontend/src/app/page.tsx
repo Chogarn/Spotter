@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { API, readError, type Week } from "@/lib/api";
 
@@ -10,7 +10,11 @@ export default function Home() {
   const router = useRouter();
   const [cargando, setCargando] = useState(true);
   const [semana, setSemana] = useState<Week | null>(null);
-  const [generando, setGenerando] = useState(false);
+  // `pidiendo`: esperando a la IA. `navegando`: abriendo la propuesta; se apaga solo cuando la
+  // nueva página está lista (así la portada no queda "generando" al volver a ella).
+  const [pidiendo, setPidiendo] = useState(false);
+  const [navegando, startTransition] = useTransition();
+  const generando = pidiendo || navegando;
   const [error, setError] = useState("");
 
   // Subir `recarga` vuelve a pedir la semana activa.
@@ -20,7 +24,8 @@ export default function Home() {
     fetch(`${API}/weeks/active`)
       .then(async (res) => {
         if (res.ok) setSemana(await res.json());
-        else if (res.status !== 404) setError(await readError(res));
+        else if (res.status === 404) setSemana(null); // la semana pudo haberse cerrado
+        else setError(await readError(res));
       })
       .catch(() => setError("No se pudo conectar con el servidor"))
       .finally(() => setCargando(false));
@@ -28,20 +33,21 @@ export default function Home() {
 
   async function generar() {
     setError("");
-    setGenerando(true);
+    setPidiendo(true);
     try {
       const res = await fetch(`${API}/proposals/generate`, { method: "POST" });
       if (res.ok) {
         const propuesta = await res.json();
-        router.push(`/rutina/propuesta/${propuesta.id}`);
-        return; // sigue "generando" hasta que cambia la página
+        startTransition(() => router.push(`/rutina/propuesta/${propuesta.id}`));
+        setPidiendo(false);
+        return;
       }
       setError(await readError(res));
       if (res.status === 409) setRecarga((n) => n + 1); // quizás ya tenía una semana activa
     } catch {
       setError("No se pudo conectar con el servidor");
     }
-    setGenerando(false);
+    setPidiendo(false);
   }
 
   return (
