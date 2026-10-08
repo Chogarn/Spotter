@@ -41,6 +41,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-spotter}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-spotter}
       JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el archivo .env}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
       GEMINI_DAILY_LIMIT: ${GEMINI_DAILY_LIMIT:-}
       GEMINI_RPM_LIMIT: ${GEMINI_RPM_LIMIT:-}
     ports:
