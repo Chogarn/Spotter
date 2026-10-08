@@ -168,9 +168,9 @@ class PlanExercise(Base):
     )
     exercise_id: Mapped[int] = mapped_column(ForeignKey("exercises.id"))
     position: Mapped[int] = mapped_column(Integer)
-    sets: Mapped[int] = mapped_column(Integer)
-    reps: Mapped[int] = mapped_column(Integer)
-    target_weight_kg: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
+    # Indicaciones de ejecución propias de esta rutina: ritmo, pausas, técnica
+    # (por ejemplo, "bajar lento, pausa de 2 segundos arriba").
+    execution_notes: Mapped[str | None] = mapped_column(Text)
     reason: Mapped[str | None] = mapped_column(Text)
     edited_by_user: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default="false"
@@ -178,6 +178,33 @@ class PlanExercise(Base):
 
     plan_day: Mapped[PlanDay] = relationship(back_populates="exercises")
     exercise: Mapped[Exercise] = relationship()
+    # Las series, repeticiones y pesos viven en plan_sets (una fila por serie).
+    # El resumen "4 x 10 con 50 kg" se calcula a partir de ellas, no se guarda.
+    sets: Mapped[list["PlanSet"]] = relationship(
+        back_populates="plan_exercise",
+        cascade="all, delete-orphan",
+        order_by="PlanSet.set_number",
+    )
+
+
+class PlanSet(Base):
+    """Una serie planificada: cuántas repeticiones y con qué peso."""
+
+    __tablename__ = "plan_sets"
+    __table_args__ = (
+        UniqueConstraint("plan_exercise_id", "set_number", name="uq_plan_sets_exercise_num"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    plan_exercise_id: Mapped[int] = mapped_column(
+        ForeignKey("plan_exercises.id", ondelete="CASCADE")
+    )
+    set_number: Mapped[int] = mapped_column(Integer)
+    reps: Mapped[int] = mapped_column(Integer)
+    # Vacío en ejercicios con peso corporal.
+    target_weight_kg: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
+
+    plan_exercise: Mapped[PlanExercise] = relationship(back_populates="sets")
 
 
 class WorkoutSession(Base):
@@ -221,6 +248,10 @@ class SetEntry(Base):
     )
     plan_exercise_id: Mapped[int | None] = mapped_column(
         ForeignKey("plan_exercises.id", ondelete="SET NULL")
+    )
+    # Serie planificada con la que se compara. Vacío en las series extra que no estaban en el plan.
+    plan_set_id: Mapped[int | None] = mapped_column(
+        ForeignKey("plan_sets.id", ondelete="SET NULL")
     )
     exercise_id: Mapped[int] = mapped_column(ForeignKey("exercises.id"))
     set_number: Mapped[int] = mapped_column(Integer)

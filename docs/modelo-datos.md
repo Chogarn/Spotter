@@ -10,6 +10,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 |---|---|---|
 | `0001` núcleo | `users`, `profiles`, `exercises`, `week_plans`, `plan_days`, `plan_exercises`, `workout_sessions`, `set_entries` | Implementada |
 | `0002` fin de sesión y cierre de semana | Agrega `week_plans.closed_at` y `workout_sessions.finished_at` | Implementada |
+| `0003` series planificadas e indicaciones | Crea `plan_sets`; agrega `plan_exercises.execution_notes` y `set_entries.plan_set_id`; quita `sets`, `reps` y `target_weight_kg` de `plan_exercises` | Implementada |
 | Semana 4 | `plan_proposals`, `ai_calls` | Pendiente: se agregan cuando se construya la IA |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
@@ -26,6 +27,8 @@ erDiagram
     WEEK_PLANS ||--o{ PLAN_DAYS : incluye
     WEEK_PLANS ||--o{ PLAN_PROPOSALS : origina
     PLAN_DAYS ||--o{ PLAN_EXERCISES : contiene
+    PLAN_EXERCISES ||--o{ PLAN_SETS : "se divide en"
+    PLAN_SETS |o--o{ SET_ENTRIES : "se compara con"
     EXERCISES ||--o{ PLAN_EXERCISES : "se planifica en"
     EXERCISES ||--o{ SET_ENTRIES : "se realiza en"
     PLAN_DAYS |o--o{ WORKOUT_SESSIONS : "se entrena como"
@@ -88,11 +91,16 @@ erDiagram
         int plan_day_id FK
         int exercise_id FK
         int position
-        int sets
-        int reps
-        decimal target_weight_kg
+        text execution_notes
         text reason
         bool edited_by_user
+    }
+    PLAN_SETS {
+        int id PK
+        int plan_exercise_id FK
+        int set_number
+        int reps
+        decimal target_weight_kg
     }
     WORKOUT_SESSIONS {
         int id PK
@@ -107,6 +115,7 @@ erDiagram
         int id PK
         int session_id FK
         int plan_exercise_id FK
+        int plan_set_id FK
         int exercise_id FK
         int set_number
         int reps
@@ -188,15 +197,26 @@ Un plan por semana. Las semanas anteriores se conservan como historial. La seman
 Días de entrenamiento de una semana. `day_index` va de 1 a 7 y es el **orden** dentro de la semana ("Día 1", "Día 2"...), no un día del calendario. `title` describe el foco del día (por ejemplo, "Pecho y tríceps").
 
 ### plan_exercises
-Lo **planificado**: qué toca hacer en cada día.
+Lo **planificado**: qué ejercicio toca hacer en cada día. Las series, repeticiones y pesos no están acá: están en `plan_sets`.
 
 | Campo | Detalle |
 |---|---|
 | position | Orden dentro del día |
-| sets, reps | Series y repeticiones |
-| target_weight_kg | Peso objetivo en kilos |
+| execution_notes | Indicaciones de ejecución propias de esta rutina (ritmo, pausas, técnica), por ejemplo "bajar lento, pausa de 2 segundos arriba". Opcional |
 | reason | Explicación de la IA ("¿por qué esto?") |
-| edited_by_user | `true` si el usuario lo cambió a mano; la IA lo respeta |
+| edited_by_user | `true` si el usuario cambió el ejercicio o alguna de sus series a mano; la IA lo respeta |
+
+### plan_sets
+Una fila por **serie planificada**. Permite que cada serie tenga sus propias repeticiones y su propio peso (por ejemplo 10 × 50, 8 × 55, 6 × 60, 4 × 65).
+
+| Campo | Detalle |
+|---|---|
+| plan_exercise_id | Ejercicio planificado al que pertenece (se borra en cascada) |
+| set_number | Número de serie. **Único** dentro de cada ejercicio |
+| reps | Repeticiones planificadas |
+| target_weight_kg | Peso planificado en kilos. Vacío en ejercicios con peso corporal |
+
+El resumen "4 × 10 con 50 kg" **se calcula** a partir de estas filas, no se guarda: si las series son iguales se muestra así, y si difieren se muestra un rango ("10 a 4 reps · 50 a 65 kg").
 
 ### workout_sessions
 Una sesión de entrenamiento realizada.
@@ -214,7 +234,8 @@ Lo **real**: cada serie que el usuario hizo.
 
 | Campo | Detalle |
 |---|---|
-| plan_exercise_id | Ejercicio planificado con el que se compara (opcional) |
+| plan_exercise_id | Ejercicio planificado al que corresponde (opcional) |
+| plan_set_id | Serie planificada con la que se compara. Vacío en las series extra que no estaban en el plan |
 | exercise_id | Ejercicio realizado |
 | set_number, reps, weight_kg | Número de serie, repeticiones y peso en kilos |
 | effort | Esfuerzo de 1 a 10 (opcional) |
@@ -244,3 +265,5 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 7. **La semana es un ciclo que el usuario cierra.** `closed_at` queda vacío hasta que el usuario toca "Cerrar semana". Se puede cerrar con días sin hacer: esos días se cuentan como no hechos y viajan a la IA como información.
 8. **Los días se llaman Día 1, Día 2.** `day_index` es un orden, no un día de la semana, así que la semana se puede correr sin que nada se rompa.
 9. **La sesión se cierra con un botón.** `finished_at` distingue una sesión en curso de una terminada, y permite reabrirla. Los datos se guardan a medida que se cargan, no recién al terminar.
+10. **Las series se guardan una por una.** `plan_sets` tiene una fila por serie planificada, así cada serie puede tener sus propias repeticiones y su propio peso, y se compara serie por serie con lo realizado (`set_entries.plan_set_id`). Con una sola fuente de verdad no hay dos lugares que puedan contradecirse.
+11. **Las indicaciones de ejecución son de la rutina.** `execution_notes` vive en el ejercicio planificado, no en el ejercicio general: el usuario la escribe o la edita, y la IA puede proponerla.
