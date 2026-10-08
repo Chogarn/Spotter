@@ -155,6 +155,9 @@ class PlanDay(Base):
     # Orden dentro de la semana: 1 = "Día 1", 2 = "Día 2"... No es un día del calendario.
     day_index: Mapped[int] = mapped_column(Integer)
     title: Mapped[str] = mapped_column(String(100))
+    # Movilidad y equilibrio del día, en texto (por ejemplo, "5 a 10 min de movilidad de cadera").
+    # No se registra serie por serie: es una indicación de texto, editable por el usuario.
+    mobility_notes: Mapped[str | None] = mapped_column(Text)
 
     week_plan: Mapped[WeekPlan] = relationship(back_populates="days")
     exercises: Mapped[list["PlanExercise"]] = relationship(
@@ -170,6 +173,7 @@ class PlanExercise(Base):
     __tablename__ = "plan_exercises"
     __table_args__ = (
         UniqueConstraint("plan_day_id", "position", name="uq_plan_exercises_day_pos"),
+        CheckConstraint("rest_seconds >= 0", name="ck_plan_exercises_rest"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -181,6 +185,8 @@ class PlanExercise(Base):
     # Indicaciones de ejecución propias de esta rutina: ritmo, pausas, técnica
     # (por ejemplo, "bajar lento, pausa de 2 segundos arriba").
     execution_notes: Mapped[str | None] = mapped_column(Text)
+    # Descanso entre series, en segundos. La IA lo propone (R8) y el usuario lo puede cambiar.
+    rest_seconds: Mapped[int | None] = mapped_column(Integer)
     reason: Mapped[str | None] = mapped_column(Text)
     edited_by_user: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default="false"

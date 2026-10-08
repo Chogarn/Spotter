@@ -11,6 +11,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0001` núcleo | `users`, `profiles`, `exercises`, `week_plans`, `plan_days`, `plan_exercises`, `workout_sessions`, `set_entries` | Implementada |
 | `0002` fin de sesión y cierre de semana | Agrega `week_plans.closed_at` y `workout_sessions.finished_at` | Implementada |
 | `0003` series planificadas e indicaciones | Crea `plan_sets`; agrega `plan_exercises.execution_notes` y `set_entries.plan_set_id`; quita `sets`, `reps` y `target_weight_kg` de `plan_exercises` | Implementada |
+| `0007` descanso y movilidad | Agrega `plan_exercises.rest_seconds` (descanso entre series) y `plan_days.mobility_notes` (texto de movilidad y equilibrio) | Implementada |
 | `0006` sin duración de sesión en el perfil | Quita `profiles.session_minutes`: la duración de la sesión la determina la IA | Implementada |
 | `0005` sin días por semana en el perfil | Quita `profiles.days_per_week` y su restricción: la cantidad de días se calcula a partir de `plan_days` | Implementada |
 | `0004` cardio con duración | Agrega `exercises.kind` y `duration_minutes` en `plan_sets` y `set_entries`; hace opcionales `reps` (en ambas) y `set_entries.weight_kg`; agrega la restricción "repeticiones o minutos" | Implementada |
@@ -87,6 +88,7 @@ erDiagram
         int week_plan_id FK
         int day_index
         string title
+        text mobility_notes
     }
     PLAN_EXERCISES {
         int id PK
@@ -94,6 +96,7 @@ erDiagram
         int exercise_id FK
         int position
         text execution_notes
+        int rest_seconds
         text reason
         bool edited_by_user
     }
@@ -201,12 +204,17 @@ Un plan por semana. Las semanas anteriores se conservan como historial. La seman
 ### plan_days
 Días de entrenamiento de una semana. `day_index` va de 1 a 7 y es el **orden** dentro de la semana ("Día 1", "Día 2"...), no un día del calendario. `title` describe el foco del día (por ejemplo, "Pecho y tríceps").
 
+| Campo | Detalle |
+|---|---|
+| mobility_notes | Texto opcional con la **movilidad y el equilibrio** del día (por ejemplo, "5 a 10 min de movilidad de cadera"). Es una indicación de texto, editable por el usuario; no se registra serie por serie (R26) |
+
 ### plan_exercises
 Lo **planificado**: qué ejercicio toca hacer en cada día. Las series, repeticiones y pesos no están acá: están en `plan_sets`.
 
 | Campo | Detalle |
 |---|---|
 | position | Orden dentro del día |
+| rest_seconds | **Descanso entre series, en segundos.** Campo propio y editable: la IA lo propone (R8) y el usuario lo puede cambiar. Opcional; no puede ser negativo |
 | execution_notes | Indicaciones de ejecución propias de esta rutina (ritmo, pausas, técnica), por ejemplo "bajar lento, pausa de 2 segundos arriba". Opcional |
 | reason | Explicación de la IA ("¿por qué esto?") |
 | edited_by_user | `true` si el usuario cambió el ejercicio o alguna de sus series a mano; la IA lo respeta |
@@ -284,3 +292,5 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 13. **Una serie se mide en repeticiones o en minutos.** Una restricción de la base lo garantiza. Además, `set_entries.weight_kg` pasó a ser opcional, lo que también permite registrar ejercicios con peso corporal.
 14. **Los días los define la rutina, no el perfil.** Por eso `profiles` ya no tiene `days_per_week`: cuántos días entrena una persona se calcula contando los `plan_days` de su semana activa.
 15. **La duración de la sesión tampoco está en el perfil.** La determina la IA, igual que los días. Por eso se quitó `profiles.session_minutes`. El usuario puede pedir más (más días o sesiones más largas), nunca menos.
+16. **El descanso es un campo propio y editable.** `plan_exercises.rest_seconds` guarda el descanso entre series de cada ejercicio. La IA lo propone según el tipo de ejercicio y el usuario lo cambia. Con ese dato el código podrá estimar cuánto dura una sesión.
+17. **La movilidad y el equilibrio son un texto del día.** `plan_days.mobility_notes` es un texto libre, sin series ni tilde. Es lo más simple y se puede pasar a un tipo de ejercicio más adelante si hace falta registrarlos.

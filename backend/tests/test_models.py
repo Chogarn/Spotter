@@ -68,6 +68,19 @@ def test_el_perfil_no_pide_dias_ni_duracion_de_la_sesion():
     assert "session_minutes" not in columnas
 
 
+def test_el_descanso_es_un_campo_propio_y_opcional_del_ejercicio_planificado():
+    tabla = Base.metadata.tables["plan_exercises"]
+    assert "rest_seconds" in tabla.c
+    assert tabla.c.rest_seconds.nullable
+    assert "ck_plan_exercises_rest" in {c.name for c in tabla.constraints if c.name}
+
+
+def test_el_dia_puede_llevar_un_texto_de_movilidad_y_equilibrio():
+    tabla = Base.metadata.tables["plan_days"]
+    assert "mobility_notes" in tabla.c
+    assert tabla.c.mobility_notes.nullable
+
+
 def test_database_url_usa_el_driver_psycopg(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "postgresql://u:p@db:5432/spotter")
     assert get_database_url() == "postgresql+psycopg://u:p@db:5432/spotter"
