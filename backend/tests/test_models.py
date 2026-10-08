@@ -62,6 +62,12 @@ def test_el_ejercicio_tiene_tipo_fuerza_o_cardio():
     assert "kind" in Base.metadata.tables["exercises"].c
 
 
+def test_el_perfil_no_pide_dias_ni_duracion_de_la_sesion():
+    columnas = set(Base.metadata.tables["profiles"].c.keys())
+    assert "days_per_week" not in columnas
+    assert "session_minutes" not in columnas
+
+
 def test_database_url_usa_el_driver_psycopg(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "postgresql://u:p@db:5432/spotter")
     assert get_database_url() == "postgresql+psycopg://u:p@db:5432/spotter"

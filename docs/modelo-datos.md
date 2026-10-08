@@ -11,6 +11,8 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0001` núcleo | `users`, `profiles`, `exercises`, `week_plans`, `plan_days`, `plan_exercises`, `workout_sessions`, `set_entries` | Implementada |
 | `0002` fin de sesión y cierre de semana | Agrega `week_plans.closed_at` y `workout_sessions.finished_at` | Implementada |
 | `0003` series planificadas e indicaciones | Crea `plan_sets`; agrega `plan_exercises.execution_notes` y `set_entries.plan_set_id`; quita `sets`, `reps` y `target_weight_kg` de `plan_exercises` | Implementada |
+| `0006` sin duración de sesión en el perfil | Quita `profiles.session_minutes`: la duración de la sesión la determina la IA | Implementada |
+| `0005` sin días por semana en el perfil | Quita `profiles.days_per_week` y su restricción: la cantidad de días se calcula a partir de `plan_days` | Implementada |
 | `0004` cardio con duración | Agrega `exercises.kind` y `duration_minutes` en `plan_sets` y `set_entries`; hace opcionales `reps` (en ambas) y `set_entries.weight_kg`; agrega la restricción "repeticiones o minutos" | Implementada |
 | Semana 4 | `plan_proposals`, `ai_calls` | Pendiente: se agregan cuando se construya la IA |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
@@ -51,8 +53,6 @@ erDiagram
         string sex
         string level
         string goal
-        int days_per_week
-        int session_minutes
         string equipment
         text limitations
         datetime legal_notice_accepted_at
@@ -168,7 +168,7 @@ Datos del usuario y objetivo. Una fila por usuario.
 | sex | Opcional; solo para ajustar cargas iniciales |
 | level | `principiante`, `intermedio` o `avanzado` |
 | goal | **Obligatorio.** `masa`, `fuerza`, `perder_grasa`, `condicion_general` o `mantenerme_activo` |
-| days_per_week, session_minutes | Días disponibles y duración de cada sesión |
+| *(sin días ni duración)* | **El perfil no tiene "días por semana" ni "duración de la sesión"**: los determina la IA. La cantidad de días se calcula con `plan_days` |
 | equipment | `gimnasio`, `mancuernas` o `casa` |
 | limitations | Lesiones o limitaciones (texto opcional) |
 | legal_notice_accepted_at | Cuándo aceptó el aviso legal |
@@ -259,7 +259,7 @@ Lo que propone la IA antes de aplicarse.
 | Campo | Detalle |
 |---|---|
 | kind | `adjust`, `week_close`, `improve` o `repeat_exercise` |
-| request_text | Pedido del usuario, si lo hubo ("solo puedo 3 días") |
+| request_text | Pedido del usuario, si lo hubo ("no tengo esa máquina") |
 | proposed_changes | JSON con los cambios, validado con Pydantic |
 | status | `pending`, `accepted` o `discarded` |
 | resolved_at | Cuándo el usuario aceptó o descartó |
@@ -282,3 +282,5 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 11. **Las indicaciones de ejecución son de la rutina.** `execution_notes` vive en el ejercicio planificado, no en el ejercicio general: el usuario la escribe o la edita, y la IA puede proponerla.
 12. **El cardio es un ejercicio con duración.** No hay una tabla aparte: un ejercicio de cardio es un `exercises` con `kind = cardio` y sus series se miden en `duration_minutes`. Así entra en el mismo flujo (tilde, "Día completado", planificado frente a real). La intensidad (ritmo moderado, "que puedas hablar") va en `execution_notes`.
 13. **Una serie se mide en repeticiones o en minutos.** Una restricción de la base lo garantiza. Además, `set_entries.weight_kg` pasó a ser opcional, lo que también permite registrar ejercicios con peso corporal.
+14. **Los días los define la rutina, no el perfil.** Por eso `profiles` ya no tiene `days_per_week`: cuántos días entrena una persona se calcula contando los `plan_days` de su semana activa.
+15. **La duración de la sesión tampoco está en el perfil.** La determina la IA, igual que los días. Por eso se quitó `profiles.session_minutes`. El usuario puede pedir más (más días o sesiones más largas), nunca menos.

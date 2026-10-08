@@ -71,9 +71,7 @@ class User(Base):
 
 class Profile(Base):
     __tablename__ = "profiles"
-    __table_args__ = (
-        CheckConstraint("days_per_week BETWEEN 1 AND 7", name="ck_profiles_days"),
-    )
+    # No hay "días por semana" ni "duración de la sesión": los define la IA, no el usuario.
 
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
@@ -84,8 +82,6 @@ class Profile(Base):
     sex: Mapped[str | None] = mapped_column(String(20))
     level: Mapped[Level] = mapped_column(enum_column(Level))
     goal: Mapped[Goal] = mapped_column(enum_column(Goal))
-    days_per_week: Mapped[int] = mapped_column(Integer)
-    session_minutes: Mapped[int] = mapped_column(Integer)
     equipment: Mapped[Equipment] = mapped_column(enum_column(Equipment))
     limitations: Mapped[str | None] = mapped_column(Text)
     legal_notice_accepted_at: Mapped[datetime | None] = mapped_column(
