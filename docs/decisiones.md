@@ -101,6 +101,38 @@ Un ejercicio de cardio se mide en minutos y entra en el mismo flujo que los dem�
 - **Por qué:** *(completar)*
 - **Descartaste:** un bloque de cardio aparte por día; dejar el cardio solo como sugerencia de la IA.
 
+### 17. La IA decide los minutos de cardio, dentro de un rango
+Para "perder grasa", la IA elige los minutos de cardio semanales de cada persona según su perfil y la rutina que le asigne, dentro de **150 a 300 minutos por semana**. El código comprueba que no se salga del rango y el usuario puede editarlos.
+- **Origen:** tuya (el rango lo elegiste entre mis opciones).
+- **Por qué:** los minutos de cardio dependen de los datos del usuario y de la rutina que se le asigne, así que no tiene sentido un número fijo. *(completar el resto)*
+- **Descartaste:** un número fijo para todos; que la IA elija sin ningún límite; los rangos de 150 a 250 y de 150 o más sin tope.
+
+### 18. Las 10 series semanales valen también para principiantes
+El piso de 10 series o más por semana por grupo muscular (R3, masa muscular) no baja para quien empieza.
+- **Origen:** tuya.
+- **Por qué:** considerás que 10 series semanales **no son demasiadas** para un principiante. *(completar el resto; un dato a favor: la evidencia del ACSM 2026 viene sobre todo de personas sin experiencia)*
+- **Descartaste:** un piso más bajo para principiantes.
+
+### 19. La IA determina los días de la semana
+La cantidad de días (entre 2 y 6) la determina la IA según los parámetros de la persona: objetivo, nivel, volumen necesario y, en el camino B, la rutina que cargó. El usuario no los elige, pero si prefiere **entrenar más días** puede pedirlo y la IA recalcula (nunca menos). No existe el pedido "solo puedo 3 días".
+- **Origen:** tuya.
+- **Por qué:** querés que la cantidad de días la defina la rutina y no el usuario; si la persona quiere más días, que la IA recalcule. *(completar el resto)*
+- **Descartaste:** que el usuario elija sus días por semana; una semana fija de 5 días para todos (lo decidiste antes y lo cambiaste el mismo día); que los días dependan solo del nivel.
+- **Historial:** el 2026-10-08 se decidió primero "5 días para todos" y luego esta regla, que la reemplaza.
+
+### 20. La IA también determina la duración de cada sesión
+El usuario no ingresa cuánto tiempo tiene por sesión: lo determina la IA, igual que los días. Si prefiere entrenar más (más días o sesiones más largas), puede pedirlo y la IA recalcula; nunca menos.
+- **Origen:** tuya.
+- **Por qué:** querés que la IA decida el tiempo de sesión y que se trate igual que los días. *(completar el resto)*
+- **Descartaste:** pedirle al usuario la duración de su sesión, que era un dato obligatorio del perfil.
+- **Referencia (R18):** no es un tope. Principiante y mantenerme activo cerca de 60 minutos; intermedio con masa o fuerza de 60 a 90; la IA puede pasarse si el volumen o el usuario lo piden.
+
+### 21. Los principiantes entrenan 2 o 3 días
+Cuerpo completo, 2 o 3 días por semana, con sesiones de unos 60 minutos (R12).
+- **Origen:** tuya (la mantuviste cuando se discutió pasar a 5 días de 60 minutos).
+- **Por qué:** *(completar)*
+- **Descartaste:** 5 días para todos, incluidos los principiantes.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):

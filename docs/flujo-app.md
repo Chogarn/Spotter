@@ -59,7 +59,7 @@ El usuario debe elegir uno. Sin objetivo no se puede avanzar.
 | Ganar fuerza | Cargas altas con pocas repeticiones, ejercicios básicos, descansos largos |
 | Perder grasa | **Más cardio y menos fuerza**: la fuerza se mantiene en el mínimo (al menos 2 días por semana) y el resto se completa con cardio. La alimentación queda fuera de la app y se da por hecho que el usuario la maneja |
 | Mejorar condición física general | Rutinas equilibradas de cuerpo completo y variedad |
-| Mantenerme activo | Rutinas simples, pocas sesiones y progresión suave |
+| Mantenerme activo | Rutinas simples y progresión suave |
 
 ## Datos del usuario
 
@@ -71,8 +71,6 @@ Se piden una sola vez y se pueden editar después.
 - Altura (cm)
 - Nivel de experiencia: principiante, intermedio o avanzado
 - Objetivo (uno de los 5)
-- Cantidad de días de entrenamiento de la semana (de 1 a 7). No se eligen días concretos del calendario
-- Duración aproximada de cada sesión
 - Equipamiento: gimnasio completo, mancuernas o en casa
 
 **Opcionales**
@@ -103,6 +101,14 @@ Se piden una sola vez y se pueden editar después.
 
 ### La semana es un ciclo
 La semana no está atada al calendario: empieza cuando el usuario la activa y termina cuando la cierra con el botón. Si tarda más de siete días en completarla, sigue siendo la misma semana. Solo hay una semana activa a la vez, y las semanas anteriores se conservan como historial.
+
+### Cuántos días tiene la semana
+Ni los días ni la duración de cada sesión **los elige el usuario**: **los determina la IA** a partir de sus parámetros: el objetivo, el nivel, el volumen que pide la regla del objetivo y, en el camino B, la rutina que cargó. Siempre **entre 2 y 6 días** (al menos 2 por R1, y al menos un día de descanso).
+
+Si el usuario **prefiere entrenar más** (más días o sesiones más largas), puede pedirlo y la IA **recalcula** la semana, con vista previa para aceptar o descartar. Puede pedir **más, nunca menos**. Si después no puede entrenar algún día, no pasa nada: se marca como no hecho y se cuenta como información al cerrar la semana.
+
+### Duración de cada sesión
+La IA también determina cuánto dura cada sesión, con una **referencia según el perfil** (una guía, no un tope): principiante y "mantenerme activo" cerca de **60 minutos**; "condición general" **60**; intermedio con masa o fuerza **60 a 90**; "perder grasa" **60 minutos de fuerza más el cardio**. Los principiantes entrenan **2 o 3 días**. Si el volumen lo necesita, o si el usuario pide sesiones más largas, la IA puede pasarse de la referencia.
 
 ### Días: "Día 1, Día 2"
 Los días se nombran por orden y no por día de la semana (no hay "lunes" ni "martes"). Cada día tiene un título que describe su foco, por ejemplo "Día 1 · Pecho y tríceps". La app puede sugerir el siguiente: el primer día que todavía no se hizo.
@@ -166,7 +172,7 @@ Sin pasar por la IA, el usuario puede cambiar las series, las repeticiones y el 
 ## La IA propone, el usuario decide
 
 ### Ajuste durante la semana
-El usuario escribe un pedido dentro de la pantalla de la semana ("solo puedo 3 días", "no tengo esa máquina", "me molesta el hombro"). La IA devuelve una **propuesta**, no un cambio directo:
+El usuario escribe un pedido dentro de la pantalla de la semana ("no tengo esa máquina", "me molesta el hombro"). Sí puede pedir **entrenar más días**, pero no menos (ver "Cuántos días tiene la semana"). La IA devuelve una **propuesta**, no un cambio directo:
 
 1. Se muestra una vista previa antes y después (qué día, ejercicio o carga cambia y por qué).
 2. El usuario acepta o descarta.

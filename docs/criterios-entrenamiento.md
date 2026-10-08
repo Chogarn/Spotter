@@ -85,7 +85,7 @@ Es historia: el ACSM 2026 la reemplaza.
 
 ## Reglas que elijo
 
-**Reglas aprobadas por el estudiante, 2026-10-08.** Son las únicas reglas de entrenamiento que la app puede aplicar. **Evidencia** = respaldada por un estudio o una guía oficial; **Convención** = costumbre de la práctica o propuesta de diseño.
+**Reglas aprobadas por el estudiante (R1 a R18, 2026-10-08).** Son las únicas reglas de entrenamiento que la app puede aplicar. **Evidencia** = respaldada por un estudio o una guía oficial; **Convención** = costumbre de la práctica o propuesta de diseño.
 
 **Cómo se aplica:** *Código* = el código la comprueba después de que Gemini responde (se puede medir). *Gemini* = se le explica en una skill.
 
@@ -95,7 +95,7 @@ Es historia: el ACSM 2026 la reemplaza.
 |---|---|---|---|---|---|
 | R1 | Mínimo de **2 días de fuerza por semana**, cubriendo todos los grupos musculares grandes | Evidencia | ACSM 2026 y OMS 2020. Certeza moderada | Código | Crear |
 | R2 | Por defecto, **cada grupo grande se trabaja 2 veces por semana**. Una sola vez no es error si el volumen alcanza | Convención con apoyo indirecto | Meta-análisis de frecuencia: con volumen igual, la frecuencia casi no cambia el resultado | Gemini | Crear |
-| R3 | **Masa muscular:** apuntar a **10 series o más por semana** por grupo muscular y no pasar de unas 18 a 20 | Evidencia | ACSM 2026. Certeza media; el texto no concilia el piso con el tope | Código | Crear |
+| R3 | **Masa muscular:** apuntar a **10 series o más por semana** por grupo muscular y no pasar de unas 18 a 20 | Evidencia | ACSM 2026. Certeza media; el texto no concilia el piso con el tope. **Vale también para principiantes** (decisión del estudiante): la evidencia viene sobre todo de personas sin experiencia | Código | Crear |
 | R4 | **Fuerza:** **2 a 3 series por ejercicio**, cargas de 80 % del máximo o más, y el ejercicio principal al comienzo de la sesión | Evidencia | ACSM 2026 | Código (series por ejercicio) y Gemini (carga y orden) | Crear |
 | R5 | Las series **indirectas cuentan como 0,5** y las directas como 1 | Convención con apoyo parcial | Pelland 2026, solo resumen. No es norma oficial | Código | Siempre |
 
@@ -118,8 +118,8 @@ Es historia: el ACSM 2026 la reemplaza.
 
 | # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
 |---|---|---|---|---|---|
-| R11 | Reparto por defecto según los días: **2** cuerpo completo A/B · **3** cuerpo completo ×3 · **4** torso/pierna ×2 · **5** híbrido · **6** empuje/tirón/pierna ×2 | Convención pura | Propuesta de diseño: ninguna fuente prescribe un reparto por días | Gemini | Crear |
-| R12 | **Principiantes:** cuerpo completo, 2 o 3 días | Convención compatible con la evidencia | ACSM 2009 lo recomendaba para novatos | Gemini | Crear |
+| R11 | **La IA determina cuántos días entrena la persona**, entre **2 y 6**, según su objetivo, nivel y el volumen que pide la regla del objetivo (en el camino B, también los días de su rutina). El usuario puede pedir **más días**, nunca menos. Reparto por defecto: **2** cuerpo completo A/B · **3** cuerpo completo ×3 · **4** torso/pierna ×2 · **5** híbrido · **6** empuje/tirón/pierna ×2. *(Modificada 2026-10-08, dos veces: antes dependía de los días que elegía el usuario y, más tarde, eran 5 para todos)* | Decisión de producto y convención | Ninguna fuente prescribe un reparto ni una cantidad de días: el ACSM 2026 no encontró diferencias entre 1 y más de 5 días con igual volumen. El máximo de 6 días es una convención sin evidencia | Gemini decide; el código valida que sean 2 a 6 | Crear y ajustar |
+| R12 | **Principiantes:** cuerpo completo, **2 o 3 días**. *(Confirmada 2026-10-08 por el estudiante, tras haberse cambiado y restituido ese mismo día)* | Convención compatible con la evidencia | ACSM 2009 lo recomendaba para novatos; esa pauta fue reemplazada en 2026 | Gemini | Crear |
 
 ### Clasificación y equilibrio
 
@@ -135,24 +135,38 @@ Es historia: el ACSM 2026 la reemplaza.
 |---|---|---|---|---|---|
 | R16 | Ante dolor o lesión, la IA **no diagnostica**: baja la carga o cambia el ejercicio y muestra el aviso legal | Decisión de producto | El ACSM no cubre lesiones | Gemini | Ajustar y siempre |
 
+### Cardio
+
+| # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
+|---|---|---|---|---|---|
+| R17 | Para el objetivo **perder grasa**, la IA define los **minutos de cardio semanales** de cada persona según su perfil (nivel) y la carga de fuerza, **dentro de 150 a 300 minutos por semana** a intensidad moderada. El usuario puede editarlos | Evidencia (el rango) y decisión de diseño (la IA elige dentro) | OMS 2020 (150 a 300 minutos de aeróbico moderado, recomendación fuerte, certeza moderada) y ACSM 2009 (150 a 250 pérdida modesta, más de 250 pérdida significativa; resumen oficial) | **Gemini elige y el código valida el rango** | Crear y cerrar semana |
+
+### Duración de la sesión
+
+| # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
+|---|---|---|---|---|---|
+| R18 | **La IA determina la duración de cada sesión** (el usuario no la ingresa) con una **referencia según el perfil**, que es una guía y **no un tope**: principiante **cerca de 60 min** · mantenerme activo **cerca de 60 min** · condición general **60 min** · intermedio con masa o fuerza **60 a 90 min** · perder grasa **60 min de fuerza, más el cardio (R17)**. Si el volumen del objetivo lo necesita, o si el usuario pide más tiempo, puede pasarse. No se arman sesiones de 90 minutos para un principiante o para quien quiere mantenerse activo | Decisión de producto | Sin fuente: el ACSM 2026 no fija una duración. Son valores propuestos por la IA y ajustados por el estudiante (el 80 de la propuesta pasó a 90) | Gemini decide; el código solo avisa si se aleja mucho de la referencia | Crear y ajustar |
+
 ### Decisiones que siguen abiertas
 
 Estas dudas **no están resueltas** y no las decide la IA:
 
-- **Minutos de cardio por semana** para "perder grasa" y cuánta fuerza queda por encima del mínimo de R1: ver las reglas candidatas de más abajo.
-- **Principiantes y R3:** 10 series semanales por grupo muscular puede ser mucho para quien empieza. La fuente no distingue.
+- **Cuánta fuerza queda** en "perder grasa" por encima del mínimo de R1, y el resto de las reglas candidatas de cardio (C1, C2, C4 y C5, más abajo).
+- **Minutos de cardio según el nivel:** R17 fija el rango, pero la evidencia no dice cómo variar entre un principiante (cerca de 150) y alguien con más experiencia (cerca de 300). Queda a criterio de la IA dentro del rango.
+- **Estimar la duración de una sesión:** para comprobar que el volumen entra en la referencia (R18), el código necesita una forma de estimar cuánto dura una sesión. Depende del descanso (R8, también abierto) y de cuánto tarda una serie, que no tiene fuente.
+- **Si el volumen no entra:** un principiante con 2 o 3 días de unos 60 minutos puede no llegar a las 10 series por grupo de R3 (unas 60 por semana contando solo series directas). Se puede aliviar contando las series indirectas a 0,5 (R5) y la IA puede subir los días hasta 6, pero falta decidir qué cede si igual no entra: el volumen o el tiempo.
 - **Esfuerzo:** la equivalencia entre "2 o 3 repeticiones en reserva" y un esfuerzo de 7 u 8 sobre 10 es habitual en la práctica, pero **no está verificada**.
 - **Descanso (R8):** dónde vive el dato. Hoy el modelo no tiene un campo de descanso y la regla depende de las etiquetas de R13. Opciones: campo propio editable, calcularlo sin guardarlo, o no mostrarlo.
 
 ### Reglas candidatas de cardio (pendientes de aprobación)
 
-**No están aprobadas.** Salen de fuentes ya verificadas y las tiene que elegir el estudiante. Si las acepta, pasan a la tabla de arriba con su número.
+**C1, C2, C4 y C5 no están aprobadas.** Salen de fuentes ya verificadas y las tiene que elegir el estudiante. Si las acepta, pasan a la tabla de arriba con su número. C3 ya fue aprobada y es la R17.
 
 | # | Regla candidata | Tipo | Fuente y certeza | Cómo se aplicaría |
 |---|---|---|---|---|
 | C1 | Para el objetivo **perder grasa**, el plan incluye **cardio** además de la fuerza | Decisión de producto (ya tomada) | ACSM 2009: la actividad aeróbica es lo que más pesa para bajar de peso | Gemini |
 | C2 | Con ese objetivo, la fuerza **no baja del mínimo de R1** (2 días por semana) | Evidencia | OMS 2020 y ACSM 2026. La fuerza ayuda a conservar masa muscular (ACSM 2009; revisión de 2025 de segunda mano) | Código |
-| C3 | **Minutos de cardio por semana**, a elegir: **150 a 250** (pérdida de peso modesta) · **más de 250** (pérdida clínicamente significativa) · **150 a 300** (salud general, intensidad moderada) | Evidencia | ACSM 2009 (Donnelly, resumen oficial) y OMS 2020. Para un principiante puede ser mucho | Código (suma de minutos) |
+| C3 | **Aprobada: ahora es la R17** (150 a 300 minutos por semana, a criterio de la IA dentro de ese rango) | Evidencia | OMS 2020 y ACSM 2009 | Gemini y código |
 | C4 | **R3 (10 series semanales por músculo) no se aplica** a "perder grasa": es de masa muscular | Decisión de diseño | ACSM 2026 (R3 es de hipertrofia) | Código |
 | C5 | La **intensidad** del cardio se indica en las indicaciones de ejecución (por ejemplo, "ritmo moderado, que puedas hablar") | Convención | Sin fuente específica | Gemini |
 

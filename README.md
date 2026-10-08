@@ -14,7 +14,7 @@ Personas que entrenan por su cuenta (de principiante a intermedio) y no pueden p
 
 ## Cómo funciona
 
-1. El usuario se registra y completa sus datos: edad, peso, altura, nivel, días de entrenamiento, duración de las sesiones, equipamiento y limitaciones.
+1. El usuario se registra y completa sus datos: edad, peso, altura, nivel, equipamiento y limitaciones. Ni los días ni la duración de las sesiones los elige: **los determina la IA** (entre 2 y 6 días) según sus datos, y si prefiere entrenar más, la IA recalcula.
 2. **Elige su objetivo** (obligatorio): ganar masa muscular, ganar fuerza, perder grasa, mejorar la condición general o mantenerse activo.
 3. Empieza de una de dos formas:
    - **La app crea su primera rutina** a partir del perfil y el objetivo.
@@ -39,7 +39,7 @@ La IA trabaja sobre los datos del usuario y siempre **propone**: el usuario ve u
 
 1. **Primera rutina o mejora de la existente**, según el objetivo.
 2. **Cierre de semana:** analiza el historial y devuelve qué subir, qué mantener, qué cambiar por estancamiento y dónde hay fatiga, y propone la semana siguiente con un resumen de evolución.
-3. **Ajuste conversando:** "solo puedo 3 días", "no tengo esa máquina", "me molesta el hombro". La IA propone una versión modificada de la semana.
+3. **Ajuste conversando:** "no tengo esa máquina", "me molesta el hombro". La IA propone una versión modificada de la semana.
 4. **Explicación por ejercicio:** botón "¿por qué esto?" con la razón basada en los números del usuario.
 5. **Sustitución:** el usuario rechaza un ejercicio y elige entre 2 alternativas propuestas por la IA.
 
