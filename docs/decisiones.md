@@ -164,6 +164,20 @@ Se sugiere una semana más liviana si el rendimiento del mismo ejercicio baja en
 - **Descartaste:** una descarga a calendario fijo.
 - **Ojo:** los estudios no dan umbrales validados; son una elección de diseño. Queda abierto cuánto se reduce el volumen.
 
+### 27. Las etiquetas del ejercicio pasan a ser columnas obligatorias (R13)
+Región, dirección, músculo primario, músculos secundarios, mecánica, equipamiento y nivel, con valores cerrados. Los ejercicios de cardio o de cuerpo entero usan `full_body`.
+- **Origen:** tuya (aprobaste la lista de etiquetas y sus valores).
+- **Por qué:** *(completar)*
+- **Descartaste:** etiquetas en texto libre.
+- **Ojo:** el valor `full_body` para cardio es una decisión de la IA para poder tener las columnas obligatorias.
+
+### 28. La duración de una sesión se estima con una fórmula
+Tiempo de series (repeticiones por unos 3 segundos) más descanso, más 1 a 2 minutos de cambio entre ejercicios, más cardio y movilidad (R34). El código solo avisa si se aleja de la referencia.
+- **Origen:** tuya (aprobaste la fórmula).
+- **Por qué:** *(completar)*
+- **Descartaste:** rechazar la rutina cuando no entra, porque la duración es una referencia y no un tope.
+- **Ojo:** el cambio entre ejercicios no tiene fuente.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
