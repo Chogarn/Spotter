@@ -185,12 +185,32 @@ La IA primero **suma días** (hasta el máximo del nivel), después deja la sesi
 - **Descartaste:** recortar el volumen primero; rechazar la rutina cuando no entra.
 - **Ojo:** el ejemplo (principiante de masa con 2 días: 83 minutos contra una referencia de 60; con 3 días, 54) usa supuestos de la IA, como el cambio entre ejercicios.
 
+### 30. Los ejercicios isométricos tienen su propio valor de tiempo, en segundos
+Un ejercicio como la plancha es un tipo propio (`exercises.kind = isometric`) y sus series se miden en una columna propia, `duration_seconds`. Cada serie lleva **una sola** medida: repeticiones, minutos o segundos. Cuentan como fuerza (días de fuerza, series por músculo) y en R34 su tiempo son sus segundos.
+- **Origen:** tuya (pediste que tengan su propio valor de tiempo, en vez de texto), a partir de un caso real: Gemini propuso una plancha y el modelo no la admitía.
+- **Por qué:** *(completar)*
+- **Descartaste:** dejarlos como texto (como la intensidad del cardio), porque entonces no se podría comparar lo planificado con lo real.
+- **Ojo:** la unidad en segundos y el tope de 600 segundos por serie los puse yo. Se amplió la fórmula de R34, que ya habías aprobado, para sumar los segundos del isométrico.
+
+### 31. R3 aplica solo a los 6 grupos grandes
+Las 10 series o más por semana (R3, masa muscular) se cuentan para pecho, espalda, hombros, cuádriceps, isquios y glúteos, con un máximo de unas 20. Bíceps, tríceps, gemelos y core no tienen mínimo propio: trabajan con las series indirectas (R5), y pueden tener ejercicios propios si hay lugar.
+- **Origen:** elegida entre dos opciones (la IA te mostró cuánto cambiaba cada una; recomendó esta y la aceptaste).
+- **Por qué:** *(completar)*
+- **Descartaste:** aplicarla a los 10 músculos (100 series semanales como mínimo, sesiones más largas).
+- **Ojo:** el código solo **avisa** si un grupo queda fuera de 10 a 20 series; no rechaza la rutina. El tope de 20 es la lectura de "unas 18 a 20" de R3.
+
+### 32. Cómo se genera y se acepta la primera rutina
+Generar guarda una propuesta pendiente y no toca el plan; solo al aceptar se crea la semana, en una sola transacción. Si la respuesta de Gemini es inválida o rompe una regla que el código rechaza (R1, R11, R12, R17), se **reintenta una vez** (cada intento cuenta en los topes); los **avisos** (volumen, duración) no bloquean y viajan con la propuesta. Hay **una sola propuesta pendiente**: generar de nuevo descarta la anterior. No se genera si ya hay una semana activa. Un ejercicio que ya existía **conserva sus etiquetas**.
+- **Origen:** tuya (aprobaste el reintento, el bloqueo con semana activa y mostrar los avisos sin segunda llamada de corrección); la regla de la propuesta única y la de las etiquetas las puso la IA.
+- **Por qué:** *(completar)*
+- **Descartaste:** una segunda llamada de corrección cuando hay avisos (duplica la cuota y la espera) y cambiar a Gemini 3.5 Flash (20 llamadas por día).
+- **Ojo:** los errores que rechazan son pocos a propósito, para no gastar cuota reintentando; todo lo demás se muestra como aviso.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
 
 - **Login:** antes de la semana 2, con un usuario de prueba, o un login mínimo.
-- **A qué músculos aplica R3:** los 10 de la lista o solo los 6 grupos grandes (pecho, espalda, hombros, cuádriceps, isquios y glúteos).
 - **Cuánto reducir el volumen** en la semana liviana (R30).
 - Reabrir un día ya completado.
 - Pedir confirmación al cerrar la semana con días sin hacer.

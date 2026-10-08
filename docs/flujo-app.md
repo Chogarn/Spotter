@@ -85,6 +85,10 @@ Se piden una sola vez y se pueden editar después.
 2. La IA arma la primera semana (días, ejercicios, series, repeticiones y peso orientativo).
 3. El usuario la revisa y la acepta o la descarta para generar otra.
 
+**Si algo sale mal**, el usuario ve un mensaje y puede volver a intentar: falta el perfil o ya hay una semana activa (409), llegó al tope por minuto o por día de la IA (429), la IA no respondió o no pudo armar una rutina válida después de un reintento (502), o la IA no está configurada (503).
+
+**Mientras la IA trabaja:** la llamada a Gemini puede tardar (en las pruebas, de 10 a 90 segundos). El botón "Generar rutina" se deshabilita y la pantalla avisa: *"Tu rutina se está generando. Puede tardar hasta 2 minutos."* Si pasa de 2 minutos la app corta la espera, muestra un error y el usuario puede volver a intentar (la llamada igual cuenta en el tope diario).
+
 ## Camino B: cargo la rutina que ya hago
 
 1. El usuario completa un formulario, ejercicio por ejercicio y por día, con:
@@ -150,6 +154,13 @@ El cardio (cinta, bicicleta, remo, caminata) es **un ejercicio más de la rutina
 - **Tilde sin cambios:** se interpreta que hizo los minutos planificados. Si hizo otros, carga los minutos reales.
 - **Intensidad:** se indica en las indicaciones de ejecución ("ritmo moderado, que puedas hablar").
 - Se compara lo planificado con lo real igual que en fuerza.
+
+### Isométricos
+Un ejercicio isométrico (plancha, sentadilla en pared) es **un ejercicio más de la rutina**, pero se mide en **segundos** por serie, no en repeticiones ni minutos.
+
+- **Fila compacta:** "plancha · 3 × 45 s", con el mismo tilde que los demás ejercicios.
+- **Tilde sin cambios:** se interpreta que hizo los segundos planificados. Si hizo otros, carga los segundos reales.
+- Cuenta como **fuerza**: suma al día de fuerza y a las series del músculo (la plancha, al core). Lleva descanso entre series como cualquier ejercicio de fuerza.
 
 ### Día completado
 Al final del día el usuario toca **"Día completado"**:

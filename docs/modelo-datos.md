@@ -16,7 +16,8 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0006` sin duración de sesión en el perfil | Quita `profiles.session_minutes`: la duración de la sesión la determina la IA | Implementada |
 | `0005` sin días por semana en el perfil | Quita `profiles.days_per_week` y su restricción: la cantidad de días se calcula a partir de `plan_days` | Implementada |
 | `0004` cardio con duración | Agrega `exercises.kind` y `duration_minutes` en `plan_sets` y `set_entries`; hace opcionales `reps` (en ambas) y `set_entries.weight_kg`; agrega la restricción "repeticiones o minutos" | Implementada |
-| Semana 4 | `plan_proposals`, `ai_calls` | Pendiente: se agregan cuando se construya la IA |
+| `0009` IA | Crea `plan_proposals` y `ai_calls` (los topes de Gemini se calculan contando `ai_calls`, que no se borra) | Implementada |
+| `0010` isométricos | Agrega `exercises.kind = isometric` y `duration_seconds` en `plan_sets` y `set_entries`; la restricción pasa a "repeticiones, minutos o segundos (exactamente una)" | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
 ## Diagrama
@@ -114,6 +115,7 @@ erDiagram
         int set_number
         int reps
         int duration_minutes
+        int duration_seconds
         decimal target_weight_kg
     }
     WORKOUT_SESSIONS {
@@ -134,6 +136,7 @@ erDiagram
         int set_number
         int reps
         int duration_minutes
+        int duration_seconds
         decimal weight_kg
         int effort
     }
@@ -195,7 +198,7 @@ Ejercicios conocidos por la app. **No hay catálogo precargado**: la tabla crece
 | name | Nombre tal como lo escribió la IA o el usuario |
 | name_normalized | **Único.** Minúsculas y sin tildes, para evitar duplicados |
 | muscle_group | Opcional; lo propone la IA |
-| kind | `strength` (se mide en series y repeticiones) o `cardio` (se mide en minutos). Por defecto `strength` |
+| kind | `strength` (series y repeticiones), `cardio` (minutos) o `isometric` (segundos, como la plancha). Por defecto `strength` |
 | region | `upper`, `lower`, `core` o `full_body` (cardio y cuerpo entero) |
 | direction | `push`, `pull` o `none` (piernas, core y cardio) |
 | primary_muscle | `chest`, `back`, `shoulders`, `biceps`, `triceps`, `quadriceps`, `hamstrings`, `glutes`, `calves`, `core` o `full_body` |
@@ -245,9 +248,10 @@ Una fila por **serie planificada**. Permite que cada serie tenga sus propias rep
 | set_number | Número de serie. **Único** dentro de cada ejercicio |
 | reps | Repeticiones planificadas. Vacío en cardio |
 | duration_minutes | Minutos planificados. Solo en cardio |
+| duration_seconds | Segundos planificados. Solo en ejercicios isométricos |
 | target_weight_kg | Peso planificado en kilos. Vacío en ejercicios con peso corporal y en cardio |
 
-La base exige que cada serie tenga **repeticiones o minutos, nunca las dos ni ninguna**.
+La base exige que cada serie tenga **una sola medida**: repeticiones, minutos o segundos (nunca dos ni ninguna).
 
 El resumen "4 × 10 con 50 kg" **se calcula** a partir de estas filas, no se guarda: si las series son iguales se muestra así, y si difieren se muestra un rango ("10 a 4 reps · 50 a 65 kg").
 
@@ -273,9 +277,10 @@ Lo **real**: cada serie que el usuario hizo.
 | set_number | Número de serie |
 | reps | Repeticiones realizadas. Vacío en cardio |
 | duration_minutes | Minutos realizados. Solo en cardio |
+| duration_seconds | Segundos realizados. Solo en ejercicios isométricos |
 | weight_kg | Peso en kilos. Vacío en ejercicios con peso corporal y en cardio |
 
-Igual que en `plan_sets`, la base exige repeticiones **o** minutos.
+Igual que en `plan_sets`, la base exige una sola medida: repeticiones, minutos o segundos.
 | effort | Esfuerzo de 1 a 10 (opcional) |
 
 ### plan_proposals
@@ -285,7 +290,7 @@ Lo que propone la IA antes de aplicarse.
 |---|---|
 | kind | `adjust`, `week_close`, `improve` o `repeat_exercise` |
 | request_text | Pedido del usuario, si lo hubo ("no tengo esa máquina") |
-| proposed_changes | JSON con los cambios, validado con Pydantic |
+| proposed_changes | JSON con los cambios, validado con Pydantic. En `generate` tiene dos claves: `routine` (la semana completa: días, ejercicios, series) y `warnings` (lista de `{rule, message}` con los avisos del código: volumen, duración) |
 | status | `pending`, `accepted` o `discarded` |
 | resolved_at | Cuándo el usuario aceptó o descartó |
 
@@ -312,3 +317,4 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 16. **El descanso es un campo propio y editable.** `plan_exercises.rest_seconds` guarda el descanso entre series de cada ejercicio. La IA lo propone según el tipo de ejercicio y el usuario lo cambia. Con ese dato el código podrá estimar cuánto dura una sesión.
 17. **La movilidad y el equilibrio son un texto del día.** `plan_days.mobility_notes` es un texto libre, sin series ni tilde. Es lo más simple y se puede pasar a un tipo de ejercicio más adelante si hace falta registrarlos.
 18. **Las etiquetas del ejercicio son obligatorias y cerradas.** Región, dirección, músculo primario, mecánica, equipamiento y nivel no admiten valores libres, y los ejercicios de cardio o de cuerpo entero usan `full_body`. Así el código puede contar series por músculo sin depender de texto libre.
+19. **Los isométricos son un tipo de ejercicio con su propio valor de tiempo.** `exercises.kind = isometric` y `duration_seconds` en las series, en segundos porque una plancha dura 30 a 60 segundos. Siguen el mismo patrón que el cardio (que va en minutos). Cuentan como fuerza para los días y el volumen, y llevan las etiquetas R13 como la fuerza (la plancha: región `core`, músculo `core`), no `full_body`.
