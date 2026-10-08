@@ -19,7 +19,7 @@ Usamos SQLAlchemy solo, **sin SQLModel**. Pydantic valida la API y las respuesta
 
 ## Estructura
 
-`backend/app/` (main.py, db.py, enums.py, models.py), `backend/migrations/`, `backend/tests/`, `frontend/src/app/`, `docs/`, `docker-compose.dev.yml`, `docker-compose.prod.yml`.
+`backend/app/` (main.py, db.py, deps.py, enums.py, models.py, schemas.py, `routers/` con profile, proposals y weeks, y `ai/` con gemini.py, routine.py, rules.py, schema.py, prompt.py, generate.py, plan_writer.py y `prompts/generar_rutina.md`), `backend/migrations/`, `backend/tests/`, `frontend/src/app/` (portada, `perfil/`, `rutina/propuesta/[id]/`) y `frontend/src/lib/` (api.ts y format.ts), `docs/`, `docker-compose.dev.yml`, `docker-compose.prod.yml`.
 
 ## Comandos
 
@@ -38,10 +38,11 @@ Puertos de desarrollo: frontend **3001**, backend **8000**, PostgreSQL **5434**.
 
 ## Restricción dura: la IA nunca debe generar costo
 
-El plan gratuito de Gemini no puede superarse. La IA todavía no está implementada; cuando se haga:
-- Cada llamada a Gemini escribe una fila en `ai_calls`, que **no se borra nunca**. Los topes diario y por minuto se calculan contando esas filas. No agregar endpoints que las eliminen.
-- El tope diario y el de llamadas por minuto se aplican **antes** de llamar a Gemini. Los valores se configuran por entorno (`GEMINI_DAILY_LIMIT`, `GEMINI_RPM_LIMIT`) y hay que fijarlos con los límites vigentes verificados.
-- La IA se llama solo cuando el usuario toca un botón (cierre de semana, ajuste, mejora). Nunca en segundo plano ni por fecha.
+El plan gratuito de Gemini no puede superarse. La IA ya está implementada (camino A, "Generar rutina") y cumple esto:
+- Cada llamada a Gemini escribe una fila en `ai_calls` **antes** de enviarse, y esa tabla **no se borra nunca** (el borrado de un usuario tampoco la arrastra). Los topes diario y por minuto se calculan contando esas filas, de **todos** los usuarios (el límite de Google es por proyecto), y el día se reinicia a medianoche del Pacífico. No agregar endpoints que las eliminen.
+- Los topes se aplican **antes** de llamar. Se configuran por entorno (`GEMINI_DAILY_LIMIT`, `GEMINI_RPM_LIMIT`) junto con `GEMINI_API_KEY` y `GEMINI_MODEL`, y **no hay valores por defecto**: si falta algo, no se llama (el backend responde 503). Cada reintento es otra llamada y cuenta.
+- Límites verificados el 2026-10-08 en la consola de Google AI Studio para `gemini-3.5-flash-lite`: 15 pedidos por minuto, 250.000 tokens por minuto y 500 pedidos por día (Google aclara que no están garantizados). Los topes de la app, con margen: **12 por minuto y 400 por día**. Los modelos Flash normales solo permiten 20 por día; Gemini 2.5 Pro y 3.1 Pro no tienen cuota gratuita. En el plan gratuito Google puede usar el contenido para mejorar sus productos.
+- La IA se llama solo cuando el usuario toca un botón (hoy, "Generar rutina"; después cierre de semana, ajuste, mejora). Nunca en segundo plano ni por fecha.
 
 ## Decisiones de producto (tomadas por el usuario)
 
@@ -59,15 +60,17 @@ El plan gratuito de Gemini no puede superarse. La IA todavía no está implement
 
 Ideas futuras (sin definir, no implementar): rachas, logros, entrada por voz y notificaciones. Están en `docs/backlog.md`.
 
-## Pendientes de producto (para retomar)
+## Estado y pendientes de producto (para retomar)
 
-Lo diseñado hasta ahora es el **modelo de datos** (11 tablas, migraciones 0001 a 0008), el **flujo** y las **reglas de entrenamiento** (R1 a R35). Todavía **no hay funciones de la app**: solo los esqueletos de FastAPI y Next.js, Docker y la base. Lo que sigue, en orden:
+**Hecho:** el modelo de datos (11 tablas, migraciones 0001 a 0010), el flujo, las reglas R1 a R35, el perfil (`GET` y `PUT /profile`, pantalla `/perfil`) y **"Generar rutina"** (camino A): la IA propone, el usuario ve la vista previa y acepta o descarta; al aceptar se crea la semana activa. La portada lista los días de la semana activa.
 
-1. **Decidir el login** (antes de la semana 2, con un usuario de prueba, o un login mínimo). Casi todas las tareas de la semana 2 lo necesitan.
-2. **Redefinir las tareas de la semana 2** (issues #12 a #19, #43 y #44) con el estándar de "Cómo trabajar acá": para qué sirve, cómo se accede, qué ve el usuario, qué acciones tiene, vista o componentes, datos y criterios de aceptación. El tutor criticó que las tareas eran vagas.
+**Todavía no hay:** login (hoy hay un usuario de desarrollo fijo en `get_current_user`; el tutor indicó dejarlo para después, y en la semana 3 se reemplaza solo esa función), camino B (cargar la rutina que ya hace), vista completa de la semana, registro de sesiones, cierre de semana, ajuste y mejora. Lo que sigue, en orden:
+
+1. **Redefinir las tareas de la semana 2** (issues #12 a #19, #43 y #44) con el estándar de "Cómo trabajar acá": para qué sirve, cómo se accede, qué ve el usuario, qué acciones tiene, vista o componentes, datos y criterios de aceptación. El tutor criticó que las tareas eran vagas. Varias quedaron cubiertas en parte (perfil #18, objetivo #43 dentro del perfil, generación con IA, que estaba prevista para la semana 4).
+2. **Siguiente construcción:** vista de la semana (#15), registro de sesiones (#14 y #16), camino B (#44) y estado global (#17).
 3. **Dudas abiertas de producto:** cuánto reducir el volumen en la semana liviana (R30), y los puntos abiertos de `docs/flujo-app.md` (reabrir un día, confirmar el cierre con días pendientes, avisos, ajuste de ejercicios repetidos, dónde va el pedido de ajuste).
-4. **Completar los "(completar)"** de `docs/decisiones.md` (los "por qué" que solo puede escribir el usuario).
-5. **Más adelante:** que una persona con formación en educación física revise los criterios (decisión del usuario), y verificar con fuentes oficiales los planes gratuitos y límites de Gemini y de la plataforma de despliegue.
+4. **Completar los "(completar)"** de `docs/decisiones.md` (los "por qué" que solo puede escribir el usuario), incluidas las decisiones 30 a 32.
+5. **Más adelante:** que una persona con formación en educación física revise los criterios (decisión del usuario), y verificar con fuentes oficiales los planes gratuitos y límites de la plataforma de despliegue.
 
 Las investigaciones (informes largos con fuentes) se hicieron con la skill de investigación profunda y se guardaron **fuera del repo**; lo que importa de ellas está resumido en `docs/criterios-entrenamiento.md`.
 
@@ -81,4 +84,10 @@ Las investigaciones (informes largos con fuentes) se hicieron con la skill de in
 - **Puertos:** el 5432 lo ocupa un Postgres nativo de Windows y el 3000 suele estar ocupado por otros proyectos; por eso Spotter usa 5434 y 3001. No tocar los contenedores de otros proyectos (`gestor-gastos`, `image_identifier_db`).
 - El `gh` (GitHub CLI) no está en el PATH: `C:\Program Files\GitHub CLI\gh.exe`. En PowerShell, los comandos con rutas entre comillas en una sola línea fallan a veces: usar un archivo `.ps1`.
 - **GitHub Projects:** el tablero es el proyecto 1 de `Chogarn` con columnas Todo, Esta semana, In Progress y Done. **Modificar las opciones del campo Status regenera todos los IDs y deja las tareas sin estado**: guardar el estado antes y restaurarlo después.
+- **El `.env` se lee al crear el contenedor:** tras cambiarlo hay que correr `docker compose -f docker-compose.dev.yml up -d backend`; reiniciar no alcanza. Si falta `GEMINI_MODEL`, la clave o un tope, "Generar rutina" muestra "La IA no está configurada" (503). El `.env` está en `.gitignore`: la clave real nunca va en `.env.example` ni en el código.
+- **Gemini rechaza el esquema JSON que genera Pydantic** (error 400 sin detalle): `ai/schema.py` lo aplana (sin `$ref`, `anyOf`, `default` ni límites de largo, rango o cantidad; Pydantic los vuelve a comprobar). Una llamada tarda de 10 a 60 segundos y el cliente corta a los 120.
+- **Los tests del backend nunca llaman a Gemini de verdad** (gastan cuota): usan SQLite en memoria y un cliente falso. Las pruebas reales se hacen a mano, de a pocas, y quedan en `ai_calls`.
+- **Next.js 16 conserva la página anterior con su estado al navegar** (queda oculta, no se destruye). No dejar estados como "cargando" o "generando" activos después de `router.push`: usar `useTransition`. En una página de cliente, `params` es una promesa (`use(params)`).
+- **Todavía no se puede cerrar una semana desde la app.** Para repetir pruebas de generación hay que marcar la semana activa como `closed` en la base (`UPDATE week_plans SET status='closed', closed_at=now() WHERE status='active'`); no se borra.
+- En Git Bash, un comando con un heredoc largo y comillas falló al interpretarse: escribir los archivos con la herramienta de escritura.
 - Los avisos de git sobre LF y CRLF son inofensivos en este equipo.
