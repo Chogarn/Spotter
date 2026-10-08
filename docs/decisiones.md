@@ -133,6 +133,13 @@ Cuerpo completo, 2 o 3 días por semana, con sesiones de unos 60 minutos (R12).
 - **Por qué:** *(completar)*
 - **Descartaste:** 5 días para todos, incluidos los principiantes.
 
+### 22. Se suman las reglas R19 a R31
+Reglas para perder grasa (fuerza y cardio), condición general y mantenerse activo, repeticiones, progresión, esfuerzo como repeticiones en reserva, descarga por señales y dolor. Están en [`criterios-entrenamiento.md`](criterios-entrenamiento.md) con su fuente, certeza y cómo se aplican.
+- **Origen:** tuya (las revisaste y las aprobaste, a partir del informe de investigación).
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)*
+- **Ojo:** R20, R24 y R25 son síntesis del investigador, y R29 es una deducción sin verificar en la tabla original.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
