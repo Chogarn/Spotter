@@ -4,7 +4,7 @@ import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { ExerciseRow } from "@/components/ExerciseRow";
-import { API, readError, type DayDetail } from "@/lib/api";
+import { API, readError, type DayDetail, type SetItem } from "@/lib/api";
 
 export default function DiaPage({ params }: { params: Promise<{ id: string; n: string }> }) {
   const { id, n } = use(params);
@@ -19,6 +19,27 @@ export default function DiaPage({ params }: { params: Promise<{ id: string; n: s
       })
       .catch((e) => setError(e.message));
   }, [id, n]);
+
+  // Al guardar una serie, el backend devuelve esa serie actualizada: se reemplaza en pantalla.
+  function serieGuardada(updated: SetItem) {
+    setDia((actual) =>
+      actual
+        ? {
+            ...actual,
+            exercises: actual.exercises.map((e) => ({
+              ...e,
+              sets: e.sets.map((s) => (s.id === updated.id ? updated : s)),
+            })),
+          }
+        : actual,
+    );
+  }
+
+  // Solo se edita lo realizado en la semana activa; las cerradas quedan en lectura.
+  const edit =
+    dia && dia.week_status === "active"
+      ? { weekId: dia.week_id, dayIndex: dia.day_index, onSaved: serieGuardada }
+      : undefined;
 
   return (
     <main style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem" }}>
@@ -38,7 +59,7 @@ export default function DiaPage({ params }: { params: Promise<{ id: string; n: s
           {dia.mobility_notes && <p>Movilidad: {dia.mobility_notes}</p>}
           <ol>
             {dia.exercises.map((e, i) => (
-              <ExerciseRow key={i} exercise={e} />
+              <ExerciseRow key={i} exercise={e} edit={edit} />
             ))}
           </ol>
           <p>

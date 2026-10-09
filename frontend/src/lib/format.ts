@@ -1,4 +1,4 @@
-import type { ExerciseItem, SetItem } from "./api";
+import type { ExerciseItem, RealSet, SetItem } from "./api";
 
 const number = (n: number) => n.toLocaleString("es-AR");
 
@@ -48,6 +48,26 @@ export function setText(kind: ExerciseItem["kind"], set: SetItem): string {
   if (kind === "isometric") return `${number(set.duration_seconds ?? 0)} s`;
   const reps = `${number(set.reps ?? 0)} reps`;
   return set.target_weight_kg === null ? reps : `${reps} · ${number(set.target_weight_kg)} kg`;
+}
+
+// Lo realizado, con la forma de una serie, para mostrarlo con las mismas funciones.
+export function realAsSet(real: RealSet): SetItem {
+  return {
+    reps: real.reps,
+    duration_minutes: real.duration_minutes,
+    duration_seconds: real.duration_seconds,
+    target_weight_kg: real.weight_kg,
+  };
+}
+
+// ¿Lo realizado es distinto de lo que tocaba?
+export function differsFromPlan(plan: SetItem, real: RealSet): boolean {
+  return (
+    plan.reps !== real.reps ||
+    plan.duration_minutes !== real.duration_minutes ||
+    plan.duration_seconds !== real.duration_seconds ||
+    plan.target_weight_kg !== real.weight_kg
+  );
 }
 
 export const statusText = { active: "activa", closed: "cerrada", draft: "borrador" } as const;

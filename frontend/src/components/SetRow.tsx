@@ -1,0 +1,162 @@
+"use client";
+
+import { useState } from "react";
+
+import { API, readError, type ExerciseItem, type SetItem } from "@/lib/api";
+import { differsFromPlan, realAsSet, setText } from "@/lib/format";
+
+export type SetEdit = {
+  weekId: number;
+  dayIndex: number;
+  onSaved: (updated: SetItem) => void;
+};
+
+// Lo que se mide en cada tipo de ejercicio y cómo se llama el campo.
+const MEASURE = {
+  strength: { label: "repeticiones", unit: "reps" },
+  isometric: { label: "segundos", unit: "s" },
+  cardio: { label: "minutos", unit: "min" },
+} as const;
+
+// Una serie del desglose. Con `edit`, tiene un botón Editar que deja corregir lo realizado
+// (repeticiones y kilos; segundos o minutos según el ejercicio) y lo guarda sin tocar el plan.
+export function SetRow({
+  kind,
+  index,
+  set,
+  edit,
+}: {
+  kind: ExerciseItem["kind"];
+  index: number;
+  set: SetItem;
+  edit?: SetEdit;
+}) {
+  const [editando, setEditando] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState("");
+  const [medida, setMedida] = useState("");
+  const [kilos, setKilos] = useState("");
+
+  const real = set.real ?? null;
+  const mostrada = real ? realAsSet(real) : set;
+  const cambio = real !== null && differsFromPlan(set, real);
+
+  function empezar() {
+    const actual =
+      kind === "strength"
+        ? mostrada.reps
+        : kind === "isometric"
+          ? mostrada.duration_seconds
+          : mostrada.duration_minutes;
+    setMedida(actual === null ? "" : String(actual));
+    setKilos(mostrada.target_weight_kg === null ? "" : String(mostrada.target_weight_kg));
+    setError("");
+    setEditando(true);
+  }
+
+  async function guardar() {
+    if (!edit || set.id === undefined) return;
+    const valor = Number(medida);
+    if (medida.trim() === "" || !Number.isInteger(valor) || valor < 1) {
+      setError(`Escribí ${MEASURE[kind].label} como un número entero mayor que 0`);
+      return;
+    }
+    const body: Record<string, number | null> = {};
+    if (kind === "strength") {
+      body.reps = valor;
+      const texto = kilos.trim().replace(",", ".");
+      const peso = texto === "" ? null : Number(texto);
+      if (peso !== null && (!Number.isFinite(peso) || peso < 0)) {
+        setError("Los kilos tienen que ser un número, o quedar vacíos");
+        return;
+      }
+      body.weight_kg = peso;
+    } else if (kind === "isometric") {
+      body.duration_seconds = valor;
+    } else {
+      body.duration_minutes = valor;
+    }
+
+    setGuardando(true);
+    setError("");
+    try {
+      const res = await fetch(
+        `${API}/weeks/${edit.weekId}/days/${edit.dayIndex}/sets/${set.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+      );
+      if (!res.ok) {
+        setError(await readError(res));
+      } else {
+        edit.onSaved(await res.json());
+        setEditando(false);
+      }
+    } catch {
+      setError("No se pudo conectar con el servidor");
+    }
+    setGuardando(false);
+  }
+
+  if (editando) {
+    return (
+      <li>
+        <small>
+          Serie {index + 1} ·{" "}
+          <input
+            aria-label={`Serie ${index + 1}: ${MEASURE[kind].label}`}
+            type="number"
+            min={1}
+            value={medida}
+            onChange={(e) => setMedida(e.target.value)}
+            style={{ width: "4.5rem" }}
+          />{" "}
+          {MEASURE[kind].unit}
+          {kind === "strength" && (
+            <>
+              {" · "}
+              <input
+                aria-label={`Serie ${index + 1}: kilos`}
+                inputMode="decimal"
+                value={kilos}
+                onChange={(e) => setKilos(e.target.value)}
+                style={{ width: "4.5rem" }}
+              />{" "}
+              kg
+            </>
+          )}{" "}
+          <button type="button" onClick={guardar} disabled={guardando}>
+            Guardar
+          </button>{" "}
+          <button type="button" onClick={() => setEditando(false)} disabled={guardando}>
+            Cancelar
+          </button>
+        </small>
+        {error && (
+          <div>
+            <small style={{ color: "crimson" }}>{error}</small>
+          </div>
+        )}
+      </li>
+    );
+  }
+
+  return (
+    <li>
+      <small>
+        Serie {index + 1} · {setText(kind, mostrada)}
+        {cambio && <> (tocaba {setText(kind, set)})</>}
+        {edit && set.id !== undefined && (
+          <>
+            {" "}
+            <button type="button" onClick={empezar}>
+              Editar
+            </button>
+          </>
+        )}
+      </small>
+    </li>
+  );
+}

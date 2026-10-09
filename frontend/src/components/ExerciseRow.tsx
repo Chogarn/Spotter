@@ -1,9 +1,18 @@
-import type { ExerciseItem } from "@/lib/api";
-import { restText, setText, summarize } from "@/lib/format";
+import type { ExerciseItem, SetItem } from "@/lib/api";
+import { restText, summarize } from "@/lib/format";
+
+import { SetRow } from "./SetRow";
 
 // Un ejercicio: fila compacta y, desplegando, cada serie. La usan la vista previa de la
 // propuesta y la vista del día. Va dentro de una lista (<ol> o <ul>).
-export function ExerciseRow({ exercise }: { exercise: ExerciseItem }) {
+// Con `edit`, cada serie tiene un botón Editar (solo en la vista del día de la semana activa).
+export function ExerciseRow({
+  exercise,
+  edit,
+}: {
+  exercise: ExerciseItem;
+  edit?: { weekId: number; dayIndex: number; onSaved: (updated: SetItem) => void };
+}) {
   return (
     <li>
       {exercise.name} · {summarize(exercise)}
@@ -26,11 +35,7 @@ export function ExerciseRow({ exercise }: { exercise: ExerciseItem }) {
         </summary>
         <ul style={{ listStyle: "none", paddingLeft: "1rem", margin: "0.25rem 0" }}>
           {exercise.sets.map((s, i) => (
-            <li key={i}>
-              <small>
-                Serie {i + 1} · {setText(exercise.kind, s)}
-              </small>
-            </li>
+            <SetRow key={i} kind={exercise.kind} index={i} set={s} edit={edit} />
           ))}
         </ul>
       </details>

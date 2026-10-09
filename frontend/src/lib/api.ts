@@ -1,11 +1,21 @@
 export const API = process.env.NEXT_PUBLIC_API_URL;
 
 // Lo que devuelve la API (ver backend/app/schemas.py y backend/app/ai/routine.py).
+// Lo que el usuario realmente hizo en una serie (peso en `weight_kg`).
+export type RealSet = {
+  reps: number | null;
+  duration_minutes: number | null;
+  duration_seconds: number | null;
+  weight_kg: number | null;
+};
+
 export type SetItem = {
+  id?: number; // solo en el plan activo: con él se guarda lo realizado
   reps: number | null;
   duration_minutes: number | null;
   duration_seconds: number | null;
   target_weight_kg: number | null;
+  real?: RealSet | null; // vacío si todavía no se registró nada en esta serie
 };
 
 export type ExerciseItem = {
