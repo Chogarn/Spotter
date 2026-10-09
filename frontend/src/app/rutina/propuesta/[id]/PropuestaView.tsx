@@ -91,7 +91,7 @@ export default function PropuestaView({
     );
   }
 
-  const { days, notices } = propuesta.routine;
+  const { days, notices, summary } = propuesta.routine;
 
   return (
     <main style={contenedor}>
@@ -99,6 +99,12 @@ export default function PropuestaView({
       <h1>Tu rutina propuesta</h1>
       <p>La IA propone, vos decidís: nada se guarda hasta que aceptes.</p>
 
+      {summary && (
+        <>
+          <h2>Resumen de la semana anterior</h2>
+          <p>{summary}</p>
+        </>
+      )}
       {propuesta.warnings.length > 0 && (
         <>
           <h2>Avisos</h2>

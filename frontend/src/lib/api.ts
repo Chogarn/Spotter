@@ -39,7 +39,7 @@ export type Proposal = {
   id: number;
   kind: string;
   status: "pending" | "accepted" | "discarded";
-  routine: { days: DayItem[]; notices: string[] };
+  routine: { days: DayItem[]; notices: string[]; summary?: string | null };
   day_minutes: number[];
   warnings: { rule: string; message: string }[];
 };

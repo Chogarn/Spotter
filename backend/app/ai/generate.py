@@ -10,10 +10,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.ai.gemini import AiConfigError, AiLimitError, generate_json
+from app.ai.history import PreviousWeek, build_previous_week, weight_jump_warnings
 from app.ai.plan_writer import active_week
 from app.ai.prompt import build_prompt
 from app.ai.routine import RoutineProposal
-from app.ai.rules import validate_routine
+from app.ai.rules import Issue, validate_routine
 from app.enums import AiCallKind, Goal, Level, ProposalKind, ProposalStatus
 from app.models import PlanProposal, User
 
@@ -63,14 +64,18 @@ def generate_proposal(
         raise ActiveWeekExists
 
     profile = user.profile
-    base_prompt = build_prompt(profile, goal, level)
+    # Continuar una rutina: la IA lee lo planificado frente a lo real de su última semana cerrada.
+    previous = build_previous_week(db, routine_id) if routine_id is not None else None
+    kind = ProposalKind.WEEK_CLOSE if previous is not None else ProposalKind.GENERATE
+    call_kind = AiCallKind.WEEK_CLOSE if previous is not None else AiCallKind.GENERATE
+    base_prompt = build_prompt(profile, goal, level, previous.text if previous else None)
     prompt = base_prompt
     problems: list[str] = []
 
     for attempt in range(MAX_ATTEMPTS):
         try:
             text = generate_json(
-                db, user.id, AiCallKind.GENERATE, prompt, RoutineProposal.model_json_schema()
+                db, user.id, call_kind, prompt, RoutineProposal.model_json_schema()
             )
         except (AiConfigError, AiLimitError):
             raise
@@ -84,7 +89,11 @@ def generate_proposal(
         else:
             result = validate_routine(routine, goal, level)
             if result.ok:
-                return _save(db, user, routine, result, goal, level, routine_id)
+                if previous is not None:
+                    result.warnings += [
+                        Issue(rule, message) for rule, message in weight_jump_warnings(routine, previous)
+                    ]
+                return _save(db, user, routine, result, goal, level, routine_id, kind)
             problems = [f"{i.rule}: {i.message}" for i in result.errors]
 
         if attempt + 1 < MAX_ATTEMPTS:
@@ -96,13 +105,14 @@ def generate_proposal(
 def _save(
     db: Session, user: User, routine: RoutineProposal, result, goal: Goal, level: Level,
     routine_id: int | None,
+    kind: ProposalKind = ProposalKind.GENERATE,
 ) -> PlanProposal:
     # Queda una sola propuesta pendiente: las anteriores se descartan al llegar la nueva.
     now = datetime.now(timezone.utc)
     for old in db.scalars(
         select(PlanProposal).where(
             PlanProposal.user_id == user.id,
-            PlanProposal.kind == ProposalKind.GENERATE,
+            PlanProposal.kind.in_((ProposalKind.GENERATE, ProposalKind.WEEK_CLOSE)),
             PlanProposal.status == ProposalStatus.PENDING,
         )
     ):
@@ -111,7 +121,7 @@ def _save(
 
     proposal = PlanProposal(
         user_id=user.id,
-        kind=ProposalKind.GENERATE,
+        kind=kind,
         proposed_changes={
             "routine": routine.model_dump(mode="json"),
             "goal": goal.value,

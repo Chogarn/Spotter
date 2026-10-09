@@ -81,6 +81,21 @@ Si el volumen que pide el objetivo no entra en la duración de referencia, resol
 2. Si aún no entra, dejá la sesión **más larga que la referencia** y **avisalo en `notices`**.
 3. **Solo como último recurso**, recortá series de **menor prioridad** y avisalo en `notices`. Menor prioridad son los ejercicios accesorios (monoarticulares) y los músculos chicos (bíceps, tríceps, gemelos y core). Los multiarticulares principales no se recortan primero.
 
+# Semana anterior y progresión
+
+{{SEMANA_ANTERIOR}}
+
+Si hay una semana anterior, la **señal** de cada ejercicio la calculó el código comparando lo planificado con lo que el usuario realmente hizo (los números por serie están al lado). Usala así, sin inventar otras reglas:
+
+- **superó**: pasó las repeticiones objetivo. Subí la carga entre **2 % y 10 %**, o el salto mínimo de peso. Partí del **peso que realmente levantó**, no del planificado.
+- **cumplió**: mantené la carga y las repeticiones; no hace falta cambiar nada.
+- **no llegó**: **mantené** la carga y no la subas. No inventes una bajada de carga si no hay dolor.
+- **sin registrar** (o un día no hecho): es información, no un error. No lo castigues ni lo rellenes; mencionalo en el resumen.
+- Si hay **dolor** o un esfuerzo de 9 a 10, **no subas** la carga; si hay dolor aplicá el semáforo de seguridad.
+- Un dato aislado no decide: una sola serie fuera de lo normal no cambia la carga de todo el ejercicio.
+- **Mantené los mismos ejercicios** de la semana anterior. Solo cambiá uno si hay dolor o una limitación que lo pide; no rotes ejercicios por calendario.
+- Completá `summary` con un resumen breve (3 a 5 líneas) de la evolución: qué subió, qué se mantuvo, qué no se hizo. Sin semana anterior, dejalo vacío.
+
 # Seguridad
 
 - No diagnostiques ni des consejo médico.

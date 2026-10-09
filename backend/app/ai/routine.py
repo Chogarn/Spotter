@@ -95,3 +95,5 @@ class RoutineProposal(BaseModel):
     days: list[DayProposal] = Field(min_length=1, max_length=7)
     # Avisos para el usuario (R35: sesión más larga que la referencia, series recortadas...).
     notices: list[str] = Field(default_factory=list, max_length=10)
+    # Resumen de evolución respecto de la semana anterior (qué subió, qué se mantuvo, qué no se hizo).
+    summary: str | None = Field(default=None, max_length=1200)

@@ -202,6 +202,8 @@ El cierre es siempre **manual**, con un botón. Nunca se genera la semana siguie
 
 Como el cierre es una acción del usuario, el gasto en IA es predecible: una llamada por cierre.
 
+**Cómo se arma la semana nueva (implementado, #27).** Al continuar una rutina desde "Generar rutina", la IA recibe la última semana cerrada de esa rutina: por cada ejercicio, lo planificado y lo realizado serie por serie, y una **señal** que calcula el código (superó, cumplió, no llegó o sin registrar). Con eso aplica R9, R10 y R28: si superó las repeticiones sube la carga de 2 % a 10 % partiendo del peso realmente levantado; si no llegó, mantiene; si hubo dolor, no sube. Mantiene los mismos ejercicios (no hay una regla de cada cuánto rotarlos; solo cambian por dolor o por pedido del usuario) y escribe un resumen de evolución que se muestra arriba de la vista previa. Un día no hecho viaja como información, sin castigo. Todavía no existen la semana liviana (R30), la nota de cómo me sentí ni el esfuerzo por serie.
+
 ## Pantallas
 
 1. Registro e inicio de sesión

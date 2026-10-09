@@ -104,7 +104,7 @@ def get_pending(
         select(PlanProposal)
         .where(
             PlanProposal.user_id == user.id,
-            PlanProposal.kind == ProposalKind.GENERATE,
+            PlanProposal.kind.in_((ProposalKind.GENERATE, ProposalKind.WEEK_CLOSE)),
             PlanProposal.status == ProposalStatus.PENDING,
         )
         .order_by(PlanProposal.id.desc())

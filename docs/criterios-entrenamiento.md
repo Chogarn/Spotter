@@ -188,6 +188,8 @@ Estas dudas **no están resueltas** y no las decide la IA:
 - **Minutos de cardio según el nivel:** R17 fija el rango, pero la evidencia no dice cómo variar entre un principiante (cerca de 150) y alguien con más experiencia (cerca de 300). Queda a criterio de la IA dentro del rango.
 - **A qué músculos aplica R3 (resuelta 2026-10-08):** solo a los 6 grupos grandes (pecho, espalda, hombros, cuádriceps, isquios y glúteos); bíceps, tríceps, gemelos y core trabajan por las series indirectas (R5). Ver la decisión 31.
 - **Esfuerzo (R29):** la equivalencia entre "2 o 3 repeticiones en reserva" y un esfuerzo de 7 u 8 está aprobada como deducción, pero **sigue sin verificarse en la tabla original** de Zourdos 2016.
+- **Bajar la carga cuando el usuario no llega a las repeticiones (hueco encontrado el 2026-10-09):** R9, R10 y R28 solo cubren subir o no subir, y R31 baja la carga solo por dolor. No hay una regla aprobada de cuánto bajar. Mientras no se apruebe una (propuesta de R36: mantener, y bajar de 2 % a 10 % solo si no llega dos semanas seguidas con esfuerzo de 9 a 10, que requiere #48), el prompt de la semana nueva dice "mantener".
+- **Cada cuánto cambiar los ejercicios:** ninguna regla ni fuente lo define (el ACSM 2026 no encontró que la periodización sea claramente mejor). Por defecto se mantienen; solo cambian por dolor (R16 y R31) o por pedido del usuario.
 - **Cuánto reducir en la semana liviana (R30):** se mantiene la carga y se baja el volumen, pero no hay cifra (¿la mitad de las series, un porcentaje?). Sin respaldo en la evidencia; falta que lo definas.
 
 ### Reglas candidatas de cardio (resueltas)

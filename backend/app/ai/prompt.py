@@ -54,5 +54,11 @@ def profile_block(profile: Profile, goal: Goal, level: Level) -> str:
     return "\n".join(lines)
 
 
-def build_prompt(profile: Profile, goal: Goal, level: Level) -> str:
-    return _template().replace("{{PERFIL}}", profile_block(profile, goal, level))
+FIRST_WEEK = "Es la primera semana de esta rutina: no hay semana anterior. Armala desde cero."
+
+
+def build_prompt(
+    profile: Profile, goal: Goal, level: Level, previous: str | None = None
+) -> str:
+    text = _template().replace("{{PERFIL}}", profile_block(profile, goal, level))
+    return text.replace("{{SEMANA_ANTERIOR}}", previous or FIRST_WEEK)

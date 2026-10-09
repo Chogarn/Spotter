@@ -43,6 +43,7 @@ def write_plan(
         status=PlanStatus.ACTIVE,
         origin=PlanOrigin.GENERATED,
         routine=plan_routine,
+        ai_summary=routine.summary,
     )
     db.add(week)
 
