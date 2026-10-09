@@ -242,10 +242,13 @@ La **portada** (`/`) tiene los botones **Perfil**, **Mis rutinas** y, solo si no
 
 ## Puntos abiertos
 
+Resueltos:
+
+- **Reabrir un día completado:** se puede, con el botón **Reabrir día** (ver "Día completado"). Lo mismo con un ejercicio cerrado: **Reabrir ejercicio**.
+
 Todavía no están decididos:
 
-- **Reabrir un día completado.** Se propone permitirlo, para poder corregir un número.
-- **Cerrar con días sin hacer.** El cierre está permitido; se propone que la app avise qué días faltan y pida confirmación antes de cerrar.
+- **Cerrar con días sin hacer.** El cierre está permitido; se propone que la app avise qué días faltan y pida confirmación antes de cerrar (tarea #47, **Cerrar semana**). **Dónde va el botón** de Cerrar semana y el de Generar semana nueva (#27) lo tiene que decidir el usuario: la recomendación es cerrar desde la pantalla de la semana activa y generar desde la portada, en el lugar de "Generar rutina".
 - **Avisos al usuario.** Se propone, a futuro, algo suave que sugiera sin hacer nada solo (por ejemplo, "completaste todos los días, ¿cerrar la semana?"). Ver las ideas en `docs/backlog.md`.
 - **Ajuste de ejercicios repetidos.** ¿Lo hace la IA (una llamada por día completado) o una regla simple sin IA, más barata y predecible?
 - **Dónde vive el pedido de ajuste.** Se recomienda una caja de texto dentro de la pantalla de la semana, en lugar de un chat aparte.
@@ -259,6 +262,7 @@ Lo ya aplicado está en `docs/modelo-datos.md`. Resumen de cómo se refleja este
 - `plan_days`: `day_index` es el orden (Día 1, Día 2...), no un día del calendario.
 - `plan_exercises`: el ejercicio planificado, con `execution_notes` (indicaciones) y un marcador `edited_by_user`.
 - `plan_sets`: una fila por serie planificada, con sus repeticiones y su peso.
-- `set_entries`: lo real (repeticiones, peso en kg y esfuerzo opcional), enlazado a la serie planificada (`plan_set_id`) para comparar serie por serie.
-- `workout_sessions`: `finished_at` (se completa con "Día completado"), `feeling` (easy, good, hard o pain) y `notes`.
-- `plan_proposals` y `ai_calls`: propuestas de la IA (`pending`, `accepted` o `discarded`; solo al aceptar se escribe en el plan) y registro de cada llamada para los topes de Gemini. Se crean cuando se construya la IA.
+- `set_entries`: lo real (repeticiones, segundos o minutos, peso en kg y esfuerzo opcional), enlazado a la serie planificada (`plan_set_id`) para comparar serie por serie. Una serie "hecha" es una serie con una fila acá.
+- `workout_sessions`: una por día (se crea sola la primera vez que se registra algo), con `finished_at` (se completa con "Día completado" y se vacía con "Reabrir día"), `feeling` (easy, good, hard o pain) y `notes` (todavía sin pantalla: tarea #46).
+- `exercise_completions`: qué ejercicios cerró el usuario con "Marcar como hecho" (quedan bloqueados hasta reabrirlos).
+- `plan_proposals` y `ai_calls`: propuestas de la IA (`pending`, `accepted` o `discarded`; solo al aceptar se escribe en el plan) y registro de cada llamada para los topes de Gemini. Ya se usan en "Generar rutina".

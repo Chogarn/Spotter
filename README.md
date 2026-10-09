@@ -26,6 +26,17 @@ Personas que entrenan por su cuenta (de principiante a intermedio) y no pueden p
 
 El cierre es siempre manual: nada se genera solo por fecha.
 
+## Estado actual
+
+El proyecto se construye por etapas. Hoy funciona, con un usuario de desarrollo (todavía no hay login):
+
+- **Perfil** con objetivo obligatorio y aviso legal.
+- **Generar rutina** (camino A): Gemini arma la semana a partir del perfil, con vista previa y avisos; el usuario acepta o descarta, y solo al aceptar se escribe en el plan.
+- **Mis rutinas:** las semanas, sus días y los ejercicios de cada día, con las series desplegables.
+- **Registro del día:** editar lo realizado por serie, marcar series y ejercicios como hechos (un ejercicio hecho queda bloqueado hasta reabrirlo) y **Día completado** (que también se puede reabrir).
+
+Todavía no están: registro e inicio de sesión (semana 3), cargar la rutina propia (camino B), cerrar la semana y generar la siguiente, el ajuste conversando, la nota de cómo me sentí, el esfuerzo por serie y la edición manual del plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
+
 ## Funcionalidades
 
 ### Base
@@ -59,22 +70,26 @@ Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal 
 | Next.js + TypeScript | Frontend |
 | pytest | Tests automáticos del backend |
 | Docker Compose | Entornos de desarrollo y producción en contenedores |
-| Gemini | IA: plan gratuito, respuestas en JSON, con topes de uso diarios y por minuto |
+| Gemini | IA (modelo `gemini-3.5-flash-lite`, plan gratuito): respuestas en JSON validadas con Pydantic, con topes de uso diarios y por minuto que se aplican antes de cada llamada |
 
 ## Estructura de carpetas
 
 ```
 spotter/
 ├── backend/
-│   ├── app/                  # API: main.py, db.py, enums.py, models.py
+│   ├── app/                  # API: main.py, db.py, deps.py, enums.py, models.py, schemas.py
+│   │   ├── routers/          # Endpoints: profile, proposals y weeks
+│   │   └── ai/               # IA: Gemini con topes, formato y reglas de la rutina, prompt
 │   ├── migrations/           # Migraciones de Alembic
-│   ├── tests/                # Tests con pytest
+│   ├── tests/                # Tests con pytest (no llaman a Gemini de verdad)
 │   ├── Dockerfile            # Imagen de desarrollo
 │   ├── Dockerfile.prod       # Imagen de producción
 │   ├── requirements.txt      # Dependencias de producción
 │   └── requirements-dev.txt  # Dependencias de desarrollo (pytest)
 ├── frontend/
-│   ├── src/app/              # Páginas (Next.js, App Router)
+│   ├── src/app/              # Páginas (Next.js, App Router): portada, perfil, propuesta y rutinas
+│   ├── src/components/       # Componentes compartidos (fila de ejercicio, serie, botón de volver)
+│   ├── src/lib/              # Tipos de la API y funciones de formato
 │   ├── Dockerfile            # Imagen de desarrollo
 │   └── Dockerfile.prod       # Imagen de producción
 ├── docs/                     # Flujo, modelo de datos y backlog
@@ -123,7 +138,9 @@ En desarrollo las migraciones **no se aplican solas**: se corren a mano para no 
 
 ### Variables de entorno
 
-Para desarrollo con Docker alcanzan los valores por defecto. Si querés cambiarlos o usar tu clave de Gemini, copiá `.env.example` a `.env` y completalo. El archivo `.env` no se sube al repositorio.
+Para levantar la app y usar el perfil, Mis rutinas y el registro del día alcanzan los valores por defecto. Para **Generar rutina** hace falta la IA: copiá `.env.example` a `.env` y completá `GEMINI_API_KEY` (una clave del plan gratuito, de preferencia en un proyecto propio de Google AI Studio, porque los límites son por proyecto), `GEMINI_MODEL` y los topes `GEMINI_DAILY_LIMIT` y `GEMINI_RPM_LIMIT`. No hay valores por defecto a propósito: si falta alguno, la app se niega a llamar a Gemini. El archivo `.env` no se sube al repositorio.
+
+El `.env` se lee al **crear** el contenedor: después de cambiarlo, corré `docker compose -f docker-compose.dev.yml up -d backend` (reiniciar no alcanza).
 
 ### Producción (Docker)
 
@@ -148,6 +165,8 @@ Las dependencias de desarrollo (pytest) están en `backend/requirements-dev.txt`
 ```bash
 docker compose -f docker-compose.dev.yml run --rm --no-deps backend python -m pytest -q
 ```
+
+Los tests usan una base SQLite en memoria y un Gemini simulado: no necesitan PostgreSQL ni gastan cuota de la IA.
 
 ## Documentación
 
