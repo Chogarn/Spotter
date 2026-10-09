@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
-import { API, readError, type Week } from "@/lib/api";
+import { API, readError } from "@/lib/api";
 
 export default function Home() {
   const router = useRouter();
   const [cargando, setCargando] = useState(true);
-  const [semana, setSemana] = useState<Week | null>(null);
+  // Con una semana activa no se ofrece generar otra rutina.
+  const [hayActiva, setHayActiva] = useState(false);
   // `pidiendo`: esperando a la IA. `navegando`: abriendo la propuesta; se apaga solo cuando la
   // nueva página está lista (así la portada no queda "generando" al volver a ella).
   const [pidiendo, setPidiendo] = useState(false);
@@ -23,8 +24,8 @@ export default function Home() {
   useEffect(() => {
     fetch(`${API}/weeks/active`)
       .then(async (res) => {
-        if (res.ok) setSemana(await res.json());
-        else if (res.status === 404) setSemana(null); // la semana pudo haberse cerrado
+        if (res.ok) setHayActiva(true);
+        else if (res.status === 404) setHayActiva(false); // la semana pudo haberse cerrado
         else setError(await readError(res));
       })
       .catch(() => setError("No se pudo conectar con el servidor"))
@@ -60,7 +61,10 @@ export default function Home() {
         <Link href="/perfil">
           <button type="button">Perfil</button>
         </Link>{" "}
-        {!cargando && !semana && (
+        <Link href="/rutinas">
+          <button type="button">Mis rutinas</button>
+        </Link>{" "}
+        {!cargando && !hayActiva && (
           <button type="button" onClick={generar} disabled={generando}>
             {generando ? "Generando..." : "Generar rutina"}
           </button>
@@ -75,19 +79,6 @@ export default function Home() {
         </p>
       )}
       {error && <p style={{ color: "crimson" }}>{error}</p>}
-
-      {semana && (
-        <>
-          <h2>Tu semana</h2>
-          <ul>
-            {semana.days.map((d) => (
-              <li key={d.day_index}>
-                Día {d.day_index} · {d.title}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
     </main>
   );
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import { API, readError, type Proposal } from "@/lib/api";
-import { restText, summarize } from "@/lib/format";
+import { ExerciseRow } from "@/components/ExerciseRow";
 
 export default function PropuestaPage({
   params,
@@ -69,6 +69,9 @@ export default function PropuestaPage({
     return (
       <main style={contenedor}>
         <p>Tu rutina quedó activa: {propuesta.routine.days.length} días.</p>
+        <Link href="/rutinas">
+          <button type="button">Ver mis rutinas</button>
+        </Link>{" "}
         <Link href="/">
           <button type="button">Volver al inicio</button>
         </Link>
@@ -124,22 +127,7 @@ export default function PropuestaPage({
           {dia.mobility_notes && <p>Movilidad: {dia.mobility_notes}</p>}
           <ol>
             {dia.exercises.map((e, j) => (
-              <li key={j}>
-                {e.name} · {summarize(e)}
-                {e.rest_seconds !== null && <> · descanso {restText(e.rest_seconds)}</>}
-                {e.execution_notes && (
-                  <>
-                    <br />
-                    <small>{e.execution_notes}</small>
-                  </>
-                )}
-                {e.reason && (
-                  <>
-                    <br />
-                    <small>Por qué: {e.reason}</small>
-                  </>
-                )}
-              </li>
+              <ExerciseRow key={j} exercise={e} />
             ))}
           </ol>
         </section>

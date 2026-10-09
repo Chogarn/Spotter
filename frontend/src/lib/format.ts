@@ -1,4 +1,4 @@
-import type { ExerciseItem } from "./api";
+import type { ExerciseItem, SetItem } from "./api";
 
 const number = (n: number) => n.toLocaleString("es-AR");
 
@@ -40,4 +40,20 @@ export function summarize(exercise: ExerciseItem): string {
 export function restText(seconds: number | null): string {
   if (seconds === null) return "";
   return seconds % 60 === 0 ? `${seconds / 60} min` : `${seconds} s`;
+}
+
+// Una serie suelta, para el desglose: "10 reps · 50 kg", "45 s" o "30 min".
+export function setText(kind: ExerciseItem["kind"], set: SetItem): string {
+  if (kind === "cardio") return `${number(set.duration_minutes ?? 0)} min`;
+  if (kind === "isometric") return `${number(set.duration_seconds ?? 0)} s`;
+  const reps = `${number(set.reps ?? 0)} reps`;
+  return set.target_weight_kg === null ? reps : `${reps} · ${number(set.target_weight_kg)} kg`;
+}
+
+export const statusText = { active: "activa", closed: "cerrada", draft: "borrador" } as const;
+
+// "2026-10-08" -> "8/10/2026" (sin pasar por Date, para no correr el día por la zona horaria).
+export function shortDate(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return `${Number(d)}/${Number(m)}/${y}`;
 }

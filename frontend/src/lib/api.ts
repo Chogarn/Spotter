@@ -37,6 +37,34 @@ export type Week = {
   days: { day_index: number; title: string }[];
 };
 
+export type WeekSummary = {
+  id: number;
+  number: number; // orden de activación (la primera semana es la 1)
+  status: "draft" | "active" | "closed";
+  week_start: string;
+  closed_at: string | null;
+  day_count: number;
+};
+
+export type WeekDetail = {
+  id: number;
+  number: number;
+  status: "draft" | "active" | "closed";
+  week_start: string;
+  days: { day_index: number; title: string; exercise_count: number; minutes: number }[];
+};
+
+export type DayDetail = {
+  week_id: number;
+  week_number: number;
+  week_status: "draft" | "active" | "closed";
+  day_index: number;
+  title: string;
+  mobility_notes: string | null;
+  minutes: number;
+  exercises: ExerciseItem[];
+};
+
 // FastAPI devuelve los errores de validación como una lista en "detail".
 export function errorText(detail: unknown): string {
   if (typeof detail === "string") return detail;
