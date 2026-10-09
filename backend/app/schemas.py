@@ -85,6 +85,8 @@ class WeekDayItemOut(BaseModel):
     title: str
     exercise_count: int
     minutes: int  # duración estimada (R34)
+    # "pending" (nada registrado), "partial" (algo registrado) o "completed" (Día completado).
+    state: str
 
 
 class WeekDetailOut(BaseModel):
@@ -124,6 +126,7 @@ class SetEntryIn(BaseModel):
 
 
 class DayExerciseOut(BaseModel):
+    id: int  # id del ejercicio planificado: con él se marca como hecho
     name: str
     kind: str
     rest_seconds: int | None
@@ -140,4 +143,10 @@ class DayDetailOut(BaseModel):
     title: str
     mobility_notes: str | None
     minutes: int
+    # Cuándo se tocó "Día completado". Vacío mientras el día está abierto.
+    finished_at: datetime | None
     exercises: list[DayExerciseOut]
+
+
+class DayStatusOut(BaseModel):
+    finished_at: datetime | None
