@@ -184,3 +184,159 @@ def test_no_se_puede_ver_la_semana_de_otro_usuario(api):
     assert api.get(f"/weeks/{ajena}").status_code == 404
     assert api.get(f"/weeks/{ajena}/days/1").status_code == 404
     assert api.get("/weeks").json() == []
+
+
+# --- editar lo realizado de una serie ---
+
+
+def series_del_dia(api, semana, dia):
+    """{nombre del ejercicio: [series]} del día, con sus ids."""
+    ejercicios = api.get(f"/weeks/{semana}/days/{dia}").json()["exercises"]
+    return {e["name"]: e["sets"] for e in ejercicios}
+
+
+def guardar(api, semana, dia, serie_id, cuerpo):
+    return api.put(f"/weeks/{semana}/days/{dia}/sets/{serie_id}", json=cuerpo)
+
+
+def contar(api, modelo):
+    from sqlalchemy import func
+
+    with api.session() as db:
+        return db.scalar(select(func.count()).select_from(modelo))
+
+
+def test_sin_nada_registrado_cada_serie_trae_su_id_y_lo_realizado_vacio(api):
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    for serie in series_del_dia(api, semana, 1)["Press de banca"]:
+        assert isinstance(serie["id"], int)
+        assert serie["real"] is None
+
+
+def test_guardar_lo_realizado_no_cambia_el_plan(api):
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    serie = series_del_dia(api, semana, 1)["Press de banca"][1]  # tocaba 9 reps x 55 kg
+
+    response = guardar(api, semana, 1, serie["id"], {"reps": 8, "weight_kg": 57.5})
+
+    assert response.status_code == 200
+    despues = series_del_dia(api, semana, 1)["Press de banca"][1]
+    assert despues["real"] == {
+        "reps": 8, "duration_minutes": None, "duration_seconds": None, "weight_kg": 57.5,
+    }
+    assert (despues["reps"], despues["target_weight_kg"]) == (9, 55.0)  # el plan sigue igual
+
+
+def test_las_otras_series_no_se_tocan(api):
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    series = series_del_dia(api, semana, 1)["Press de banca"]
+    guardar(api, semana, 1, series[1]["id"], {"reps": 8, "weight_kg": 57.5})
+
+    despues = series_del_dia(api, semana, 1)["Press de banca"]
+
+    assert [s["real"] is not None for s in despues] == [False, True, False, False]
+
+
+def test_guardar_dos_veces_actualiza_la_misma_serie_sin_duplicar(api):
+    from app.models import SetEntry, WorkoutSession
+
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    serie = series_del_dia(api, semana, 1)["Press de banca"][0]
+
+    guardar(api, semana, 1, serie["id"], {"reps": 10, "weight_kg": 50})
+    guardar(api, semana, 1, serie["id"], {"reps": 6, "weight_kg": 60})
+
+    assert contar(api, WorkoutSession) == 1
+    assert contar(api, SetEntry) == 1
+    real = series_del_dia(api, semana, 1)["Press de banca"][0]["real"]
+    assert (real["reps"], real["weight_kg"]) == (6, 60.0)
+
+
+def test_la_sesion_del_dia_y_la_serie_real_quedan_enlazadas_al_plan(api):
+    from app.models import SetEntry, WorkoutSession
+
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    serie = series_del_dia(api, semana, 1)["Press de banca"][2]
+    guardar(api, semana, 1, serie["id"], {"reps": 7})
+
+    with api.session() as db:
+        sesion = db.scalars(select(WorkoutSession)).one()
+        entrada = db.scalars(select(SetEntry)).one()
+        assert sesion.plan_day_id is not None and sesion.finished_at is None
+        assert entrada.session_id == sesion.id
+        assert entrada.plan_set_id == serie["id"]
+        assert entrada.set_number == 3
+        assert entrada.exercise.name == "Press de banca"
+        assert entrada.weight_kg is None  # el peso es opcional
+
+
+def test_cada_dia_tiene_su_propia_sesion(api):
+    from app.models import WorkoutSession
+
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    dia1 = series_del_dia(api, semana, 1)["Press de banca"][0]["id"]
+    dia2 = series_del_dia(api, semana, 2)["Sentadilla"][0]["id"]
+    guardar(api, semana, 1, dia1, {"reps": 10})
+    guardar(api, semana, 2, dia2, {"reps": 10})
+    assert contar(api, WorkoutSession) == 2
+
+
+def test_el_isometrico_se_edita_en_segundos_y_el_cardio_en_minutos(api):
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    plancha_id = series_del_dia(api, semana, 1)["Plancha"][0]["id"]
+    cinta_id = series_del_dia(api, semana, 2)["Cinta"][0]["id"]
+
+    assert guardar(api, semana, 1, plancha_id, {"duration_seconds": 38}).status_code == 200
+    assert guardar(api, semana, 2, cinta_id, {"duration_minutes": 25}).status_code == 200
+
+    assert series_del_dia(api, semana, 1)["Plancha"][0]["real"]["duration_seconds"] == 38
+    assert series_del_dia(api, semana, 2)["Cinta"][0]["real"]["duration_minutes"] == 25
+
+
+@pytest.mark.parametrize(
+    "ejercicio,dia,cuerpo",
+    [
+        ("Press de banca", 1, {}),  # falta lo que se mide
+        ("Press de banca", 1, {"weight_kg": 50}),  # falta reps
+        ("Press de banca", 1, {"reps": 0}),
+        ("Press de banca", 1, {"reps": 51}),
+        ("Press de banca", 1, {"reps": 8, "weight_kg": -1}),
+        ("Press de banca", 1, {"reps": 8, "weight_kg": 501}),
+        ("Press de banca", 1, {"duration_seconds": 30}),  # fuerza no se mide en segundos
+        ("Press de banca", 1, {"reps": 8, "duration_seconds": 30}),
+        ("Plancha", 1, {"reps": 10}),  # isométrico se mide en segundos
+        ("Plancha", 1, {"duration_seconds": 30, "weight_kg": 5}),  # sin peso
+        ("Plancha", 1, {"duration_seconds": 0}),
+        ("Cinta", 2, {"duration_seconds": 30}),  # cardio se mide en minutos
+        ("Cinta", 2, {"duration_minutes": 20, "weight_kg": 5}),
+    ],
+)
+def test_valores_invalidos_devuelven_422_y_no_guardan_nada(api, ejercicio, dia, cuerpo):
+    from app.models import SetEntry
+
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    serie_id = series_del_dia(api, semana, dia)[ejercicio][0]["id"]
+
+    assert guardar(api, semana, dia, serie_id, cuerpo).status_code == 422
+    assert contar(api, SetEntry) == 0
+
+
+def test_una_semana_cerrada_no_se_edita(api):
+    from app.models import SetEntry
+
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.CLOSED)
+    serie_id = series_del_dia(api, semana, 1)["Press de banca"][0]["id"]
+
+    assert guardar(api, semana, 1, serie_id, {"reps": 8}).status_code == 409
+    assert contar(api, SetEntry) == 0
+
+
+def test_la_serie_debe_ser_de_ese_dia_y_de_ese_usuario(api):
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    del_dia_2 = series_del_dia(api, semana, 2)["Sentadilla"][0]["id"]
+    ajena = crear_semana(api, date(2026, 9, 2), status=PlanStatus.ACTIVE, email="otro@spotter.local")
+
+    assert guardar(api, semana, 1, del_dia_2, {"reps": 8}).status_code == 404  # otro día
+    assert guardar(api, semana, 1, 99999, {"reps": 8}).status_code == 404
+    assert guardar(api, semana, 9, del_dia_2, {"reps": 8}).status_code == 404  # día inexistente
+    assert guardar(api, ajena, 1, del_dia_2, {"reps": 8}).status_code == 404  # semana ajena

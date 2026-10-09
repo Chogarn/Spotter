@@ -95,12 +95,32 @@ class WeekDetailOut(BaseModel):
     days: list[WeekDayItemOut]
 
 
+class RealSetOut(BaseModel):
+    """Lo que el usuario realmente hizo en una serie."""
+
+    reps: int | None
+    duration_minutes: int | None
+    duration_seconds: int | None
+    weight_kg: float | None
+
+
 class DaySetOut(BaseModel):
+    id: int  # id de la serie planificada: con él se guarda lo realizado
     set_number: int
     reps: int | None
     duration_minutes: int | None
     duration_seconds: int | None
     target_weight_kg: float | None
+    real: RealSetOut | None  # vacío si todavía no se registró nada en esta serie
+
+
+class SetEntryIn(BaseModel):
+    """Lo realizado en una serie. Qué campo corresponde lo decide el tipo del ejercicio."""
+
+    reps: int | None = Field(default=None, ge=1, le=50)
+    duration_minutes: int | None = Field(default=None, ge=1, le=180)
+    duration_seconds: int | None = Field(default=None, ge=1, le=600)
+    weight_kg: float | None = Field(default=None, ge=0, le=500)
 
 
 class DayExerciseOut(BaseModel):

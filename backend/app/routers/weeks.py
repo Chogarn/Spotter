@@ -1,3 +1,4 @@
+from decimal import Decimal
 from types import SimpleNamespace
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,11 +9,14 @@ from app.ai.plan_writer import active_week
 from app.ai.rules import estimate_day_minutes
 from app.db import get_db
 from app.deps import get_current_user
-from app.models import PlanDay, User, WeekPlan
+from app.enums import ExerciseKind, PlanStatus
+from app.models import PlanDay, PlanSet, SetEntry, User, WeekPlan, WorkoutSession
 from app.schemas import (
     DayDetailOut,
     DayExerciseOut,
     DaySetOut,
+    RealSetOut,
+    SetEntryIn,
     WeekDayItemOut,
     WeekDetailOut,
     WeekOut,
@@ -52,6 +56,39 @@ def day_minutes(day: PlanDay) -> int:
         ],
     )
     return round(estimate_day_minutes(shape))
+
+
+def day_entries(db: Session, day: PlanDay) -> dict[int, SetEntry]:
+    """Lo realizado en el día, por serie planificada (plan_set_id)."""
+    entries = db.scalars(
+        select(SetEntry)
+        .join(WorkoutSession, SetEntry.session_id == WorkoutSession.id)
+        .where(WorkoutSession.plan_day_id == day.id, SetEntry.plan_set_id.is_not(None))
+    )
+    return {e.plan_set_id: e for e in entries}
+
+
+def set_out(plan_set: PlanSet, entry: SetEntry | None) -> DaySetOut:
+    return DaySetOut(
+        id=plan_set.id,
+        set_number=plan_set.set_number,
+        reps=plan_set.reps,
+        duration_minutes=plan_set.duration_minutes,
+        duration_seconds=plan_set.duration_seconds,
+        target_weight_kg=(
+            None if plan_set.target_weight_kg is None else float(plan_set.target_weight_kg)
+        ),
+        real=(
+            None
+            if entry is None
+            else RealSetOut(
+                reps=entry.reps,
+                duration_minutes=entry.duration_minutes,
+                duration_seconds=entry.duration_seconds,
+                weight_kg=None if entry.weight_kg is None else float(entry.weight_kg),
+            )
+        ),
+    )
 
 
 @router.get("", response_model=list[WeekSummaryOut])
@@ -122,6 +159,7 @@ def get_day(
     day = next((d for d in week.days if d.day_index == day_index), None)
     if day is None:
         raise HTTPException(status_code=404, detail="No existe ese día")
+    entries = day_entries(db, day)
     return DayDetailOut(
         week_id=week.id,
         week_number=number,
@@ -137,19 +175,87 @@ def get_day(
                 rest_seconds=e.rest_seconds,
                 execution_notes=e.execution_notes,
                 reason=e.reason,
-                sets=[
-                    DaySetOut(
-                        set_number=s.set_number,
-                        reps=s.reps,
-                        duration_minutes=s.duration_minutes,
-                        duration_seconds=s.duration_seconds,
-                        target_weight_kg=(
-                            None if s.target_weight_kg is None else float(s.target_weight_kg)
-                        ),
-                    )
-                    for s in e.sets
-                ],
+                sets=[set_out(s, entries.get(s.id)) for s in e.sets],
             )
             for e in day.exercises
         ],
     )
+
+
+def check_measure(kind: ExerciseKind, data: SetEntryIn) -> None:
+    """Cada tipo de ejercicio se mide en una sola cosa: repeticiones, segundos o minutos."""
+    expected = {
+        ExerciseKind.STRENGTH: "reps",
+        ExerciseKind.ISOMETRIC: "duration_seconds",
+        ExerciseKind.CARDIO: "duration_minutes",
+    }[kind]
+    given = {
+        name
+        for name in ("reps", "duration_seconds", "duration_minutes", "weight_kg")
+        if getattr(data, name) is not None
+    }
+    allowed = {expected} | ({"weight_kg"} if kind == ExerciseKind.STRENGTH else set())
+    if expected not in given:
+        raise HTTPException(status_code=422, detail=f"Falta el valor de {expected}")
+    if given - allowed:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Este ejercicio no admite: {', '.join(sorted(given - allowed))}",
+        )
+
+
+@router.put("/{week_id}/days/{day_index}/sets/{plan_set_id}", response_model=DaySetOut)
+def save_set(
+    week_id: int,
+    day_index: int,
+    plan_set_id: int,
+    data: SetEntryIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> DaySetOut:
+    """Guarda lo realizado en una serie. El plan no se toca."""
+    week, _ = get_own_week(db, user, week_id)
+    day = next((d for d in week.days if d.day_index == day_index), None)
+    if day is None:
+        raise HTTPException(status_code=404, detail="No existe ese día")
+    found = next(
+        ((e, s) for e in day.exercises for s in e.sets if s.id == plan_set_id), None
+    )
+    if found is None:
+        raise HTTPException(status_code=404, detail="No existe esa serie")
+    if week.status != PlanStatus.ACTIVE:
+        raise HTTPException(status_code=409, detail="Esa semana está cerrada")
+    plan_exercise, plan_set = found
+    check_measure(plan_exercise.exercise.kind, data)
+
+    # La sesión del día se crea sola la primera vez que se guarda algo.
+    session = db.scalar(
+        select(WorkoutSession)
+        .where(WorkoutSession.user_id == user.id, WorkoutSession.plan_day_id == day.id)
+        .order_by(WorkoutSession.id)
+    )
+    if session is None:
+        session = WorkoutSession(user_id=user.id, plan_day_id=day.id)
+        db.add(session)
+        db.flush()
+
+    entry = db.scalar(
+        select(SetEntry).where(
+            SetEntry.session_id == session.id, SetEntry.plan_set_id == plan_set.id
+        )
+    )
+    if entry is None:
+        entry = SetEntry(
+            session_id=session.id,
+            plan_exercise_id=plan_exercise.id,
+            plan_set_id=plan_set.id,
+            exercise_id=plan_exercise.exercise_id,
+            set_number=plan_set.set_number,
+        )
+        db.add(entry)
+    entry.reps = data.reps
+    entry.duration_minutes = data.duration_minutes
+    entry.duration_seconds = data.duration_seconds
+    entry.weight_kg = None if data.weight_kg is None else Decimal(str(data.weight_kg))
+    db.commit()
+    return set_out(plan_set, entry)
