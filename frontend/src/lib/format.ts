@@ -70,13 +70,15 @@ export function differsFromPlan(plan: SetItem, real: RealSet): boolean {
   );
 }
 
-// ¿El ejercicio está hecho? Sí cuando todas sus series tienen algo registrado.
+// Cuántas series del ejercicio ya tienen algo registrado ("hechas").
 export function seriesRegistradas(exercise: ExerciseItem): number {
   return exercise.sets.filter((s) => s.real).length;
 }
 
+// ¿El ejercicio está hecho? Solo cuando el usuario lo cerró con "Marcar como hecho": marcar las
+// series una por una no lo cierra.
 export function estaHecho(exercise: ExerciseItem): boolean {
-  return exercise.sets.length > 0 && seriesRegistradas(exercise) === exercise.sets.length;
+  return exercise.completed === true;
 }
 
 export const dayStateText = {

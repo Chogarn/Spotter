@@ -11,24 +11,28 @@ export type DoneEdit = {
   onChanged: (updated: ExerciseItem) => void;
 };
 
-// El estado del ejercicio y sus botones: "Marcar como hecho" (lo hice como estaba planificado:
-// las series sin registrar copian el plan y las que ya editaste se respetan) y "Deshacer"
-// (borra lo registrado de ese ejercicio). Sin `edit` (día completado) solo muestra el estado.
+// El estado del ejercicio y sus botones.
+//  - Marcar como hecho: cierra el ejercicio (lo hice como estaba planificado: las series sin
+//    registrar copian el plan y las que ya marcaste o editaste se respetan). Cerrado, sus series
+//    no se pueden editar, marcar ni desmarcar.
+//  - Reabrir ejercicio: lo desbloquea para corregirlo, sin borrar nada de lo registrado.
+//  - Deshacer: borra lo registrado de ese ejercicio.
+// Sin `edit` (día completado) solo muestra el estado.
 export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?: DoneEdit }) {
   const [trabajando, setTrabajando] = useState(false);
   const [error, setError] = useState("");
 
   const total = exercise.sets.length;
-  const registradas = seriesRegistradas(exercise);
+  const hechas = seriesRegistradas(exercise);
   const hecho = estaHecho(exercise);
 
-  async function llamar(method: "POST" | "DELETE") {
+  async function llamar(method: "POST" | "DELETE", accion: "done" | "reopen") {
     if (!edit || exercise.id === undefined) return;
     setTrabajando(true);
     setError("");
     try {
       const res = await fetch(
-        `${API}/weeks/${edit.weekId}/days/${edit.dayIndex}/exercises/${exercise.id}/done`,
+        `${API}/weeks/${edit.weekId}/days/${edit.dayIndex}/exercises/${exercise.id}/${accion}`,
         { method },
       );
       if (res.ok) edit.onChanged(await res.json());
@@ -40,18 +44,18 @@ export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?:
   }
 
   function deshacer() {
-    // Destildar borra lo registrado: si hay series que editaste a mano, se pide confirmación.
+    // Deshacer borra lo registrado: si hay series que editaste a mano, se pide confirmación.
     const editadas = exercise.sets.some((s) => s.real && differsFromPlan(s, s.real));
     if (editadas && !window.confirm("Se van a borrar las series que registraste en este ejercicio. ¿Seguro?")) {
       return;
     }
-    llamar("DELETE");
+    llamar("DELETE", "done");
   }
 
   const estado = hecho
     ? "✓ Hecho"
-    : registradas > 0
-      ? `${registradas} de ${total} series registradas`
+    : hechas > 0
+      ? `${hechas} de ${total} series hechas`
       : "";
   const puedeEditar = edit !== undefined && exercise.id !== undefined;
 
@@ -61,12 +65,20 @@ export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?:
       {puedeEditar && !hecho && (
         <>
           {estado && " "}
-          <button type="button" onClick={() => llamar("POST")} disabled={trabajando}>
+          <button type="button" onClick={() => llamar("POST", "done")} disabled={trabajando}>
             Marcar como hecho
           </button>
         </>
       )}
-      {puedeEditar && registradas > 0 && (
+      {puedeEditar && hecho && (
+        <>
+          {" "}
+          <button type="button" onClick={() => llamar("POST", "reopen")} disabled={trabajando}>
+            Reabrir ejercicio
+          </button>
+        </>
+      )}
+      {puedeEditar && hechas > 0 && (
         <>
           {" "}
           <button type="button" onClick={deshacer} disabled={trabajando}>

@@ -18,6 +18,8 @@ export type ExerciseEdit = {
 // Con `edit` (vista del día de la semana activa) suma el estado "hecho" y los botones.
 export function ExerciseRow({ exercise, edit }: { exercise: ExerciseItem; edit?: ExerciseEdit }) {
   const abierto = edit && !edit.locked;
+  // Un ejercicio hecho bloquea sus series hasta reabrirlo.
+  const seriesAbiertas = abierto && !exercise.completed;
   return (
     <li>
       {exercise.name} · {summarize(exercise)}
@@ -56,7 +58,7 @@ export function ExerciseRow({ exercise, edit }: { exercise: ExerciseItem; edit?:
               index={i}
               set={s}
               edit={
-                abierto
+                seriesAbiertas
                   ? { weekId: edit.weekId, dayIndex: edit.dayIndex, onSaved: edit.onSetSaved }
                   : undefined
               }

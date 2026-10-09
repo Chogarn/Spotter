@@ -20,6 +20,7 @@ export type SetItem = {
 
 export type ExerciseItem = {
   id?: number; // solo en el plan activo: con él se marca como hecho
+  completed?: boolean; // cerrado con "Marcar como hecho": bloqueado hasta reabrirlo
   name: string;
   kind: "strength" | "cardio" | "isometric";
   rest_seconds: number | null;

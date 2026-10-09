@@ -33,6 +33,7 @@ export function SetRow({
 }) {
   const [editando, setEditando] = useState(false);
   const [guardando, setGuardando] = useState(false);
+  const [marcando, setMarcando] = useState(false);
   const [error, setError] = useState("");
   const [medida, setMedida] = useState("");
   const [kilos, setKilos] = useState("");
@@ -40,6 +41,34 @@ export function SetRow({
   const real = set.real ?? null;
   const mostrada = real ? realAsSet(real) : set;
   const cambio = real !== null && differsFromPlan(set, real);
+
+  // Marcar como hecha (lo planificado) y Desmarcar (borra lo registrado de esta serie).
+  async function cambiarHecha(method: "POST" | "DELETE") {
+    if (!edit || set.id === undefined) return;
+    setMarcando(true);
+    setError("");
+    try {
+      const res = await fetch(
+        `${API}/weeks/${edit.weekId}/days/${edit.dayIndex}/sets/${set.id}/done`,
+        { method },
+      );
+      if (res.ok) edit.onSaved(await res.json());
+      else setError(await readError(res));
+    } catch {
+      setError("No se pudo conectar con el servidor");
+    }
+    setMarcando(false);
+  }
+
+  const marcar = () => cambiarHecha("POST");
+
+  function desmarcar() {
+    // Si la serie tiene valores editados, desmarcarla los borra: se pide confirmación.
+    if (cambio && !window.confirm("Se va a borrar lo que registraste en esta serie. ¿Seguro?")) {
+      return;
+    }
+    cambiarHecha("DELETE");
+  }
 
   function empezar() {
     const actual =
@@ -148,15 +177,36 @@ export function SetRow({
       <small>
         Serie {index + 1} · {setText(kind, mostrada)}
         {cambio && <> (tocaba {setText(kind, set)})</>}
+        {real && <> · ✓ hecha</>}
         {edit && set.id !== undefined && (
           <>
             {" "}
-            <button type="button" onClick={empezar}>
+            {!real && (
+              <>
+                <button type="button" onClick={marcar} disabled={marcando}>
+                  Marcar como hecha
+                </button>{" "}
+              </>
+            )}
+            <button type="button" onClick={empezar} disabled={marcando}>
               Editar
             </button>
+            {real && (
+              <>
+                {" "}
+                <button type="button" onClick={desmarcar} disabled={marcando}>
+                  Desmarcar
+                </button>
+              </>
+            )}
           </>
         )}
       </small>
+      {error && (
+        <div>
+          <small style={{ color: "crimson" }}>{error}</small>
+        </div>
+      )}
     </li>
   );
 }
