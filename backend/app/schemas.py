@@ -4,10 +4,10 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.ai.routine import RoutineProposal
-from app.enums import Equipment, Goal, Level
+from app.enums import Goal, Level
 
 
 class ProfileIn(BaseModel):
@@ -16,9 +16,6 @@ class ProfileIn(BaseModel):
     weight_kg: Decimal = Field(ge=30, le=300, max_digits=5, decimal_places=2)
     height_cm: int = Field(ge=100, le=250)
     sex: Literal["masculino", "femenino", "otro"] | None = None
-    level: Level
-    goal: Goal
-    equipment: Equipment
     limitations: str | None = Field(default=None, max_length=1000)
     # Sin el tilde del aviso legal no se guarda nada.
     accept_legal_notice: Literal[True]
@@ -32,11 +29,26 @@ class ProfileOut(BaseModel):
     weight_kg: Decimal
     height_cm: int
     sex: str | None
-    level: Level
-    goal: Goal
-    equipment: Equipment
     limitations: str | None
     legal_notice_accepted: bool
+
+
+class GenerateIn(BaseModel):
+    """Continuar una rutina (`routine_id`) o empezar una nueva (`goal` y `level`)."""
+
+    routine_id: int | None = None
+    goal: Goal | None = None
+    level: Level | None = None
+
+    @model_validator(mode="after")
+    def one_way_or_the_other(self):
+        has_choice = self.goal is not None or self.level is not None
+        if self.routine_id is not None:
+            if has_choice:
+                raise ValueError("Con una rutina existente no se elige objetivo ni nivel")
+        elif self.goal is None or self.level is None:
+            raise ValueError("Falta el objetivo y el nivel, o la rutina a continuar")
+        return self
 
 
 class WarningOut(BaseModel):
@@ -68,11 +80,26 @@ class WeekOut(BaseModel):
     days: list[WeekDayOut]
 
 
-class WeekSummaryOut(BaseModel):
-    """Una semana en la lista "Mis rutinas"."""
+class RoutineSummaryOut(BaseModel):
+    """Una rutina en la lista "Mis rutinas"."""
 
     id: int
-    # Orden de activación: la primera semana que tuvo el usuario es la 1. Se calcula, no se guarda.
+    name: str
+    goal: Goal
+    level: Level
+    week_count: int
+    has_active_week: bool
+
+
+class RoutineRenameIn(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+
+
+class WeekSummaryOut(BaseModel):
+    """Una semana en la lista de una rutina."""
+
+    id: int
+    # Orden de activación dentro de la rutina: la primera semana es la 1. Se calcula, no se guarda.
     number: int
     status: str
     week_start: date
@@ -89,8 +116,18 @@ class WeekDayItemOut(BaseModel):
     state: str
 
 
+class RoutineDetailOut(BaseModel):
+    id: int
+    name: str
+    goal: Goal
+    level: Level
+    weeks: list[WeekSummaryOut]  # de la más nueva a la más vieja
+
+
 class WeekDetailOut(BaseModel):
     id: int
+    routine_id: int
+    routine_name: str
     number: int
     status: str
     week_start: date

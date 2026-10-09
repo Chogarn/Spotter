@@ -14,9 +14,6 @@ PERFIL = {
     "weight_kg": "80.5",
     "height_cm": 178,
     "sex": None,
-    "level": "principiante",
-    "goal": "masa",
-    "equipment": "gimnasio",
     "limitations": None,
     "accept_legal_notice": True,
 }
@@ -49,17 +46,17 @@ def test_guardar_y_leer_el_perfil(client):
 
     guardado = client.get("/profile").json()
     assert guardado["name"] == "Bruno"
-    assert guardado["goal"] == "masa"
+    assert "goal" not in guardado and "level" not in guardado and "equipment" not in guardado
     assert guardado["legal_notice_accepted"] is True
 
 
 def test_guardar_de_nuevo_actualiza_sin_crear_otro(client):
     client.put("/profile", json=PERFIL)
-    response = client.put("/profile", json={**PERFIL, "age": 31, "goal": "fuerza"})
+    response = client.put("/profile", json={**PERFIL, "age": 31})
 
     assert response.status_code == 200
     assert response.json()["age"] == 31
-    assert client.get("/profile").json()["goal"] == "fuerza"
+    assert client.get("/profile").json()["age"] == 31
 
 
 @pytest.mark.parametrize(
@@ -68,8 +65,6 @@ def test_guardar_de_nuevo_actualiza_sin_crear_otro(client):
         {"age": 5},
         {"weight_kg": "500"},
         {"height_cm": 20},
-        {"goal": "volar"},
-        {"level": "dios"},
         {"sex": "robot"},
         {"name": ""},
         {"accept_legal_notice": False},
@@ -80,5 +75,5 @@ def test_valores_invalidos_devuelven_422(client, cambio):
 
 
 def test_faltan_campos_obligatorios_devuelve_422(client):
-    sin_nivel = {k: v for k, v in PERFIL.items() if k != "level"}
-    assert client.put("/profile", json=sin_nivel).status_code == 422
+    sin_edad = {k: v for k, v in PERFIL.items() if k != "age"}
+    assert client.put("/profile", json=sin_edad).status_code == 422

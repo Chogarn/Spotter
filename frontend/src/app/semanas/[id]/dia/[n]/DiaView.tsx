@@ -83,7 +83,7 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
 
   return (
     <main style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem" }}>
-      <BackButton href={`/rutinas/${id}`}>
+      <BackButton href={`/semanas/${id}`}>
         ← {dia ? `Semana ${dia.week_number}` : "Volver a la semana"}
       </BackButton>
       {error && <p style={{ color: "crimson" }}>{error}</p>}

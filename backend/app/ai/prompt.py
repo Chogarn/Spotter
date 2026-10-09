@@ -8,6 +8,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
+from app.enums import Goal, Level
 from app.models import Profile
 
 PROMPT_FILE = Path(__file__).parent / "prompts" / "generar_rutina.md"
@@ -18,11 +19,6 @@ GOAL_TEXT = {
     "perder_grasa": "perder_grasa (más cardio y menos fuerza)",
     "condicion_general": "condicion_general (mejorar la condición física general)",
     "mantenerme_activo": "mantenerme_activo (rutinas simples y progresión suave)",
-}
-EQUIPMENT_TEXT = {
-    "gimnasio": "gimnasio (gimnasio completo)",
-    "mancuernas": "mancuernas (mancuernas, sin máquinas)",
-    "casa": "casa (en casa, sin equipamiento de gimnasio)",
 }
 
 
@@ -36,7 +32,7 @@ def _as_data(text: str) -> str:
     return re.sub(r"[<>]", "", text).strip()
 
 
-def profile_block(profile: Profile) -> str:
+def profile_block(profile: Profile, goal: Goal, level: Level) -> str:
     # No se envía nombre ni email a Gemini: no hacen falta para armar la rutina.
     lines = [
         f"- Edad: {profile.age} años",
@@ -46,9 +42,9 @@ def profile_block(profile: Profile) -> str:
     if profile.sex:
         lines.append(f"- Sexo: {profile.sex}")
     lines += [
-        f"- Nivel: {profile.level.value}",
-        f"- Objetivo: {GOAL_TEXT[profile.goal.value]}",
-        f"- Equipamiento: {EQUIPMENT_TEXT[profile.equipment.value]}",
+        f"- Nivel: {level.value}",
+        f"- Objetivo: {GOAL_TEXT[goal.value]}",
+        "- Equipamiento: gimnasio (gimnasio completo)",
     ]
     limitations = _as_data(profile.limitations or "")
     lines.append(
@@ -58,5 +54,5 @@ def profile_block(profile: Profile) -> str:
     return "\n".join(lines)
 
 
-def build_prompt(profile: Profile) -> str:
-    return _template().replace("{{PERFIL}}", profile_block(profile))
+def build_prompt(profile: Profile, goal: Goal, level: Level) -> str:
+    return _template().replace("{{PERFIL}}", profile_block(profile, goal, level))

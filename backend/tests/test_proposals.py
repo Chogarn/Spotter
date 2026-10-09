@@ -16,9 +16,10 @@ from app.models import AiCall, Exercise, PlanDay, PlanExercise, PlanProposal, Pl
 
 PERFIL = {
     "name": "Bruno", "age": 30, "weight_kg": "80.5", "height_cm": 178, "sex": None,
-    "level": "principiante", "goal": "masa", "equipment": "gimnasio", "limitations": None,
+    "limitations": None,
     "accept_legal_notice": True,
 }
+ELECCION = {"goal": "masa", "level": "principiante"}
 GRANDES = [
     ("Press de banca", "chest", "upper", "push"),
     ("Remo con barra", "back", "upper", "pull"),
@@ -113,7 +114,7 @@ def test_generar_guarda_una_propuesta_pendiente_sin_tocar_el_plan(api, entorno, 
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
 
-    response = api.post("/proposals/generate")
+    response = api.post("/proposals/generate", json=ELECCION)
 
     assert response.status_code == 201
     cuerpo = response.json()
@@ -132,7 +133,7 @@ def test_los_avisos_viajan_con_la_propuesta_y_no_la_bloquean(api, entorno, monke
     ]  # 4 series por grupo: por debajo de las 10 de R3
     usar_gemini(monkeypatch, corta)
 
-    cuerpo = api.post("/proposals/generate").json()
+    cuerpo = api.post("/proposals/generate", json=ELECCION).json()
 
     assert "R3" in {w["rule"] for w in cuerpo["warnings"]}
     assert cuerpo["status"] == "pending"
@@ -140,34 +141,34 @@ def test_los_avisos_viajan_con_la_propuesta_y_no_la_bloquean(api, entorno, monke
 
 def test_sin_perfil_no_se_puede_generar(api, entorno, monkeypatch):
     falso = usar_gemini(monkeypatch, rutina())
-    assert api.post("/proposals/generate").status_code == 409
+    assert api.post("/proposals/generate", json=ELECCION).status_code == 409
     assert falso.llamadas == 0
 
 
 def test_con_una_semana_activa_no_se_genera(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina(), rutina())
-    propuesta = api.post("/proposals/generate").json()
+    propuesta = api.post("/proposals/generate", json=ELECCION).json()
     assert api.post(f"/proposals/{propuesta['id']}/accept").status_code == 200
 
     falso = usar_gemini(monkeypatch, rutina())
-    assert api.post("/proposals/generate").status_code == 409
+    assert api.post("/proposals/generate", json=ELECCION).status_code == 409
     assert falso.llamadas == 0
 
 
 def test_sin_configuracion_devuelve_503(api, monkeypatch):
     monkeypatch.delenv("GEMINI_MODEL", raising=False)
     con_perfil(api)
-    assert api.post("/proposals/generate").status_code == 503
+    assert api.post("/proposals/generate", json=ELECCION).status_code == 503
 
 
 def test_con_el_tope_alcanzado_devuelve_429_y_no_llama(api, entorno, monkeypatch):
     monkeypatch.setenv("GEMINI_RPM_LIMIT", "1")
     con_perfil(api)
     falso = usar_gemini(monkeypatch, rutina(), rutina())
-    assert api.post("/proposals/generate").status_code == 201
+    assert api.post("/proposals/generate", json=ELECCION).status_code == 201
 
-    response = api.post("/proposals/generate")
+    response = api.post("/proposals/generate", json=ELECCION)
 
     assert response.status_code == 429
     assert response.headers["retry-after"] == "60"
@@ -177,7 +178,7 @@ def test_con_el_tope_alcanzado_devuelve_429_y_no_llama(api, entorno, monkeypatch
 def test_si_gemini_falla_devuelve_502(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, RuntimeError("timeout"))
-    assert api.post("/proposals/generate").status_code == 502
+    assert api.post("/proposals/generate", json=ELECCION).status_code == 502
     assert contar(api, PlanProposal) == 0
 
 
@@ -188,7 +189,7 @@ def test_respuesta_invalida_se_reintenta_una_vez(api, entorno, monkeypatch):
     con_perfil(api)
     falso = usar_gemini(monkeypatch, "esto no es json", rutina())
 
-    response = api.post("/proposals/generate")
+    response = api.post("/proposals/generate", json=ELECCION)
 
     assert response.status_code == 201
     assert falso.llamadas == 2
@@ -202,7 +203,7 @@ def test_un_error_de_reglas_tambien_reintenta(api, entorno, monkeypatch):
     un_dia = rutina(dias=1)  # R11 y R1: una semana de un día
     falso = usar_gemini(monkeypatch, un_dia, rutina())
 
-    assert api.post("/proposals/generate").status_code == 201
+    assert api.post("/proposals/generate", json=ELECCION).status_code == 201
     assert falso.llamadas == 2
     assert "R11" in falso.prompts[1]
 
@@ -211,7 +212,7 @@ def test_dos_respuestas_invalidas_no_guardan_nada(api, entorno, monkeypatch):
     con_perfil(api)
     falso = usar_gemini(monkeypatch, "basura", rutina(dias=1))
 
-    response = api.post("/proposals/generate")
+    response = api.post("/proposals/generate", json=ELECCION)
 
     assert response.status_code == 502
     assert falso.llamadas == 2
@@ -225,8 +226,8 @@ def test_dos_respuestas_invalidas_no_guardan_nada(api, entorno, monkeypatch):
 def test_generar_de_nuevo_descarta_la_propuesta_pendiente_anterior(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina(), rutina())
-    primera = api.post("/proposals/generate").json()
-    segunda = api.post("/proposals/generate").json()
+    primera = api.post("/proposals/generate", json=ELECCION).json()
+    segunda = api.post("/proposals/generate", json=ELECCION).json()
 
     assert api.get(f"/proposals/{primera['id']}").json()["status"] == "discarded"
     assert api.get(f"/proposals/{segunda['id']}").json()["status"] == "pending"
@@ -235,11 +236,41 @@ def test_generar_de_nuevo_descarta_la_propuesta_pendiente_anterior(api, entorno,
 def test_si_la_nueva_falla_la_anterior_sigue_pendiente(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
-    primera = api.post("/proposals/generate").json()
+    primera = api.post("/proposals/generate", json=ELECCION).json()
     usar_gemini(monkeypatch, RuntimeError("caída"))
-    assert api.post("/proposals/generate").status_code == 502
+    assert api.post("/proposals/generate", json=ELECCION).status_code == 502
 
     assert api.get(f"/proposals/{primera['id']}").json()["status"] == "pending"
+
+
+def test_generar_sin_objetivo_o_sin_nivel_da_422_y_no_llama_a_la_ia(api, entorno, monkeypatch):
+    con_perfil(api)
+    falso = usar_gemini(monkeypatch, rutina())
+
+    assert api.post("/proposals/generate").status_code == 422
+    assert api.post("/proposals/generate", json={"goal": "masa"}).status_code == 422
+    assert api.post("/proposals/generate", json={"level": "avanzado"}).status_code == 422
+    assert api.post("/proposals/generate", json={"goal": "volar", "level": "avanzado"}).status_code == 422
+    assert falso.llamadas == 0
+    assert contar(api, AiCall) == 0
+
+
+def test_el_prompt_lleva_lo_elegido_y_la_semana_lo_guarda_al_aceptar(api, entorno, monkeypatch):
+    con_perfil(api)
+    falso = usar_gemini(monkeypatch, rutina())
+
+    propuesta = api.post(
+        "/proposals/generate", json={"goal": "fuerza", "level": "avanzado"}
+    ).json()
+
+    assert "Nivel: avanzado" in falso.prompts[0]
+    assert "Objetivo: fuerza (ganar fuerza)" in falso.prompts[0]
+    assert "gimnasio completo" in falso.prompts[0]
+    api.post(f"/proposals/{propuesta['id']}/accept")
+    with api.session() as db:
+        semana = db.scalars(select(WeekPlan)).one()
+        assert semana.routine.goal.value == "fuerza"
+        assert semana.routine.level.value == "avanzado"
 
 
 # --- ver, aceptar, descartar ---
@@ -252,7 +283,7 @@ def test_ver_una_propuesta_inexistente_da_404(api):
 def test_aceptar_crea_la_semana_los_dias_los_ejercicios_y_las_series(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
-    propuesta = api.post("/proposals/generate").json()
+    propuesta = api.post("/proposals/generate", json=ELECCION).json()
 
     response = api.post(f"/proposals/{propuesta['id']}/accept")
 
@@ -278,7 +309,7 @@ def test_aceptar_crea_la_semana_los_dias_los_ejercicios_y_las_series(api, entorn
 def test_un_ejercicio_repetido_en_la_semana_no_se_duplica(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())  # los 6 ejercicios se repiten en los 2 días
-    propuesta = api.post("/proposals/generate").json()
+    propuesta = api.post("/proposals/generate", json=ELECCION).json()
     api.post(f"/proposals/{propuesta['id']}/accept")
 
     assert contar(api, Exercise) == 6
@@ -295,7 +326,7 @@ def test_un_ejercicio_que_ya_existia_conserva_sus_etiquetas(api, entorno, monkey
         ))
         db.commit()
     usar_gemini(monkeypatch, rutina())
-    propuesta = api.post("/proposals/generate").json()
+    propuesta = api.post("/proposals/generate", json=ELECCION).json()
     api.post(f"/proposals/{propuesta['id']}/accept")
 
     with api.session() as db:
@@ -307,7 +338,7 @@ def test_un_ejercicio_que_ya_existia_conserva_sus_etiquetas(api, entorno, monkey
 def test_aceptar_o_descartar_dos_veces_da_409(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina(), rutina())
-    a = api.post("/proposals/generate").json()
+    a = api.post("/proposals/generate", json=ELECCION).json()
     api.post(f"/proposals/{a['id']}/accept")
     assert api.post(f"/proposals/{a['id']}/accept").status_code == 409
     assert api.post(f"/proposals/{a['id']}/discard").status_code == 409
@@ -316,7 +347,7 @@ def test_aceptar_o_descartar_dos_veces_da_409(api, entorno, monkeypatch):
 def test_descartar_no_toca_el_plan(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
-    propuesta = api.post("/proposals/generate").json()
+    propuesta = api.post("/proposals/generate", json=ELECCION).json()
 
     response = api.post(f"/proposals/{propuesta['id']}/discard")
 
@@ -329,8 +360,8 @@ def test_descartar_no_toca_el_plan(api, entorno, monkeypatch):
 def test_no_se_acepta_si_ya_hay_otra_semana_activa(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina(), rutina())
-    primera = api.post("/proposals/generate").json()
-    segunda = api.post("/proposals/generate").json()  # descarta la primera
+    primera = api.post("/proposals/generate", json=ELECCION).json()
+    segunda = api.post("/proposals/generate", json=ELECCION).json()  # descarta la primera
     assert api.post(f"/proposals/{segunda['id']}/accept").status_code == 200
     with api.session() as db:  # una pendiente creada a mano mientras hay semana activa
         db.add(PlanProposal(user_id=1, kind="generate", proposed_changes={"routine": rutina()}))
@@ -346,7 +377,7 @@ def test_no_se_acepta_si_ya_hay_otra_semana_activa(api, entorno, monkeypatch):
 def test_si_falla_despues_de_insertar_no_queda_un_plan_a_medias(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
-    propuesta = api.post("/proposals/generate").json()
+    propuesta = api.post("/proposals/generate", json=ELECCION).json()
 
     from sqlalchemy.orm import Session
 
@@ -376,7 +407,7 @@ def test_si_falla_despues_de_insertar_no_queda_un_plan_a_medias(api, entorno, mo
 def test_la_propuesta_trae_la_duracion_estimada_de_cada_dia(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
-    cuerpo = api.post("/proposals/generate").json()
+    cuerpo = api.post("/proposals/generate", json=ELECCION).json()
 
     # 6 ejercicios de 5 series x 10 reps con 120 s de descanso y 5 cambios de 1,5 min.
     assert cuerpo["day_minutes"] == [70, 70]
@@ -392,7 +423,7 @@ def test_la_semana_activa_lista_los_dias_en_orden(api, entorno, monkeypatch):
     dos_dias = rutina()
     dos_dias["days"][1] = {**dos_dias["days"][1], "title": "Pierna"}
     usar_gemini(monkeypatch, dos_dias)
-    propuesta = api.post("/proposals/generate").json()
+    propuesta = api.post("/proposals/generate", json=ELECCION).json()
     api.post(f"/proposals/{propuesta['id']}/accept")
 
     response = api.get("/weeks/active")
@@ -405,7 +436,7 @@ def test_la_semana_activa_lista_los_dias_en_orden(api, entorno, monkeypatch):
 def test_descartar_no_crea_semana_activa(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
-    propuesta = api.post("/proposals/generate").json()
+    propuesta = api.post("/proposals/generate", json=ELECCION).json()
     api.post(f"/proposals/{propuesta['id']}/discard")
     assert api.get("/weeks/active").status_code == 404
 

@@ -26,7 +26,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db import Base
 from app.enums import (
     AiCallKind,
-    Equipment,
     ExerciseDirection,
     ExerciseEquipment,
     ExerciseKind,
@@ -83,6 +82,33 @@ class User(Base):
     workout_sessions: Mapped[list["WorkoutSession"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    routines: Mapped[list["Routine"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+
+
+class Routine(Base):
+    """Una rutina: un objetivo y un nivel, con las semanas que el usuario fue sumando."""
+
+    __tablename__ = "routines"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    # Se arma solo ("Fuerza · desde el 9/10") y el usuario lo puede cambiar.
+    name: Mapped[str] = mapped_column(String(100))
+    # Los elige el usuario al empezar la rutina; las semanas siguientes los heredan.
+    goal: Mapped[Goal] = mapped_column(enum_column(Goal))
+    level: Mapped[Level] = mapped_column(enum_column(Level))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    user: Mapped[User] = relationship(back_populates="routines")
+    weeks: Mapped[list["WeekPlan"]] = relationship(
+        back_populates="routine",
+        cascade="all, delete-orphan",
+        order_by="WeekPlan.week_start, WeekPlan.id",
+    )
 
 
 class Profile(Base):
@@ -96,9 +122,8 @@ class Profile(Base):
     weight_kg: Mapped[Decimal] = mapped_column(Numeric(5, 2))
     height_cm: Mapped[int] = mapped_column(Integer)
     sex: Mapped[str | None] = mapped_column(String(20))
-    level: Mapped[Level] = mapped_column(enum_column(Level))
-    goal: Mapped[Goal] = mapped_column(enum_column(Goal))
-    equipment: Mapped[Equipment] = mapped_column(enum_column(Equipment))
+    # Nivel, objetivo y equipamiento no están acá: el usuario elige nivel y objetivo cada vez que
+    # genera una semana (quedan en `week_plans`) y el equipamiento es siempre el de un gimnasio.
     limitations: Mapped[str | None] = mapped_column(Text)
     legal_notice_accepted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True)
@@ -140,10 +165,14 @@ class Exercise(Base):
 
 class WeekPlan(Base):
     __tablename__ = "week_plans"
-    __table_args__ = (Index("ix_week_plans_user_week", "user_id", "week_start"),)
+    __table_args__ = (
+        Index("ix_week_plans_user_week", "user_id", "week_start"),
+        Index("ix_week_plans_routine", "routine_id"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    routine_id: Mapped[int] = mapped_column(ForeignKey("routines.id", ondelete="CASCADE"))
     # Cuándo el usuario activó la semana. No tiene que ser un lunes: la semana es un ciclo.
     week_start: Mapped[date] = mapped_column(Date)
     # Cuándo el usuario la cerró con el botón. Vacío mientras la semana sigue abierta.
@@ -162,6 +191,7 @@ class WeekPlan(Base):
     )
 
     user: Mapped[User] = relationship(back_populates="week_plans")
+    routine: Mapped[Routine] = relationship(back_populates="weeks")
     days: Mapped[list["PlanDay"]] = relationship(
         back_populates="week_plan",
         cascade="all, delete-orphan",

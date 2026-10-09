@@ -11,9 +11,9 @@ from app.ai.plan_writer import write_plan
 from app.ai.routine import DayProposal, ExerciseProposal, RoutineProposal, SetProposal
 from app.db import Base, get_db
 from app.deps import DEV_USER_EMAIL
-from app.enums import PlanStatus
+from app.enums import Goal, Level, PlanStatus
 from app.main import app
-from app.models import User
+from app.models import Routine, User
 
 
 def fuerza(nombre, sets=4, reps=10, rest=120):
@@ -69,14 +69,23 @@ def api():
     app.dependency_overrides.clear()
 
 
-def crear_semana(api, start, status=PlanStatus.CLOSED, email=DEV_USER_EMAIL):
+def crear_semana(api, start, status=PlanStatus.CLOSED, email=DEV_USER_EMAIL, rutina_id=None):
     with api.session() as db:
         user = db.scalar(select(User).where(User.email == email))
         if user is None:
             user = User(email=email, password_hash="x", name="otro")
             db.add(user)
             db.commit()
-        week = write_plan(db, user.id, rutina())
+        # Todas las semanas de un usuario van a su primera rutina, salvo que se indique otra.
+        if rutina_id is None:
+            routine = db.scalar(select(Routine).where(Routine.user_id == user.id))
+            if routine is None:
+                routine = Routine(user_id=user.id, name="Fuerza", goal=Goal.FUERZA, level=Level.INTERMEDIO)
+                db.add(routine)
+                db.flush()
+        else:
+            routine = db.get(Routine, rutina_id)
+        week = write_plan(db, user.id, rutina(), routine)
         week.week_start = start
         week.status = status
         if status == PlanStatus.CLOSED:
@@ -85,16 +94,17 @@ def crear_semana(api, start, status=PlanStatus.CLOSED, email=DEV_USER_EMAIL):
         return week.id
 
 
-def test_sin_semanas_la_lista_esta_vacia(api):
-    assert api.get("/weeks").json() == []
+def test_sin_rutinas_la_lista_esta_vacia(api):
+    assert api.get("/routines").json() == []
 
 
-def test_mis_rutinas_lista_de_la_mas_nueva_a_la_mas_vieja_con_su_numero(api):
+def test_la_rutina_lista_sus_semanas_de_la_mas_nueva_a_la_mas_vieja_con_su_numero(api):
     primera = crear_semana(api, date(2026, 9, 1))
     segunda = crear_semana(api, date(2026, 9, 8))
     tercera = crear_semana(api, date(2026, 9, 15), status=PlanStatus.ACTIVE)
 
-    lista = api.get("/weeks").json()
+    rutina_id = api.get("/routines").json()[0]["id"]
+    lista = api.get(f"/routines/{rutina_id}").json()["weeks"]
 
     assert [(s["id"], s["number"], s["status"]) for s in lista] == [
         (tercera, 3, "active"),
@@ -110,7 +120,8 @@ def test_el_numero_sigue_el_orden_de_activacion_y_no_el_id(api):
     nueva_por_id = crear_semana(api, date(2026, 9, 20))
     vieja_por_id = crear_semana(api, date(2026, 9, 1))  # id mayor, pero se activó antes
 
-    numeros = {s["id"]: s["number"] for s in api.get("/weeks").json()}
+    rutina_id = api.get("/routines").json()[0]["id"]
+    numeros = {s["id"]: s["number"] for s in api.get(f"/routines/{rutina_id}").json()["weeks"]}
 
     assert numeros[vieja_por_id] == 1
     assert numeros[nueva_por_id] == 2
@@ -183,7 +194,7 @@ def test_no_se_puede_ver_la_semana_de_otro_usuario(api):
 
     assert api.get(f"/weeks/{ajena}").status_code == 404
     assert api.get(f"/weeks/{ajena}/days/1").status_code == 404
-    assert api.get("/weeks").json() == []
+    assert api.get("/routines").json() == []
 
 
 # --- editar lo realizado de una serie ---

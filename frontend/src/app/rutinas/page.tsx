@@ -4,18 +4,18 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
-import { API, readError, type WeekSummary } from "@/lib/api";
-import { shortDate, statusText } from "@/lib/format";
+import { API, readError, type Routine } from "@/lib/api";
+import { goalText } from "@/lib/format";
 
 export default function MisRutinasPage() {
-  const [semanas, setSemanas] = useState<WeekSummary[] | null>(null);
+  const [rutinas, setRutinas] = useState<Routine[] | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`${API}/weeks`)
+    fetch(`${API}/routines`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await readError(res));
-        setSemanas(await res.json());
+        setRutinas(await res.json());
       })
       .catch((e) => setError(e.message));
   }, []);
@@ -25,17 +25,18 @@ export default function MisRutinasPage() {
       <BackButton href="/">← Volver</BackButton>
       <h1>Mis rutinas</h1>
       {error && <p style={{ color: "crimson" }}>{error}</p>}
-      {!semanas && !error && <p>Cargando...</p>}
-      {semanas && semanas.length === 0 && <p>Todavía no tenés rutinas.</p>}
-      {semanas && semanas.length > 0 && (
+      {!rutinas && !error && <p>Cargando...</p>}
+      {rutinas && rutinas.length === 0 && <p>Todavía no tenés rutinas.</p>}
+      {rutinas && rutinas.length > 0 && (
         <ul>
-          {semanas.map((s) => (
-            <li key={s.id}>
-              <Link href={`/rutinas/${s.id}`}>
-                Semana {s.number} · {statusText[s.status]}
-              </Link>{" "}
+          {rutinas.map((r) => (
+            <li key={r.id}>
+              <Link href={`/rutinas/${r.id}`}>{r.name}</Link>
+              <br />
               <small>
-                {s.day_count} días · desde el {shortDate(s.week_start)}
+                {goalText[r.goal]} · {r.level} · {r.week_count}{" "}
+                {r.week_count === 1 ? "semana" : "semanas"}
+                {r.has_active_week && " · con semana activa"}
               </small>
             </li>
           ))}

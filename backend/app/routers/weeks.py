@@ -37,23 +37,24 @@ from app.schemas import (
 router = APIRouter(prefix="/weeks", tags=["weeks"])
 
 
-def user_weeks(db: Session, user: User) -> list[WeekPlan]:
-    """Las semanas del usuario en orden de activación (la más vieja primero)."""
+def routine_weeks(db: Session, routine_id: int) -> list[WeekPlan]:
+    """Las semanas de una rutina en orden de activación (la más vieja primero)."""
     return list(
         db.scalars(
             select(WeekPlan)
-            .where(WeekPlan.user_id == user.id)
+            .where(WeekPlan.routine_id == routine_id)
             .order_by(WeekPlan.week_start, WeekPlan.id)
         )
     )
 
 
 def get_own_week(db: Session, user: User, week_id: int) -> tuple[WeekPlan, int]:
-    """La semana y su número. 404 si no existe o es de otro usuario."""
-    for number, week in enumerate(user_weeks(db, user), start=1):
-        if week.id == week_id:
-            return week, number
-    raise HTTPException(status_code=404, detail="No existe esa semana")
+    """La semana y su número dentro de la rutina. 404 si no existe o es de otro usuario."""
+    week = db.get(WeekPlan, week_id)
+    if week is None or week.user_id != user.id:
+        raise HTTPException(status_code=404, detail="No existe esa semana")
+    number = [w.id for w in routine_weeks(db, week.routine_id)].index(week.id) + 1
+    return week, number
 
 
 def find_day(week: WeekPlan, day_index: int) -> PlanDay:
@@ -185,25 +186,6 @@ def exercise_out(
     )
 
 
-@router.get("", response_model=list[WeekSummaryOut])
-def list_weeks(
-    user: User = Depends(get_current_user), db: Session = Depends(get_db)
-) -> list[WeekSummaryOut]:
-    """Mis rutinas: todas las semanas, de la más nueva a la más vieja."""
-    summaries = [
-        WeekSummaryOut(
-            id=week.id,
-            number=number,
-            status=week.status.value,
-            week_start=week.week_start,
-            closed_at=week.closed_at,
-            day_count=len(week.days),
-        )
-        for number, week in enumerate(user_weeks(db, user), start=1)
-    ]
-    return summaries[::-1]
-
-
 # /active va antes que /{week_id}, si no "active" se tomaría como un id.
 @router.get("/active", response_model=WeekOut)
 def get_active_week(
@@ -227,6 +209,8 @@ def get_week(
     week, number = get_own_week(db, user, week_id)
     return WeekDetailOut(
         id=week.id,
+        routine_id=week.routine_id,
+        routine_name=week.routine.name,
         number=number,
         status=week.status.value,
         week_start=week.week_start,
@@ -240,6 +224,26 @@ def get_week(
             )
             for d in week.days
         ],
+    )
+
+
+@router.post("/{week_id}/close", response_model=WeekSummaryOut)
+def close_week(
+    week_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> WeekSummaryOut:
+    """Cerrar semana (sin IA). Los días sin hacer no se tocan: quedan como información."""
+    week, number = get_own_week(db, user, week_id)
+    require_active(week)
+    week.status = PlanStatus.CLOSED
+    week.closed_at = datetime.now(timezone.utc)
+    db.commit()
+    return WeekSummaryOut(
+        id=week.id,
+        number=number,
+        status=week.status.value,
+        week_start=week.week_start,
+        closed_at=week.closed_at,
+        day_count=len(week.days),
     )
 
 

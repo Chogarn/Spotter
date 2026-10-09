@@ -49,9 +49,26 @@ export type Week = {
   days: { day_index: number; title: string }[];
 };
 
+export type Routine = {
+  id: number;
+  name: string;
+  goal: string;
+  level: string;
+  week_count: number;
+  has_active_week: boolean;
+};
+
+export type RoutineDetail = {
+  id: number;
+  name: string;
+  goal: string;
+  level: string;
+  weeks: WeekSummary[]; // de la más nueva a la más vieja
+};
+
 export type WeekSummary = {
   id: number;
-  number: number; // orden de activación (la primera semana es la 1)
+  number: number; // orden de activación dentro de la rutina (la primera semana es la 1)
   status: "draft" | "active" | "closed";
   week_start: string;
   closed_at: string | null;
@@ -60,6 +77,8 @@ export type WeekSummary = {
 
 export type WeekDetail = {
   id: number;
+  routine_id: number;
+  routine_name: string;
   number: number;
   status: "draft" | "active" | "closed";
   week_start: string;

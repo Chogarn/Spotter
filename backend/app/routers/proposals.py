@@ -16,9 +16,10 @@ from app.ai.routine import RoutineProposal
 from app.ai.rules import estimate_day_minutes
 from app.db import get_db
 from app.deps import get_current_user
-from app.enums import ProposalStatus
-from app.models import PlanProposal, User
-from app.schemas import ProposalOut, WarningOut
+from app.enums import Goal, Level, ProposalStatus
+from app.models import PlanProposal, Routine, User
+from app.routines import create_routine
+from app.schemas import GenerateIn, ProposalOut, WarningOut
 
 router = APIRouter(prefix="/proposals", tags=["proposals"])
 
@@ -51,11 +52,19 @@ def require_pending(proposal: PlanProposal) -> None:
 
 @router.post("/generate", response_model=ProposalOut, status_code=201)
 def generate(
-    user: User = Depends(get_current_user), db: Session = Depends(get_db)
+    data: GenerateIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ) -> ProposalOut:
-    """Pide a la IA la primera rutina. Solo guarda una propuesta: el plan no se toca."""
+    """Pide a la IA una semana: de una rutina existente o de una nueva. Solo guarda una propuesta."""
+    goal, level = data.goal, data.level
+    if data.routine_id is not None:
+        routine = db.get(Routine, data.routine_id)
+        if routine is None or routine.user_id != user.id:
+            raise HTTPException(status_code=404, detail="No existe esa rutina")
+        goal, level = routine.goal, routine.level  # el nivel queda fijo mientras sigue la rutina
     try:
-        return to_out(generate_proposal(db, user))
+        return to_out(generate_proposal(db, user, goal, level, data.routine_id))
     except ProfileMissing:
         raise HTTPException(status_code=409, detail="Completá tu perfil primero") from None
     except ActiveWeekExists:
@@ -102,7 +111,17 @@ def accept(
         raise HTTPException(status_code=409, detail="Ya tenés una semana activa")
 
     routine = RoutineProposal.model_validate(proposal.proposed_changes["routine"])
-    week = write_plan(db, user.id, routine)
+    changes = proposal.proposed_changes
+    if changes.get("routine_id") is not None:
+        plan_routine = db.get(Routine, changes["routine_id"])
+        if plan_routine is None or plan_routine.user_id != user.id:
+            raise HTTPException(status_code=409, detail="La rutina de esta propuesta ya no existe")
+    else:
+        # Recién acá nace la rutina nueva: si el usuario descarta la propuesta, no queda nada.
+        plan_routine = create_routine(
+            db, user.id, Goal(changes["goal"]), Level(changes["level"])
+        )
+    week = write_plan(db, user.id, routine, plan_routine)
     proposal.week_plan_id = week.id
     proposal.status = ProposalStatus.ACCEPTED
     proposal.resolved_at = datetime.now(timezone.utc)

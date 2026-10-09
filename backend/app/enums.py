@@ -15,12 +15,6 @@ class Goal(str, enum.Enum):
     MANTENERME_ACTIVO = "mantenerme_activo"
 
 
-class Equipment(str, enum.Enum):
-    GIMNASIO = "gimnasio"
-    MANCUERNAS = "mancuernas"
-    CASA = "casa"
-
-
 class PlanStatus(str, enum.Enum):
     DRAFT = "draft"
     ACTIVE = "active"

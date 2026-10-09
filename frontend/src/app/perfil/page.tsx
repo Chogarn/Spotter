@@ -6,25 +6,12 @@ import { useEffect, useState } from "react";
 
 import { API, errorText } from "@/lib/api";
 
-const NIVELES = ["principiante", "intermedio", "avanzado"];
-const OBJETIVOS = [
-  ["masa", "masa"],
-  ["fuerza", "fuerza"],
-  ["perder_grasa", "perder grasa"],
-  ["condicion_general", "condición general"],
-  ["mantenerme_activo", "mantenerme activo"],
-];
-const EQUIPAMIENTOS = ["gimnasio", "mancuernas", "casa"];
-
 type Form = {
   name: string;
   age: string;
   weight_kg: string;
   height_cm: string;
   sex: string;
-  level: string;
-  goal: string;
-  equipment: string;
   limitations: string;
   accept_legal_notice: boolean;
 };
@@ -35,9 +22,6 @@ const VACIO: Form = {
   weight_kg: "",
   height_cm: "",
   sex: "",
-  level: "",
-  goal: "",
-  equipment: "",
   limitations: "",
   accept_legal_notice: false,
 };
@@ -60,9 +44,6 @@ export default function PerfilPage() {
           weight_kg: String(p.weight_kg),
           height_cm: String(p.height_cm),
           sex: p.sex ?? "",
-          level: p.level,
-          goal: p.goal,
-          equipment: p.equipment,
           limitations: p.limitations ?? "",
           accept_legal_notice: p.legal_notice_accepted,
         });
@@ -87,9 +68,6 @@ export default function PerfilPage() {
         weight_kg: form.weight_kg === "" ? null : form.weight_kg,
         height_cm: form.height_cm === "" ? null : Number(form.height_cm),
         sex: form.sex || null,
-        level: form.level || null,
-        goal: form.goal || null,
-        equipment: form.equipment || null,
         limitations: form.limitations || null,
         accept_legal_notice: form.accept_legal_notice,
       }),
@@ -166,27 +144,6 @@ export default function PerfilPage() {
             </select>
           </label>
         </p>
-        <Opciones
-          titulo="Nivel"
-          nombre="level"
-          valor={form.level}
-          opciones={NIVELES.map((n) => [n, n])}
-          onChange={(v) => cambiar("level", v)}
-        />
-        <Opciones
-          titulo="Objetivo"
-          nombre="goal"
-          valor={form.goal}
-          opciones={OBJETIVOS}
-          onChange={(v) => cambiar("goal", v)}
-        />
-        <Opciones
-          titulo="Equipamiento"
-          nombre="equipment"
-          valor={form.equipment}
-          opciones={EQUIPAMIENTOS.map((n) => [n, n])}
-          onChange={(v) => cambiar("equipment", v)}
-        />
         <p>
           <label>
             Lesiones o limitaciones (opcional)
@@ -215,36 +172,5 @@ export default function PerfilPage() {
       </form>
       {error && <pre style={{ color: "crimson" }}>{error}</pre>}
     </main>
-  );
-}
-
-function Opciones({
-  titulo,
-  nombre,
-  valor,
-  opciones,
-  onChange,
-}: {
-  titulo: string;
-  nombre: string;
-  valor: string;
-  opciones: string[][];
-  onChange: (v: string) => void;
-}) {
-  return (
-    <fieldset style={{ marginBottom: "1rem" }}>
-      <legend>{titulo}</legend>
-      {opciones.map(([v, etiqueta]) => (
-        <label key={v} style={{ marginRight: "1rem" }}>
-          <input
-            type="radio"
-            name={nombre}
-            checked={valor === v}
-            onChange={() => onChange(v)}
-          />{" "}
-          {etiqueta}
-        </label>
-      ))}
-    </fieldset>
   );
 }

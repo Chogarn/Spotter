@@ -14,7 +14,7 @@ from app.ai.plan_writer import active_week
 from app.ai.prompt import build_prompt
 from app.ai.routine import RoutineProposal
 from app.ai.rules import validate_routine
-from app.enums import AiCallKind, ProposalKind, ProposalStatus
+from app.enums import AiCallKind, Goal, Level, ProposalKind, ProposalStatus
 from app.models import PlanProposal, User
 
 MAX_ATTEMPTS = 2  # la primera llamada y un reintento; cada intento cuenta en los topes
@@ -54,14 +54,16 @@ def _correction(problems: list[str]) -> str:
     )
 
 
-def generate_proposal(db: Session, user: User) -> PlanProposal:
+def generate_proposal(
+    db: Session, user: User, goal: Goal, level: Level, routine_id: int | None = None
+) -> PlanProposal:
     if user.profile is None:
         raise ProfileMissing
     if active_week(db, user.id) is not None:
         raise ActiveWeekExists
 
     profile = user.profile
-    base_prompt = build_prompt(profile)
+    base_prompt = build_prompt(profile, goal, level)
     prompt = base_prompt
     problems: list[str] = []
 
@@ -80,9 +82,9 @@ def generate_proposal(db: Session, user: User) -> PlanProposal:
         except ValidationError as error:
             problems = _pydantic_problems(error)
         else:
-            result = validate_routine(routine, profile.goal, profile.level)
+            result = validate_routine(routine, goal, level)
             if result.ok:
-                return _save(db, user, routine, result)
+                return _save(db, user, routine, result, goal, level, routine_id)
             problems = [f"{i.rule}: {i.message}" for i in result.errors]
 
         if attempt + 1 < MAX_ATTEMPTS:
@@ -91,7 +93,10 @@ def generate_proposal(db: Session, user: User) -> PlanProposal:
     raise GenerationFailed(problems)
 
 
-def _save(db: Session, user: User, routine: RoutineProposal, result) -> PlanProposal:
+def _save(
+    db: Session, user: User, routine: RoutineProposal, result, goal: Goal, level: Level,
+    routine_id: int | None,
+) -> PlanProposal:
     # Queda una sola propuesta pendiente: las anteriores se descartan al llegar la nueva.
     now = datetime.now(timezone.utc)
     for old in db.scalars(
@@ -109,6 +114,10 @@ def _save(db: Session, user: User, routine: RoutineProposal, result) -> PlanProp
         kind=ProposalKind.GENERATE,
         proposed_changes={
             "routine": routine.model_dump(mode="json"),
+            "goal": goal.value,
+            "level": level.value,
+            # Vacío: la rutina se crea recién al aceptar. Con id: es la semana siguiente de esa rutina.
+            "routine_id": routine_id,
             "warnings": [{"rule": w.rule, "message": w.message} for w in result.warnings],
         },
     )

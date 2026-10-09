@@ -8,6 +8,7 @@ TABLAS_ESPERADAS = {
     "profiles",
     "exercises",
     "week_plans",
+    "routines",
     "plan_days",
     "plan_exercises",
     "plan_sets",

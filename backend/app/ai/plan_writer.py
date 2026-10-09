@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.ai.routine import RoutineProposal
 from app.enums import PlanOrigin, PlanStatus
-from app.models import Exercise, PlanDay, PlanExercise, PlanSet, WeekPlan
+from app.models import Exercise, PlanDay, PlanExercise, PlanSet, Routine, WeekPlan
 
 
 def normalize_name(name: str) -> str:
@@ -33,13 +33,16 @@ def active_week(db: Session, user_id: int) -> WeekPlan | None:
     )
 
 
-def write_plan(db: Session, user_id: int, routine: RoutineProposal) -> WeekPlan:
+def write_plan(
+    db: Session, user_id: int, routine: RoutineProposal, plan_routine: Routine
+) -> WeekPlan:
     """Crea la semana activa. No hace commit: lo hace quien llama, junto con la propuesta."""
     week = WeekPlan(
         user_id=user_id,
         week_start=date.today(),
         status=PlanStatus.ACTIVE,
         origin=PlanOrigin.GENERATED,
+        routine=plan_routine,
     )
     db.add(week)
 

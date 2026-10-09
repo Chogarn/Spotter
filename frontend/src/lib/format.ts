@@ -87,6 +87,14 @@ export const dayStateText = {
   completed: "✓ completado",
 } as const;
 
+export const goalText: Record<string, string> = {
+  masa: "masa",
+  fuerza: "fuerza",
+  perder_grasa: "perder grasa",
+  condicion_general: "condición general",
+  mantenerme_activo: "mantenerme activo",
+};
+
 export const statusText = { active: "activa", closed: "cerrada", draft: "borrador" } as const;
 
 // "2026-10-08" -> "8/10/2026" (sin pasar por Date, para no correr el día por la zona horaria).

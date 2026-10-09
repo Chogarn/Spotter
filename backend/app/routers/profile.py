@@ -18,9 +18,6 @@ def to_out(user: User, profile: Profile) -> ProfileOut:
         weight_kg=profile.weight_kg,
         height_cm=profile.height_cm,
         sex=profile.sex,
-        level=profile.level,
-        goal=profile.goal,
-        equipment=profile.equipment,
         limitations=profile.limitations,
         legal_notice_accepted=profile.legal_notice_accepted_at is not None,
     )
