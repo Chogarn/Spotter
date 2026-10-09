@@ -229,7 +229,9 @@ La **portada** (`/`) tiene los botones **Perfil**, **Mis rutinas** y, solo si no
 
 - El **número de semana** es el orden de activación (la primera que tuvo el usuario es la 1). Se calcula, no se guarda.
 - Las **semanas cerradas** se pueden abrir, en lectura.
-- La vista del día es de lectura por ahora: el tilde por ejercicio, la edición de lo realizado y "Día completado" se agregan en una segunda etapa. Lo realizado que se edite se compara con lo planificado (`plan_sets` frente a `set_entries`), sin un campo extra de "editado".
+- **Editar lo realizado, serie por serie** (solo en la semana activa; las cerradas son de lectura). Al desplegar "Ver series", cada serie tiene un botón **Editar**: la fila pasa a dos campos (repeticiones y kilos; segundos en un isométrico, minutos en el cardio) y el botón pasa a **Guardar**, con **Cancelar** al lado. Al guardar, la fila muestra lo que se hizo y, si difiere de lo planificado, "(tocaba 10 reps · 50 kg)". El **plan no cambia**: lo realizado se guarda aparte (`set_entries`, enlazado a la serie con `plan_set_id`) y la primera vez que se guarda algo en un día se crea su sesión (`workout_sessions`). El peso puede quedar vacío; un valor inválido muestra el error en la misma fila.
+- Lo realizado se compara con lo planificado (`plan_sets` frente a `set_entries`), sin un campo extra de "editado".
+- **Todavía falta:** el tilde por ejercicio ("lo hice como estaba planificado"), "Día completado" y reabrirlo, que se agregan en la etapa siguiente.
 - La fila de un ejercicio es un componente compartido: lo usan la vista previa de la propuesta y la vista del día.
 
 ## Puntos abiertos
