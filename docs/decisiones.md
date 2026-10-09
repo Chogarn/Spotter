@@ -206,6 +206,13 @@ Generar guarda una propuesta pendiente y no toca el plan; solo al aceptar se cre
 - **Descartaste:** una segunda llamada de corrección cuando hay avisos (duplica la cuota y la espera) y cambiar a Gemini 3.5 Flash (20 llamadas por día).
 - **Ojo:** los errores que rechazan son pocos a propósito, para no gastar cuota reintentando; todo lo demás se muestra como aviso.
 
+### 33. Un ejercicio hecho queda bloqueado hasta reabrirlo
+Marcar un ejercicio como hecho lo cierra: sus series no se pueden editar, marcar ni desmarcar. Para corregirlo hay **Reabrir ejercicio**, que lo desbloquea sin borrar nada; **Deshacer** borra lo registrado. Marcar todas las series a mano no cierra el ejercicio: solo lo cierra el botón del ejercicio.
+- **Origen:** tuya (pediste que un ejercicio hecho no se pueda editar y elegiste la opción con "Reabrir ejercicio" entre dos).
+- **Por qué:** *(completar)*
+- **Descartaste:** que el ejercicio quedara hecho solo por tener todas las series marcadas y que la única forma de corregirlo fuera Deshacer, que borra todo lo registrado.
+- **Ojo:** requirió una tabla nueva (`exercise_completions`, migración 0011). Reabrir el día no reabre los ejercicios cerrados.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):

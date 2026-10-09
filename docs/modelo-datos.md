@@ -18,6 +18,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0004` cardio con duración | Agrega `exercises.kind` y `duration_minutes` en `plan_sets` y `set_entries`; hace opcionales `reps` (en ambas) y `set_entries.weight_kg`; agrega la restricción "repeticiones o minutos" | Implementada |
 | `0009` IA | Crea `plan_proposals` y `ai_calls` (los topes de Gemini se calculan contando `ai_calls`, que no se borra) | Implementada |
 | `0010` isométricos | Agrega `exercises.kind = isometric` y `duration_seconds` en `plan_sets` y `set_entries`; la restricción pasa a "repeticiones, minutos o segundos (exactamente una)" | Implementada |
+| `0011` ejercicios completados | Crea `exercise_completions`: qué ejercicios cerró el usuario con "Marcar como hecho" (quedan bloqueados hasta reabrirlos) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
 ## Diagrama
@@ -40,6 +41,8 @@ erDiagram
     PLAN_DAYS |o--o{ WORKOUT_SESSIONS : "se entrena como"
     WORKOUT_SESSIONS ||--o{ SET_ENTRIES : contiene
     PLAN_EXERCISES |o--o{ SET_ENTRIES : "se compara con"
+    WORKOUT_SESSIONS ||--o{ EXERCISE_COMPLETIONS : cierra
+    PLAN_EXERCISES ||--o{ EXERCISE_COMPLETIONS : "se cierra en"
 
     USERS {
         int id PK
@@ -139,6 +142,12 @@ erDiagram
         int duration_seconds
         decimal weight_kg
         int effort
+    }
+    EXERCISE_COMPLETIONS {
+        int id PK
+        int session_id FK
+        int plan_exercise_id FK
+        datetime completed_at
     }
     PLAN_PROPOSALS {
         int id PK
@@ -283,6 +292,17 @@ Lo **real**: cada serie que el usuario hizo.
 Igual que en `plan_sets`, la base exige una sola medida: repeticiones, minutos o segundos.
 | effort | Esfuerzo de 1 a 10 (opcional) |
 
+### exercise_completions
+Un ejercicio que el usuario **cerró** con "Marcar como hecho" en una sesión. Mientras exista la fila, el ejercicio queda **bloqueado**: sus series no se editan, marcan ni desmarcan. **Reabrir ejercicio** borra solo esta fila y conserva todo lo registrado; **Deshacer** borra la fila y también las series reales de ese ejercicio.
+
+| Campo | Detalle |
+|---|---|
+| session_id | Sesión del día (se borra en cascada) |
+| plan_exercise_id | Ejercicio planificado que se cerró (se borra en cascada) |
+| completed_at | Cuándo se cerró |
+
+Es **única** por sesión y ejercicio. Marcar todas las series a mano **no** crea esta fila: el ejercicio solo se cierra con el botón del ejercicio.
+
 ### plan_proposals
 Lo que propone la IA antes de aplicarse.
 
@@ -318,3 +338,4 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 17. **La movilidad y el equilibrio son un texto del día.** `plan_days.mobility_notes` es un texto libre, sin series ni tilde. Es lo más simple y se puede pasar a un tipo de ejercicio más adelante si hace falta registrarlos.
 18. **Las etiquetas del ejercicio son obligatorias y cerradas.** Región, dirección, músculo primario, mecánica, equipamiento y nivel no admiten valores libres, y los ejercicios de cardio o de cuerpo entero usan `full_body`. Así el código puede contar series por músculo sin depender de texto libre.
 19. **Los isométricos son un tipo de ejercicio con su propio valor de tiempo.** `exercises.kind = isometric` y `duration_seconds` en las series, en segundos porque una plancha dura 30 a 60 segundos. Siguen el mismo patrón que el cardio (que va en minutos). Cuentan como fuerza para los días y el volumen, y llevan las etiquetas R13 como la fuerza (la plancha: región `core`, músculo `core`), no `full_body`.
+20. **Cerrar un ejercicio es un estado propio, no se deduce de las series.** Si "hecho" se calculara como "todas las series tienen algo registrado", marcar la última serie a mano bloquearía el ejercicio sin que el usuario lo decidiera, y corregir un error obligaría a borrar. Por eso hay una tabla aparte (`exercise_completions`) y un botón para reabrir que no borra nada.
