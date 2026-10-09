@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.ai.gemini import AiConfigError, AiLimitError
@@ -16,7 +17,7 @@ from app.ai.routine import RoutineProposal
 from app.ai.rules import estimate_day_minutes
 from app.db import get_db
 from app.deps import get_current_user
-from app.enums import Goal, Level, ProposalStatus
+from app.enums import Goal, Level, ProposalKind, ProposalStatus
 from app.models import PlanProposal, Routine, User
 from app.routines import create_routine
 from app.schemas import GenerateIn, ProposalOut, WarningOut
@@ -91,6 +92,26 @@ def generate(
             status_code=502,
             detail="La IA no pudo armar una rutina válida. Probá de nuevo.",
         ) from None
+
+
+# /pending va antes que /{proposal_id}, si no "pending" se tomaría como un id.
+@router.get("/pending", response_model=ProposalOut)
+def get_pending(
+    user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> ProposalOut:
+    """La propuesta de rutina que quedó pendiente (hay una sola), para volver a verla."""
+    proposal = db.scalar(
+        select(PlanProposal)
+        .where(
+            PlanProposal.user_id == user.id,
+            PlanProposal.kind == ProposalKind.GENERATE,
+            PlanProposal.status == ProposalStatus.PENDING,
+        )
+        .order_by(PlanProposal.id.desc())
+    )
+    if proposal is None:
+        raise HTTPException(status_code=404, detail="No tenés una propuesta pendiente")
+    return to_out(proposal)
 
 
 @router.get("/{proposal_id}", response_model=ProposalOut)

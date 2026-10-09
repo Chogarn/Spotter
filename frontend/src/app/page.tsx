@@ -10,6 +10,8 @@ export default function Home() {
   const [cargando, setCargando] = useState(true);
   // Con una semana activa no se ofrece generar otra rutina.
   const [hayActiva, setHayActiva] = useState(false);
+  // Id de la propuesta que quedó pendiente (se puede volver a ver), si hay una.
+  const [pendiente, setPendiente] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   // Subir `recarga` vuelve a pedir la semana activa.
@@ -26,23 +28,40 @@ export default function Home() {
       .finally(() => setCargando(false));
   }, [recarga]);
 
+  useEffect(() => {
+    fetch(`${API}/proposals/pending`)
+      .then(async (res) => {
+        if (res.ok) setPendiente((await res.json()).id);
+        else if (res.status === 404) setPendiente(null);
+        else setError(await readError(res));
+      })
+      .catch(() => setError("No se pudo conectar con el servidor"));
+  }, [recarga]);
+
   return (
     <main style={{ maxWidth: 640, margin: "0 auto", padding: "4rem 1.5rem" }}>
       <h1>Spotter</h1>
       <p>
         Entrenador de gimnasio con IA que arma tu semana según tu progreso real.
       </p>
-      <p>
+      <div>
         <Link href="/perfil">
           <button type="button">Perfil</button>
         </Link>{" "}
         <Link href="/rutinas">
           <button type="button">Mis rutinas</button>
         </Link>{" "}
+        {!cargando && !hayActiva && pendiente !== null && (
+          <>
+            <Link href={`/rutina/propuesta/${pendiente}`}>
+              <button type="button">Ver propuesta pendiente</button>
+            </Link>{" "}
+          </>
+        )}
         {!cargando && !hayActiva && (
           <GenerarRutina etiqueta="Generar rutina" onConflict={() => setRecarga((n) => n + 1)} />
         )}
-      </p>
+      </div>
 
       {error && <p style={{ color: "crimson" }}>{error}</p>}
     </main>

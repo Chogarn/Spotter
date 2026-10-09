@@ -198,3 +198,25 @@ def test_la_semana_sabe_a_que_rutina_pertenece(api, entorno, monkeypatch):
 
     assert detalle["routine_id"] == rutina_["id"]
     assert detalle["routine_name"] == rutina_["name"]
+
+
+# --- ver la propuesta pendiente ---
+
+
+def test_sin_propuesta_pendiente_da_404(api, entorno, monkeypatch):
+    con_perfil(api)
+
+    assert api.get("/proposals/pending").status_code == 404
+
+
+def test_la_propuesta_pendiente_se_puede_volver_a_ver_hasta_que_se_resuelve(api, entorno, monkeypatch):
+    con_perfil(api)
+    usar_gemini(monkeypatch, rutina())
+    propuesta = api.post("/proposals/generate", json=NUEVA).json()
+
+    pendiente = api.get("/proposals/pending")
+    assert pendiente.status_code == 200
+    assert pendiente.json()["id"] == propuesta["id"]
+
+    api.post(f"/proposals/{propuesta['id']}/discard")
+    assert api.get("/proposals/pending").status_code == 404
