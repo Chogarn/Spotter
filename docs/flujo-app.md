@@ -219,7 +219,7 @@ Como el cierre es una acción del usuario, el gasto en IA es predecible: una lla
 
 ### Cómo se navega entre las pantallas de la rutina
 
-La **portada** (`/`) tiene los botones **Perfil**, **Mis rutinas** y, solo si no hay una semana activa, **Generar rutina**. Desde ahí se baja por niveles, todo clickeable y con un link para volver al nivel anterior:
+La **portada** (`/`) tiene los botones **Perfil**, **Mis rutinas** y, solo si no hay una semana activa, **Generar rutina**. Desde ahí se baja por niveles, todo clickeable y con un **botón para volver** al nivel anterior al principio de cada pantalla (también en la vista previa de la propuesta: volver no la descarta, queda pendiente):
 
 | Pantalla | Dirección | Qué muestra |
 |---|---|---|
@@ -231,7 +231,10 @@ La **portada** (`/`) tiene los botones **Perfil**, **Mis rutinas** y, solo si no
 - Las **semanas cerradas** se pueden abrir, en lectura.
 - **Editar lo realizado, serie por serie** (solo en la semana activa; las cerradas son de lectura). Al desplegar "Ver series", cada serie tiene un botón **Editar**: la fila pasa a dos campos (repeticiones y kilos; segundos en un isométrico, minutos en el cardio) y el botón pasa a **Guardar**, con **Cancelar** al lado. Al guardar, la fila muestra lo que se hizo y, si difiere de lo planificado, "(tocaba 10 reps · 50 kg)". El **plan no cambia**: lo realizado se guarda aparte (`set_entries`, enlazado a la serie con `plan_set_id`) y la primera vez que se guarda algo en un día se crea su sesión (`workout_sessions`). El peso puede quedar vacío; un valor inválido muestra el error en la misma fila.
 - Lo realizado se compara con lo planificado (`plan_sets` frente a `set_entries`), sin un campo extra de "editado".
-- **Todavía falta:** el tilde por ejercicio ("lo hice como estaba planificado"), "Día completado" y reabrirlo, que se agregan en la etapa siguiente.
+- **Marcar un ejercicio como hecho** (el "tilde" por ejercicio, que en pantalla es el botón **Marcar como hecho**): las series que todavía no tienen nada registrado copian lo planificado y las que ya editaste se respetan. Un ejercicio está **hecho** cuando todas sus series tienen algo registrado; si solo algunas, se ve "2 de 4 series registradas". **Deshacer** borra lo registrado de ese ejercicio (incluido lo que editaste a mano) y, si hay series editadas, pide confirmación antes.
+- **Día completado:** al pie del día, el botón **Día completado** cierra la sesión (`workout_sessions.finished_at`). Los ejercicios sin registrar quedan como no hechos y se puede completar con ejercicios pendientes. Con el día completado no se puede tildar ni editar nada hasta tocar **Reabrir día**. El pie muestra "Hechos: 3 de 6 ejercicios".
+- En la lista de días de la semana, cada día muestra su estado: nada si no se registró nada, "a medias" si hay algo registrado y "✓ completado" si se tocó Día completado.
+- Todo esto solo vale en la semana activa; las cerradas son de lectura.
 - La fila de un ejercicio es un componente compartido: lo usan la vista previa de la propuesta y la vista del día.
 
 ## Puntos abiertos
