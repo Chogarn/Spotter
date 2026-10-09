@@ -44,7 +44,8 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [ ] Pantalla de resumen semanal `frontend` (#28)
 - [ ] Ajuste conversando (regenera la semana y la guarda) `ia` (#29)
 - [x] Topes de uso de Gemini (diario y por minuto) `ia` `backend` (#30)
-- [ ] Propuestas de la IA: vista previa antes y después en los ajustes. Ya están la vista previa con aceptar o descartar para "Generar rutina" y **ver la propuesta pendiente desde la portada** (`GET /proposals/pending`); falta el antes y después, que depende del ajuste `ia` `backend` `frontend` (#45)
+- [x] Propuestas de la IA: ver la pendiente desde la portada (`GET /proposals/pending`) y vista previa con aceptar o descartar para "Generar rutina" `ia` `backend` `frontend` (#45). El antes y después pasó a #49
+- [ ] Antes y después en las propuestas de ajuste y de semana nueva: qué cambia, con el valor anterior y el nuevo. Depende de #29 y #27 `ia` `backend` `frontend` (#49)
 - [ ] Nota de cómo me sentí al terminar la sesión (botones y texto) `backend` `frontend` (#46)
 - [ ] Esfuerzo por serie (1 a 10) al editar lo realizado `backend` `frontend` (#48)
 - [ ] Refactor y mejoras de UX `backend` `frontend` (#31)
@@ -74,7 +75,7 @@ La definición completa de cada una está en su issue de GitHub.
 | Generar semana nueva (#27) | Botón "Generar rutina" en la portada (ubicación decidida). El botón y el recuadro de continuar/empezar ya existen; falta que la IA lea lo real de la semana cerrada | #47 (hecha) |
 | Nota de cómo me sentí (#46) | Al tocar "Día completado" en la vista del día | Nada |
 | Esfuerzo por serie (#48) | Campo opcional al tocar "Editar" en una serie | Nada |
-| Propuestas: antes y después (#45) | La parte "Ver propuesta pendiente" en la portada ya está; falta la comparación antes/después en los ajustes | Ajuste (#29) |
+| Antes y después en las propuestas (#49) | En la vista previa de la propuesta (`/rutina/propuesta/{id}`) cuando es un ajuste o una semana nueva | Ajuste (#29) y semana nueva (#27) |
 | Elegir camino A o B (#43) | Pantalla `/empezar` desde la portada | #44 |
 | Formulario de rutina actual, camino B (#44) | Opción "Cargar la rutina que ya hago" | #43 |
 | Editar la semana a mano (#13) | Botón por ejercicio en la vista del día *(lugar por definir)* | Nada |
