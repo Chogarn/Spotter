@@ -217,6 +217,21 @@ Como el cierre es una acción del usuario, el gasto en IA es predecible: una lla
 8. Resumen del día y "cómo me sentí"
 9. Cierre y resumen de la semana
 
+### Cómo se navega entre las pantallas de la rutina
+
+La **portada** (`/`) tiene los botones **Perfil**, **Mis rutinas** y, solo si no hay una semana activa, **Generar rutina**. Desde ahí se baja por niveles, todo clickeable y con un link para volver al nivel anterior:
+
+| Pantalla | Dirección | Qué muestra |
+|---|---|---|
+| Mis rutinas | `/rutinas` | Las semanas, de la más nueva a la más vieja ("Semana 3 · activa", "Semana 2 · cerrada") |
+| Semana | `/rutinas/{id}` | Sus días ("Día 1 · Torso A", con duración estimada y cantidad de ejercicios) |
+| Día | `/rutinas/{id}/dia/{n}` | La movilidad y los ejercicios, con la fila compacta y las series desplegables |
+
+- El **número de semana** es el orden de activación (la primera que tuvo el usuario es la 1). Se calcula, no se guarda.
+- Las **semanas cerradas** se pueden abrir, en lectura.
+- La vista del día es de lectura por ahora: el tilde por ejercicio, la edición de lo realizado y "Día completado" se agregan en una segunda etapa. Lo realizado que se edite se compara con lo planificado (`plan_sets` frente a `set_entries`), sin un campo extra de "editado".
+- La fila de un ejercicio es un componente compartido: lo usan la vista previa de la propuesta y la vista del día.
+
 ## Puntos abiertos
 
 Todavía no están decididos:
