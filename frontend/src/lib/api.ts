@@ -19,6 +19,7 @@ export type SetItem = {
 };
 
 export type ExerciseItem = {
+  id?: number; // solo en el plan activo: con él se marca como hecho
   name: string;
   kind: "strength" | "cardio" | "isometric";
   rest_seconds: number | null;
@@ -61,7 +62,13 @@ export type WeekDetail = {
   number: number;
   status: "draft" | "active" | "closed";
   week_start: string;
-  days: { day_index: number; title: string; exercise_count: number; minutes: number }[];
+  days: {
+    day_index: number;
+    title: string;
+    exercise_count: number;
+    minutes: number;
+    state: "pending" | "partial" | "completed";
+  }[];
 };
 
 export type DayDetail = {
@@ -72,6 +79,7 @@ export type DayDetail = {
   title: string;
   mobility_notes: string | null;
   minutes: number;
+  finished_at: string | null; // cuándo se tocó "Día completado"; vacío si el día sigue abierto
   exercises: ExerciseItem[];
 };
 

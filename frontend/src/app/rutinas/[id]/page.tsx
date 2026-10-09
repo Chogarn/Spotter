@@ -5,7 +5,7 @@ import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
 import { API, readError, type WeekDetail } from "@/lib/api";
-import { statusText } from "@/lib/format";
+import { dayStateText, statusText } from "@/lib/format";
 
 export default function SemanaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -39,6 +39,7 @@ export default function SemanaPage({ params }: { params: Promise<{ id: string }>
                 </Link>{" "}
                 <small>
                   ~{d.minutes} min · {d.exercise_count} ejercicios
+                  {d.state !== "pending" && <> · {dayStateText[d.state]}</>}
                 </small>
               </li>
             ))}

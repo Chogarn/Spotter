@@ -70,6 +70,21 @@ export function differsFromPlan(plan: SetItem, real: RealSet): boolean {
   );
 }
 
+// ¿El ejercicio está hecho? Sí cuando todas sus series tienen algo registrado.
+export function seriesRegistradas(exercise: ExerciseItem): number {
+  return exercise.sets.filter((s) => s.real).length;
+}
+
+export function estaHecho(exercise: ExerciseItem): boolean {
+  return exercise.sets.length > 0 && seriesRegistradas(exercise) === exercise.sets.length;
+}
+
+export const dayStateText = {
+  pending: "",
+  partial: "a medias",
+  completed: "✓ completado",
+} as const;
+
 export const statusText = { active: "activa", closed: "cerrada", draft: "borrador" } as const;
 
 // "2026-10-08" -> "8/10/2026" (sin pasar por Date, para no correr el día por la zona horaria).
