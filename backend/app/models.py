@@ -370,3 +370,29 @@ class AiCall(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+
+class ExerciseCompletion(Base):
+    """Un ejercicio que el usuario cerró con "Marcar como hecho".
+
+    Mientras exista esta fila el ejercicio queda bloqueado (sus series no se editan, marcan ni
+    desmarcan) hasta reabrirlo. Reabrir borra solo esta fila: lo registrado se conserva.
+    """
+
+    __tablename__ = "exercise_completions"
+    __table_args__ = (
+        UniqueConstraint(
+            "session_id", "plan_exercise_id", name="uq_exercise_completions_session_exercise"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    session_id: Mapped[int] = mapped_column(
+        ForeignKey("workout_sessions.id", ondelete="CASCADE")
+    )
+    plan_exercise_id: Mapped[int] = mapped_column(
+        ForeignKey("plan_exercises.id", ondelete="CASCADE")
+    )
+    completed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )

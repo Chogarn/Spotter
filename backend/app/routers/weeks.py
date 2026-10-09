@@ -12,6 +12,7 @@ from app.db import get_db
 from app.deps import get_current_user
 from app.enums import ExerciseKind, PlanStatus
 from app.models import (
+    ExerciseCompletion,
     PlanDay,
     PlanExercise,
     PlanSet,
@@ -121,6 +122,25 @@ def day_entries(db: Session, day: PlanDay) -> dict[int, SetEntry]:
     return {e.plan_set_id: e for e in entries}
 
 
+def completed_ids(db: Session, day: PlanDay) -> set[int]:
+    """Ids de los ejercicios planificados del día que el usuario cerró con "Marcar como hecho"."""
+    return set(
+        db.scalars(
+            select(ExerciseCompletion.plan_exercise_id)
+            .join(WorkoutSession, ExerciseCompletion.session_id == WorkoutSession.id)
+            .where(WorkoutSession.plan_day_id == day.id)
+        )
+    )
+
+
+def require_unlocked(db: Session, day: PlanDay, plan_exercise: PlanExercise) -> None:
+    """Un ejercicio cerrado no se toca (ni sus series) hasta reabrirlo."""
+    if plan_exercise.id in completed_ids(db, day):
+        raise HTTPException(
+            status_code=409, detail="El ejercicio está hecho: reabrilo para corregir"
+        )
+
+
 def day_state(entries: dict[int, SetEntry], session: WorkoutSession | None) -> str:
     if session is not None and session.finished_at is not None:
         return "completed"
@@ -150,9 +170,12 @@ def set_out(plan_set: PlanSet, entry: SetEntry | None) -> DaySetOut:
     )
 
 
-def exercise_out(exercise: PlanExercise, entries: dict[int, SetEntry]) -> DayExerciseOut:
+def exercise_out(
+    exercise: PlanExercise, entries: dict[int, SetEntry], completed: bool
+) -> DayExerciseOut:
     return DayExerciseOut(
         id=exercise.id,
+        completed=completed,
         name=exercise.exercise.name,
         kind=exercise.exercise.kind.value,
         rest_seconds=exercise.rest_seconds,
@@ -231,6 +254,7 @@ def get_day(
     day = find_day(week, day_index)
     entries = day_entries(db, day)
     session = day_session(db, user, day)
+    done = completed_ids(db, day)
     return DayDetailOut(
         week_id=week.id,
         week_number=number,
@@ -240,7 +264,7 @@ def get_day(
         mobility_notes=day.mobility_notes,
         minutes=day_minutes(day),
         finished_at=None if session is None else session.finished_at,
-        exercises=[exercise_out(e, entries) for e in day.exercises],
+        exercises=[exercise_out(e, entries, e.id in done) for e in day.exercises],
     )
 
 
@@ -276,6 +300,23 @@ def new_entry(session: WorkoutSession, plan_exercise: PlanExercise, plan_set: Pl
     )
 
 
+def copy_plan(entry: SetEntry, plan_set: PlanSet) -> None:
+    """Lo realizado igual a lo planificado: "la hice como estaba"."""
+    entry.reps = plan_set.reps
+    entry.duration_minutes = plan_set.duration_minutes
+    entry.duration_seconds = plan_set.duration_seconds
+    entry.weight_kg = plan_set.target_weight_kg
+
+
+def find_set(day: PlanDay, plan_set_id: int) -> tuple[PlanExercise, PlanSet]:
+    found = next(
+        ((e, s) for e in day.exercises for s in e.sets if s.id == plan_set_id), None
+    )
+    if found is None:
+        raise HTTPException(status_code=404, detail="No existe esa serie")
+    return found
+
+
 @router.put("/{week_id}/days/{day_index}/sets/{plan_set_id}", response_model=DaySetOut)
 def save_set(
     week_id: int,
@@ -288,13 +329,9 @@ def save_set(
     """Guarda lo realizado en una serie. El plan no se toca."""
     week, _ = get_own_week(db, user, week_id)
     day = find_day(week, day_index)
-    found = next(
-        ((e, s) for e in day.exercises for s in e.sets if s.id == plan_set_id), None
-    )
-    if found is None:
-        raise HTTPException(status_code=404, detail="No existe esa serie")
+    plan_exercise, plan_set = find_set(day, plan_set_id)
     require_active(week)
-    plan_exercise, plan_set = found
+    require_unlocked(db, day, plan_exercise)
     check_measure(plan_exercise.exercise.kind, data)
 
     session = open_session(db, user, day)
@@ -314,6 +351,65 @@ def save_set(
     return set_out(plan_set, entry)
 
 
+@router.post("/{week_id}/days/{day_index}/sets/{plan_set_id}/done", response_model=DaySetOut)
+def mark_set_done(
+    week_id: int,
+    day_index: int,
+    plan_set_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> DaySetOut:
+    """Marca una serie como hecha: copia lo planificado. Si ya tenía algo (editado), lo respeta."""
+    week, _ = get_own_week(db, user, week_id)
+    day = find_day(week, day_index)
+    plan_exercise, plan_set = find_set(day, plan_set_id)
+    require_active(week)
+    require_unlocked(db, day, plan_exercise)
+    session = open_session(db, user, day)
+
+    entry = db.scalar(
+        select(SetEntry).where(
+            SetEntry.session_id == session.id, SetEntry.plan_set_id == plan_set.id
+        )
+    )
+    if entry is None:
+        entry = new_entry(session, plan_exercise, plan_set)
+        copy_plan(entry, plan_set)
+        db.add(entry)
+        db.commit()
+    return set_out(plan_set, entry)
+
+
+@router.delete("/{week_id}/days/{day_index}/sets/{plan_set_id}/done", response_model=DaySetOut)
+def undo_set_done(
+    week_id: int,
+    day_index: int,
+    plan_set_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> DaySetOut:
+    """Desmarca una serie: borra lo registrado de esa serie (el plan no se toca)."""
+    week, _ = get_own_week(db, user, week_id)
+    day = find_day(week, day_index)
+    plan_exercise, plan_set = find_set(day, plan_set_id)
+    require_active(week)
+    require_unlocked(db, day, plan_exercise)
+
+    session = day_session(db, user, day)
+    if session is not None:  # sin sesión no hay nada registrado que borrar
+        if session.finished_at is not None:
+            raise HTTPException(
+                status_code=409, detail="El día está completado: reabrilo para corregir"
+            )
+        db.execute(
+            delete(SetEntry).where(
+                SetEntry.session_id == session.id, SetEntry.plan_set_id == plan_set.id
+            )
+        )
+        db.commit()
+    return set_out(plan_set, None)
+
+
 @router.post(
     "/{week_id}/days/{day_index}/exercises/{plan_exercise_id}/done",
     response_model=DayExerciseOut,
@@ -325,10 +421,10 @@ def mark_exercise_done(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> DayExerciseOut:
-    """Marca el ejercicio como hecho: cada serie sin registrar copia lo planificado.
+    """Marca el ejercicio como hecho y lo cierra (queda bloqueado hasta reabrirlo).
 
-    Las series que el usuario ya editó se respetan. Así "hecho" siempre significa que el
-    ejercicio tiene todas sus series reales.
+    Cada serie sin registrar copia lo planificado; las que el usuario ya marcó o editó se
+    respetan. Así un ejercicio hecho siempre tiene todas sus series reales.
     """
     week, _ = get_own_week(db, user, week_id)
     day = find_day(week, day_index)
@@ -341,13 +437,12 @@ def mark_exercise_done(
         if plan_set.id in entries:
             continue
         entry = new_entry(session, plan_exercise, plan_set)
-        entry.reps = plan_set.reps
-        entry.duration_minutes = plan_set.duration_minutes
-        entry.duration_seconds = plan_set.duration_seconds
-        entry.weight_kg = plan_set.target_weight_kg
+        copy_plan(entry, plan_set)
         db.add(entry)
+    if plan_exercise.id not in completed_ids(db, day):
+        db.add(ExerciseCompletion(session_id=session.id, plan_exercise_id=plan_exercise.id))
     db.commit()
-    return exercise_out(plan_exercise, day_entries(db, day))
+    return exercise_out(plan_exercise, day_entries(db, day), True)
 
 
 @router.delete(
@@ -361,7 +456,7 @@ def undo_exercise_done(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> DayExerciseOut:
-    """Destilda: borra las series reales de ese ejercicio (el plan no se toca)."""
+    """Deshacer: borra lo registrado de ese ejercicio y su cierre (el plan no se toca)."""
     week, _ = get_own_week(db, user, week_id)
     day = find_day(week, day_index)
     plan_exercise = find_exercise(day, plan_exercise_id)
@@ -379,8 +474,47 @@ def undo_exercise_done(
                 SetEntry.plan_set_id.in_([s.id for s in plan_exercise.sets]),
             )
         )
+        db.execute(
+            delete(ExerciseCompletion).where(
+                ExerciseCompletion.session_id == session.id,
+                ExerciseCompletion.plan_exercise_id == plan_exercise.id,
+            )
+        )
         db.commit()
-    return exercise_out(plan_exercise, day_entries(db, day))
+    return exercise_out(plan_exercise, day_entries(db, day), False)
+
+
+@router.post(
+    "/{week_id}/days/{day_index}/exercises/{plan_exercise_id}/reopen",
+    response_model=DayExerciseOut,
+)
+def reopen_exercise(
+    week_id: int,
+    day_index: int,
+    plan_exercise_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> DayExerciseOut:
+    """Reabre un ejercicio hecho para corregirlo: quita el cierre y conserva lo registrado."""
+    week, _ = get_own_week(db, user, week_id)
+    day = find_day(week, day_index)
+    plan_exercise = find_exercise(day, plan_exercise_id)
+    require_active(week)
+
+    session = day_session(db, user, day)
+    if session is not None:
+        if session.finished_at is not None:
+            raise HTTPException(
+                status_code=409, detail="El día está completado: reabrilo para corregir"
+            )
+        db.execute(
+            delete(ExerciseCompletion).where(
+                ExerciseCompletion.session_id == session.id,
+                ExerciseCompletion.plan_exercise_id == plan_exercise.id,
+            )
+        )
+        db.commit()
+    return exercise_out(plan_exercise, day_entries(db, day), False)
 
 
 @router.post("/{week_id}/days/{day_index}/complete", response_model=DayStatusOut)

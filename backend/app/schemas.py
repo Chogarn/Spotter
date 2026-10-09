@@ -127,6 +127,8 @@ class SetEntryIn(BaseModel):
 
 class DayExerciseOut(BaseModel):
     id: int  # id del ejercicio planificado: con él se marca como hecho
+    # El usuario lo cerró con "Marcar como hecho": queda bloqueado hasta reabrirlo.
+    completed: bool
     name: str
     kind: str
     rest_seconds: int | None

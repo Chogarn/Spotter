@@ -15,6 +15,7 @@ TABLAS_ESPERADAS = {
     "ai_calls",
     "workout_sessions",
     "set_entries",
+    "exercise_completions",
 }
 
 
@@ -116,3 +117,13 @@ def test_una_serie_planificada_se_mide_en_repeticiones_minutos_o_segundos():
 def test_el_tipo_de_ejercicio_incluye_el_isometrico():
     tabla = Base.metadata.tables["exercises"]
     assert set(tabla.c.kind.type.enums) == {"strength", "cardio", "isometric"}
+
+
+def test_un_ejercicio_se_cierra_una_sola_vez_por_sesion():
+    tabla = Base.metadata.tables["exercise_completions"]
+    unicas = [
+        {c.name for c in constraint.columns}
+        for constraint in tabla.constraints
+        if isinstance(constraint, UniqueConstraint)
+    ]
+    assert {"session_id", "plan_exercise_id"} in unicas
