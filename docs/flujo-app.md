@@ -5,8 +5,8 @@ Este documento describe cómo se usa la aplicación de principio a fin. Es la ba
 ## Resumen en pasos
 
 1. El usuario se registra e inicia sesión.
-2. Completa sus datos y **elige su objetivo** (obligatorio).
-3. Elige cómo empezar:
+2. Completa sus datos personales.
+3. Elige cómo empezar, y **cada vez que empieza una rutina nueva elige su nivel y su objetivo** (obligatorios):
    - **Camino A:** la app crea su primera rutina.
    - **Camino B:** carga la rutina que ya hace y la app se la mejora.
 4. La semana se organiza en días: **Día 1, Día 2, Día 3**... El usuario entrena a su ritmo.
@@ -20,7 +20,7 @@ Este documento describe cómo se usa la aplicación de principio a fin. Es la ba
 ```mermaid
 flowchart TD
     A[Registro / Login] --> B[Datos del usuario]
-    B --> C[Elegir objetivo<br/>obligatorio]
+    B --> C[Elegir nivel y objetivo<br/>al empezar cada rutina]
     C --> D{Cómo empezar}
     D -->|A| E[La IA crea la primera semana]
     D -->|B| F[Cargar mi rutina actual<br/>nombre, series x reps, peso kg]
@@ -51,7 +51,7 @@ flowchart TD
 
 ## Objetivos
 
-El usuario debe elegir uno. Sin objetivo no se puede avanzar.
+El usuario elige uno **al empezar cada rutina** (no está en el perfil). Sin objetivo y nivel no se genera nada. Al continuar una rutina existente, la semana siguiente hereda los de esa rutina.
 
 | Objetivo | Qué prioriza la IA |
 |---|---|
@@ -63,15 +63,12 @@ El usuario debe elegir uno. Sin objetivo no se puede avanzar.
 
 ## Datos del usuario
 
-Se piden una sola vez y se pueden editar después.
+Se piden una sola vez y se pueden editar después. El nivel y el objetivo no van acá: se eligen al empezar cada rutina. El equipamiento no se pregunta: se da por hecho un gimnasio completo.
 
 **Obligatorios**
 - Edad
 - Peso corporal (kg)
 - Altura (cm)
-- Nivel de experiencia: principiante, intermedio o avanzado
-- Objetivo (uno de los 5)
-- Equipamiento: gimnasio completo, mancuernas o en casa
 
 **Opcionales**
 - Sexo (solo para ajustar las cargas iniciales)
@@ -81,7 +78,7 @@ Se piden una sola vez y se pueden editar después.
 
 ## Camino A: la app crea mi primera rutina
 
-1. El usuario ya completó sus datos y su objetivo.
+1. El usuario ya completó sus datos y, en el recuadro de "Generar rutina", eligió **continuar una rutina existente** (hereda su nivel y objetivo) o **empezar una nueva** (elige nivel y objetivo; la rutina se crea recién al aceptar). El recuadro tiene un botón **Cancelar**.
 2. La IA arma la primera semana (días, ejercicios, series, repeticiones y peso orientativo).
 3. El usuario la revisa y la acepta o la descarta para generar otra.
 
@@ -209,10 +206,10 @@ Como el cierre es una acción del usuario, el gasto en IA es predecible: una lla
 
 1. Registro e inicio de sesión
 2. Datos del usuario
-3. Elegir objetivo (obligatoria)
+3. Elegir qué hacer al generar: continuar una rutina o empezar una nueva (nivel y objetivo)
 4. Elegir camino A o B
 5. Formulario de rutina actual (camino B)
-6. Semana y sus días
+6. Rutina, semana y sus días
 7. Día de entrenamiento (tildar o cargar, y "Día completado")
 8. Resumen del día y "cómo me sentí"
 9. Cierre y resumen de la semana
@@ -223,11 +220,14 @@ La **portada** (`/`) tiene los botones **Perfil**, **Mis rutinas** y, solo si no
 
 | Pantalla | Dirección | Qué muestra |
 |---|---|---|
-| Mis rutinas | `/rutinas` | Las semanas, de la más nueva a la más vieja ("Semana 3 · activa", "Semana 2 · cerrada") |
-| Semana | `/rutinas/{id}` | Sus días ("Día 1 · Torso A", con duración estimada y cantidad de ejercicios) |
-| Día | `/rutinas/{id}/dia/{n}` | La movilidad y los ejercicios, con la fila compacta y las series desplegables |
+| Mis rutinas | `/rutinas` | Las rutinas, de la más nueva a la más vieja (nombre, objetivo, nivel, cantidad de semanas y si tiene una activa) |
+| Rutina | `/rutinas/{id}` | Su nombre, con **Cambiar nombre** (Guardar y Cancelar), y sus semanas, de la más nueva a la más vieja ("Semana 3 · activa", "Semana 2 · cerrada") |
+| Semana | `/semanas/{id}` | Sus días ("Día 1 · Torso A", con duración estimada y cantidad de ejercicios) y, si está activa, **Cerrar semana** |
+| Día | `/semanas/{id}/dia/{n}` | La movilidad y los ejercicios, con la fila compacta y las series desplegables |
 
-- El **número de semana** es el orden de activación (la primera que tuvo el usuario es la 1). Se calcula, no se guarda.
+- El **número de semana** es el orden de activación **dentro de su rutina** (la primera de la rutina es la 1). Se calcula, no se guarda.
+- **Cerrar semana:** el botón está en la pantalla de la semana activa. Abre un recuadro que nombra los días sin completar ("Te faltan por completar: Día 2, Día 4") y pide confirmar, con **Cancelar**. Cerrar no se puede deshacer ni borra nada; los días sin hacer quedan como información para la IA.
+- **Generar:** el botón **Generar rutina** está solo en la portada, cuando no hay semana activa.
 - Las **semanas cerradas** se pueden abrir, en lectura.
 - **Editar lo realizado, serie por serie** (solo en la semana activa; las cerradas son de lectura). Al desplegar "Ver series", cada serie tiene un botón **Editar**: la fila pasa a dos campos (repeticiones y kilos; segundos en un isométrico, minutos en el cardio) y el botón pasa a **Guardar**, con **Cancelar** al lado. Al guardar, la fila muestra lo que se hizo y, si difiere de lo planificado, "(tocaba 10 reps · 50 kg)". El **plan no cambia**: lo realizado se guarda aparte (`set_entries`, enlazado a la serie con `plan_set_id`) y la primera vez que se guarda algo en un día se crea su sesión (`workout_sessions`). El peso puede quedar vacío; un valor inválido muestra el error en la misma fila.
 - Lo realizado se compara con lo planificado (`plan_sets` frente a `set_entries`), sin un campo extra de "editado".
@@ -244,11 +244,11 @@ La **portada** (`/`) tiene los botones **Perfil**, **Mis rutinas** y, solo si no
 
 Resueltos:
 
+- **Dónde van Cerrar semana y Generar:** cerrar en la pantalla de la semana activa (con aviso de los días sin completar, tarea #47) y generar en la portada.
 - **Reabrir un día completado:** se puede, con el botón **Reabrir día** (ver "Día completado"). Lo mismo con un ejercicio cerrado: **Reabrir ejercicio**.
 
 Todavía no están decididos:
 
-- **Cerrar con días sin hacer.** El cierre está permitido; se propone que la app avise qué días faltan y pida confirmación antes de cerrar (tarea #47, **Cerrar semana**). **Dónde va el botón** de Cerrar semana y el de Generar semana nueva (#27) lo tiene que decidir el usuario: la recomendación es cerrar desde la pantalla de la semana activa y generar desde la portada, en el lugar de "Generar rutina".
 - **Avisos al usuario.** Se propone, a futuro, algo suave que sugiera sin hacer nada solo (por ejemplo, "completaste todos los días, ¿cerrar la semana?"). Ver las ideas en `docs/backlog.md`.
 - **Ajuste de ejercicios repetidos.** ¿Lo hace la IA (una llamada por día completado) o una regla simple sin IA, más barata y predecible?
 - **Dónde vive el pedido de ajuste.** Se recomienda una caja de texto dentro de la pantalla de la semana, en lugar de un chat aparte.
@@ -257,8 +257,9 @@ Todavía no están decididos:
 
 Lo ya aplicado está en `docs/modelo-datos.md`. Resumen de cómo se refleja este flujo:
 
-- `profiles`: edad, peso, altura, sexo (opcional) y duración de sesión; el objetivo es obligatorio y uno de los 5 valores.
-- `week_plans`: `week_start` es cuándo se activó la semana, `closed_at` cuándo se cerró, y un campo de origen (`generated` o `improved`) con la rutina original en el camino B.
+- `profiles`: edad, peso, altura, sexo (opcional) y limitaciones. Sin nivel, objetivo ni equipamiento.
+- `routines`: nombre, objetivo (uno de los 5) y nivel; agrupan las semanas.
+- `week_plans`: pertenece a una rutina (`routine_id`); `week_start` es cuándo se activó la semana, `closed_at` cuándo se cerró, y un campo de origen (`generated` o `improved`) con la rutina original en el camino B.
 - `plan_days`: `day_index` es el orden (Día 1, Día 2...), no un día del calendario.
 - `plan_exercises`: el ejercicio planificado, con `execution_notes` (indicaciones) y un marcador `edited_by_user`.
 - `plan_sets`: una fila por serie planificada, con sus repeticiones y su peso.

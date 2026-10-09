@@ -25,7 +25,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Formulario de registro de sesión: la vista del día con Editar, Marcar como hecha y Día completado `frontend` (#16)
 - [ ] Estado global en el frontend. En espera: cada pantalla pide sus datos y no hace falta todavía `frontend` (#17)
 - [x] Perfil del usuario (edad, peso, altura, nivel, equipamiento, limitaciones y objetivo) `backend` `frontend` (#18)
-- [ ] Elegir camino A o B al empezar: el objetivo ya está en el perfil y el camino A es "Generar rutina"; falta la pantalla de elección `backend` `frontend` (#43)
+- [ ] Elegir camino A o B al empezar: el nivel y el objetivo se eligen al generar y el camino A es "Generar rutina" (continuar o empezar una rutina nueva); falta la pantalla de elección `backend` `frontend` (#43)
 - [ ] Formulario de rutina actual (camino B): nombre, series × repeticiones, peso en kg, series desglosables, cardio con duración e indicaciones `frontend` (#44)
 - [ ] Publicación LinkedIn 2: primer avance con capturas `docs` (#19)
 
@@ -39,7 +39,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 
 ## S4: IA, complementos y mejoras
 - [x] Prompt y respuesta en JSON validada con Pydantic, para la primera rutina `ia` `backend` (#26). El prompt de la semana siguiente va en #27
-- [ ] Cerrar semana: botón con aviso de los días sin completar, sin IA `backend` `frontend` (#47)
+- [x] Cerrar semana: botón con aviso de los días sin completar, sin IA `backend` `frontend` (#47)
 - [ ] Generar semana nueva: la IA analiza lo real y propone la semana siguiente (antes "Cierre semanal") `ia` (#27)
 - [ ] Pantalla de resumen semanal `frontend` (#28)
 - [ ] Ajuste conversando (regenera la semana y la guarda) `ia` (#29)
@@ -70,8 +70,8 @@ La definición completa de cada una está en su issue de GitHub.
 
 | Tarea | Dónde se accede | Depende de |
 |---|---|---|
-| Cerrar semana (#47) | Botón en la pantalla de la semana activa, con aviso de los días sin completar *(ubicación por confirmar)* | Nada: no usa la IA |
-| Generar semana nueva (#27) | Botón en la portada, en el lugar de "Generar rutina" cuando no hay semana activa, y ofrecido al cerrar la semana *(ubicación por confirmar)* | #47 |
+| ~~Cerrar semana (#47)~~ | Hecho: botón en la pantalla de la semana activa, con aviso de los días sin completar | — |
+| Generar semana nueva (#27) | Botón "Generar rutina" en la portada (ubicación decidida). El botón y el recuadro de continuar/empezar ya existen; falta que la IA lea lo real de la semana cerrada | #47 (hecha) |
 | Nota de cómo me sentí (#46) | Al tocar "Día completado" en la vista del día | Nada |
 | Esfuerzo por serie (#48) | Campo opcional al tocar "Editar" en una serie | Nada |
 | Propuestas: ver la pendiente (#45) | Botón "Ver propuesta pendiente" en la portada | Nada |
@@ -79,7 +79,7 @@ La definición completa de cada una está en su issue de GitHub.
 | Formulario de rutina actual, camino B (#44) | Opción "Cargar la rutina que ya hago" | #43 |
 | Editar la semana a mano (#13) | Botón por ejercicio en la vista del día *(lugar por definir)* | Nada |
 
-**Decisiones pendientes del usuario:** dónde van los botones **Cerrar semana** y **Generar semana nueva** (la recomendación es la pantalla de la semana activa y la portada, respectivamente), y dónde va "Editar plan" dentro del día.
+**Decisiones pendientes del usuario:** dónde va "Editar plan" dentro del día. (Los botones Cerrar semana y Generar quedaron resueltos: la semana activa y la portada.)
 
 ## Ideas para después (fuera del MVP, sin definir)
 

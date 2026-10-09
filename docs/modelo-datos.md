@@ -19,6 +19,8 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0009` IA | Crea `plan_proposals` y `ai_calls` (los topes de Gemini se calculan contando `ai_calls`, que no se borra) | Implementada |
 | `0010` isométricos | Agrega `exercises.kind = isometric` y `duration_seconds` en `plan_sets` y `set_entries`; la restricción pasa a "repeticiones, minutos o segundos (exactamente una)" | Implementada |
 | `0011` ejercicios completados | Crea `exercise_completions`: qué ejercicios cerró el usuario con "Marcar como hecho" (quedan bloqueados hasta reabrirlos) | Implementada |
+| `0012` objetivo y nivel por semana | Agrega `week_plans.goal` y `level` (copiados del perfil) y quita `profiles.level`, `goal` y `equipment` | Implementada |
+| `0013` rutinas | Crea `routines` (nombre, objetivo y nivel); agrega `week_plans.routine_id` (obligatoria) y quita `week_plans.goal` y `level`, que pasan a la rutina. Una rutina por cada objetivo y nivel que ya existían | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
 ## Diagrama
@@ -27,6 +29,8 @@ Las migraciones de Alembic crean estas tablas por etapas:
 erDiagram
     USERS ||--|| PROFILES : tiene
     USERS ||--o{ BODY_WEIGHT_LOGS : registra
+    USERS ||--o{ ROUTINES : tiene
+    ROUTINES ||--o{ WEEK_PLANS : agrupa
     USERS ||--o{ WEEK_PLANS : tiene
     USERS ||--o{ WORKOUT_SESSIONS : entrena
     USERS ||--o{ PLAN_PROPOSALS : recibe
@@ -57,9 +61,6 @@ erDiagram
         decimal weight_kg
         int height_cm
         string sex
-        string level
-        string goal
-        string equipment
         text limitations
         datetime legal_notice_accepted_at
     }
@@ -84,9 +85,18 @@ erDiagram
         string level
         datetime created_at
     }
+    ROUTINES {
+        int id PK
+        int user_id FK
+        string name
+        string goal
+        string level
+        datetime created_at
+    }
     WEEK_PLANS {
         int id PK
         int user_id FK
+        int routine_id FK
         date week_start
         datetime closed_at
         string status
@@ -182,17 +192,14 @@ Cuenta del usuario.
 | created_at | Fecha de alta |
 
 ### profiles
-Datos del usuario y objetivo. Una fila por usuario.
+Datos personales del usuario. Una fila por usuario. **No tiene nivel, objetivo ni equipamiento**: el nivel y el objetivo se eligen al empezar cada rutina (viven en `routines`) y el equipamiento es siempre el de un gimnasio.
 
 | Campo | Detalle |
 |---|---|
 | user_id | Clave primaria y foránea a `users` |
 | age, weight_kg, height_cm | Edad, peso corporal y altura |
 | sex | Opcional; solo para ajustar cargas iniciales |
-| level | `principiante`, `intermedio` o `avanzado` |
-| goal | **Obligatorio.** `masa`, `fuerza`, `perder_grasa`, `condicion_general` o `mantenerme_activo` |
 | *(sin días ni duración)* | **El perfil no tiene "días por semana" ni "duración de la sesión"**: los determina la IA. La cantidad de días se calcula con `plan_days` |
-| equipment | `gimnasio`, `mancuernas` o `casa` |
 | limitations | Lesiones o limitaciones (texto opcional) |
 | legal_notice_accepted_at | Cuándo aceptó el aviso legal |
 
@@ -218,11 +225,22 @@ Ejercicios conocidos por la app. **No hay catálogo precargado**: la tabla crece
 
 Las etiquetas son **obligatorias** y las asigna la IA; el código las valida (R13) y la base rechaza cualquier valor fuera de las listas. Con ellas se cuentan las series por músculo (R3, R20, R24, R25), las indirectas (R5) y el equilibrio entre tirón y empuje (R14).
 
+### routines
+Una rutina agrupa las semanas que el usuario va sumando con un mismo objetivo y nivel (por ejemplo, una de fuerza y otra de mantenimiento).
+
+| Campo | Detalle |
+|---|---|
+| name | Se arma solo ("Fuerza · desde el 9/10"; si ya existe uno igual, se le suma " 2", " 3") y el usuario lo puede cambiar |
+| goal | **Obligatorio.** `masa`, `fuerza`, `perder_grasa`, `condicion_general` o `mantenerme_activo` |
+| level | **Obligatorio.** `principiante`, `intermedio` o `avanzado`. Queda fijo mientras sigue la rutina; para subir de nivel se empieza otra |
+| created_at | Cuándo se creó, al aceptar la primera semana |
+
 ### week_plans
 Un plan por semana. Las semanas anteriores se conservan como historial. La semana se cierra **a mano**, con un botón; nunca se genera sola por fecha.
 
 | Campo | Detalle |
 |---|---|
+| routine_id | **Obligatorio.** La rutina a la que pertenece. El número de semana ("Semana 2") se calcula dentro de cada rutina, por orden de activación |
 | week_start | Cuándo el usuario activó la semana. No tiene que ser un lunes: la semana es un ciclo |
 | closed_at | Cuándo el usuario la cerró con el botón. Vacío mientras sigue abierta |
 | status | `draft`, `active` o `closed` |
@@ -339,3 +357,5 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 18. **Las etiquetas del ejercicio son obligatorias y cerradas.** Región, dirección, músculo primario, mecánica, equipamiento y nivel no admiten valores libres, y los ejercicios de cardio o de cuerpo entero usan `full_body`. Así el código puede contar series por músculo sin depender de texto libre.
 19. **Los isométricos son un tipo de ejercicio con su propio valor de tiempo.** `exercises.kind = isometric` y `duration_seconds` en las series, en segundos porque una plancha dura 30 a 60 segundos. Siguen el mismo patrón que el cardio (que va en minutos). Cuentan como fuerza para los días y el volumen, y llevan las etiquetas R13 como la fuerza (la plancha: región `core`, músculo `core`), no `full_body`.
 20. **Cerrar un ejercicio es un estado propio, no se deduce de las series.** Si "hecho" se calculara como "todas las series tienen algo registrado", marcar la última serie a mano bloquearía el ejercicio sin que el usuario lo decidiera, y corregir un error obligaría a borrar. Por eso hay una tabla aparte (`exercise_completions`) y un botón para reabrir que no borra nada.
+21. **El nivel y el objetivo son de la rutina, no del perfil.** Cambian de una rutina a otra (fuerza hoy, mantenimiento después), así que se eligen al empezar cada una y se guardan en `routines`. Las semanas siguientes de la rutina los heredan. La rutina se crea recién al aceptar la propuesta, en la misma transacción que la semana, para que descartarla no deje nada.
+22. **El equipamiento no se guarda.** Se da por hecho un gimnasio completo y el prompt lo dice siempre; se quitó `profiles.equipment`.

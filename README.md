@@ -14,10 +14,10 @@ Personas que entrenan por su cuenta (de principiante a intermedio) y no pueden p
 
 ## Cómo funciona
 
-1. El usuario se registra y completa sus datos: edad, peso, altura, nivel, equipamiento y limitaciones. Ni los días ni la duración de las sesiones los elige: **los determina la IA** (entre 2 y 6 días) según sus datos, y si prefiere entrenar más, la IA recalcula.
-2. **Elige su objetivo** (obligatorio): ganar masa muscular, ganar fuerza, perder grasa, mejorar la condición general o mantenerse activo.
+1. El usuario se registra y completa sus datos: edad, peso, altura, sexo (opcional) y limitaciones. Ni los días ni la duración de las sesiones los elige: **los determina la IA** (entre 2 y 6 días) según sus datos, el nivel y el objetivo, y si prefiere entrenar más, la IA recalcula.
+2. **Cada vez que empieza una rutina nueva elige su nivel** (principiante, intermedio o avanzado) **y su objetivo** (obligatorios): ganar masa muscular, ganar fuerza, perder grasa, mejorar la condición general o mantenerse activo. No están en el perfil, porque cambian de una rutina a otra. Se da por hecho que entrena en un gimnasio completo.
 3. Empieza de una de dos formas:
-   - **La app crea su primera rutina** a partir del perfil y el objetivo.
+   - **La app crea su primera rutina** a partir del perfil, el nivel y el objetivo. Después puede **continuar** una rutina que ya tiene (la semana siguiente hereda su nivel y su objetivo) o **empezar una nueva**.
    - **Carga la rutina que ya hace** (ejercicio, series × repeticiones y peso en kilos) y la IA se la mejora.
 4. La semana se organiza en días: **Día 1, Día 2, Día 3**... en lugar de lunes o martes, así el usuario entrena a su ritmo.
 5. En cada día, cada ejercicio muestra lo planificado (por ejemplo, press banca 3 × 8 con 50 kg) y, si el usuario lo despliega, **cada serie** con sus propias repeticiones y su propio peso. Lo **tilda** si lo hizo tal cual, o carga lo que realmente hizo (3 × 10 con 40 kg). Cada ejercicio puede traer indicaciones de ejecución (por ejemplo, "bajar lento, pausa arriba").
@@ -30,18 +30,19 @@ El cierre es siempre manual: nada se genera solo por fecha.
 
 El proyecto se construye por etapas. Hoy funciona, con un usuario de desarrollo (todavía no hay login):
 
-- **Perfil** con objetivo obligatorio y aviso legal.
-- **Generar rutina** (camino A): Gemini arma la semana a partir del perfil, con vista previa y avisos; el usuario acepta o descarta, y solo al aceptar se escribe en el plan.
-- **Mis rutinas:** las semanas, sus días y los ejercicios de cada día, con las series desplegables.
+- **Perfil** (datos personales y aviso legal).
+- **Generar rutina** (camino A), desde la portada: se elige continuar una rutina o empezar una nueva (nivel y objetivo), con Cancelar. Gemini arma la semana, con vista previa y avisos; el usuario acepta o descarta, y solo al aceptar se escribe en el plan (y se crea la rutina nueva).
+- **Mis rutinas:** las rutinas (con nombre automático que se puede cambiar), las semanas de cada una, sus días y los ejercicios de cada día, con las series desplegables.
+- **Cerrar semana:** botón en la semana activa, con aviso de los días sin completar (sin IA).
 - **Registro del día:** editar lo realizado por serie, marcar series y ejercicios como hechos (un ejercicio hecho queda bloqueado hasta reabrirlo) y **Día completado** (que también se puede reabrir).
 
-Todavía no están: registro e inicio de sesión (semana 3), cargar la rutina propia (camino B), cerrar la semana y generar la siguiente, el ajuste conversando, la nota de cómo me sentí, el esfuerzo por serie y la edición manual del plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
+Todavía no están: registro e inicio de sesión (semana 3), cargar la rutina propia (camino B), generar la semana siguiente leyendo lo real (hoy "Generar rutina" no mira la semana cerrada), el ajuste conversando, la nota de cómo me sentí, el esfuerzo por serie y la edición manual del plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
 ## Funcionalidades
 
 ### Base
 - Registro e inicio de sesión (JWT).
-- Perfil con objetivo obligatorio.
+- Perfil con datos personales y aviso legal; nivel y objetivo se eligen al empezar cada rutina.
 - Rutinas semanales organizadas en días y ejercicios, con series desglosables (cada serie con sus repeticiones y su peso), indicaciones de ejecución y edición manual. El cardio es un ejercicio más, medido en minutos.
 - Registro de sesiones: lo realizado frente a lo planificado, con esfuerzo del 1 al 10 y una nota de cómo se sintió.
 
@@ -78,7 +79,7 @@ Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal 
 spotter/
 ├── backend/
 │   ├── app/                  # API: main.py, db.py, deps.py, enums.py, models.py, schemas.py
-│   │   ├── routers/          # Endpoints: profile, proposals y weeks
+│   │   ├── routers/          # Endpoints: profile, proposals, routines y weeks
 │   │   └── ai/               # IA: Gemini con topes, formato y reglas de la rutina, prompt
 │   ├── migrations/           # Migraciones de Alembic
 │   ├── tests/                # Tests con pytest (no llaman a Gemini de verdad)
@@ -87,7 +88,7 @@ spotter/
 │   ├── requirements.txt      # Dependencias de producción
 │   └── requirements-dev.txt  # Dependencias de desarrollo (pytest)
 ├── frontend/
-│   ├── src/app/              # Páginas (Next.js, App Router): portada, perfil, propuesta y rutinas
+│   ├── src/app/              # Páginas (Next.js, App Router): portada, perfil, propuesta, rutinas y semanas
 │   ├── src/components/       # Componentes compartidos (fila de ejercicio, serie, botón de volver)
 │   ├── src/lib/              # Tipos de la API y funciones de formato
 │   ├── Dockerfile            # Imagen de desarrollo

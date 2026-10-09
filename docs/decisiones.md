@@ -9,6 +9,7 @@ Las decisiones importantes del producto, con quién las tomó, por qué y qué s
 ## Decisiones
 
 ### 1. El objetivo es obligatorio
+*Actualizada: ahora se elige al empezar cada rutina, no en el perfil (decisión 34).*
 - **Origen:** tuya.
 - **Por qué:** "el usuario tiene que definir su objetivo sí o sí". *(completar el resto)*
 - **Descartaste:** que la IA fije los objetivos, como decía la idea original que se le mandó al profesor.
@@ -213,18 +214,24 @@ Marcar un ejercicio como hecho lo cierra: sus series no se pueden editar, marcar
 - **Descartaste:** que el ejercicio quedara hecho solo por tener todas las series marcadas y que la única forma de corregirlo fuera Deshacer, que borra todo lo registrado.
 - **Ojo:** requirió una tabla nueva (`exercise_completions`, migración 0011). Reabrir el día no reabre los ejercicios cerrados.
 
+### 34. El nivel y el objetivo se eligen al empezar cada rutina, y las rutinas agrupan semanas
+Nivel y objetivo salieron del perfil: se eligen en un recuadro (con Cancelar) cuando se toca "Generar rutina" en la portada. El equipamiento ya no se pregunta (se da por hecho un gimnasio completo). Una **rutina** agrupa las semanas con un mismo objetivo y nivel; "Mis rutinas" lista las rutinas y cada una lista sus semanas. Al generar se puede **continuar** una rutina (hereda objetivo y nivel, que quedan fijos) o **empezar una nueva**.
+- **Origen:** tuya (sacaste esos datos del perfil porque cambian con cada rutina, pediste las preguntas antes de generar con un botón para cancelar, y elegiste la opción de una tabla de rutinas entre dos).
+- **Por qué:** "por ahí estaba con una rutina de fuerza y luego quería una de mantenimiento". *(completar el resto)*
+- **Descartaste:** dejar el objetivo en el perfil; agrupar las semanas solo por objetivo, sin tabla (se mezclarían dos rutinas del mismo objetivo); poder cambiar el nivel al continuar una rutina (para subir de nivel se empieza otra).
+- **Ojo:** el nombre de la rutina se arma solo ("Fuerza · desde el 9/10", con número si se repite) y se puede cambiar. La rutina nueva nace al aceptar la propuesta, no antes. Requirió las migraciones 0012 y 0013; el equipamiento del perfil se perdió.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
 
-- **Dónde van los botones Cerrar semana (#47) y Generar semana nueva (#27).** Recomendación: cerrar desde la pantalla de la semana activa (con aviso de los días sin completar) y generar desde la portada, en el lugar de "Generar rutina".
 - **Dónde va "Editar plan"** (editar la semana a mano, #13) dentro de la vista del día.
 - **Cuánto reducir el volumen** en la semana liviana (R30).
 - Avisos al usuario.
 - Ajuste de ejercicios repetidos en la semana: ¿lo hace la IA o una regla simple?
 - Dónde va el pedido de ajuste: dentro de la pantalla de la semana o en un chat aparte.
 
-Ya resueltas: el **login** se deja para la semana 3 (el tutor lo indicó) y mientras tanto hay un usuario de desarrollo fijo; **reabrir un día completado** se puede (decisión 33 y "Reabrir día"); la confirmación al cerrar con días sin hacer queda definida en la tarea #47.
+Ya resueltas: los **botones Cerrar semana y Generar** (cerrar en la semana activa con aviso de los días sin completar, generar en la portada); el **login** se deja para la semana 3 (el tutor lo indicó) y mientras tanto hay un usuario de desarrollo fijo; **reabrir un día completado** se puede (decisión 33 y "Reabrir día"); la confirmación al cerrar con días sin hacer queda definida en la tarea #47.
 
 ## Ideas futuras
 
