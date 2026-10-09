@@ -36,14 +36,14 @@ El proyecto se construye por etapas. Hoy funciona, con un usuario de desarrollo 
 - **Cerrar semana:** botón en la semana activa, con aviso de los días sin completar (sin IA).
 - **Registro del día:** editar lo realizado por serie, marcar series y ejercicios como hechos (un ejercicio hecho queda bloqueado hasta reabrirlo) y **Día completado** (que también se puede reabrir).
 
-Todavía no están: registro e inicio de sesión (semana 3), cargar la rutina propia (camino B), generar la semana siguiente leyendo lo real (hoy "Generar rutina" no mira la semana cerrada), el ajuste conversando, la nota de cómo me sentí, el esfuerzo por serie y la edición manual del plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
+Todavía no están: registro e inicio de sesión (semana 3), cargar la rutina propia (camino B), generar la semana siguiente leyendo lo real (hoy "Generar rutina" no mira la semana cerrada), el ajuste conversando, la nota de cómo me sentí y el esfuerzo por serie. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
 ## Funcionalidades
 
 ### Base
 - Registro e inicio de sesión (JWT).
 - Perfil con datos personales y aviso legal; nivel y objetivo se eligen al empezar cada rutina.
-- Rutinas semanales organizadas en días y ejercicios, con series desglosables (cada serie con sus repeticiones y su peso), indicaciones de ejecución y edición manual. El cardio es un ejercicio más, medido en minutos.
+- Rutinas semanales organizadas en días y ejercicios, con series desglosables (cada serie con sus repeticiones y su peso), indicaciones de ejecución. El plan no se edita a mano; el usuario edita lo realizado. El cardio es un ejercicio más, medido en minutos.
 - Registro de sesiones: lo realizado frente a lo planificado, con esfuerzo del 1 al 10 y una nota de cómo se sintió.
 
 ### Valor de la IA

@@ -261,10 +261,10 @@ Lo **planificado**: qué ejercicio toca hacer en cada día. Las series, repetici
 | Campo | Detalle |
 |---|---|
 | position | Orden dentro del día |
-| rest_seconds | **Descanso entre series, en segundos.** Campo propio y editable: la IA lo propone (R8) y el usuario lo puede cambiar. Opcional; no puede ser negativo |
+| rest_seconds | **Descanso entre series, en segundos.** Campo propio: la IA lo propone (R8); el usuario no lo edita a mano (decisión 35). Opcional; no puede ser negativo |
 | execution_notes | Indicaciones de ejecución propias de esta rutina (ritmo, pausas, técnica), por ejemplo "bajar lento, pausa de 2 segundos arriba". Opcional |
 | reason | Explicación de la IA ("¿por qué esto?") |
-| edited_by_user | `true` si el usuario cambió el ejercicio o alguna de sus series a mano; la IA lo respeta |
+| edited_by_user | **Sin uso.** Estaba pensado para marcar ediciones manuales del plan, que se descartaron (decisión 35). Puede quitarse en una migración |
 
 ### plan_sets
 Una fila por **serie planificada**. Permite que cada serie tenga sus propias repeticiones y su propio peso (por ejemplo 10 × 50, 8 × 55, 6 × 60, 4 × 65).
@@ -342,7 +342,7 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 3. **La IA propone y el usuario decide.** Los cambios se guardan primero en `plan_proposals` con estado `pending` y solo se escriben en `week_plans` cuando el usuario acepta.
 4. **`ai_calls` no se borra.** Igual que el tope diario de Gemini, depende de contar filas; borrarlas permitiría saltearse el límite. Por eso no hay endpoint para eliminarlas.
 5. **Historial de semanas.** Cada semana es un `week_plan` propio con su estado; al cerrarla pasa a `closed` y se conserva.
-6. **Ediciones manuales respetadas.** `edited_by_user` evita que la IA pise los cambios que hizo el usuario al armar la semana siguiente.
+6. **El plan no se edita a mano.** Antes `edited_by_user` iba a evitar que la IA pisara ediciones del usuario; como el plan solo lo cambia la IA (decisión 35), la columna quedó sin uso. Lo que el usuario edita es lo realizado (`set_entries`).
 7. **La semana es un ciclo que el usuario cierra.** `closed_at` queda vacío hasta que el usuario toca "Cerrar semana". Se puede cerrar con días sin hacer: esos días se cuentan como no hechos y viajan a la IA como información.
 8. **Los días se llaman Día 1, Día 2.** `day_index` es un orden, no un día de la semana, así que la semana se puede correr sin que nada se rompa.
 9. **La sesión se cierra con un botón.** `finished_at` distingue una sesión en curso de una terminada, y permite reabrirla. Los datos se guardan a medida que se cargan, no recién al terminar.

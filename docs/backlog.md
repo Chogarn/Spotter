@@ -19,7 +19,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 
 ## S2: Core de funcionalidades
 - [x] Tabla de ejercicios que se completa al guardar el plan `backend` (#12)
-- [ ] Editar la semana a mano: series, repeticiones, peso, indicaciones y quitar ejercicio. Antes "CRUD de rutinas (API)": crear (al aceptar la propuesta) y leer (Mis rutinas) ya están; falta editar el plan `backend` `frontend` (#13)
+- [x] ~~Editar la semana a mano~~: **no se hace** (decisión del usuario, 2026-10-09). El plan y la propuesta no se editan; solo se edita lo realizado, y el plan lo cambia la IA (#29). Cerrada como "no se hace" `backend` `frontend` (#13)
 - [x] Registro de sesiones (API): lo realizado por serie, series y ejercicios hechos, ejercicio cerrado y reabrir, Día completado y reabrir `backend` (#14). El esfuerzo pasó a su propia tarea (#48)
 - [x] Vista de planes semanales: Mis rutinas, Semana y Día `frontend` (#15)
 - [x] Formulario de registro de sesión: la vista del día con Editar, Marcar como hecha y Día completado `frontend` (#16)
@@ -78,9 +78,9 @@ La definición completa de cada una está en su issue de GitHub.
 | Antes y después en las propuestas (#49) | En la vista previa de la propuesta (`/rutina/propuesta/{id}`) cuando es un ajuste o una semana nueva | Ajuste (#29) y semana nueva (#27) |
 | Elegir camino A o B (#43) | Pantalla `/empezar` desde la portada | #44 |
 | Formulario de rutina actual, camino B (#44) | Opción "Cargar la rutina que ya hago" | #43 |
-| Editar la semana a mano (#13) | Botón por ejercicio en la vista del día *(lugar por definir)* | Nada |
+| ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con el ajuste (#29) | — |
 
-**Decisiones pendientes del usuario:** dónde va "Editar plan" dentro del día. (Los botones Cerrar semana y Generar quedaron resueltos: la semana activa y la portada.)
+**Decisiones pendientes del usuario:** cuánto reducir el volumen en la semana liviana (R30), los avisos al usuario, el ajuste de ejercicios repetidos y dónde va el pedido de ajuste. (Resueltos: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
 
 ## Ideas para después (fuera del MVP, sin definir)
 

@@ -221,17 +221,23 @@ Nivel y objetivo salieron del perfil: se eligen en un recuadro (con Cancelar) cu
 - **Descartaste:** dejar el objetivo en el perfil; agrupar las semanas solo por objetivo, sin tabla (se mezclarían dos rutinas del mismo objetivo); poder cambiar el nivel al continuar una rutina (para subir de nivel se empieza otra).
 - **Ojo:** el nombre de la rutina se arma solo ("Fuerza · desde el 9/10", con número si se repite) y se puede cambiar. La rutina nueva nace al aceptar la propuesta, no antes. Requirió las migraciones 0012 y 0013; el equipamiento del perfil se perdió.
 
+### 35. El plan y la propuesta no se editan a mano; solo se edita lo realizado
+El usuario no puede cambiar a mano el plan aceptado ni la propuesta de la IA. Lo que sí edita es **lo realizado** en cada serie: si un ejercicio le queda muy pesado o muy liviano, o no llega a las repeticiones, carga lo que hizo y la IA lo toma como información. El plan solo lo cambia la IA (ajuste conversando, semana nueva), con vista previa y aceptar o descartar.
+- **Origen:** tuya (la idea fue siempre que lo editado sea lo real, "para que la IA tome nota"; descartaste editar el plan y la propuesta).
+- **Por qué:** "si te pasa un ejercicio y te queda muy pesado o muy liviano, puede editarlo para que la IA tome nota de eso, o si se hace muy cansador o no llegás a las repeticiones". *(completar el resto)*
+- **Descartaste:** editar el plan a mano (series, repeticiones, peso, indicaciones, quitar un ejercicio; tarea #13) y retocar la propuesta antes de aceptarla.
+- **Ojo:** la única vía para cambiar el plan pasa a ser la IA, así que el ajuste (#29) gana importancia. Para que "muy cansador" quede registrado hacen falta el esfuerzo por serie (#48) y "cómo me sentí" (#46). La columna `plan_exercises.edited_by_user` no se usa y queda sin función (puede quitarse en una migración).
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
 
-- **Dónde va "Editar plan"** (editar la semana a mano, #13) dentro de la vista del día.
 - **Cuánto reducir el volumen** en la semana liviana (R30).
 - Avisos al usuario.
 - Ajuste de ejercicios repetidos en la semana: ¿lo hace la IA o una regla simple?
 - Dónde va el pedido de ajuste: dentro de la pantalla de la semana o en un chat aparte.
 
-Ya resueltas: los **botones Cerrar semana y Generar** (cerrar en la semana activa con aviso de los días sin completar, generar en la portada); el **login** se deja para la semana 3 (el tutor lo indicó) y mientras tanto hay un usuario de desarrollo fijo; **reabrir un día completado** se puede (decisión 33 y "Reabrir día"); la confirmación al cerrar con días sin hacer queda definida en la tarea #47.
+Ya resueltas: **el plan no se edita a mano** (decisión 35); los **botones Cerrar semana y Generar** (cerrar en la semana activa con aviso de los días sin completar, generar en la portada); el **login** se deja para la semana 3 (el tutor lo indicó) y mientras tanto hay un usuario de desarrollo fijo; **reabrir un día completado** se puede (decisión 33 y "Reabrir día"); la confirmación al cerrar con días sin hacer queda definida en la tarea #47.
 
 ## Ideas futuras
 
