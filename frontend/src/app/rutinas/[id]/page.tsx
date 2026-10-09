@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
+import { BackButton } from "@/components/BackButton";
 import { API, readError, type WeekDetail } from "@/lib/api";
 import { statusText } from "@/lib/format";
 
@@ -22,9 +23,7 @@ export default function SemanaPage({ params }: { params: Promise<{ id: string }>
 
   return (
     <main style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem" }}>
-      <p>
-        <Link href="/rutinas">← Mis rutinas</Link>
-      </p>
+      <BackButton href="/rutinas">← Mis rutinas</BackButton>
       {error && <p style={{ color: "crimson" }}>{error}</p>}
       {!semana && !error && <p>Cargando...</p>}
       {semana && (

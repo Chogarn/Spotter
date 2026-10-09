@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import { API, readError, type Proposal } from "@/lib/api";
+import { BackButton } from "@/components/BackButton";
 import { ExerciseRow } from "@/components/ExerciseRow";
 
 export default function PropuestaPage({
@@ -94,6 +95,7 @@ export default function PropuestaPage({
 
   return (
     <main style={contenedor}>
+      <BackButton href="/">← Volver</BackButton>
       <h1>Tu rutina propuesta</h1>
       <p>La IA propone, vos decidís: nada se guarda hasta que aceptes.</p>
 

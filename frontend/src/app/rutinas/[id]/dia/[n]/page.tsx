@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
+import { BackButton } from "@/components/BackButton";
 import { ExerciseRow } from "@/components/ExerciseRow";
 import { API, readError, type DayDetail, type SetItem } from "@/lib/api";
 
@@ -43,11 +43,9 @@ export default function DiaPage({ params }: { params: Promise<{ id: string; n: s
 
   return (
     <main style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem" }}>
-      <p>
-        <Link href={`/rutinas/${id}`}>
-          ← {dia ? `Semana ${dia.week_number}` : "Volver a la semana"}
-        </Link>
-      </p>
+      <BackButton href={`/rutinas/${id}`}>
+        ← {dia ? `Semana ${dia.week_number}` : "Volver a la semana"}
+      </BackButton>
       {error && <p style={{ color: "crimson" }}>{error}</p>}
       {!dia && !error && <p>Cargando...</p>}
       {dia && (
