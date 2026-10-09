@@ -66,3 +66,58 @@ class WeekOut(BaseModel):
     id: int
     week_start: date
     days: list[WeekDayOut]
+
+
+class WeekSummaryOut(BaseModel):
+    """Una semana en la lista "Mis rutinas"."""
+
+    id: int
+    # Orden de activación: la primera semana que tuvo el usuario es la 1. Se calcula, no se guarda.
+    number: int
+    status: str
+    week_start: date
+    closed_at: datetime | None
+    day_count: int
+
+
+class WeekDayItemOut(BaseModel):
+    day_index: int
+    title: str
+    exercise_count: int
+    minutes: int  # duración estimada (R34)
+
+
+class WeekDetailOut(BaseModel):
+    id: int
+    number: int
+    status: str
+    week_start: date
+    days: list[WeekDayItemOut]
+
+
+class DaySetOut(BaseModel):
+    set_number: int
+    reps: int | None
+    duration_minutes: int | None
+    duration_seconds: int | None
+    target_weight_kg: float | None
+
+
+class DayExerciseOut(BaseModel):
+    name: str
+    kind: str
+    rest_seconds: int | None
+    execution_notes: str | None
+    reason: str | None
+    sets: list[DaySetOut]
+
+
+class DayDetailOut(BaseModel):
+    week_id: int
+    week_number: int
+    week_status: str
+    day_index: int
+    title: str
+    mobility_notes: str | None
+    minutes: int
+    exercises: list[DayExerciseOut]
