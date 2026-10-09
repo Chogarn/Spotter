@@ -217,13 +217,14 @@ Marcar un ejercicio como hecho lo cierra: sus series no se pueden editar, marcar
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
 
-- **Login:** antes de la semana 2, con un usuario de prueba, o un login mínimo.
+- **Dónde van los botones Cerrar semana (#47) y Generar semana nueva (#27).** Recomendación: cerrar desde la pantalla de la semana activa (con aviso de los días sin completar) y generar desde la portada, en el lugar de "Generar rutina".
+- **Dónde va "Editar plan"** (editar la semana a mano, #13) dentro de la vista del día.
 - **Cuánto reducir el volumen** en la semana liviana (R30).
-- Reabrir un día ya completado.
-- Pedir confirmación al cerrar la semana con días sin hacer.
 - Avisos al usuario.
 - Ajuste de ejercicios repetidos en la semana: ¿lo hace la IA o una regla simple?
 - Dónde va el pedido de ajuste: dentro de la pantalla de la semana o en un chat aparte.
+
+Ya resueltas: el **login** se deja para la semana 3 (el tutor lo indicó) y mientras tanto hay un usuario de desarrollo fijo; **reabrir un día completado** se puede (decisión 33 y "Reabrir día"); la confirmación al cerrar con días sin hacer queda definida en la tarea #47.
 
 ## Ideas futuras
 

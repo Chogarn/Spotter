@@ -2,7 +2,7 @@
 
 Para copiar a GitHub Projects: un milestone por semana (S1 a S6) y un issue por cada línea.
 Etiquetas sugeridas: `backend`, `frontend`, `ia`, `docker`, `docs`, `complementaria`.
-Columnas del tablero: Backlog, En curso, Revisión, Hecho.
+Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su definición completa (para qué sirve, cómo se accede, qué ve el usuario, acciones, datos y criterios de aceptación); acá va la lista y un resumen.
 
 ## S1: Planificación y setup
 - [x] Definir idea y alcance del proyecto `docs`
@@ -18,16 +18,16 @@ Columnas del tablero: Backlog, En curso, Revisión, Hecho.
 - [x] Publicación LinkedIn 1: el problema y la idea `docs`
 
 ## S2: Core de funcionalidades
-- [ ] Tabla de ejercicios que se completa al guardar el plan `backend`
-- [ ] CRUD de rutinas (API) `backend`
-- [ ] Registro de sesiones: peso, repeticiones, esfuerzo (API) `backend`
-- [ ] Vista de planes semanales `frontend`
-- [ ] Formulario de registro de sesión `frontend`
-- [ ] Estado global en el frontend `frontend`
-- [ ] Perfil del usuario (edad, peso, altura, nivel, equipamiento, limitaciones) `backend` `frontend`
-- [ ] Elegir objetivo (obligatorio) y camino A o B `backend` `frontend`
-- [ ] Formulario de rutina actual (camino B): nombre, series x repeticiones, peso en kg, series desglosables, cardio con duración e indicaciones `frontend`
-- [ ] Publicación LinkedIn 2: primer avance con capturas `docs`
+- [x] Tabla de ejercicios que se completa al guardar el plan `backend` (#12)
+- [ ] Editar la semana a mano: series, repeticiones, peso, indicaciones y quitar ejercicio. Antes "CRUD de rutinas (API)": crear (al aceptar la propuesta) y leer (Mis rutinas) ya están; falta editar el plan `backend` `frontend` (#13)
+- [x] Registro de sesiones (API): lo realizado por serie, series y ejercicios hechos, ejercicio cerrado y reabrir, Día completado y reabrir `backend` (#14). El esfuerzo pasó a su propia tarea (#48)
+- [x] Vista de planes semanales: Mis rutinas, Semana y Día `frontend` (#15)
+- [x] Formulario de registro de sesión: la vista del día con Editar, Marcar como hecha y Día completado `frontend` (#16)
+- [ ] Estado global en el frontend. En espera: cada pantalla pide sus datos y no hace falta todavía `frontend` (#17)
+- [x] Perfil del usuario (edad, peso, altura, nivel, equipamiento, limitaciones y objetivo) `backend` `frontend` (#18)
+- [ ] Elegir camino A o B al empezar: el objetivo ya está en el perfil y el camino A es "Generar rutina"; falta la pantalla de elección `backend` `frontend` (#43)
+- [ ] Formulario de rutina actual (camino B): nombre, series × repeticiones, peso en kg, series desglosables, cardio con duración e indicaciones `frontend` (#44)
+- [ ] Publicación LinkedIn 2: primer avance con capturas `docs` (#19)
 
 ## S3: Autenticación
 - [ ] Registro de usuario `backend`
@@ -38,15 +38,17 @@ Columnas del tablero: Backlog, En curso, Revisión, Hecho.
 - [ ] Tests básicos con pytest (auth y rutinas) `backend`
 
 ## S4: IA, complementos y mejoras
-- [ ] Prompt y respuesta en JSON validada con Pydantic `ia` `backend`
-- [ ] Cierre semanal: análisis del historial y semana siguiente `ia`
-- [ ] Pantalla de resumen semanal `frontend`
-- [ ] Ajuste conversando (regenera la semana y la guarda) `ia`
-- [ ] Topes de uso de Gemini (diario y por minuto) `ia` `backend`
-- [ ] Propuestas de la IA con vista previa (aceptar o descartar) `ia` `backend` `frontend`
-- [ ] Nota de cómo me sentí al terminar la sesión (botones y texto) `backend` `frontend`
-- [ ] Refactor y mejoras de UX `backend` `frontend`
-- [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs`
+- [x] Prompt y respuesta en JSON validada con Pydantic, para la primera rutina `ia` `backend` (#26). El prompt de la semana siguiente va en #27
+- [ ] Cerrar semana: botón con aviso de los días sin completar, sin IA `backend` `frontend` (#47)
+- [ ] Generar semana nueva: la IA analiza lo real y propone la semana siguiente (antes "Cierre semanal") `ia` (#27)
+- [ ] Pantalla de resumen semanal `frontend` (#28)
+- [ ] Ajuste conversando (regenera la semana y la guarda) `ia` (#29)
+- [x] Topes de uso de Gemini (diario y por minuto) `ia` `backend` (#30)
+- [ ] Propuestas de la IA: ver la pendiente desde la portada y vista previa antes y después en los ajustes. La vista previa con aceptar o descartar ya está para "Generar rutina" `ia` `backend` `frontend` (#45)
+- [ ] Nota de cómo me sentí al terminar la sesión (botones y texto) `backend` `frontend` (#46)
+- [ ] Esfuerzo por serie (1 a 10) al editar lo realizado `backend` `frontend` (#48)
+- [ ] Refactor y mejoras de UX `backend` `frontend` (#31)
+- [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs` (#32)
 
 ## S5: Calidad y despliegue
 - [ ] Explicación por ejercicio ("¿por qué esto?") `ia` `complementaria`
@@ -61,6 +63,23 @@ Columnas del tablero: Backlog, En curso, Revisión, Hecho.
 - [ ] Video demo `docs`
 - [ ] Publicación LinkedIn final con la demo `docs`
 - [ ] Plan a 30 días `docs`
+
+## Tareas definidas que siguen (resumen)
+
+La definición completa de cada una está en su issue de GitHub.
+
+| Tarea | Dónde se accede | Depende de |
+|---|---|---|
+| Cerrar semana (#47) | Botón en la pantalla de la semana activa, con aviso de los días sin completar *(ubicación por confirmar)* | Nada: no usa la IA |
+| Generar semana nueva (#27) | Botón en la portada, en el lugar de "Generar rutina" cuando no hay semana activa, y ofrecido al cerrar la semana *(ubicación por confirmar)* | #47 |
+| Nota de cómo me sentí (#46) | Al tocar "Día completado" en la vista del día | Nada |
+| Esfuerzo por serie (#48) | Campo opcional al tocar "Editar" en una serie | Nada |
+| Propuestas: ver la pendiente (#45) | Botón "Ver propuesta pendiente" en la portada | Nada |
+| Elegir camino A o B (#43) | Pantalla `/empezar` desde la portada | #44 |
+| Formulario de rutina actual, camino B (#44) | Opción "Cargar la rutina que ya hago" | #43 |
+| Editar la semana a mano (#13) | Botón por ejercicio en la vista del día *(lugar por definir)* | Nada |
+
+**Decisiones pendientes del usuario:** dónde van los botones **Cerrar semana** y **Generar semana nueva** (la recomendación es la pantalla de la semana activa y la portada, respectivamente), y dónde va "Editar plan" dentro del día.
 
 ## Ideas para después (fuera del MVP, sin definir)
 
