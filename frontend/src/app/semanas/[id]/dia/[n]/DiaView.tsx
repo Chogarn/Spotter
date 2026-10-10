@@ -6,6 +6,7 @@ import { BackButton } from "@/components/BackButton";
 import { ExerciseRow } from "@/components/ExerciseRow";
 import { API, readError, type DayDetail, type ExerciseItem, type SetItem } from "@/lib/api";
 import { estaHecho } from "@/lib/format";
+import { Button } from "@/components/ui/button";
 
 export default function DiaView({ params }: { params: Promise<{ id: string; n: string }> }) {
   const { id, n } = use(params);
@@ -111,14 +112,14 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
               {completado ? (
                 <>
                   ✓ Día completado{" "}
-                  <button type="button" onClick={() => cambiarDia("reopen")} disabled={trabajando}>
+                  <Button type="button" onClick={() => cambiarDia("reopen")} disabled={trabajando}>
                     Reabrir día
-                  </button>
+                  </Button>
                 </>
               ) : (
-                <button type="button" onClick={() => cambiarDia("complete")} disabled={trabajando}>
+                <Button type="button" onClick={() => cambiarDia("complete")} disabled={trabajando}>
                   Día completado
-                </button>
+                </Button>
               )}
             </p>
           )}

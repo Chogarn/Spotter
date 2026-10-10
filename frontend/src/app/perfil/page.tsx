@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { API, errorText } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 
 type Form = {
   name: string;
@@ -165,10 +166,8 @@ export default function PerfilPage() {
             Entiendo que la app no da consejo médico
           </label>
         </p>
-        <button type="submit">Guardar</button>{" "}
-        <Link href="/">
-          <button type="button">Volver</button>
-        </Link>
+        <Button type="submit">Guardar</Button>{" "}
+        <Button nativeButton={false} render={<Link href="/" />}>Volver</Button>
       </form>
       {error && <pre style={{ color: "crimson" }}>{error}</pre>}
     </main>

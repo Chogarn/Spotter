@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { API, readError, type ExerciseItem } from "@/lib/api";
 import { differsFromPlan, estaHecho, seriesRegistradas } from "@/lib/format";
+import { Button } from "@/components/ui/button";
 
 export type DoneEdit = {
   weekId: number;
@@ -65,25 +66,25 @@ export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?:
       {puedeEditar && !hecho && (
         <>
           {estado && " "}
-          <button type="button" onClick={() => llamar("POST", "done")} disabled={trabajando}>
+          <Button type="button" onClick={() => llamar("POST", "done")} disabled={trabajando}>
             Marcar como hecho
-          </button>
+          </Button>
         </>
       )}
       {puedeEditar && hecho && (
         <>
           {" "}
-          <button type="button" onClick={() => llamar("POST", "reopen")} disabled={trabajando}>
+          <Button type="button" onClick={() => llamar("POST", "reopen")} disabled={trabajando}>
             Reabrir ejercicio
-          </button>
+          </Button>
         </>
       )}
       {puedeEditar && hechas > 0 && (
         <>
           {" "}
-          <button type="button" onClick={deshacer} disabled={trabajando}>
+          <Button type="button" onClick={deshacer} disabled={trabajando}>
             Deshacer
-          </button>
+          </Button>
         </>
       )}
       {error && (

@@ -7,6 +7,7 @@ import { use, useEffect, useState } from "react";
 import { API, readError, type Proposal } from "@/lib/api";
 import { BackButton } from "@/components/BackButton";
 import { ExerciseRow } from "@/components/ExerciseRow";
+import { Button } from "@/components/ui/button";
 
 export default function PropuestaView({
   params,
@@ -59,9 +60,7 @@ export default function PropuestaView({
     return (
       <main style={contenedor}>
         <p style={{ color: "crimson" }}>{error}</p>
-        <Link href="/">
-          <button type="button">Volver al inicio</button>
-        </Link>
+        <Button nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
       </main>
     );
   }
@@ -70,12 +69,8 @@ export default function PropuestaView({
     return (
       <main style={contenedor}>
         <p>Tu rutina quedó activa: {propuesta.routine.days.length} días.</p>
-        <Link href="/rutinas">
-          <button type="button">Ver mis rutinas</button>
-        </Link>{" "}
-        <Link href="/">
-          <button type="button">Volver al inicio</button>
-        </Link>
+        <Button nativeButton={false} render={<Link href="/rutinas" />}>Ver mis rutinas</Button>{" "}
+        <Button nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
       </main>
     );
   }
@@ -84,9 +79,7 @@ export default function PropuestaView({
     return (
       <main style={contenedor}>
         <p>Esta propuesta ya fue resuelta.</p>
-        <Link href="/">
-          <button type="button">Volver al inicio</button>
-        </Link>
+        <Button nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
       </main>
     );
   }
@@ -145,12 +138,12 @@ export default function PropuestaView({
         <small>Los pesos son orientativos. La app no da consejo médico.</small>
       </p>
       <p>
-        <button type="button" onClick={() => resolver("accept")} disabled={trabajando}>
+        <Button type="button" onClick={() => resolver("accept")} disabled={trabajando}>
           Aceptar rutina
-        </button>{" "}
-        <button type="button" onClick={() => resolver("discard")} disabled={trabajando}>
+        </Button>{" "}
+        <Button type="button" onClick={() => resolver("discard")} disabled={trabajando}>
           Descartar
-        </button>
+        </Button>
       </p>
       {error && <p style={{ color: "crimson" }}>{error}</p>}
     </main>

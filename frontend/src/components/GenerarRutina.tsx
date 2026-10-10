@@ -4,6 +4,16 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { API, readError, type Routine } from "@/lib/api";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 const NIVELES = [
   ["principiante", "principiante"],
@@ -94,13 +104,25 @@ export function GenerarRutina({
   return (
     <>
       {!preguntando && !generando && (
-        <button type="button" onClick={abrir}>
+        <Button type="button" onClick={abrir}>
           {etiqueta}
-        </button>
+        </Button>
       )}
 
-      {preguntando && !generando && (
-        <div role="dialog" style={{ border: "1px solid #888", padding: "1rem", marginTop: "1rem" }}>
+      <AlertDialog
+        open={preguntando && !generando}
+        onOpenChange={(abierto) => {
+          if (!abierto) cancelar();
+        }}
+      >
+        <AlertDialogContent className="sm:max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Generar rutina</AlertDialogTitle>
+            <AlertDialogDescription>
+              Elegí si querés continuar una rutina o empezar una nueva. La IA propone y vos decidís:
+              nada se guarda hasta que aceptes.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           {rutinas === null && <p>Cargando...</p>}
           {rutinas !== null && rutinas.length > 0 && (
             <fieldset style={{ marginBottom: "1rem" }}>
@@ -139,14 +161,15 @@ export function GenerarRutina({
               />
             </>
           )}
-          <button type="button" onClick={generar} disabled={!listo}>
-            Generar
-          </button>{" "}
-          <button type="button" onClick={cancelar}>
-            Cancelar
-          </button>
-        </div>
-      )}
+          {error && <p style={{ color: "crimson" }}>{error}</p>}
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <Button type="button" onClick={generar} disabled={!listo}>
+              Generar
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {generando && (
         <p>
@@ -155,7 +178,7 @@ export function GenerarRutina({
           No cierres esta página.
         </p>
       )}
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && !preguntando && <p style={{ color: "crimson" }}>{error}</p>}
     </>
   );
 }

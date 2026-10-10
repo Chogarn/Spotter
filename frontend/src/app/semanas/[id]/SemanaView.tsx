@@ -6,6 +6,18 @@ import { use, useEffect, useState } from "react";
 import { BackButton } from "@/components/BackButton";
 import { API, readError, type WeekDetail } from "@/lib/api";
 import { dayStateText, statusText } from "@/lib/format";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function SemanaView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -73,41 +85,43 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
             ))}
           </ul>
 
-          {semana.status === "active" && !confirmando && (
-            <button type="button" onClick={() => setConfirmando(true)}>
-              Cerrar semana
-            </button>
-          )}
-          {semana.status === "active" && confirmando && (
-            <div role="alertdialog" style={{ border: "1px solid #888", padding: "1rem" }}>
-              <p>
-                {pendientes.length > 0
-                  ? `Te faltan por completar: ${pendientes.map((d) => `Día ${d.day_index}`).join(", ")}. Esos días se cuentan como no hechos.`
-                  : "Completaste todos los días."}{" "}
-                ¿Cerrar la semana? No se puede deshacer.
-              </p>
-              <p>
-                <label>
-                  ¿Cómo te sentiste esta semana? (opcional)
-                  <br />
-                  <textarea
-                    rows={4}
-                    maxLength={1000}
-                    value={comentario}
-                    disabled={cerrando}
-                    onChange={(e) => setComentario(e.target.value)}
-                    style={{ width: "100%" }}
-                  />
-                </label>
-                <small>La IA lo tiene en cuenta al armar la semana siguiente.</small>
-              </p>
-              <button type="button" onClick={cerrar} disabled={cerrando}>
-                {cerrando ? "Cerrando..." : "Cerrar semana"}
-              </button>{" "}
-              <button type="button" onClick={() => setConfirmando(false)} disabled={cerrando}>
-                Cancelar
-              </button>
-            </div>
+          {semana.status === "active" && (
+            <>
+              <Button type="button" onClick={() => setConfirmando(true)}>
+                Cerrar semana
+              </Button>
+              <AlertDialog open={confirmando} onOpenChange={(abierto) => !cerrando && setConfirmando(abierto)}>
+                <AlertDialogContent className="sm:max-w-lg">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Cerrar semana</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {pendientes.length > 0
+                        ? `Te faltan por completar: ${pendientes.map((d) => `Día ${d.day_index}`).join(", ")}. Esos días se cuentan como no hechos.`
+                        : "Completaste todos los días."}{" "}
+                      ¿Cerrar la semana? No se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div>
+                    <Label htmlFor="comentario">¿Cómo te sentiste esta semana? (opcional)</Label>
+                    <Textarea
+                      id="comentario"
+                      rows={4}
+                      maxLength={1000}
+                      value={comentario}
+                      disabled={cerrando}
+                      onChange={(e) => setComentario(e.target.value)}
+                    />
+                    <small>La IA lo tiene en cuenta al armar la semana siguiente.</small>
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={cerrando}>Cancelar</AlertDialogCancel>
+                    <Button type="button" onClick={cerrar} disabled={cerrando}>
+                      {cerrando ? "Cerrando..." : "Cerrar semana"}
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
           )}
           {semana.status === "closed" && (
             <>

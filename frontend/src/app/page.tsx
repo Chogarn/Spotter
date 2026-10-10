@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { GenerarRutina } from "@/components/GenerarRutina";
 import { API, readError } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [cargando, setCargando] = useState(true);
@@ -45,17 +46,13 @@ export default function Home() {
         Entrenador de gimnasio con IA que arma tu semana según tu progreso real.
       </p>
       <div>
-        <Link href="/perfil">
-          <button type="button">Perfil</button>
-        </Link>{" "}
-        <Link href="/rutinas">
-          <button type="button">Mis rutinas</button>
-        </Link>{" "}
+        <Button nativeButton={false} render={<Link href="/perfil" />}>Perfil</Button>{" "}
+        <Button nativeButton={false} render={<Link href="/rutinas" />}>Mis rutinas</Button>{" "}
         {!cargando && !hayActiva && pendiente !== null && (
           <>
-            <Link href={`/rutina/propuesta/${pendiente}`}>
-              <button type="button">Ver propuesta pendiente</button>
-            </Link>{" "}
+            <Button nativeButton={false} render={<Link href={`/rutina/propuesta/${pendiente}`} />}>
+              Ver propuesta pendiente
+            </Button>{" "}
           </>
         )}
         {!cargando && !hayActiva && (

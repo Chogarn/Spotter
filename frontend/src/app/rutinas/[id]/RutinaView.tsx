@@ -6,6 +6,7 @@ import { use, useEffect, useState } from "react";
 import { BackButton } from "@/components/BackButton";
 import { API, readError, type RoutineDetail } from "@/lib/api";
 import { goalText, shortDate, statusText } from "@/lib/format";
+import { Button } from "@/components/ui/button";
 
 export default function RutinaView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -54,9 +55,9 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
           {nombre === null ? (
             <h1>
               {rutina.name}{" "}
-              <button type="button" onClick={() => setNombre(rutina.name)}>
+              <Button type="button" onClick={() => setNombre(rutina.name)}>
                 Cambiar nombre
-              </button>
+              </Button>
             </h1>
           ) : (
             <p>
@@ -66,12 +67,12 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
                 aria-label="Nombre de la rutina"
                 onChange={(e) => setNombre(e.target.value)}
               />{" "}
-              <button type="button" onClick={guardarNombre} disabled={guardando || !nombre.trim()}>
+              <Button type="button" onClick={guardarNombre} disabled={guardando || !nombre.trim()}>
                 Guardar
-              </button>{" "}
-              <button type="button" onClick={() => setNombre(null)} disabled={guardando}>
+              </Button>{" "}
+              <Button type="button" onClick={() => setNombre(null)} disabled={guardando}>
                 Cancelar
-              </button>
+              </Button>
             </p>
           )}
           <p>

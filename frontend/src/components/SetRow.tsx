@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { API, readError, type ExerciseItem, type SetItem } from "@/lib/api";
 import { differsFromPlan, realAsSet, setText } from "@/lib/format";
+import { Button } from "@/components/ui/button";
 
 export type SetEdit = {
   weekId: number;
@@ -156,12 +157,12 @@ export function SetRow({
               kg
             </>
           )}{" "}
-          <button type="button" onClick={guardar} disabled={guardando}>
+          <Button type="button" onClick={guardar} disabled={guardando}>
             Guardar
-          </button>{" "}
-          <button type="button" onClick={() => setEditando(false)} disabled={guardando}>
+          </Button>{" "}
+          <Button type="button" onClick={() => setEditando(false)} disabled={guardando}>
             Cancelar
-          </button>
+          </Button>
         </small>
         {error && (
           <div>
@@ -183,20 +184,20 @@ export function SetRow({
             {" "}
             {!real && (
               <>
-                <button type="button" onClick={marcar} disabled={marcando}>
+                <Button type="button" onClick={marcar} disabled={marcando}>
                   Marcar como hecha
-                </button>{" "}
+                </Button>{" "}
               </>
             )}
-            <button type="button" onClick={empezar} disabled={marcando}>
+            <Button type="button" onClick={empezar} disabled={marcando}>
               Editar
-            </button>
+            </Button>
             {real && (
               <>
                 {" "}
-                <button type="button" onClick={desmarcar} disabled={marcando}>
+                <Button type="button" onClick={desmarcar} disabled={marcando}>
                   Desmarcar
-                </button>
+                </Button>
               </>
             )}
           </>
