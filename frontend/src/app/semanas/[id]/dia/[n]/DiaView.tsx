@@ -7,6 +7,7 @@ import { ExerciseRow } from "@/components/ExerciseRow";
 import { API, readError, type DayDetail, type ExerciseItem, type SetItem } from "@/lib/api";
 import { estaHecho } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { ErrorMessage } from "@/components/ErrorMessage";
 
 export default function DiaView({ params }: { params: Promise<{ id: string; n: string }> }) {
   const { id, n } = use(params);
@@ -87,7 +88,7 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
       <BackButton href={`/semanas/${id}`}>
         ← {dia ? `Semana ${dia.week_number}` : "Volver a la semana"}
       </BackButton>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
       {!dia && !error && <p>Cargando...</p>}
       {dia && (
         <>

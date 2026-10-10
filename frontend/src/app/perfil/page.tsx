@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { ErrorMessage } from "@/components/ErrorMessage";
 
 type Form = {
   name: string;
@@ -160,7 +161,7 @@ export default function PerfilPage() {
         <Button type="submit">Guardar</Button>{" "}
         <Button nativeButton={false} render={<Link href="/" />}>Volver</Button>
       </form>
-      {error && <pre style={{ color: "crimson" }}>{error}</pre>}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
     </main>
   );
 }

@@ -15,9 +15,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ErrorMessage } from "@/components/ErrorMessage";
 
 export default function SemanaView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -64,26 +67,36 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
       <BackButton href={semana ? `/rutinas/${semana.routine_id}` : "/rutinas"}>
         ← {semana ? semana.routine_name : "Mis rutinas"}
       </BackButton>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
       {!semana && !error && <p>Cargando...</p>}
       {semana && (
         <>
           <h1>
             Semana {semana.number} · {statusText[semana.status]}
           </h1>
-          <ul>
+          <div className="mb-4 grid gap-3">
             {semana.days.map((d) => (
-              <li key={d.day_index}>
-                <Link href={`/semanas/${semana.id}/dia/${d.day_index}`}>
-                  Día {d.day_index} · {d.title}
-                </Link>{" "}
-                <small>
-                  ~{d.minutes} min · {d.exercise_count} ejercicios
-                  {d.state !== "pending" && <> · {dayStateText[d.state]}</>}
-                </small>
-              </li>
+              <Card key={d.day_index}>
+                <CardHeader>
+                  <CardTitle>
+                    <Link href={`/semanas/${semana.id}/dia/${d.day_index}`}>
+                      Día {d.day_index} · {d.title}
+                    </Link>
+                  </CardTitle>
+                  <CardDescription>
+                    ~{d.minutes} min · {d.exercise_count} ejercicios
+                  </CardDescription>
+                  {d.state !== "pending" && (
+                    <CardAction>
+                      <Badge variant={d.state === "completed" ? "default" : "outline"}>
+                        {dayStateText[d.state]}
+                      </Badge>
+                    </CardAction>
+                  )}
+                </CardHeader>
+              </Card>
             ))}
-          </ul>
+          </div>
 
           {semana.status === "active" && (
             <>

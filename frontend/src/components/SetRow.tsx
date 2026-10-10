@@ -6,6 +6,7 @@ import { API, readError, type ExerciseItem, type SetItem } from "@/lib/api";
 import { differsFromPlan, realAsSet, setText } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InlineError } from "@/components/ErrorMessage";
 
 export type SetEdit = {
   weekId: number;
@@ -167,7 +168,7 @@ export function SetRow({
         </small>
         {error && (
           <div>
-            <small style={{ color: "crimson" }}>{error}</small>
+            <InlineError>{error}</InlineError>
           </div>
         )}
       </li>
@@ -206,7 +207,7 @@ export function SetRow({
       </small>
       {error && (
         <div>
-          <small style={{ color: "crimson" }}>{error}</small>
+          <InlineError>{error}</InlineError>
         </div>
       )}
     </li>

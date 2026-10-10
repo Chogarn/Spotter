@@ -7,7 +7,10 @@ import { use, useEffect, useState } from "react";
 import { API, readError, type Proposal } from "@/lib/api";
 import { BackButton } from "@/components/BackButton";
 import { ExerciseRow } from "@/components/ExerciseRow";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorMessage } from "@/components/ErrorMessage";
 
 export default function PropuestaView({
   params,
@@ -59,7 +62,7 @@ export default function PropuestaView({
   if (!propuesta) {
     return (
       <main style={contenedor}>
-        <p style={{ color: "crimson" }}>{error}</p>
+        <ErrorMessage>{error}</ErrorMessage>
         <Button nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
       </main>
     );
@@ -93,46 +96,56 @@ export default function PropuestaView({
       <p>La IA propone, vos decidís: nada se guarda hasta que aceptes.</p>
 
       {summary && (
-        <>
-          <h2>Resumen de la semana anterior</h2>
-          <p>{summary}</p>
-        </>
+        <Alert className="my-3">
+          <AlertTitle>Resumen de la semana anterior</AlertTitle>
+          <AlertDescription>{summary}</AlertDescription>
+        </Alert>
       )}
       {propuesta.warnings.length > 0 && (
-        <>
-          <h2>Avisos</h2>
-          <ul>
-            {propuesta.warnings.map((w, i) => (
-              <li key={i}>{w.message}</li>
-            ))}
-          </ul>
-        </>
+        <Alert className="my-3">
+          <AlertTitle>Avisos</AlertTitle>
+          <AlertDescription>
+            <ul>
+              {propuesta.warnings.map((w, i) => (
+                <li key={i}>{w.message}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
       )}
       {notices.length > 0 && (
-        <>
-          <h2>Notas de la IA</h2>
-          <ul>
-            {notices.map((n, i) => (
-              <li key={i}>{n}</li>
-            ))}
-          </ul>
-        </>
+        <Alert className="my-3">
+          <AlertTitle>Notas de la IA</AlertTitle>
+          <AlertDescription>
+            <ul>
+              {notices.map((n, i) => (
+                <li key={i}>{n}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
       )}
 
-      {days.map((dia, i) => (
-        <section key={i}>
-          <h2>
-            Día {i + 1} · {dia.title}{" "}
-            <small style={{ fontWeight: "normal" }}>~{propuesta.day_minutes[i]} min</small>
-          </h2>
-          {dia.mobility_notes && <p>Movilidad: {dia.mobility_notes}</p>}
-          <ol>
-            {dia.exercises.map((e, j) => (
-              <ExerciseRow key={j} exercise={e} />
-            ))}
-          </ol>
-        </section>
-      ))}
+      <div className="grid gap-3">
+        {days.map((dia, i) => (
+          <Card key={i}>
+            <CardHeader>
+              <CardTitle>
+                Día {i + 1} · {dia.title}
+              </CardTitle>
+              <CardDescription>~{propuesta.day_minutes[i]} min</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {dia.mobility_notes && <p>Movilidad: {dia.mobility_notes}</p>}
+              <ol>
+                {dia.exercises.map((e, j) => (
+                  <ExerciseRow key={j} exercise={e} />
+                ))}
+              </ol>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
       <p>
         <small>Los pesos son orientativos. La app no da consejo médico.</small>
@@ -145,7 +158,7 @@ export default function PropuestaView({
           Descartar
         </Button>
       </p>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
     </main>
   );
 }

@@ -8,6 +8,9 @@ import { API, readError, type RoutineDetail } from "@/lib/api";
 import { goalText, shortDate, statusText } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ErrorMessage } from "@/components/ErrorMessage";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function RutinaView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -49,7 +52,7 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
   return (
     <main style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem" }}>
       <BackButton href="/rutinas">← Mis rutinas</BackButton>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
       {!rutina && !error && <p>Cargando...</p>}
       {rutina && (
         <>
@@ -80,18 +83,25 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
           <p>
             Objetivo: {goalText[rutina.goal]} · Nivel: {rutina.level}
           </p>
-          <ul>
+          <div className="grid gap-3">
             {rutina.weeks.map((s) => (
-              <li key={s.id}>
-                <Link href={`/semanas/${s.id}`}>
-                  Semana {s.number} · {statusText[s.status]}
-                </Link>{" "}
-                <small>
-                  {s.day_count} días · desde el {shortDate(s.week_start)}
-                </small>
-              </li>
+              <Card key={s.id}>
+                <CardHeader>
+                  <CardTitle>
+                    <Link href={`/semanas/${s.id}`}>Semana {s.number}</Link>
+                  </CardTitle>
+                  <CardDescription>
+                    {s.day_count} días · desde el {shortDate(s.week_start)}
+                  </CardDescription>
+                  <CardAction>
+                    <Badge variant={s.status === "active" ? "default" : "secondary"}>
+                      {statusText[s.status]}
+                    </Badge>
+                  </CardAction>
+                </CardHeader>
+              </Card>
             ))}
-          </ul>
+          </div>
         </>
       )}
     </main>

@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ErrorMessage } from "@/components/ErrorMessage";
 
 const NIVELES = [
   ["principiante", "principiante"],
@@ -155,7 +156,7 @@ export function GenerarRutina({
               />
             </>
           )}
-          {error && <p style={{ color: "crimson" }}>{error}</p>}
+          {error && <ErrorMessage>{error}</ErrorMessage>}
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <Button type="button" onClick={generar} disabled={!listo}>
@@ -172,7 +173,7 @@ export function GenerarRutina({
           No cierres esta página.
         </p>
       )}
-      {error && !preguntando && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && !preguntando && <ErrorMessage>{error}</ErrorMessage>}
     </>
   );
 }

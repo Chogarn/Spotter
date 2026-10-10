@@ -5,6 +5,7 @@ import { useState } from "react";
 import { API, readError, type ExerciseItem } from "@/lib/api";
 import { differsFromPlan, estaHecho, seriesRegistradas } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { InlineError } from "@/components/ErrorMessage";
 
 export type DoneEdit = {
   weekId: number;
@@ -89,7 +90,7 @@ export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?:
       )}
       {error && (
         <div>
-          <small style={{ color: "crimson" }}>{error}</small>
+          <InlineError>{error}</InlineError>
         </div>
       )}
     </div>

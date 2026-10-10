@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { GenerarRutina } from "@/components/GenerarRutina";
 import { API, readError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { ErrorMessage } from "@/components/ErrorMessage";
 
 export default function Home() {
   const [cargando, setCargando] = useState(true);
@@ -60,7 +61,7 @@ export default function Home() {
         )}
       </div>
 
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
     </main>
   );
 }
