@@ -40,7 +40,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 ## S4: IA, complementos y mejoras
 - [x] Prompt y respuesta en JSON validada con Pydantic, para la primera rutina `ia` `backend` (#26). El prompt de la semana siguiente va en #27
 - [x] Cerrar semana: botón con aviso de los días sin completar, sin IA `backend` `frontend` (#47)
-- [x] Generar semana nueva: al continuar una rutina, la IA lee lo planificado frente a lo real de la última semana cerrada y propone la siguiente, con un resumen (antes "Cierre semanal"). Pendiente solo la prueba con Gemini real `ia` (#27)
+- [x] Generar semana nueva: al continuar una rutina, la IA lee lo planificado frente a lo real de la última semana cerrada y propone la siguiente, con un resumen (antes "Cierre semanal"). Probada con Gemini real `ia` (#27)
 - [ ] Pantalla de resumen semanal `frontend` (#28)
 - [ ] Ajuste conversando (regenera la semana y la guarda) `ia` (#29)
 - [x] Topes de uso de Gemini (diario y por minuto) `ia` `backend` (#30)
