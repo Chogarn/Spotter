@@ -86,3 +86,23 @@ def test_hay_tirones_suficientes_para_r14(ejercicios):
 
 def test_hay_cardio_variado(ejercicios):
     assert sum(e["kind"] == "cardio" for e in ejercicios) >= 4
+
+
+# R5b (borrador): un músculo figura como secundario solo si es sinergista principal.
+# Estos pares (ejercicio, músculo) son estabilizadores y no deben volver a figurar.
+ESTABILIZADORES = [
+    ("sentadilla_barra", "core"), ("sentadilla_barra", "hamstrings"),
+    ("sentadilla_frontal_barra", "core"), ("sentadilla_goblet", "core"),
+    ("sentadilla_bulgara", "hamstrings"), ("prensa_piernas", "hamstrings"),
+    ("zancadas_mancuernas", "hamstrings"), ("peso_muerto_convencional", "core"),
+    ("peso_muerto_convencional", "back"), ("peso_muerto_rumano_barra", "back"),
+    ("peso_muerto_rumano_mancuernas", "back"), ("kettlebell_swing", "core"),
+    ("kettlebell_swing", "back"), ("pallof_press", "shoulders"),
+    ("rueda_abdominal", "shoulders"), ("pullover_polea", "triceps"),
+]
+
+
+@pytest.mark.parametrize("ejercicio_id,musculo", ESTABILIZADORES)
+def test_los_estabilizadores_no_figuran_como_secundarios(ejercicios, ejercicio_id, musculo):
+    ejercicio = next(e for e in ejercicios if e["id"] == ejercicio_id)
+    assert musculo not in ejercicio["secondary_muscles"]
