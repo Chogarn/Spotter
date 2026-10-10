@@ -22,6 +22,7 @@ from app.models import (
     WorkoutSession,
 )
 from app.schemas import (
+    CloseWeekIn,
     DayDetailOut,
     DayExerciseOut,
     DaySetOut,
@@ -214,6 +215,7 @@ def get_week(
         number=number,
         status=week.status.value,
         week_start=week.week_start,
+        closing_note=week.closing_note,
         days=[
             WeekDayItemOut(
                 day_index=d.day_index,
@@ -229,11 +231,19 @@ def get_week(
 
 @router.post("/{week_id}/close", response_model=WeekSummaryOut)
 def close_week(
-    week_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)
+    week_id: int,
+    data: CloseWeekIn | None = None,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ) -> WeekSummaryOut:
-    """Cerrar semana (sin IA). Los días sin hacer no se tocan: quedan como información."""
+    """Cerrar semana (sin IA). Los días sin hacer no se tocan: cuentan como no hechos.
+
+    Puede llevar un comentario del usuario (opcional) que la IA lee al armar la semana siguiente.
+    """
     week, number = get_own_week(db, user, week_id)
     require_active(week)
+    note = (data.note or "").strip() if data else ""
+    week.closing_note = note or None
     week.status = PlanStatus.CLOSED
     week.closed_at = datetime.now(timezone.utc)
     db.commit()

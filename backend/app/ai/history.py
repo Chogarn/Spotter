@@ -124,7 +124,8 @@ def build_previous_week(db: Session, routine_id: int) -> PreviousWeek | None:
         if session is not None and session.finished_at is not None:
             state = "completado"
         elif day_has_entries:
-            state = "a medias"
+            # Sin "Día completado" cuenta como no hecho; las series cargadas igual se muestran.
+            state = "no completado (no tocó Día completado: contalo como no hecho)"
         else:
             state = "no hecho (nada registrado)"
         lines.append(f"Día {day.day_index} · {_clean(day.title)} — {state}")
@@ -134,6 +135,12 @@ def build_previous_week(db: Session, routine_id: int) -> PreviousWeek | None:
 
     closed = f" (cerrada el {week.closed_at:%d/%m})" if week.closed_at else ""
     header = f"Semana anterior de esta rutina{closed}:"
+    if week.closing_note:
+        lines.insert(
+            0,
+            "Comentario del usuario al cerrar la semana: "
+            f"<datos_usuario>{_clean(week.closing_note)}</datos_usuario>",
+        )
     if not has_data:
         lines.append(
             "No se registró nada en esta semana: proponé repetir la misma semana y avisalo en `notices`."

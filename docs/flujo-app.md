@@ -195,8 +195,8 @@ Cada pedido cuenta como una llamada a Gemini.
 ### Cerrar la semana
 El cierre es siempre **manual**, con un botón. Nunca se genera la semana siguiente por fecha: el usuario puede haber descansado o haberse atrasado, y el control es suyo.
 
-1. El usuario toca "Cerrar semana". Puede hacerlo aunque falten días.
-2. Los días no hechos se cuentan como no hechos y viajan a la IA como información, junto con lo planificado, lo real (lo que el usuario editó serie por serie) y cómo se sintió.
+1. El usuario toca "Cerrar semana". Puede hacerlo aunque falten días: la app avisa cuáles faltan y esos días **cuentan como no hechos**. En el mismo recuadro puede escribir un **comentario libre y opcional** sobre cómo se sintió en la semana (hasta 1.000 caracteres); queda fijo y la IA lo tiene en cuenta al armar la semana siguiente (tarea #50).
+2. Los días no hechos (sin "Día completado") se cuentan como no hechos y viajan a la IA como información, junto con lo planificado, lo real (lo que el usuario editó serie por serie), el comentario de la semana y cómo se sintió cada día.
 3. La IA muestra un resumen de evolución (qué subió, qué se estancó y dónde hay fatiga) y propone la semana siguiente. Para un día no hecho puede sugerir recuperarlo, repartirlo o dejarlo, siempre como propuesta.
 4. El usuario revisa la semana propuesta y la acepta antes de que quede activa. Mientras no cierre la semana, no se genera nada.
 

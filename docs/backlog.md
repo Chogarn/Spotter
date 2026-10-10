@@ -47,6 +47,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Propuestas de la IA: ver la pendiente desde la portada (`GET /proposals/pending`) y vista previa con aceptar o descartar para "Generar rutina" `ia` `backend` `frontend` (#45). El antes y después pasó a #49
 - [ ] Antes y después en las propuestas de ajuste y de semana nueva: qué cambia, con el valor anterior y el nuevo. Depende de #29 y #27 `ia` `backend` `frontend` (#49)
 - [ ] Nota de cómo me sentí al terminar la sesión (botones y texto) `backend` `frontend` (#46)
+- [x] Comentario escrito del usuario al cerrar la semana (cómo se sintió), que la IA lee al armar la semana siguiente `backend` `ia` `frontend` (#50)
 - [ ] Esfuerzo por serie (1 a 10) al editar lo realizado `backend` `frontend` (#48)
 - [ ] Refactor y mejoras de UX `backend` `frontend` (#31)
 - [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs` (#32)

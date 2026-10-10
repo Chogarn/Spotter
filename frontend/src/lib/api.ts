@@ -77,6 +77,7 @@ export type WeekSummary = {
 
 export type WeekDetail = {
   id: number;
+  closing_note?: string | null;
   routine_id: number;
   routine_name: string;
   number: number;

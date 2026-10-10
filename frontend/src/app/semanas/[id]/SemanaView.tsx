@@ -13,6 +13,8 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
   const [error, setError] = useState("");
   const [confirmando, setConfirmando] = useState(false);
   const [cerrando, setCerrando] = useState(false);
+  // Comentario opcional que se manda al cerrar y que la IA lee al armar la semana siguiente.
+  const [comentario, setComentario] = useState("");
 
   useEffect(() => {
     fetch(`${API}/weeks/${id}`)
@@ -27,9 +29,15 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
     setError("");
     setCerrando(true);
     try {
-      const res = await fetch(`${API}/weeks/${id}/close`, { method: "POST" });
+      const res = await fetch(`${API}/weeks/${id}/close`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ note: comentario.trim() || null }),
+      });
       if (!res.ok) throw new Error(await readError(res));
-      setSemana((s) => (s ? { ...s, status: "closed" } : s));
+      setSemana((s) =>
+        s ? { ...s, status: "closed", closing_note: comentario.trim() || null } : s,
+      );
       setConfirmando(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo conectar con el servidor");
@@ -78,6 +86,21 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
                   : "Completaste todos los días."}{" "}
                 ¿Cerrar la semana? No se puede deshacer.
               </p>
+              <p>
+                <label>
+                  ¿Cómo te sentiste esta semana? (opcional)
+                  <br />
+                  <textarea
+                    rows={4}
+                    maxLength={1000}
+                    value={comentario}
+                    disabled={cerrando}
+                    onChange={(e) => setComentario(e.target.value)}
+                    style={{ width: "100%" }}
+                  />
+                </label>
+                <small>La IA lo tiene en cuenta al armar la semana siguiente.</small>
+              </p>
               <button type="button" onClick={cerrar} disabled={cerrando}>
                 {cerrando ? "Cerrando..." : "Cerrar semana"}
               </button>{" "}
@@ -87,9 +110,17 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
             </div>
           )}
           {semana.status === "closed" && (
-            <p>
-              Semana cerrada. <Link href="/">Ir a la portada</Link> para generar la siguiente.
-            </p>
+            <>
+              {semana.closing_note && (
+                <>
+                  <h2>Cómo te sentiste esta semana</h2>
+                  <p style={{ whiteSpace: "pre-wrap" }}>{semana.closing_note}</p>
+                </>
+              )}
+              <p>
+                Semana cerrada. <Link href="/">Ir a la portada</Link> para generar la siguiente.
+              </p>
+            </>
           )}
         </>
       )}

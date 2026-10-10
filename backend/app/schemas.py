@@ -124,6 +124,12 @@ class RoutineDetailOut(BaseModel):
     weeks: list[WeekSummaryOut]  # de la más nueva a la más vieja
 
 
+class CloseWeekIn(BaseModel):
+    """Lo que el usuario puede escribir al cerrar la semana (opcional)."""
+
+    note: str | None = Field(default=None, max_length=1000)
+
+
 class WeekDetailOut(BaseModel):
     id: int
     routine_id: int
@@ -131,6 +137,7 @@ class WeekDetailOut(BaseModel):
     number: int
     status: str
     week_start: date
+    closing_note: str | None = None
     days: list[WeekDayItemOut]
 
 

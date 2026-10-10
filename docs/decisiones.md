@@ -228,6 +228,13 @@ El usuario no puede cambiar a mano el plan aceptado ni la propuesta de la IA. Lo
 - **Descartaste:** editar el plan a mano (series, repeticiones, peso, indicaciones, quitar un ejercicio; tarea #13) y retocar la propuesta antes de aceptarla.
 - **Ojo:** la única vía para cambiar el plan pasa a ser la IA, así que el ajuste (#29) gana importancia. Para que "muy cansador" quede registrado hacen falta el esfuerzo por serie (#48) y "cómo me sentí" (#46). La columna `plan_exercises.edited_by_user` no se usa y queda sin función (puede quitarse en una migración).
 
+### 36. Comentario escrito al cerrar la semana; cerrar con días sin marcar sigue permitido
+Al cerrar la semana el usuario puede escribir un comentario libre y opcional sobre cómo se sintió (solo texto). Queda fijo y la IA lo tiene en cuenta al armar la semana siguiente, como dato y no como instrucción. Un día que no se marcó como completado cuenta como no hecho; la semana se puede cerrar igual, con un aviso que nombra esos días.
+- **Origen:** tuya (pediste el comentario escrito al terminar la semana; propusiste primero impedir el cierre con días sin marcar y después lo revertiste: se cierra igual, cuenta como no hecho y avisa).
+- **Por qué:** *(completar)*
+- **Descartaste:** impedir el cierre con días sin completar (dejaría trabajado al usuario que no entrenó un día) y sumar botones rápidos o un estado "Salteado" (el día ya tiene sus botones en la nota de cómo me sentí, #46).
+- **Ojo:** es una columna nueva (`week_plans.closing_note`, migración 0014). Sigue vigente la decisión 7 de `modelo-datos.md` (la semana se cierra con días sin hacer).
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):

@@ -21,6 +21,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0011` ejercicios completados | Crea `exercise_completions`: qué ejercicios cerró el usuario con "Marcar como hecho" (quedan bloqueados hasta reabrirlos) | Implementada |
 | `0012` objetivo y nivel por semana | Agrega `week_plans.goal` y `level` (copiados del perfil) y quita `profiles.level`, `goal` y `equipment` | Implementada |
 | `0013` rutinas | Crea `routines` (nombre, objetivo y nivel); agrega `week_plans.routine_id` (obligatoria) y quita `week_plans.goal` y `level`, que pasan a la rutina. Una rutina por cada objetivo y nivel que ya existían | Implementada |
+| `0014` comentario al cerrar la semana | Agrega `week_plans.closing_note` (texto opcional, hasta 1.000 caracteres) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
 ## Diagrama
@@ -99,6 +100,7 @@ erDiagram
         int routine_id FK
         date week_start
         datetime closed_at
+        text closing_note
         string status
         string origin
         json original_routine
@@ -243,6 +245,7 @@ Un plan por semana. Las semanas anteriores se conservan como historial. La seman
 | routine_id | **Obligatorio.** La rutina a la que pertenece. El número de semana ("Semana 2") se calcula dentro de cada rutina, por orden de activación |
 | week_start | Cuándo el usuario activó la semana. No tiene que ser un lunes: la semana es un ciclo |
 | closed_at | Cuándo el usuario la cerró con el botón. Vacío mientras sigue abierta |
+| closing_note | Comentario libre y opcional del usuario al cerrar la semana (cómo se sintió). Queda fijo; la IA lo lee al armar la semana siguiente como dato del usuario |
 | status | `draft`, `active` o `closed` |
 | origin | `generated` (camino A) o `improved` (camino B) |
 | original_routine | JSON con la rutina que cargó el usuario; solo en el camino B |

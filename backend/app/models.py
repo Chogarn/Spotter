@@ -177,6 +177,8 @@ class WeekPlan(Base):
     week_start: Mapped[date] = mapped_column(Date)
     # Cuándo el usuario la cerró con el botón. Vacío mientras la semana sigue abierta.
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Comentario libre del usuario al cerrar la semana (cómo se sintió). Opcional y fijo después.
+    closing_note: Mapped[str | None] = mapped_column(Text)
     status: Mapped[PlanStatus] = mapped_column(
         enum_column(PlanStatus), default=PlanStatus.DRAFT, server_default="draft"
     )
