@@ -47,6 +47,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [ ] Nota de cómo me sentí al terminar la sesión (botones y texto). **Pospuesta**: decisión 37 `backend` `frontend` (#46)
 - [x] Comentario escrito del usuario al cerrar la semana (cómo se sintió), que la IA lee al armar la semana siguiente `backend` `ia` `frontend` (#50)
 - [ ] Esfuerzo por serie (1 a 10) al editar lo realizado. **Pospuesto**: decisión 37 `backend` `frontend` (#48)
+- [ ] Catálogo de ejercicios para la IA (RAG): la IA arma la semana solo con ejercicios de `backend/app/ai/exercises.json` (borrador de 84, ya subido). **Pendiente de una consulta al profesor** (si RAG implica vectores y qué se espera recuperar); no se construye antes `backend` `ia` (#52)
 - [ ] Semáforo de dolor (R31): zona y gravedad de 0 a 10 en la nota del día. **Pospuesto**: decisión 37; depende de #46 `backend` `frontend` `ia` (#51)
 - [ ] Elegir camino A o B al empezar: el nivel y el objetivo se eligen al generar y el camino A es "Generar rutina" (continuar o empezar una rutina nueva); falta la pantalla de elección `backend` `frontend` (#43)
 - [ ] Formulario de rutina actual (camino B): nombre, series × repeticiones, peso en kg, series desglosables, cardio con duración e indicaciones `frontend` (#44)
@@ -80,6 +81,7 @@ La definición completa de cada una está en su issue de GitHub.
 | Nota de cómo me sentí (#46) | Al tocar "Día completado" en la vista del día | Nada |
 | Esfuerzo por serie (#48), pospuesto | Campo opcional al tocar "Editar" en una serie | Nada |
 | Semáforo de dolor (#51), pospuesto | Zona y gravedad en la nota del día, al elegir "con dolor" | #46 |
+| Catálogo de ejercicios / RAG (#52), pendiente de consulta | Cambia cómo se arma la propuesta al tocar "Generar rutina"; no es una pantalla | Respuesta del profesor y revisión del catálogo |
 | Antes y después en las propuestas (#49) | En la vista previa de la propuesta (`/rutina/propuesta/{id}`) cuando es un ajuste o una semana nueva | Ajuste (#29) y semana nueva (#27) |
 | Elegir camino A o B (#43) | Pantalla `/empezar` desde la portada | #44 |
 | Formulario de rutina actual, camino B (#44) | Opción "Cargar la rutina que ya hago" | #43 |

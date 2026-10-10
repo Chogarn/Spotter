@@ -68,7 +68,7 @@ Ideas futuras (sin definir, no implementar): rachas, logros, entrada por voz y n
 
 1. **Las tareas ya están definidas con el estándar** de "Cómo trabajar acá" en sus issues de GitHub (el tablero se actualizó el 2026-10-09: se cerraron las hechas y se crearon #47 y #48). El resumen y las dependencias están en `docs/backlog.md`. Al terminar una tarea, hay que cerrar su issue con un comentario de qué se hizo y moverla a Done en el tablero (cambiando solo su estado, nunca las opciones del campo Status).
 2. **Siguiente construcción:** antes y después en las propuestas (#49), y, más adelante (S4), camino A o B (#43 y #44). El estado global (#17) se cerró como "no se hace por ahora".
-3. **Decisiones del usuario que faltan:** cuánto reducir el volumen en la semana liviana (R30), los avisos al usuario, el ajuste de ejercicios repetidos y dónde va el pedido de ajuste (puntos abiertos de `docs/flujo-app.md`).
+3. **Decisiones del usuario que faltan:** si el catálogo de ejercicios (#52, borrador en `backend/app/ai/exercises.json`, aún no conectado al prompt) va con búsqueda por vectores o por filtros — **pendiente de consultar al profesor**; además, cuánto reducir el volumen en la semana liviana (R30), los avisos al usuario, el ajuste de ejercicios repetidos y dónde va el pedido de ajuste (puntos abiertos de `docs/flujo-app.md`).
 4. **Completar los "(completar)"** de `docs/decisiones.md` (los "por qué" que solo puede escribir el usuario), incluidas las decisiones 27 a 33.
 5. **Más adelante:** que una persona con formación en educación física revise los criterios (decisión del usuario), y verificar con fuentes oficiales los planes gratuitos y límites de la plataforma de despliegue.
 
