@@ -50,8 +50,10 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [ ] Semáforo de dolor (R31): zona y gravedad de 0 a 10 en la nota del día. **Pospuesto**: decisión 37; depende de #46 `backend` `frontend` `ia` (#51)
 - [ ] Elegir camino A o B al empezar: el nivel y el objetivo se eligen al generar y el camino A es "Generar rutina" (continuar o empezar una rutina nueva); falta la pantalla de elección `backend` `frontend` (#43)
 - [ ] Formulario de rutina actual (camino B): nombre, series × repeticiones, peso en kg, series desglosables, cardio con duración e indicaciones `frontend` (#44)
-- [ ] Refactor y mejoras de UX `backend` `frontend` (#31)
+- [ ] Refactor y mejoras de UX: shadcn/ui y Tailwind en versión básica (sin estilos propios todavía), con componentes compartidos para el error y el recuadro de confirmación. Decisión 38; probado en una copia temporal `frontend` (#31)
 - [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs` (#32)
+
+> **Para la Semana 3 (con el login):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
 
 ## S5: Calidad y despliegue
 - [ ] Explicación por ejercicio ("¿por qué esto?") `ia` `complementaria`

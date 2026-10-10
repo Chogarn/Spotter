@@ -242,6 +242,13 @@ El esfuerzo del ejercicio (de 1 a 10 por serie, #48), la nota de cómo me sentí
 - **Descartaste (por ahora):** construir el esfuerzo, la nota del día y la escala de dolor en esta etapa.
 - **Ojo:** sin esfuerzo, la IA no distingue "cumplí fácil" de "cumplí al límite": R10 por esfuerzo y la semana liviana (R30) no tienen disparador. El dolor solo llega si el usuario lo escribe en el comentario, sin escala ni zona; R31 ("preguntar zona y gravedad") queda sin cumplirse del todo. La columna `set_entries.effort` y las columnas `workout_sessions.feeling` y `notes` ya existen y no se usan.
 
+### 38. La interfaz usa shadcn/ui, en versión básica; los estilos se ponen más adelante
+Los componentes de la interfaz (botones, recuadros de confirmación, campos, tarjetas) pasan a ser los de shadcn/ui con Tailwind CSS, en su tema neutro por defecto y sin diseño propio. El diseño visual (colores, tipografía, espaciados) se hace en una etapa posterior. Es la tarea #31.
+- **Origen:** tuya (querías shadcn desde el principio; pediste que fuera "algo bien básico ya que los estilos se los vamos a poner más adelante").
+- **Por qué:** *(completar)*
+- **Descartaste:** seguir con HTML plano y estilos en línea, y otras librerías de componentes (MUI, Mantine).
+- **Ojo:** shadcn **copia** el código de los componentes a `components/ui/` (queda en el repo y se mantiene a mano) y exige Tailwind, que cambia cómo se escriben los estilos. Probado en una copia temporal con Next 16.4 y React 19.3: compila sin errores. El estado global del frontend no se resuelve acá: va con el login de la Semana 3, usando Server Components de Next.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
