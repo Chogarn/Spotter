@@ -6,6 +6,11 @@ import { useEffect, useState } from "react";
 
 import { API, errorText } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 
 type Form = {
   name: string;
@@ -86,86 +91,72 @@ export default function PerfilPage() {
     <main style={{ maxWidth: 520, margin: "0 auto", padding: "2rem 1.5rem" }}>
       <h1>Tus datos</h1>
       <form onSubmit={guardar}>
-        <p>
-          <label>
-            Nombre
-            <br />
-            <input
-              value={form.name}
-              onChange={(e) => cambiar("name", e.target.value)}
-            />
-          </label>
-        </p>
-        <p>
-          <label>
-            Edad
-            <br />
-            <input
-              type="number"
-              value={form.age}
-              onChange={(e) => cambiar("age", e.target.value)}
-            />
-          </label>
-        </p>
-        <p>
-          <label>
-            Peso (kg)
-            <br />
-            <input
-              type="number"
-              step="0.1"
-              value={form.weight_kg}
-              onChange={(e) => cambiar("weight_kg", e.target.value)}
-            />
-          </label>
-        </p>
-        <p>
-          <label>
-            Altura (cm)
-            <br />
-            <input
-              type="number"
-              value={form.height_cm}
-              onChange={(e) => cambiar("height_cm", e.target.value)}
-            />
-          </label>
-        </p>
-        <p>
-          <label>
-            Sexo (opcional)
-            <br />
-            <select
-              value={form.sex}
-              onChange={(e) => cambiar("sex", e.target.value)}
-            >
-              <option value="">sin indicar</option>
-              <option value="masculino">masculino</option>
-              <option value="femenino">femenino</option>
-              <option value="otro">otro</option>
-            </select>
-          </label>
-        </p>
-        <p>
-          <label>
-            Lesiones o limitaciones (opcional)
-            <br />
-            <textarea
-              rows={3}
-              value={form.limitations}
-              onChange={(e) => cambiar("limitations", e.target.value)}
-            />
-          </label>
-        </p>
-        <p>
-          <label>
-            <input
-              type="checkbox"
-              checked={form.accept_legal_notice}
-              onChange={(e) => cambiar("accept_legal_notice", e.target.checked)}
-            />{" "}
-            Entiendo que la app no da consejo médico
-          </label>
-        </p>
+        <div className="mb-3 grid gap-1.5">
+          <Label htmlFor="name">Nombre</Label>
+          <Input
+            id="name"
+            value={form.name}
+            onChange={(e) => cambiar("name", e.target.value)}
+          />
+        </div>
+        <div className="mb-3 grid gap-1.5">
+          <Label htmlFor="age">Edad</Label>
+          <Input
+            id="age"
+            type="number"
+            value={form.age}
+            onChange={(e) => cambiar("age", e.target.value)}
+          />
+        </div>
+        <div className="mb-3 grid gap-1.5">
+          <Label htmlFor="weight_kg">Peso (kg)</Label>
+          <Input
+            id="weight_kg"
+            type="number"
+            step="0.1"
+            value={form.weight_kg}
+            onChange={(e) => cambiar("weight_kg", e.target.value)}
+          />
+        </div>
+        <div className="mb-3 grid gap-1.5">
+          <Label htmlFor="height_cm">Altura (cm)</Label>
+          <Input
+            id="height_cm"
+            type="number"
+            value={form.height_cm}
+            onChange={(e) => cambiar("height_cm", e.target.value)}
+          />
+        </div>
+        <div className="mb-3 grid gap-1.5">
+          <Label htmlFor="sex">Sexo (opcional)</Label>
+          <NativeSelect
+            id="sex"
+            value={form.sex}
+            onChange={(e) => cambiar("sex", e.target.value)}
+          >
+            <NativeSelectOption value="">sin indicar</NativeSelectOption>
+            <NativeSelectOption value="masculino">masculino</NativeSelectOption>
+            <NativeSelectOption value="femenino">femenino</NativeSelectOption>
+            <NativeSelectOption value="otro">otro</NativeSelectOption>
+          </NativeSelect>
+        </div>
+        <div className="mb-3 grid gap-1.5">
+          <Label htmlFor="limitations">Lesiones o limitaciones (opcional)</Label>
+          <Textarea
+            id="limitations"
+            rows={3}
+            value={form.limitations}
+            onChange={(e) => cambiar("limitations", e.target.value)}
+          />
+        </div>
+        <div className="mb-4 flex items-center gap-2">
+          <Checkbox
+            id="accept_legal_notice"
+            checked={form.accept_legal_notice}
+            onCheckedChange={(marcado) => cambiar("accept_legal_notice", marcado)}
+          />
+          <Label htmlFor="accept_legal_notice">Entiendo que la app no da consejo médico</Label>
+        </div>
         <Button type="submit">Guardar</Button>{" "}
         <Button nativeButton={false} render={<Link href="/" />}>Volver</Button>
       </form>

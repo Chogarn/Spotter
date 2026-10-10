@@ -14,6 +14,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const NIVELES = [
   ["principiante", "principiante"],
@@ -125,28 +127,20 @@ export function GenerarRutina({
           </AlertDialogHeader>
           {rutinas === null && <p>Cargando...</p>}
           {rutinas !== null && rutinas.length > 0 && (
-            <fieldset style={{ marginBottom: "1rem" }}>
+            <fieldset>
               <legend>¿Qué querés hacer?</legend>
-              {rutinas.map((r) => (
-                <label key={r.id} style={{ display: "block" }}>
-                  <input
-                    type="radio"
-                    name="eleccion"
-                    checked={eleccion === String(r.id)}
-                    onChange={() => setEleccion(String(r.id))}
-                  />{" "}
-                  Continuar «{r.name}»
-                </label>
-              ))}
-              <label style={{ display: "block" }}>
-                <input
-                  type="radio"
-                  name="eleccion"
-                  checked={eleccion === "nueva"}
-                  onChange={() => setEleccion("nueva")}
-                />{" "}
-                Empezar una rutina nueva
-              </label>
+              <RadioGroup value={eleccion} onValueChange={(v) => setEleccion(String(v))}>
+                {rutinas.map((r) => (
+                  <Label key={r.id} className="gap-2">
+                    <RadioGroupItem value={String(r.id)} />
+                    Continuar «{r.name}»
+                  </Label>
+                ))}
+                <Label className="gap-2">
+                  <RadioGroupItem value="nueva" />
+                  Empezar una rutina nueva
+                </Label>
+              </RadioGroup>
             </fieldset>
           )}
           {eleccion === "nueva" && (
@@ -197,14 +191,16 @@ function Opciones({
   onChange: (v: string) => void;
 }) {
   return (
-    <fieldset style={{ marginBottom: "1rem" }}>
+    <fieldset>
       <legend>{titulo}</legend>
-      {opciones.map(([v, etiqueta]) => (
-        <label key={v} style={{ marginRight: "1rem" }}>
-          <input type="radio" name={nombre} checked={valor === v} onChange={() => onChange(v)} />{" "}
-          {etiqueta}
-        </label>
-      ))}
+      <RadioGroup name={nombre} value={valor} onValueChange={(v) => onChange(String(v))}>
+        {opciones.map(([v, etiqueta]) => (
+          <Label key={v} className="gap-2">
+            <RadioGroupItem value={v} />
+            {etiqueta}
+          </Label>
+        ))}
+      </RadioGroup>
     </fieldset>
   );
 }

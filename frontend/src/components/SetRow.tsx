@@ -5,6 +5,7 @@ import { useState } from "react";
 import { API, readError, type ExerciseItem, type SetItem } from "@/lib/api";
 import { differsFromPlan, realAsSet, setText } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export type SetEdit = {
   weekId: number;
@@ -135,24 +136,24 @@ export function SetRow({
       <li>
         <small>
           Serie {index + 1} ·{" "}
-          <input
+          <Input
             aria-label={`Serie ${index + 1}: ${MEASURE[kind].label}`}
             type="number"
             min={1}
             value={medida}
             onChange={(e) => setMedida(e.target.value)}
-            style={{ width: "4.5rem" }}
+            className="inline-flex h-7 w-20"
           />{" "}
           {MEASURE[kind].unit}
           {kind === "strength" && (
             <>
               {" · "}
-              <input
+              <Input
                 aria-label={`Serie ${index + 1}: kilos`}
                 inputMode="decimal"
                 value={kilos}
                 onChange={(e) => setKilos(e.target.value)}
-                style={{ width: "4.5rem" }}
+                className="inline-flex h-7 w-20"
               />{" "}
               kg
             </>

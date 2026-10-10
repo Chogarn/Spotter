@@ -7,6 +7,7 @@ import { BackButton } from "@/components/BackButton";
 import { API, readError, type RoutineDetail } from "@/lib/api";
 import { goalText, shortDate, statusText } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function RutinaView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -61,11 +62,12 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
             </h1>
           ) : (
             <p>
-              <input
+              <Input
                 value={nombre}
                 maxLength={100}
                 aria-label="Nombre de la rutina"
                 onChange={(e) => setNombre(e.target.value)}
+                className="inline-flex w-72"
               />{" "}
               <Button type="button" onClick={guardarNombre} disabled={guardando || !nombre.trim()}>
                 Guardar
