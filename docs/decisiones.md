@@ -235,6 +235,13 @@ Al cerrar la semana el usuario puede escribir un comentario libre y opcional sob
 - **Descartaste:** impedir el cierre con días sin completar (dejaría trabajado al usuario que no entrenó un día) y sumar botones rápidos o un estado "Salteado" (el día ya tiene sus botones en la nota de cómo me sentí, #46).
 - **Ojo:** es una columna nueva (`week_plans.closing_note`, migración 0014). Sigue vigente la decisión 7 de `modelo-datos.md` (la semana se cierra con días sin hacer).
 
+### 37. El esfuerzo por serie y el semáforo de dolor se posponen
+El esfuerzo del ejercicio (de 1 a 10 por serie, #48), la nota de cómo me sentí del día (#46) y el semáforo de dolor con zona y gravedad (R31, #51) quedan **definidos pero sin construir**, para implementarlos más adelante. Por ahora la IA se apoya en lo que se hizo y lo que no, los cambios de peso y el comentario escrito al cerrar la semana (decisión 36).
+- **Origen:** tuya.
+- **Por qué:** "con lo de cerrar la semana, con lo que se hizo, no se hizo y los cambios de peso y eso ya es suficiente". *(completar el resto)*
+- **Descartaste (por ahora):** construir el esfuerzo, la nota del día y la escala de dolor en esta etapa.
+- **Ojo:** sin esfuerzo, la IA no distingue "cumplí fácil" de "cumplí al límite": R10 por esfuerzo y la semana liviana (R30) no tienen disparador. El dolor solo llega si el usuario lo escribe en el comentario, sin escala ni zona; R31 ("preguntar zona y gravedad") queda sin cumplirse del todo. La columna `set_entries.effort` y las columnas `workout_sessions.feeling` y `notes` ya existen y no se usan.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):

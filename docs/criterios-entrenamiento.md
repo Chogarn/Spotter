@@ -190,6 +190,7 @@ Estas dudas **no están resueltas** y no las decide la IA:
 - **Esfuerzo (R29):** la equivalencia entre "2 o 3 repeticiones en reserva" y un esfuerzo de 7 u 8 está aprobada como deducción, pero **sigue sin verificarse en la tabla original** de Zourdos 2016.
 - **Bajar la carga cuando el usuario no llega a las repeticiones (hueco encontrado el 2026-10-09):** R9, R10 y R28 solo cubren subir o no subir, y R31 baja la carga solo por dolor. No hay una regla aprobada de cuánto bajar. Mientras no se apruebe una (propuesta de R36: mantener, y bajar de 2 % a 10 % solo si no llega dos semanas seguidas con esfuerzo de 9 a 10, que requiere #48), el prompt de la semana nueva dice "mantener".
 - **Cada cuánto cambiar los ejercicios:** ninguna regla ni fuente lo define (el ACSM 2026 no encontró que la periodización sea claramente mejor). Por defecto se mantienen; solo cambian por dolor (R16 y R31) o por pedido del usuario.
+- **Sin esfuerzo registrado (decisión 37, 2026-10-10):** el esfuerzo por serie (#48) y la escala de dolor (#51) se posponen. Mientras tanto **R10 por esfuerzo y R30 (descarga por señales) no tienen disparador**, y R31 solo se aplica si el usuario escribe sobre dolor en el comentario al cerrar la semana, sin zona ni gravedad. La IA no puede "preguntar zona y gravedad".
 - **Cuánto reducir en la semana liviana (R30):** se mantiene la carga y se baja el volumen, pero no hay cifra (¿la mitad de las series, un porcentaje?). Sin respaldo en la evidencia; falta que lo definas.
 
 ### Reglas candidatas de cardio (resueltas)
