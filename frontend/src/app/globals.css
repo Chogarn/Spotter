@@ -22,26 +22,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+/*
+ * Tema claro fijo por ahora (los estilos propios y el modo oscuro vienen más adelante).
+ * Se quitaron el reinicio de márgenes y rellenos y el estilo de los enlaces que había acá:
+ * Tailwind ya los reinicia, y estas reglas sin capa le ganaban a las clases de los componentes
+ * (los botones y las tarjetas quedaban sin relleno, como texto plano).
+ */
+html {
+  color-scheme: light;
 }
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -169,6 +162,11 @@ a {
  * propio (decisión 38: los estilos van más adelante).
  */
 @layer base {
+  /* El cuerpo es una columna flex y cada pantalla se centra con margen automático: sin un ancho,
+     las tarjetas (que miden por su contenedor) la dejaban angosta. */
+  main {
+    width: 100%;
+  }
   h1 {
     font-size: 1.5rem;
     font-weight: 700;
@@ -192,7 +190,7 @@ a {
     padding-left: 1.5rem;
     margin: 0.5rem 0;
   }
-  a {
+  a:not([data-slot="button"]) {
     text-decoration: underline;
   }
   fieldset {

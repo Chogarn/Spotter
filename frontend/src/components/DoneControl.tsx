@@ -75,7 +75,7 @@ export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?:
       {puedeEditar && hecho && (
         <>
           {" "}
-          <Button type="button" onClick={() => llamar("POST", "reopen")} disabled={trabajando}>
+          <Button variant="outline" type="button" onClick={() => llamar("POST", "reopen")} disabled={trabajando}>
             Reabrir ejercicio
           </Button>
         </>
@@ -83,7 +83,7 @@ export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?:
       {puedeEditar && hechas > 0 && (
         <>
           {" "}
-          <Button type="button" onClick={deshacer} disabled={trabajando}>
+          <Button variant="outline" type="button" onClick={deshacer} disabled={trabajando}>
             Deshacer
           </Button>
         </>

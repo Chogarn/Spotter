@@ -63,7 +63,7 @@ export default function PropuestaView({
     return (
       <main style={contenedor}>
         <ErrorMessage>{error}</ErrorMessage>
-        <Button nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
+        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
       </main>
     );
   }
@@ -72,8 +72,8 @@ export default function PropuestaView({
     return (
       <main style={contenedor}>
         <p>Tu rutina quedó activa: {propuesta.routine.days.length} días.</p>
-        <Button nativeButton={false} render={<Link href="/rutinas" />}>Ver mis rutinas</Button>{" "}
-        <Button nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
+        <Button variant="outline" nativeButton={false} render={<Link href="/rutinas" />}>Ver mis rutinas</Button>{" "}
+        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
       </main>
     );
   }
@@ -82,7 +82,7 @@ export default function PropuestaView({
     return (
       <main style={contenedor}>
         <p>Esta propuesta ya fue resuelta.</p>
-        <Button nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
+        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
       </main>
     );
   }
@@ -154,7 +154,7 @@ export default function PropuestaView({
         <Button type="button" onClick={() => resolver("accept")} disabled={trabajando}>
           Aceptar rutina
         </Button>{" "}
-        <Button type="button" onClick={() => resolver("discard")} disabled={trabajando}>
+        <Button variant="outline" type="button" onClick={() => resolver("discard")} disabled={trabajando}>
           Descartar
         </Button>
       </p>

@@ -113,7 +113,7 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
               {completado ? (
                 <>
                   ✓ Día completado{" "}
-                  <Button type="button" onClick={() => cambiarDia("reopen")} disabled={trabajando}>
+                  <Button variant="outline" type="button" onClick={() => cambiarDia("reopen")} disabled={trabajando}>
                     Reabrir día
                   </Button>
                 </>

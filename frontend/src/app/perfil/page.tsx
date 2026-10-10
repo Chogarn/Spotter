@@ -159,7 +159,7 @@ export default function PerfilPage() {
           <Label htmlFor="accept_legal_notice">Entiendo que la app no da consejo médico</Label>
         </div>
         <Button type="submit">Guardar</Button>{" "}
-        <Button nativeButton={false} render={<Link href="/" />}>Volver</Button>
+        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Volver</Button>
       </form>
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </main>

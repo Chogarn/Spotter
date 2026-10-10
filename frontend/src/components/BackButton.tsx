@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 export function BackButton({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <p>
-      <Button nativeButton={false} render={<Link href={href} />}>{children}</Button>
+      <Button variant="outline" nativeButton={false} render={<Link href={href} />}>{children}</Button>
     </p>
   );
 }

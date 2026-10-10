@@ -59,7 +59,7 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
           {nombre === null ? (
             <h1>
               {rutina.name}{" "}
-              <Button type="button" onClick={() => setNombre(rutina.name)}>
+              <Button variant="outline" type="button" onClick={() => setNombre(rutina.name)}>
                 Cambiar nombre
               </Button>
             </h1>
@@ -75,7 +75,7 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
               <Button type="button" onClick={guardarNombre} disabled={guardando || !nombre.trim()}>
                 Guardar
               </Button>{" "}
-              <Button type="button" onClick={() => setNombre(null)} disabled={guardando}>
+              <Button variant="outline" type="button" onClick={() => setNombre(null)} disabled={guardando}>
                 Cancelar
               </Button>
             </p>

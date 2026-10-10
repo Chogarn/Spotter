@@ -162,7 +162,7 @@ export function SetRow({
           <Button type="button" onClick={guardar} disabled={guardando}>
             Guardar
           </Button>{" "}
-          <Button type="button" onClick={() => setEditando(false)} disabled={guardando}>
+          <Button variant="outline" type="button" onClick={() => setEditando(false)} disabled={guardando}>
             Cancelar
           </Button>
         </small>
@@ -197,7 +197,7 @@ export function SetRow({
             {real && (
               <>
                 {" "}
-                <Button type="button" onClick={desmarcar} disabled={marcando}>
+                <Button variant="outline" type="button" onClick={desmarcar} disabled={marcando}>
                   Desmarcar
                 </Button>
               </>
