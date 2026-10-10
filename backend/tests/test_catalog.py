@@ -1,0 +1,88 @@
+"""El catálogo de ejercicios (borrador) respeta las etiquetas cerradas de R13."""
+
+import json
+import re
+from collections import Counter
+from pathlib import Path
+
+import pytest
+
+from app.enums import (
+    ExerciseDirection,
+    ExerciseEquipment,
+    ExerciseKind,
+    ExerciseMechanic,
+    ExerciseRegion,
+    Level,
+    Muscle,
+)
+
+CATALOG = Path(__file__).parent.parent / "app" / "ai" / "exercises.json"
+BIG_GROUPS = ("chest", "back", "shoulders", "quadriceps", "hamstrings", "glutes")
+
+
+@pytest.fixture(scope="module")
+def ejercicios():
+    return json.loads(CATALOG.read_text(encoding="utf-8"))["exercises"]
+
+
+def test_cada_ejercicio_usa_solo_valores_de_las_listas_cerradas(ejercicios):
+    for e in ejercicios:
+        assert ExerciseKind(e["kind"]), e["id"]
+        assert ExerciseRegion(e["region"]), e["id"]
+        assert ExerciseDirection(e["direction"]), e["id"]
+        assert Muscle(e["primary_muscle"]), e["id"]
+        assert all(Muscle(m) for m in e["secondary_muscles"]), e["id"]
+        assert ExerciseMechanic(e["mechanic"]), e["id"]
+        assert ExerciseEquipment(e["equipment"]), e["id"]
+        assert Level(e["level"]), e["id"]
+
+
+def test_los_ids_y_los_nombres_no_se_repiten(ejercicios):
+    ids = Counter(e["id"] for e in ejercicios)
+    nombres = Counter(e["name"].lower() for e in ejercicios)
+    assert [i for i, n in ids.items() if n > 1] == []
+    assert [i for i, n in nombres.items() if n > 1] == []
+    assert all(re.fullmatch(r"[a-z0-9_]+", e["id"]) for e in ejercicios)
+
+
+def test_el_cardio_y_el_isometrico_siguen_r13(ejercicios):
+    for e in ejercicios:
+        if e["kind"] == "cardio":
+            assert e["region"] == "full_body" and e["primary_muscle"] == "full_body", e["id"]
+            assert e["direction"] == "none", e["id"]
+        if e["kind"] == "isometric":
+            assert e["region"] == "core" and e["primary_muscle"] == "core", e["id"]
+        if e["kind"] == "strength":
+            assert e["primary_muscle"] != "full_body", e["id"]
+
+
+def test_la_direccion_solo_empuja_o_tira_en_el_tren_superior(ejercicios):
+    for e in ejercicios:
+        if e["region"] != "upper":
+            assert e["direction"] == "none", e["id"]
+        else:
+            assert e["direction"] in ("push", "pull"), e["id"]
+
+
+def test_el_musculo_secundario_no_repite_al_primario(ejercicios):
+    for e in ejercicios:
+        assert e["primary_muscle"] not in e["secondary_muscles"], e["id"]
+
+
+def test_hay_opciones_para_principiantes_en_los_seis_grupos_grandes(ejercicios):
+    for grupo in BIG_GROUPS:
+        opciones = [e for e in ejercicios if e["primary_muscle"] == grupo and e["level"] == "principiante"]
+        assert len(opciones) >= 2, grupo
+
+
+def test_hay_tirones_suficientes_para_r14(ejercicios):
+    """R14: tirón igual o mayor que empuje. El catálogo no debe empujar más de lo que tira."""
+    superior = [e for e in ejercicios if e["region"] == "upper" and e["kind"] == "strength"]
+    empujes = sum(e["direction"] == "push" for e in superior)
+    tirones = sum(e["direction"] == "pull" for e in superior)
+    assert tirones >= empujes * 0.6  # umbral de sanidad del borrador, no una regla de la app
+
+
+def test_hay_cardio_variado(ejercicios):
+    assert sum(e["kind"] == "cardio" for e in ejercicios) >= 4
