@@ -70,6 +70,22 @@ Es historia: el ACSM 2026 la reemplaza.
 
 **Consecuencia para el producto:** la evidencia no dice que "perder grasa" requiera una rutina de fuerza distinta; lo que cambia es el **cardio** y la **alimentación**. **Decisión del estudiante (2026-10-08):** "perder grasa" es un objetivo con **más cardio y menos fuerza**, y la alimentación queda fuera de la app (se da por hecho que la persona la maneja). El cardio se planifica y se registra como un ejercicio con duración en minutos. La fuerza se mantiene al mínimo de R1 (al menos 2 días por semana). Los minutos exactos de cardio siguen **pendientes de aprobación** (ver más abajo).
 
+### ACSM 2026, series por ejercicio (leído en el texto completo el 2026-10-10)
+
+Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults* (PMC12965823), leído en la versión de Europe PMC porque PMC bloquea la consulta automática. Se leyeron unos 300.000 de ~337.000 caracteres (cuerpo y referencias); la lectura la hizo una herramienta que extrae y resume, así que **una cita textual en el trabajo conviene confirmarla en el PDF**.
+
+- **Más series ayudan:** subir las series por ejercicio mejora la fuerza y la hipertrofia; una serie supera a ninguna y dos superan a una.
+- **El número óptimo no se conoce:** los autores aclaran que no se puede determinar con exactitud.
+- **Meseta:** una metarregresión que citan muestra rendimientos decrecientes pasando **~2 a 3 series por ejercicio** para la fuerza y **~18 a 20 series semanales** para la hipertrofia.
+- **Recomendación de los autores (adultos sanos, en general):** hacer *"at least two sets per exercise"* (al menos dos series por ejercicio). No está dicha solo para el objetivo de fuerza.
+- **Más de dos:** pueden aportar un beneficio adicional, pero **los autores lo plantean como hipótesis** y suponen que disminuye con cada serie extra.
+- **Tabla de fuerza:** volumen de **2 a 3 series por sesión**, con cargas de 80 % del máximo o más y al comienzo de la sesión.
+- **Tabla de hipertrofia:** **10 o más series por semana por grupo muscular** (relación dosis-respuesta).
+- **Guías anteriores (2009):** recomendaban **1 a 4 series por ejercicio**; el artículo lo cita como lo que está actualizando.
+- **Principiantes:** no da un número de series específico para novatos.
+
+**Lo que NO dice:** que haya que hacer 3 a 4 series por ejercicio. Ni "3 a 4" ni "siempre" figuran en el texto. Elegir 3 o 4 series es una decisión de producto del estudiante, no un resultado de la fuente.
+
 ## Sigue pendiente
 
 - **Texto completo del ACSM 2009:** solo se leyó el resumen oficial; el artículo completo es de pago. Para PubMed no se pudo usar (pide cookies), se usó Europe PMC.
@@ -167,7 +183,7 @@ Las cifras de R24 y R25 son una **interpolación** del informe de investigación
 
 | # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
 |---|---|---|---|---|---|
-| R24 | **Mantenerse activo:** 2 sesiones de fuerza, 1 a 2 series por ejercicio, 4 a 6 series semanales por grupo grande, y aeróbico de 150 minutos moderados | Síntesis del investigador | OMS 2020 (el piso de 2 días y 150 min); el resto es interpolación. Certeza baja-moderada | Código | Crear |
+| R24 | **Mantenerse activo:** 2 sesiones de fuerza, **2 series por ejercicio**, 4 a 6 series semanales por grupo grande, y aeróbico de 150 minutos moderados. *(Modificada 2026-10-10: el piso de series pasó de 1 a 2 porque el ACSM 2026 recomienda al menos 2 por ejercicio; el tope de 2 se mantiene)* | Síntesis del investigador | OMS 2020 (el piso de 2 días y 150 min) y ACSM 2026 (al menos 2 series por ejercicio); el resto es interpolación. Certeza baja-moderada | Código | Crear |
 | R25 | **Condición general:** 2 a 3 sesiones de fuerza, 2 a 3 series por ejercicio, 6 a 10 series semanales por grupo grande, y aeróbico de 150 a 300 minutos | Síntesis del investigador | OMS 2020 y ACSM 2026 (2 a 3 series por ejercicio); el resto es interpolación. Certeza baja-moderada | Código | Crear |
 | R26 | **Movilidad y equilibrio:** 2 veces por semana, de 5 a 10 minutos, indicados como **texto** en el día (`mobility_notes`), sin series ni tilde | Convención | ACSM 2011 (resumen): flexibilidad 2 o más días y equilibrio 2 a 3 días. Certeza baja | Gemini | Crear |
 

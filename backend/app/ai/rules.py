@@ -173,7 +173,8 @@ def _volume_warnings(routine, goal, n_strength, total_cardio, sets_by_muscle, wa
 
     def per_exercise(rule: str, low: int, high: int) -> None:
         if any(not low <= n <= high for n in strength_sets):
-            warn(rule, f"Cada ejercicio de fuerza debería tener entre {low} y {high} series.")
+            rango = f"{low}" if low == high else f"entre {low} y {high}"
+            warn(rule, f"Cada ejercicio de fuerza debería tener {rango} series.")
 
     def per_group(rule: str, low: float, high: float) -> None:
         for muscle in BIG_GROUPS:
@@ -190,7 +191,7 @@ def _volume_warnings(routine, goal, n_strength, total_cardio, sets_by_muscle, wa
     elif goal == Goal.MANTENERME_ACTIVO:
         if n_strength != 2:
             warn("R24", f"Son 2 sesiones de fuerza y la rutina trae {n_strength}.")
-        per_exercise("R24", 1, 2)
+        per_exercise("R24", 2, 2)  # el ACSM 2026 pide al menos 2 series por ejercicio
         per_group("R24", 4, 6)
         if total_cardio < 150:
             warn("R24", f"El aeróbico debería ser de 150 min por semana y trae {total_cardio}.")

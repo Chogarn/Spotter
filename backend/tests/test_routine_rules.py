@@ -254,6 +254,16 @@ def test_r24_mantenerme_activo_avisa_sin_cardio():
     assert "R24" in reglas(result, "warnings")
 
 
+def test_r24_pide_al_menos_2_series_por_ejercicio():
+    una = validate_routine(rutina(sets=1), Goal.MANTENERME_ACTIVO, Level.PRINCIPIANTE)
+    dos = validate_routine(rutina(sets=2), Goal.MANTENERME_ACTIVO, Level.PRINCIPIANTE)
+    tres = validate_routine(rutina(sets=3), Goal.MANTENERME_ACTIVO, Level.PRINCIPIANTE)
+    avisa = lambda r: any("series." in w.message and w.rule == "R24" for w in r.warnings)  # noqa: E731
+    assert avisa(una)
+    assert not avisa(dos)
+    assert avisa(tres)
+
+
 def test_r25_condicion_general_avisa_si_falta_aerobico():
     result = validate_routine(rutina(sets=3), Goal.CONDICION_GENERAL, Level.PRINCIPIANTE)
     assert "R25" in reglas(result, "warnings")
