@@ -77,8 +77,8 @@ La definición completa de cada una está en su issue de GitHub.
 | Tarea | Dónde se accede | Depende de |
 |---|---|---|
 | ~~Cerrar semana (#47)~~ | Hecho: botón en la pantalla de la semana activa, con aviso de los días sin completar | — |
-| Generar semana nueva (#27) | Botón "Generar rutina" en la portada (ubicación decidida). El botón y el recuadro de continuar/empezar ya existen; falta que la IA lea lo real de la semana cerrada | #47 (hecha) |
-| Nota de cómo me sentí (#46) | Al tocar "Día completado" en la vista del día | Nada |
+| ~~Generar semana nueva (#27)~~ | Hecho: al continuar una rutina desde "Generar rutina", la IA lee lo real de la última semana cerrada. Probada con Gemini real | — |
+| Nota de cómo me sentí (#46), pospuesta | Al tocar "Día completado" en la vista del día | Nada |
 | Esfuerzo por serie (#48), pospuesto | Campo opcional al tocar "Editar" en una serie | Nada |
 | Semáforo de dolor (#51), pospuesto | Zona y gravedad en la nota del día, al elegir "con dolor" | #46 |
 | Catálogo de ejercicios / RAG (#52), pendiente de consulta | Cambia cómo se arma la propuesta al tocar "Generar rutina"; no es una pantalla | Respuesta del profesor y revisión del catálogo |
@@ -87,7 +87,7 @@ La definición completa de cada una está en su issue de GitHub.
 | Formulario de rutina actual, camino B (#44) | Opción "Cargar la rutina que ya hago" | #43 |
 | ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con el ajuste (#29) | — |
 
-**Decisiones pendientes del usuario:** cuánto reducir el volumen en la semana liviana (R30), los avisos al usuario, el ajuste de ejercicios repetidos y dónde va el pedido de ajuste. (Resueltos: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
+**Decisiones pendientes del usuario:** cuántas series por ejercicio (hoy se admiten 2; quiere "3 a 4": opciones A, B o C), si R20, R24 y R25 comparan contra series directas solas o con indirectas, aprobar R5b (músculo secundario), la consulta al profesor sobre el catálogo y los vectores (#52), cuánto reducir el volumen en la semana liviana (R30), los avisos al usuario, el ajuste de ejercicios repetidos y dónde va el pedido de ajuste. (Resueltos: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
 
 ## Ideas para después (fuera del MVP, sin definir)
 

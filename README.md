@@ -35,8 +35,12 @@ El proyecto se construye por etapas. Hoy funciona, con registro e inicio de sesi
 - **Mis rutinas:** las rutinas (con nombre automático que se puede cambiar), las semanas de cada una, sus días y los ejercicios de cada día, con las series desplegables.
 - **Cerrar semana:** botón en la semana activa, con aviso de los días sin completar (sin IA).
 - **Registro del día:** editar lo realizado por serie, marcar series y ejercicios como hechos (un ejercicio hecho queda bloqueado hasta reabrirlo) y **Día completado** (que también se puede reabrir).
+- **Semana nueva:** al continuar una rutina, la IA lee lo planificado frente a lo real de la última semana cerrada (con una señal por ejercicio: superó, cumplió, no llegó) y propone la siguiente con un resumen; sube la carga si superaste las repeticiones y la mantiene si no llegaste.
+- **Cerrar semana con un comentario** escrito (opcional) sobre cómo te sentiste, que la IA tiene en cuenta; y **ver la propuesta pendiente** desde la portada.
+- **Cuenta y sesión:** registro e inicio de sesión con cookie `httpOnly` (JWT de 7 días) y contraseñas con hash argon2; sin sesión, todas las pantallas llevan a `/login`.
+- **Interfaz** con shadcn/ui y Tailwind en versión básica (los estilos propios vienen más adelante).
 
-Todavía no están: cargar la rutina propia (camino B), generar la semana siguiente leyendo lo real (hoy "Generar rutina" no mira la semana cerrada), el ajuste conversando, la nota de cómo me sentí y el esfuerzo por serie. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
+Todavía no están: cargar la rutina propia (camino B), el ajuste conversando, y, pospuestos por decisión del proyecto, la nota de cómo me sentí, el esfuerzo por serie y el semáforo de dolor. El catálogo de ejercicios para la IA (hoy un borrador de 84 en `backend/app/ai/exercises.json`, sin conectar) espera una consulta. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
 ## Funcionalidades
 
@@ -44,13 +48,13 @@ Todavía no están: cargar la rutina propia (camino B), generar la semana siguie
 - Registro e inicio de sesión (JWT).
 - Perfil con datos personales y aviso legal; nivel y objetivo se eligen al empezar cada rutina.
 - Rutinas semanales organizadas en días y ejercicios, con series desglosables (cada serie con sus repeticiones y su peso), indicaciones de ejecución. El plan no se edita a mano; el usuario edita lo realizado. El cardio es un ejercicio más, medido en minutos.
-- Registro de sesiones: lo realizado frente a lo planificado, con esfuerzo del 1 al 10 y una nota de cómo se sintió.
+- Registro de sesiones: lo realizado frente a lo planificado, serie por serie. *(El esfuerzo del 1 al 10 y la nota de cómo se sintió el día están definidos pero pospuestos.)*
 
 ### Valor de la IA
 La IA trabaja sobre los datos del usuario y siempre **propone**: el usuario ve una vista previa de los cambios y los acepta o los descarta. No es un chat genérico.
 
 1. **Primera rutina o mejora de la existente**, según el objetivo.
-2. **Cierre de semana:** analiza el historial y devuelve qué subir, qué mantener, qué cambiar por estancamiento y dónde hay fatiga, y propone la semana siguiente con un resumen de evolución.
+2. **Cierre de semana:** analiza lo planificado frente a lo real de la semana anterior y propone la siguiente con un resumen de evolución. *(Hoy sube la carga o la mantiene según lo que hiciste; detectar fatiga necesita el esfuerzo por serie, que está pospuesto.)*
 3. **Ajuste conversando:** "no tengo esa máquina", "me molesta el hombro". La IA propone una versión modificada de la semana.
 4. **Explicación por ejercicio:** botón "¿por qué esto?" con la razón basada en los números del usuario.
 5. **Sustitución:** el usuario rechaza un ejercicio y elige entre 2 alternativas propuestas por la IA.
@@ -67,7 +71,8 @@ Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal 
 | SQLAlchemy | Trabajar con la base de datos usando clases de Python |
 | PostgreSQL | Base de datos relacional |
 | Alembic | Migraciones: versiona los cambios de estructura de la base de datos |
-| JWT | Autenticación de usuarios |
+| JWT + argon2 | Sesión en una cookie `httpOnly` (JWT de 7 días) y contraseñas con hash |
+| shadcn/ui + Tailwind CSS | Componentes de la interfaz (versión básica) |
 | Next.js + TypeScript | Frontend |
 | pytest | Tests automáticos del backend |
 | Docker Compose | Entornos de desarrollo y producción en contenedores |
@@ -78,8 +83,9 @@ Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal 
 ```
 spotter/
 ├── backend/
-│   ├── app/                  # API: main.py, db.py, deps.py, enums.py, models.py, schemas.py
-│   │   ├── routers/          # Endpoints: profile, proposals, routines y weeks
+│   ├── app/                  # API: main.py, db.py, deps.py, security.py, enums.py, models.py, schemas.py
+│   │   ├── routers/          # Endpoints: auth, profile, proposals, routines y weeks
+│   │   ├── scripts/          # Tareas de una sola vez (reclamar el usuario de desarrollo)
 │   │   └── ai/               # IA: Gemini con topes, formato y reglas de la rutina, prompt
 │   ├── migrations/           # Migraciones de Alembic
 │   ├── tests/                # Tests con pytest (no llaman a Gemini de verdad)
@@ -88,9 +94,10 @@ spotter/
 │   ├── requirements.txt      # Dependencias de producción
 │   └── requirements-dev.txt  # Dependencias de desarrollo (pytest)
 ├── frontend/
-│   ├── src/app/              # Páginas (Next.js, App Router): portada, perfil, propuesta, rutinas y semanas
-│   ├── src/components/       # Componentes compartidos (fila de ejercicio, serie, botón de volver)
-│   ├── src/lib/              # Tipos de la API y funciones de formato
+│   ├── src/app/              # Páginas (Next.js, App Router): portada, login, registro, perfil, propuesta, rutinas y semanas
+│   ├── src/components/       # Componentes compartidos (fila de ejercicio, serie, errores) y ui/ (shadcn)
+│   ├── src/lib/              # Tipos de la API, apiFetch (sesión) y funciones de formato
+│   ├── src/proxy.ts          # Redirige a /login si no hay sesión
 │   ├── Dockerfile            # Imagen de desarrollo
 │   └── Dockerfile.prod       # Imagen de producción
 ├── docs/                     # Flujo, modelo de datos y backlog
@@ -140,6 +147,8 @@ En desarrollo las migraciones **no se aplican solas**: se corren a mano para no 
 ### Variables de entorno
 
 Para levantar la app y usar el perfil, Mis rutinas y el registro del día alcanzan los valores por defecto. Para **Generar rutina** hace falta la IA: copiá `.env.example` a `.env` y completá `GEMINI_API_KEY` (una clave del plan gratuito, de preferencia en un proyecto propio de Google AI Studio, porque los límites son por proyecto), `GEMINI_MODEL` y los topes `GEMINI_DAILY_LIMIT` y `GEMINI_RPM_LIMIT`. No hay valores por defecto a propósito: si falta alguno, la app se niega a llamar a Gemini. El archivo `.env` no se sube al repositorio.
+
+**Cuenta y sesión.** La API exige sesión (excepto `/health` y `/auth/*`): creá tu cuenta en `/registro` e iniciá sesión en `/login`. `JWT_SECRET` firma la sesión (sin valor por defecto en producción; usá 32 caracteres o más) y `COOKIE_SECURE=true` hace que la cookie solo viaje por HTTPS. Si ya tenías datos del desarrollo previo al login, `docker compose -f docker-compose.dev.yml exec backend python -m app.scripts.claim_user` convierte el usuario de desarrollo en tu cuenta (una sola vez; la contraseña la escribís por teclado).
 
 El `.env` se lee al **crear** el contenedor: después de cambiarlo, corré `docker compose -f docker-compose.dev.yml up -d backend` (reiniciar no alcanza).
 
