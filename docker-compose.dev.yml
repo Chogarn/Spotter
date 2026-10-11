@@ -25,6 +25,7 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-spotter}:${POSTGRES_PASSWORD:-spotter_dev}@db:5432/${POSTGRES_DB:-spotter}
       JWT_SECRET: ${JWT_SECRET:-solo-para-desarrollo-local}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-}
       GEMINI_DAILY_LIMIT: ${GEMINI_DAILY_LIMIT:-}

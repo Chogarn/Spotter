@@ -40,6 +40,8 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-spotter}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-spotter}
       JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el archivo .env}
+      # true cuando se sirve por HTTPS: la cookie de sesión viaja solo cifrada.
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-}
       GEMINI_DAILY_LIMIT: ${GEMINI_DAILY_LIMIT:-}

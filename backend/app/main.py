@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import profile, proposals, routines, weeks
+from app.routers import auth, profile, proposals, routines, weeks
 
 app = FastAPI(title="Spotter API")
 
@@ -11,10 +11,12 @@ app = FastAPI(title="Spotter API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.environ.get("CORS_ORIGINS", "http://localhost:3001").split(","),
+    allow_credentials=True,  # la sesión viaja en una cookie
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(profile.router)
 app.include_router(proposals.router)
 app.include_router(routines.router)

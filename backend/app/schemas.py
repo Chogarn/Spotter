@@ -1,13 +1,55 @@
 """Esquemas de Pydantic: lo que entra y sale de la API."""
 
+import re
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.ai.routine import RoutineProposal
 from app.enums import Goal, Level
+
+
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+def _clean_email(value: str) -> str:
+    email = value.strip().lower()
+    if not EMAIL_RE.match(email) or len(email) > 255:
+        raise ValueError("El email no es válido")
+    return email
+
+
+class RegisterIn(BaseModel):
+    email: str
+    password: str = Field(min_length=8, max_length=128)
+    name: str = Field(min_length=1, max_length=100)
+
+    _email = field_validator("email")(_clean_email)
+
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("El nombre no puede estar vacío")
+        return value
+
+
+class LoginIn(BaseModel):
+    email: str
+    password: str = Field(min_length=1, max_length=128)
+
+    _email = field_validator("email")(_clean_email)
+
+
+class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: str
+    name: str
 
 
 class ProfileIn(BaseModel):

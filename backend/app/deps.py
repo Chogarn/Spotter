@@ -1,28 +1,26 @@
 """Dependencias compartidas de la API."""
 
-from fastapi import Depends
-from sqlalchemy import select
+from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import User
+from app.security import COOKIE_NAME, SessionConfigError, read_token
 
+# Solo lo usan los tests: el usuario que inyectan en lugar de iniciar sesión.
 DEV_USER_EMAIL = "dev@spotter.local"
 
 
-def get_current_user(db: Session = Depends(get_db)) -> User:
-    """Devuelve el usuario de desarrollo (se crea la primera vez).
-
-    Todavía no hay login: en la semana 3 se reemplaza SOLO esta función por la que
-    lee el JWT, y el resto de los endpoints no cambia.
-    """
-    user = db.scalar(select(User).where(User.email == DEV_USER_EMAIL))
+def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
+    """El usuario de la sesión (cookie httpOnly con el JWT). 401 si no hay sesión válida."""
+    token = request.cookies.get(COOKIE_NAME)
+    if not token:
+        raise HTTPException(status_code=401, detail="Iniciá sesión para continuar")
+    try:
+        user_id = read_token(token)
+    except SessionConfigError:
+        raise HTTPException(status_code=503, detail="La sesión no está configurada") from None
+    user = db.get(User, user_id) if user_id is not None else None
     if user is None:
-        user = User(
-            email=DEV_USER_EMAIL,
-            password_hash="sin-login",
-            name="Usuario de desarrollo",
-        )
-        db.add(user)
-        db.commit()
+        raise HTTPException(status_code=401, detail="Tu sesión venció: iniciá sesión de nuevo")
     return user
