@@ -28,7 +28,7 @@ El cierre es siempre manual: nada se genera solo por fecha.
 
 ## Estado actual
 
-El proyecto se construye por etapas. Hoy funciona, con un usuario de desarrollo (todavía no hay login):
+El proyecto se construye por etapas. Hoy funciona, con registro e inicio de sesión:
 
 - **Perfil** (datos personales y aviso legal).
 - **Generar rutina** (camino A), desde la portada: se elige continuar una rutina o empezar una nueva (nivel y objetivo), con Cancelar. Gemini arma la semana, con vista previa y avisos; el usuario acepta o descarta, y solo al aceptar se escribe en el plan (y se crea la rutina nueva).
@@ -36,7 +36,7 @@ El proyecto se construye por etapas. Hoy funciona, con un usuario de desarrollo 
 - **Cerrar semana:** botón en la semana activa, con aviso de los días sin completar (sin IA).
 - **Registro del día:** editar lo realizado por serie, marcar series y ejercicios como hechos (un ejercicio hecho queda bloqueado hasta reabrirlo) y **Día completado** (que también se puede reabrir).
 
-Todavía no están: registro e inicio de sesión (semana 3), cargar la rutina propia (camino B), generar la semana siguiente leyendo lo real (hoy "Generar rutina" no mira la semana cerrada), el ajuste conversando, la nota de cómo me sentí y el esfuerzo por serie. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
+Todavía no están: cargar la rutina propia (camino B), generar la semana siguiente leyendo lo real (hoy "Generar rutina" no mira la semana cerrada), el ajuste conversando, la nota de cómo me sentí y el esfuerzo por serie. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
 ## Funcionalidades
 

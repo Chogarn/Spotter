@@ -206,7 +206,7 @@ Como el cierre es una acción del usuario, el gasto en IA es predecible: una lla
 
 ## Pantallas
 
-1. Registro e inicio de sesión
+1. Registro e inicio de sesión (`/registro` y `/login`; sin sesión, cualquier otra pantalla redirige a `/login`)
 2. Datos del usuario
 3. Elegir qué hacer al generar: continuar una rutina o empezar una nueva (nivel y objetivo)
 4. Elegir camino A o B

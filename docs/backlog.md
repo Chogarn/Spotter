@@ -28,12 +28,12 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [ ] Publicación LinkedIn 2: primer avance con capturas `docs` (#19)
 
 ## S3: Autenticación
-- [ ] Registro de usuario `backend`
-- [ ] Login con JWT `backend`
-- [ ] Proteger rutas del backend `backend`
-- [ ] Pantallas de registro e inicio de sesión `frontend`
-- [ ] Rutas protegidas en el frontend `frontend`
-- [ ] Tests básicos con pytest (auth y rutinas) `backend`
+- [x] Registro de usuario `backend` (#20)
+- [x] Login con JWT: cookie httpOnly de 7 días, `/auth/login`, `/auth/logout` y `/auth/me` `backend` (#21)
+- [x] Proteger rutas del backend: `get_current_user` lee la cookie y da 401 `backend` (#22)
+- [x] Pantallas de registro e inicio de sesión `frontend` (#23)
+- [x] Rutas protegidas en el frontend: `proxy.ts`, `apiFetch` y Cerrar sesión `frontend` (#24)
+- [x] Tests básicos con pytest (auth y rutinas): 23 de autenticación y 8 del script de reclamo `backend` (#25)
 
 ## S4: IA, complementos y mejoras
 - [x] Prompt y respuesta en JSON validada con Pydantic, para la primera rutina `ia` `backend` (#26). El prompt de la semana siguiente va en #27
@@ -54,7 +54,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Refactor y mejoras de UX: shadcn/ui y Tailwind en versión básica (sin estilos propios todavía), con componentes compartidos para el error y el recuadro de confirmación. Decisión 38; probado en una copia temporal `frontend` (#31)
 - [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs` (#32)
 
-> **Para la Semana 3 (con el login):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
+> **Para la Semana 4 (idea, sin definir):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
 
 ## S5: Calidad y despliegue
 - [ ] Explicación por ejercicio ("¿por qué esto?") `ia` `complementaria`

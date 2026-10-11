@@ -189,7 +189,7 @@ Cuenta del usuario.
 |---|---|
 | id | Clave primaria |
 | email | Único |
-| password_hash | Contraseña con hash, nunca en texto plano |
+| password_hash | Hash argon2 de la contraseña, nunca en texto plano (la cuenta de desarrollo anterior al login tenía un texto de relleno, `sin-login`, que no permite iniciar sesión) |
 | name | Nombre |
 | created_at | Fecha de alta |
 

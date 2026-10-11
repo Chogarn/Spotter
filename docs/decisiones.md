@@ -249,6 +249,13 @@ Los componentes de la interfaz (botones, recuadros de confirmación, campos, tar
 - **Descartaste:** seguir con HTML plano y estilos en línea, y otras librerías de componentes (MUI, Mantine).
 - **Ojo:** shadcn **copia** el código de los componentes a `components/ui/` (queda en el repo y se mantiene a mano) y exige Tailwind, que cambia cómo se escriben los estilos. Probado en una copia temporal con Next 16.4 y React 19.3: compila sin errores. El estado global del frontend no se resuelve acá: va con el login de la Semana 3, usando Server Components de Next.
 
+### 39. La sesión va en una cookie httpOnly con un JWT de 7 días, y el usuario de desarrollo se reclama
+El inicio de sesión usa un JWT firmado con `JWT_SECRET` que el backend guarda en una cookie `httpOnly`, así el JavaScript de la página no puede leerlo. Dura 7 días y no hay refresco; cerrar sesión borra la cookie. Las contraseñas se guardan con hash argon2 (mínimo 8 caracteres) y no hay verificación de email ni recuperación de contraseña. El usuario de desarrollo que existía antes del login no se descarta: un script de una sola vez le pone email, nombre y contraseña reales, sin cambiar su id, para conservar su perfil y las filas de `ai_calls` (que no se pueden borrar).
+- **Origen:** elegida entre opciones (la IA mostró las alternativas y recomendó esta; aceptaste las recomendaciones).
+- **Por qué:** *(completar)*
+- **Descartaste:** guardar el token en `localStorage` (queda expuesto a scripts y la protección de rutas solo podría hacerse del lado del cliente), una sesión con refresco (más código para un MVP) y registrarte de cero dejando el usuario de desarrollo sin uso.
+- **Ojo:** la cookie la lee el servidor de Next (`proxy.ts`), así que en producción el frontend y la API deben estar en el mismo sitio. El `proxy.ts` solo comprueba que haya cookie; la validez real la decide la API. Pasar la lectura de datos a Server Components de Next quedó para la Semana 4: hoy las pantallas siguen pidiendo los datos desde el navegador, con `credentials: "include"`.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
@@ -258,7 +265,7 @@ Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
 - Ajuste de ejercicios repetidos en la semana: ¿lo hace la IA o una regla simple?
 - Dónde va el pedido de ajuste: dentro de la pantalla de la semana o en un chat aparte.
 
-Ya resueltas: **el plan no se edita a mano** (decisión 35); los **botones Cerrar semana y Generar** (cerrar en la semana activa con aviso de los días sin completar, generar en la portada); el **login** se deja para la semana 3 (el tutor lo indicó) y mientras tanto hay un usuario de desarrollo fijo; **reabrir un día completado** se puede (decisión 33 y "Reabrir día"); la confirmación al cerrar con días sin hacer queda definida en la tarea #47.
+Ya resueltas: **el plan no se edita a mano** (decisión 35); los **botones Cerrar semana y Generar** (cerrar en la semana activa con aviso de los días sin completar, generar en la portada); el **login** se hizo en la semana 3 (decisión 39); **reabrir un día completado** se puede (decisión 33 y "Reabrir día"); la confirmación al cerrar con días sin hacer queda definida en la tarea #47.
 
 ## Ideas futuras
 
