@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { API, readError, type ExerciseItem, type SetItem } from "@/lib/api";
+import { readError, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
 import { differsFromPlan, realAsSet, setText } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,8 +51,7 @@ export function SetRow({
     setMarcando(true);
     setError("");
     try {
-      const res = await fetch(
-        `${API}/weeks/${edit.weekId}/days/${edit.dayIndex}/sets/${set.id}/done`,
+      const res = await apiFetch(`/weeks/${edit.weekId}/days/${edit.dayIndex}/sets/${set.id}/done`,
         { method },
       );
       if (res.ok) edit.onSaved(await res.json());
@@ -112,8 +111,7 @@ export function SetRow({
     setGuardando(true);
     setError("");
     try {
-      const res = await fetch(
-        `${API}/weeks/${edit.weekId}/days/${edit.dayIndex}/sets/${set.id}`,
+      const res = await apiFetch(`/weeks/${edit.weekId}/days/${edit.dayIndex}/sets/${set.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

@@ -1,5 +1,21 @@
 export const API = process.env.NEXT_PUBLIC_API_URL;
 
+// Todas las llamadas a la API pasan por acá: mandan la cookie de sesión (httpOnly) y, si la sesión
+// no es válida (401), la cierran y llevan a /login. Las de /auth/ las maneja cada pantalla.
+export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const res = await fetch(`${API}${path}`, { ...init, credentials: "include" });
+  if (res.status === 401 && typeof window !== "undefined" && !path.startsWith("/auth/")) {
+    // Borra la cookie vieja (si no, el proxy la vería y /login rebotaría a la portada).
+    await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" }).catch(() => {});
+    // Navegación completa a propósito: reinicia el estado de todas las pantallas abiertas.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.href = "/login";
+  }
+  return res;
+}
+
+export type SessionUser = { id: number; email: string; name: string };
+
 // Lo que devuelve la API (ver backend/app/schemas.py y backend/app/ai/routine.py).
 // Lo que el usuario realmente hizo en una serie (peso en `weight_kg`).
 export type RealSet = {

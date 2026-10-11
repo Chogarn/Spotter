@@ -4,7 +4,7 @@ import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
-import { API, readError, type RoutineDetail } from "@/lib/api";
+import { readError, type RoutineDetail, apiFetch } from "@/lib/api";
 import { goalText, shortDate, statusText } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,7 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
   const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/routines/${id}`)
+    apiFetch(`/routines/${id}`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await readError(res));
         setRutina(await res.json());
@@ -34,7 +34,7 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
     setError("");
     setGuardando(true);
     try {
-      const res = await fetch(`${API}/routines/${id}`, {
+      const res = await apiFetch(`/routines/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: nombre }),

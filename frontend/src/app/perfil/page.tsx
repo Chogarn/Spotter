@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { API, errorText } from "@/lib/api";
+import { errorText, apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -40,7 +40,7 @@ export default function PerfilPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`${API}/profile`)
+    apiFetch(`/profile`)
       .then(async (res) => {
         if (res.status === 404) return; // todavía no hay perfil: formulario vacío
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
@@ -66,7 +66,7 @@ export default function PerfilPage() {
   async function guardar(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    const res = await fetch(`${API}/profile`, {
+    const res = await apiFetch(`/profile`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
-import { API, readError, type WeekDetail } from "@/lib/api";
+import { readError, type WeekDetail, apiFetch } from "@/lib/api";
 import { dayStateText, statusText } from "@/lib/format";
 import {
   AlertDialog,
@@ -32,7 +32,7 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
   const [comentario, setComentario] = useState("");
 
   useEffect(() => {
-    fetch(`${API}/weeks/${id}`)
+    apiFetch(`/weeks/${id}`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await readError(res));
         setSemana(await res.json());
@@ -44,7 +44,7 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
     setError("");
     setCerrando(true);
     try {
-      const res = await fetch(`${API}/weeks/${id}/close`, {
+      const res = await apiFetch(`/weeks/${id}/close`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ note: comentario.trim() || null }),

@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
 import { ExerciseRow } from "@/components/ExerciseRow";
-import { API, readError, type DayDetail, type ExerciseItem, type SetItem } from "@/lib/api";
+import { readError, type DayDetail, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
 import { estaHecho } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -16,7 +16,7 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
   const [trabajando, setTrabajando] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/weeks/${id}/days/${n}`)
+    apiFetch(`/weeks/${id}/days/${n}`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await readError(res));
         setDia(await res.json());
@@ -53,7 +53,7 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
     setError("");
     setTrabajando(true);
     try {
-      const res = await fetch(`${API}/weeks/${dia.week_id}/days/${dia.day_index}/${accion}`, {
+      const res = await apiFetch(`/weeks/${dia.week_id}/days/${dia.day_index}/${accion}`, {
         method: "POST",
       });
       if (res.ok) {

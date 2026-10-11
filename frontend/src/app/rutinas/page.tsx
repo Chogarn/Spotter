@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
-import { API, readError, type Routine } from "@/lib/api";
+import { readError, type Routine, apiFetch } from "@/lib/api";
 import { goalText } from "@/lib/format";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ export default function MisRutinasPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`${API}/routines`)
+    apiFetch(`/routines`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await readError(res));
         setRutinas(await res.json());

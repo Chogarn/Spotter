@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-import { API, readError, type Routine } from "@/lib/api";
+import { readError, type Routine, apiFetch } from "@/lib/api";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -63,7 +63,7 @@ export function GenerarRutina({
     setEleccion("");
     setRutinas(null);
     try {
-      const res = await fetch(`${API}/routines`);
+      const res = await apiFetch(`/routines`);
       if (!res.ok) throw new Error(await readError(res));
       const lista: Routine[] = await res.json();
       setRutinas(lista);
@@ -78,7 +78,7 @@ export function GenerarRutina({
     setError("");
     setPidiendo(true);
     try {
-      const res = await fetch(`${API}/proposals/generate`, {
+      const res = await apiFetch(`/proposals/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(

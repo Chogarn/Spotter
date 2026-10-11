@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { API, readError, type ExerciseItem } from "@/lib/api";
+import { readError, type ExerciseItem, apiFetch } from "@/lib/api";
 import { differsFromPlan, estaHecho, seriesRegistradas } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { InlineError } from "@/components/ErrorMessage";
@@ -33,8 +33,7 @@ export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?:
     setTrabajando(true);
     setError("");
     try {
-      const res = await fetch(
-        `${API}/weeks/${edit.weekId}/days/${edit.dayIndex}/exercises/${exercise.id}/${accion}`,
+      const res = await apiFetch(`/weeks/${edit.weekId}/days/${edit.dayIndex}/exercises/${exercise.id}/${accion}`,
         { method },
       );
       if (res.ok) edit.onChanged(await res.json());

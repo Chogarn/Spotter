@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
-import { API, readError, type Proposal } from "@/lib/api";
+import { readError, type Proposal, apiFetch } from "@/lib/api";
 import { BackButton } from "@/components/BackButton";
 import { ExerciseRow } from "@/components/ExerciseRow";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -26,7 +26,7 @@ export default function PropuestaView({
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`${API}/proposals/${id}`)
+    apiFetch(`/proposals/${id}`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await readError(res));
         setPropuesta(await res.json());
@@ -39,7 +39,7 @@ export default function PropuestaView({
     setError("");
     setTrabajando(true);
     try {
-      const res = await fetch(`${API}/proposals/${id}/${accion}`, { method: "POST" });
+      const res = await apiFetch(`/proposals/${id}/${accion}`, { method: "POST" });
       if (!res.ok) {
         setError(await readError(res));
       } else if (accion === "discard") {
