@@ -5,6 +5,7 @@ import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { Disco } from "@/components/Disco";
+import { DoneControl } from "@/components/DoneControl";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { SetRow } from "@/components/SetRow";
 import { Button } from "@/components/ui/button";
@@ -31,16 +32,30 @@ function proximoEjercicio(dia: DayDetail, desde: number): number | null {
   return null;
 }
 
-function posicionInicial(dia: DayDetail): Posicion | null {
-  const ej = dia.exercises.findIndex((e) => !estaHecho(e));
+// Dónde abrir: el ejercicio pedido (`?ejercicio=K`, desde la tarjeta del día) o, si no hay, el
+// primero sin hacer. Null si no queda ninguno: se muestra el cierre del día.
+function posicionInicial(dia: DayDetail, pedido: number | null, registra: boolean): Posicion | null {
+  if (pedido !== null && pedido >= 0 && pedido < dia.exercises.length) {
+    return { ej: pedido, serie: serieInicial(dia.exercises[pedido]) };
+  }
+  const ej = registra ? dia.exercises.findIndex((e) => !estaHecho(e)) : 0;
   return ej === -1 ? null : { ej, serie: serieInicial(dia.exercises[ej]) };
 }
 
-// Modo entrenar (#57): un ejercicio a la vez, con la serie que toca en grande. Todo se guarda
-// al tocar, con los mismos endpoints que la vista del día; por eso salir y volver retoma donde
-// quedó (la posición se calcula con lo guardado).
-export default function EntrenarView({ params }: { params: Promise<{ id: string; n: string }> }) {
+// Adentro del ejercicio (#57 y decisión 47): la serie que toca en grande, con el detalle (semana
+// pasada, cómo hacerlo, por qué). Todo se guarda al tocar, con los mismos endpoints que el día;
+// por eso salir y volver retoma donde quedó. Con la semana cerrada o el día completado, se ve
+// en lectura.
+export default function EntrenarView({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string; n: string }>;
+  searchParams: Promise<{ ejercicio?: string }>;
+}) {
   const { id, n } = use(params);
+  const { ejercicio: pedidoTexto } = use(searchParams);
+  const pedido = pedidoTexto ? Number(pedidoTexto) - 1 : null;
   const [dia, setDia] = useState<DayDetail | null>(null);
   const [pos, setPos] = useState<Posicion | null>(null);
   const [error, setError] = useState("");
@@ -53,10 +68,11 @@ export default function EntrenarView({ params }: { params: Promise<{ id: string;
         if (!res.ok) throw new Error(await readError(res));
         const leido: DayDetail = await res.json();
         setDia(leido);
-        setPos(posicionInicial(leido));
+        const registra = leido.week_status === "active" && leido.finished_at === null;
+        setPos(posicionInicial(leido, pedido, registra));
       })
       .catch((e) => setError(e.message));
-  }, [id, n]);
+  }, [id, n, pedido]);
 
   const volver = `/semanas/${id}/dia/${n}`;
 
@@ -72,24 +88,9 @@ export default function EntrenarView({ params }: { params: Promise<{ id: string;
   }
   if (!dia) return <main className="mx-auto max-w-xl px-4 pt-6">Cargando...</main>;
 
-  // El modo solo existe en la semana activa y con el día abierto.
-  if (dia.week_status !== "active" || dia.finished_at !== null) {
-    return (
-      <main className="mx-auto max-w-xl px-4 pt-6">
-        <h1>Día {dia.day_index}</h1>
-        <p className="text-muted-foreground">
-          {dia.week_status !== "active"
-            ? "Esta semana está cerrada: solo se puede mirar."
-            : "Este día ya está completado. Para cambiar algo, reabrilo desde el día."}
-        </p>
-        <Button variant="outline" nativeButton={false} render={<Link href={volver} />}>
-          Ir al día
-        </Button>
-      </main>
-    );
-  }
-
   const actual = dia;
+  // Solo se registra en la semana activa y con el día abierto; si no, el ejercicio se ve en lectura.
+  const registra = actual.week_status === "active" && actual.finished_at === null;
 
   // Reemplaza en pantalla lo que devuelve el backend (una serie o un ejercicio entero).
   function conSerie(d: DayDetail, updated: SetItem): DayDetail {
@@ -141,8 +142,7 @@ export default function EntrenarView({ params }: { params: Promise<{ id: string;
         d = conSerie(d, guardada);
         setDia(d);
       }
-      const ejercicio = d.exercises[pos.ej];
-      const libre = ejercicio.sets.findIndex((s) => !s.real);
+      const libre = d.exercises[pos.ej].sets.findIndex((s) => !s.real);
       if (libre === -1) await terminarEjercicio(d, pos.ej);
       else setPos({ ej: pos.ej, serie: libre });
     } catch {
@@ -173,26 +173,28 @@ export default function EntrenarView({ params }: { params: Promise<{ id: string;
         <span>
           Día {actual.day_index}
           {pos && ` · ejercicio ${pos.ej + 1} de ${total}`}
+          {!registra && " · solo lectura"}
         </span>
-        <Button size="icon-lg" variant="ghost" nativeButton={false} render={<Link href={volver} />} aria-label="Salir del modo entrenar">
+        <Button size="icon-lg" variant="ghost" nativeButton={false} render={<Link href={volver} />} aria-label="Volver al día">
           <X />
         </Button>
       </div>
-      {/* Una barra por ejercicio: rojo hecho, tinta el actual. Tocar una sin hacer salta a ese ejercicio. */}
+      {/* Una barra por ejercicio: rojo hecho, tinta el actual. Tocar una abre ese ejercicio. */}
       <div className="mt-1 mb-4 flex gap-1">
         {actual.exercises.map((e, i) => (
           <button
             key={i}
             type="button"
-            disabled={estaHecho(e) || trabajando}
+            disabled={trabajando}
             onClick={() => {
               setCorrigiendo(false);
               setPos({ ej: i, serie: serieInicial(e) });
             }}
             aria-label={`Ir a ${e.name}`}
+            aria-current={pos?.ej === i ? "step" : undefined}
             className={cn(
               "h-2 flex-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-              estaHecho(e) ? "bg-disco-rojo" : pos?.ej === i ? "bg-disco-tinta" : "bg-border",
+              pos?.ej === i ? "bg-disco-tinta" : estaHecho(e) ? "bg-disco-rojo" : "bg-border",
             )}
           />
         ))}
@@ -201,9 +203,10 @@ export default function EntrenarView({ params }: { params: Promise<{ id: string;
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
       {pos ? (
-        <SerieActual
+        <Ejercicio
           dia={actual}
           pos={pos}
+          registra={registra}
           trabajando={trabajando}
           corrigiendo={corrigiendo}
           onIrASerie={(serie) => {
@@ -213,6 +216,11 @@ export default function EntrenarView({ params }: { params: Promise<{ id: string;
           onCorregir={() => setCorrigiendo(true)}
           onTerminarCorreccion={() => setCorrigiendo(false)}
           onSerieGuardada={(s) => setDia((d) => (d ? conSerie(d, s) : d))}
+          onEjercicioCambiado={(e) => {
+            const nuevo = conEjercicio(actual, e);
+            setDia(nuevo);
+            setPos({ ej: pos.ej, serie: serieInicial(nuevo.exercises[pos.ej]) });
+          }}
           onAvanzar={avanzar}
         />
       ) : (
@@ -239,8 +247,107 @@ export default function EntrenarView({ params }: { params: Promise<{ id: string;
   );
 }
 
-function SerieActual({
+function Ejercicio({
   dia,
+  pos,
+  registra,
+  trabajando,
+  corrigiendo,
+  onIrASerie,
+  onCorregir,
+  onTerminarCorreccion,
+  onSerieGuardada,
+  onEjercicioCambiado,
+  onAvanzar,
+}: {
+  dia: DayDetail;
+  pos: Posicion;
+  registra: boolean;
+  trabajando: boolean;
+  corrigiendo: boolean;
+  onIrASerie: (serie: number) => void;
+  onCorregir: () => void;
+  onTerminarCorreccion: () => void;
+  onSerieGuardada: (s: SetItem) => void;
+  onEjercicioCambiado: (e: ExerciseItem) => void;
+  onAvanzar: () => void;
+}) {
+  const ejercicio = dia.exercises[pos.ej];
+  const hecho = estaHecho(ejercicio);
+  // Se registra serie por serie solo con el día abierto y el ejercicio sin cerrar.
+  const enCurso = registra && !hecho;
+  const siguiente = registra ? proximoEjercicio(dia, pos.ej) : null;
+
+  return (
+    <>
+      <h1 className="my-0 text-4xl">{ejercicio.name}</h1>
+      {hecho && <p className="mt-1 mb-0 text-sm text-muted-foreground">Ejercicio hecho</p>}
+
+      {enCurso ? (
+        <SerieEnGrande
+          dia={dia}
+          ejercicio={ejercicio}
+          pos={pos}
+          trabajando={trabajando}
+          corrigiendo={corrigiendo}
+          onIrASerie={onIrASerie}
+          onCorregir={onCorregir}
+          onTerminarCorreccion={onTerminarCorreccion}
+          onSerieGuardada={onSerieGuardada}
+          onAvanzar={onAvanzar}
+        />
+      ) : (
+        // Hecho o en lectura: todas las series con lo que se registró.
+        <section className="mt-3 rounded-2xl bg-card px-4 py-2">
+          <ul className="m-0 list-none p-0">
+            {ejercicio.sets.map((s, i) => (
+              <SetRow key={i} kind={ejercicio.kind} index={i} set={s} />
+            ))}
+          </ul>
+          <SemanaPasada ejercicio={ejercicio} />
+        </section>
+      )}
+
+      {/* El detalle que antes estaba en la lista del día (decisión 47), plegado. */}
+      <div className="mt-4 grid gap-2">
+        {ejercicio.execution_notes && (
+          <details className="rounded-xl bg-card px-4 py-2">
+            <summary className="cursor-pointer py-1 font-medium">Cómo hacerlo</summary>
+            <p className="mt-1 mb-1 text-sm">{ejercicio.execution_notes}</p>
+          </details>
+        )}
+        {ejercicio.reason && (
+          <details className="rounded-xl bg-card px-4 py-2">
+            <summary className="cursor-pointer py-1 font-medium">Por qué está en tu rutina</summary>
+            <p className="mt-1 mb-1 text-sm">{ejercicio.reason}</p>
+          </details>
+        )}
+      </div>
+
+      {/* Reabrir y deshacer el ejercicio; el tilde no hace falta (lo cierra el botón grande). */}
+      {registra && (
+        <div className="mt-3 flex items-center justify-end gap-2 text-sm text-muted-foreground">
+          <DoneControl
+            exercise={ejercicio}
+            sinTilde
+            edit={{ weekId: dia.week_id, dayIndex: dia.day_index, onChanged: onEjercicioCambiado }}
+          />
+        </div>
+      )}
+
+      {siguiente !== null && siguiente !== pos.ej && (
+        <p className="mt-4 rounded-xl bg-card px-4 py-3 text-sm">
+          <span className="text-muted-foreground">Después:</span> {dia.exercises[siguiente].name} ·{" "}
+          {summarize(dia.exercises[siguiente])}
+        </p>
+      )}
+    </>
+  );
+}
+
+function SerieEnGrande({
+  dia,
+  ejercicio,
   pos,
   trabajando,
   corrigiendo,
@@ -251,6 +358,7 @@ function SerieActual({
   onAvanzar,
 }: {
   dia: DayDetail;
+  ejercicio: ExerciseItem;
   pos: Posicion;
   trabajando: boolean;
   corrigiendo: boolean;
@@ -260,19 +368,30 @@ function SerieActual({
   onSerieGuardada: (s: SetItem) => void;
   onAvanzar: () => void;
 }) {
-  const ejercicio = dia.exercises[pos.ej];
   const serie = ejercicio.sets[pos.serie];
   const real = serie.real ?? null;
   const mostrada = real ? realAsSet(real) : serie;
   const todas = ejercicio.sets.every((s) => s.real);
   const boton = !real ? "Serie hecha" : todas ? "Terminar ejercicio" : "Siguiente serie";
-  const siguiente = proximoEjercicio(dia, pos.ej);
   const anterior = ejercicio.previous;
 
   return (
     <>
-      <h1 className="my-0 text-4xl">{ejercicio.name}</h1>
-      <section className="mt-3 rounded-2xl bg-card p-5 text-center">
+      <section className="relative mt-3 rounded-2xl bg-card p-5 text-center">
+        {/* El lápiz va en la esquina de la serie, lejos del botón grande (decisión 47). */}
+        {!corrigiendo && (
+          <Button
+            size="icon-lg"
+            variant="outline"
+            className="absolute top-3 right-3"
+            type="button"
+            onClick={onCorregir}
+            disabled={trabajando}
+            aria-label={`Corregir la serie ${pos.serie + 1}`}
+          >
+            <Pencil />
+          </Button>
+        )}
         <p className="m-0 text-sm text-muted-foreground">
           Serie {pos.serie + 1} de {ejercicio.sets.length}
           {real && " · hecha"}
@@ -322,31 +441,25 @@ function SerieActual({
           />
         </ul>
       ) : (
-        <div className="mt-4 flex gap-2">
-          <Button
-            size="icon-lg"
-            variant="outline"
-            className="size-12"
-            type="button"
-            onClick={onCorregir}
-            disabled={trabajando}
-            aria-label={`Corregir la serie ${pos.serie + 1}`}
-          >
-            <Pencil />
-          </Button>
-          <Button size="lg" className="h-12 flex-1 text-base" type="button" onClick={onAvanzar} disabled={trabajando}>
-            {trabajando ? "Guardando..." : boton}
-          </Button>
-        </div>
-      )}
-
-      {siguiente !== null && siguiente !== pos.ej && (
-        <p className="mt-4 rounded-xl bg-card px-4 py-3 text-sm">
-          <span className="text-muted-foreground">Después:</span> {dia.exercises[siguiente].name} ·{" "}
-          {summarize(dia.exercises[siguiente])}
-        </p>
+        <Button size="lg" className="mt-4 h-12 w-full text-base" type="button" onClick={onAvanzar} disabled={trabajando}>
+          {trabajando ? "Guardando..." : boton}
+        </Button>
       )}
     </>
+  );
+}
+
+// "Semana pasada" del ejercicio entero, para la vista en lectura.
+function SemanaPasada({ ejercicio }: { ejercicio: ExerciseItem }) {
+  const anterior = ejercicio.previous;
+  if (!anterior) return null;
+  return (
+    <p className="mt-2 mb-1 text-sm text-muted-foreground">
+      Semana pasada:{" "}
+      {anterior.every((r) => r === null)
+        ? "sin registrar"
+        : anterior.map((r) => (r ? setText(ejercicio.kind, realAsSet(r)) : "—")).join(" · ")}
+    </p>
   );
 }
 

@@ -4,11 +4,18 @@ import { Cargando } from "@/components/Cargando";
 
 import EntrenarView from "./EntrenarView";
 
-// Esta página no lee `params` ella misma: se lo pasa a la vista, que lo lee dentro del <Suspense>.
-export default function EntrenarPage({ params }: { params: Promise<{ id: string; n: string }> }) {
+// Esta página no lee `params` ni `searchParams` ella misma: se los pasa a la vista, que los lee
+// dentro del <Suspense>. `?ejercicio=K` abre ese ejercicio (desde la tarjeta del día).
+export default function EntrenarPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string; n: string }>;
+  searchParams: Promise<{ ejercicio?: string }>;
+}) {
   return (
     <Suspense fallback={<Cargando />}>
-      <EntrenarView params={params} />
+      <EntrenarView params={params} searchParams={searchParams} />
     </Suspense>
   );
 }

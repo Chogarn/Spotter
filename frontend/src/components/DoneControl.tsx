@@ -21,8 +21,17 @@ export type DoneEdit = {
 //    no se pueden editar, marcar ni desmarcar.
 //  - Candado abierto, reabrir: lo desbloquea para corregirlo, sin borrar nada de lo registrado.
 //  - Tacho, deshacer: borra lo registrado de ese ejercicio; siempre pide confirmación.
-// Sin `edit` (día completado o semana cerrada) no muestra nada.
-export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?: DoneEdit }) {
+// Sin `edit` (día completado o semana cerrada) no muestra nada. Dentro del ejercicio el tilde no
+// hace falta (lo cierra el botón grande): `sinTilde` deja solo reabrir y deshacer.
+export function DoneControl({
+  exercise,
+  edit,
+  sinTilde = false,
+}: {
+  exercise: ExerciseItem;
+  edit?: DoneEdit;
+  sinTilde?: boolean;
+}) {
   const [trabajando, setTrabajando] = useState(false);
   const [confirmando, setConfirmando] = useState(false);
   const [error, setError] = useState("");
@@ -51,7 +60,7 @@ export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?:
   return (
     <div className="flex flex-col items-end gap-1">
       <div className="flex gap-1.5">
-        {!hecho && (
+        {!hecho && !sinTilde && (
           <Button
             size="icon-lg"
             type="button"

@@ -56,7 +56,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Rediseño del día, las rutinas y la propuesta: series como discos que se tocan para marcarlas, acciones chicas con íconos (lápiz, tilde, cruz, candado y tacho con confirmación) y el resumen de la IA en la propuesta. Decisiones 43 y 44. Depende de #53 `frontend` (#55)
 - [x] El día con progreso, "Semana pasada" y discos a la vista: barra de progreso arriba, lo real de la última semana cerrada de la rutina en cada ejercicio (con la diferencia de peso) y discos que se marcan sin abrir. Cambio chico en `GET /weeks/{id}/days/{n}` `frontend` `backend` (#56)
 - [x] Modo entrenar, un ejercicio a la vez: "Empezar día N" abre una pantalla con la serie actual en grande, "Serie hecha" y el ejercicio siguiente. "Serie hecha" guarda lo planificado (se corrige con el lápiz) y no hay reloj de descanso (decisión 46). Depende de #56 `frontend` (#57)
-- [ ] Día compacto, entrar al ejercicio y Entrenar al centro de la barra: la lista del día solo con nombre grande, números y discos del ejercicio en curso; tocar la tarjeta entra al ejercicio con el detalle (semana pasada, cómo hacerlo, por qué, lápiz en la esquina, reabrir y deshacer). Decisión 47 `frontend` (#58)
+- [x] Día compacto, entrar al ejercicio y Entrenar al centro de la barra: la lista del día solo con nombre grande, números y discos del ejercicio en curso; tocar la tarjeta entra al ejercicio con el detalle (semana pasada, cómo hacerlo, por qué, lápiz en la esquina, reabrir y deshacer). Decisión 47 `frontend` (#58)
 - [ ] Reloj de descanso circular: botón redondo junto a "Serie hecha", el círculo ocupa el lugar de la serie, −15 s, +15 s y Saltar; vibra al terminar y una franja lo muestra en otras pantallas. Decisión 48. Depende de #58 `frontend` (#59)
 - [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs` (#32)
 
@@ -94,7 +94,7 @@ La definición completa de cada una está en su issue de GitHub.
 | ~~Rediseño del día, las rutinas y la propuesta (#55)~~ | Hecho: `/semanas/{id}/dia/{n}`, `/rutinas` y `/rutina/propuesta/{id}` | #53 |
 | ~~El día con progreso y "Semana pasada" (#56)~~ | Hecho: `/semanas/{id}/dia/{n}` | — |
 | ~~Modo entrenar (#57)~~ | Hecho: "Empezar día N" en Entrenar, o "Entrenar serie por serie" en el día; `/semanas/{id}/dia/{n}/entrenar` | — |
-| Día compacto y entrar al ejercicio (#58) | `/semanas/{id}/dia/{n}` y `.../entrenar?ejercicio=K`; la barra de navegación | Nada |
+| ~~Día compacto y entrar al ejercicio (#58)~~ | Hecho: `/semanas/{id}/dia/{n}` y `.../entrenar?ejercicio=K`; la barra de navegación | — |
 | Reloj de descanso (#59) | Botón redondo junto a "Serie hecha", dentro del ejercicio; franja arriba de la barra | #58 |
 | ~~Elegir camino A o B (#43)~~ y ~~formulario de rutina actual (#44)~~ | No se hacen: se descartó el camino B (decisión 40) | — |
 | ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con la semana nueva | — |

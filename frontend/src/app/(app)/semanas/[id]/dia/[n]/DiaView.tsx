@@ -1,13 +1,15 @@
 "use client";
 
-import { LockOpen } from "lucide-react";
+import { Check, ChevronRight, LockOpen } from "lucide-react";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
-import { ExerciseRow } from "@/components/ExerciseRow";
-import { readError, type DayDetail, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
-import { estaHecho } from "@/lib/format";
+import { Disco } from "@/components/Disco";
+import { Resumen } from "@/components/ExerciseRow";
+import { readError, type DayDetail, type ExerciseItem, apiFetch } from "@/lib/api";
+import { estaHecho, summarize } from "@/lib/format";
+import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 
@@ -25,30 +27,6 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
       })
       .catch((e) => setError(e.message));
   }, [id, n]);
-
-  // Al guardar una serie, el backend devuelve esa serie actualizada: se reemplaza en pantalla.
-  function serieGuardada(updated: SetItem) {
-    setDia((actual) =>
-      actual
-        ? {
-            ...actual,
-            exercises: actual.exercises.map((e) => ({
-              ...e,
-              sets: e.sets.map((s) => (s.id === updated.id ? updated : s)),
-            })),
-          }
-        : actual,
-    );
-  }
-
-  // Al marcar o deshacer un ejercicio, el backend devuelve el ejercicio entero actualizado.
-  function ejercicioCambiado(updated: ExerciseItem) {
-    setDia((actual) =>
-      actual
-        ? { ...actual, exercises: actual.exercises.map((e) => (e.id === updated.id ? updated : e)) }
-        : actual,
-    );
-  }
 
   async function cambiarDia(accion: "complete" | "reopen") {
     if (!dia) return;
@@ -73,16 +51,6 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
   // Solo se registra en la semana activa; las cerradas quedan en lectura.
   const activa = dia?.week_status === "active";
   const completado = dia?.finished_at != null;
-  const edit =
-    dia && activa
-      ? {
-          weekId: dia.week_id,
-          dayIndex: dia.day_index,
-          locked: completado,
-          onSetSaved: serieGuardada,
-          onExerciseChanged: ejercicioCambiado,
-        }
-      : undefined;
   const hechos = dia ? dia.exercises.filter(estaHecho).length : 0;
   // El ejercicio en curso (el primero sin hacer) lleva un borde, solo mientras se puede registrar.
   const enCurso = dia && activa && !completado ? dia.exercises.findIndex((e) => !estaHecho(e)) : -1;
@@ -121,19 +89,15 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
             </div>
           )}
           {dia.mobility_notes && <p className="text-sm">Movilidad: {dia.mobility_notes}</p>}
-          {activa && !completado && (
-            <Button
-              size="lg"
-              className="mb-2 h-11 w-full text-base"
-              nativeButton={false}
-              render={<Link href={`/semanas/${id}/dia/${n}/entrenar`} />}
-            >
-              Entrenar serie por serie
-            </Button>
-          )}
-          <ol className="m-0 mt-4 grid gap-3 p-0">
+          <ol className="m-0 mt-4 grid list-none gap-2.5 p-0">
             {dia.exercises.map((e, i) => (
-              <ExerciseRow key={i} exercise={e} edit={edit} enCurso={i === enCurso} />
+              <TarjetaEjercicio
+                key={i}
+                exercise={e}
+                href={`/semanas/${id}/dia/${n}/entrenar?ejercicio=${i + 1}`}
+                enCurso={i === enCurso}
+                hecho={activa && estaHecho(e)}
+              />
             ))}
           </ol>
           {activa && (
@@ -171,5 +135,56 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
         </>
       )}
     </main>
+  );
+}
+
+// Un ejercicio en la lista del día (decisión 47): solo el nombre grande, los números y, en el que
+// está en curso, los discos de sus series. Tocarla entra al ejercicio, donde está el detalle.
+function TarjetaEjercicio({
+  exercise,
+  href,
+  enCurso,
+  hecho,
+}: {
+  exercise: ExerciseItem;
+  href: string;
+  enCurso: boolean;
+  hecho: boolean;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className={cn(
+          "flex items-center gap-3 rounded-2xl border-2 border-transparent bg-card px-4 py-3 no-underline hover:bg-muted",
+          enCurso && "border-disco-tinta",
+          hecho && "bg-card/60",
+        )}
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block font-heading text-[1.35rem] leading-tight font-bold">{exercise.name}</span>
+          <Resumen
+            texto={summarize(exercise)}
+            className={cn("font-heading text-lg leading-tight font-semibold", !enCurso && "text-muted-foreground")}
+          />
+          {enCurso && (
+            <span className="mt-1.5 flex gap-1.5" aria-hidden="true">
+              {exercise.sets.map((s, i) => (
+                <Disco key={i} estado={s.real ? "hecho" : "pendiente"} className="size-6">
+                  {i + 1}
+                </Disco>
+              ))}
+            </span>
+          )}
+        </span>
+        {hecho ? (
+          <Disco estado="hecho" className="size-7">
+            <Check className="size-4" aria-label="Hecho" />
+          </Disco>
+        ) : (
+          <ChevronRight className="size-6 text-muted-foreground" aria-hidden="true" />
+        )}
+      </Link>
+    </li>
   );
 }
