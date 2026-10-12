@@ -329,6 +329,12 @@ En la pantalla Rutinas hay un botón **"Nueva rutina"** arriba de la lista, al l
 - **Por qué:** *(completar)*
 - **Descartaste:** mostrarlo solo sin semana activa; ofrecer también "continuar" desde Rutinas.
 
+### 51. Inicio es la portada; Entrenar pasa a `/entrenar`; la barra tiene cinco lugares
+Con sesión iniciada, la portada (`/`) es **Inicio**: una franja oscura de saludo (fecha, "Hola, nombre", la rutina, la semana y sus discos), la tarjeta "Hoy te toca" con "Empezar día N" (o "Armá tu próxima semana" sin semana en curso), el aviso de propuesta pendiente y accesos rápidos (Ver la semana, Tus rutinas, Nueva rutina, Tu perfil). La semana en curso con sus días pasa a **Entrenar**, en `/entrenar`. La barra queda con cinco lugares: Inicio · Rutinas · **Entrenar** (centro, elevado) · Progreso · Perfil. Progreso es el lugar del resumen semanal (#28) y, mientras no exista, avisa que está en camino (#60).
+- **Origen:** tuya (2026-10-12): "una página principal como una de bienvenida una vez logueado, que tenga opciones de cosas"; te gustó la maqueta y elegiste cinco lugares.
+- **Por qué:** *(completar)*
+- **Descartaste:** que la portada fuera Entrenar (decisión 42); la barra con cuatro lugares.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):

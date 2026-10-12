@@ -106,7 +106,7 @@ function NuevaRutina({ hayActiva }: { hayActiva: boolean }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <Button nativeButton={false} render={<Link href="/" />}>
+            <Button nativeButton={false} render={<Link href="/entrenar" />}>
               Ir a Entrenar
             </Button>
           </AlertDialogFooter>

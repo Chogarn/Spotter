@@ -58,7 +58,7 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
 
           {semana.status === "active" && (
             <p>
-              La semana se cierra desde <Link href="/">Entrenar</Link>.
+              La semana se cierra desde <Link href="/entrenar">Entrenar</Link>.
             </p>
           )}
           {semana.status === "closed" && (
@@ -70,7 +70,7 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
                 </>
               )}
               <p>
-                Semana cerrada. <Link href="/">Andá a Entrenar</Link> para generar la siguiente.
+                Semana cerrada. <Link href="/entrenar">Andá a Entrenar</Link> para generar la siguiente.
               </p>
             </>
           )}

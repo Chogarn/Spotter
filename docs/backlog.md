@@ -58,6 +58,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Modo entrenar, un ejercicio a la vez: "Empezar día N" abre una pantalla con la serie actual en grande, "Serie hecha" y el ejercicio siguiente. "Serie hecha" guarda lo planificado (se corrige con el lápiz) y no hay reloj de descanso (decisión 46). Depende de #56 `frontend` (#57)
 - [x] Día compacto, entrar al ejercicio y Entrenar al centro de la barra: la lista del día solo con nombre grande, números y discos del ejercicio en curso; tocar la tarjeta entra al ejercicio con el detalle (semana pasada, cómo hacerlo, por qué, lápiz en la esquina, reabrir y deshacer). Decisión 47 `frontend` (#58)
 - [x] Reloj de descanso circular: botón redondo junto a "Serie hecha", el círculo ocupa el lugar de la serie, −15 s, +15 s y Saltar; vibra al terminar y una franja lo muestra en otras pantallas. Decisión 48. Depende de #58 `frontend` (#59)
+- [x] Inicio, la página principal con sesión iniciada: saludo, "Hoy te toca", avisos y accesos rápidos; Entrenar pasa a `/entrenar` y la barra tiene cinco lugares (Progreso reservado para #28). Decisión 51 `frontend` (#60)
 - [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs` (#32)
 
 > **Para la Semana 4 (idea, sin definir):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".

@@ -258,7 +258,7 @@ export default function EntrenarView({
           ) : (
             <>
               <h1 className="mt-0 text-4xl">Día completado</h1>
-              <Button size="lg" className="h-12 w-full text-base" nativeButton={false} render={<Link href="/" />}>
+              <Button size="lg" className="h-12 w-full text-base" nativeButton={false} render={<Link href="/entrenar" />}>
                 Ir a Entrenar
               </Button>
             </>

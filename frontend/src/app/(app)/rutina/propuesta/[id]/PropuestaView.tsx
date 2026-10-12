@@ -62,7 +62,7 @@ export default function PropuestaView({
     return (
       <main style={contenedor}>
         <ErrorMessage>{error}</ErrorMessage>
-        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Ir a Entrenar</Button>
+        <Button variant="outline" nativeButton={false} render={<Link href="/entrenar" />}>Ir a Entrenar</Button>
       </main>
     );
   }
@@ -72,7 +72,7 @@ export default function PropuestaView({
       <main style={contenedor}>
         <p>Tu rutina quedó activa: {propuesta.routine.days.length} días.</p>
         <Button variant="outline" nativeButton={false} render={<Link href="/rutinas" />}>Ver mis rutinas</Button>{" "}
-        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Ir a Entrenar</Button>
+        <Button variant="outline" nativeButton={false} render={<Link href="/entrenar" />}>Ir a Entrenar</Button>
       </main>
     );
   }
@@ -81,7 +81,7 @@ export default function PropuestaView({
     return (
       <main style={contenedor}>
         <p>Esta propuesta ya fue resuelta.</p>
-        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Ir a Entrenar</Button>
+        <Button variant="outline" nativeButton={false} render={<Link href="/entrenar" />}>Ir a Entrenar</Button>
       </main>
     );
   }

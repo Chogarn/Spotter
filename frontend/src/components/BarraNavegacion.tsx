@@ -1,24 +1,26 @@
 "use client";
 
-import { Dumbbell, ListChecks, UserRound } from "lucide-react";
+import { ChartLine, Dumbbell, House, ListChecks, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 
 import { cn } from "cn";
 
-// Barra fija abajo, siempre, también en la computadora (decisión 42). Entrenar va al centro como
-// un botón redondo elevado (decisión 47) y abarca lo que se abre desde ahí: la semana, el día, el
-// ejercicio y la propuesta.
+// Barra fija abajo, siempre, también en la computadora (decisión 42). Cinco lugares, con Entrenar
+// en el centro como un botón redondo elevado (decisiones 47 y 51). Entrenar abarca lo que se abre
+// desde ahí: la semana, el día, el ejercicio y la propuesta.
 const SECCIONES = [
+  { href: "/", texto: "Inicio", Icono: House, activa: (p: string) => p === "/" },
   { href: "/rutinas", texto: "Rutinas", Icono: ListChecks, activa: (p: string) => p.startsWith("/rutinas") },
   {
-    href: "/",
+    href: "/entrenar",
     texto: "Entrenar",
     Icono: Dumbbell,
-    activa: (p: string) => p === "/" || p.startsWith("/semanas") || p.startsWith("/rutina/"),
+    activa: (p: string) => p.startsWith("/entrenar") || p.startsWith("/semanas") || p.startsWith("/rutina/"),
     central: true,
   },
+  { href: "/progreso", texto: "Progreso", Icono: ChartLine, activa: (p: string) => p.startsWith("/progreso") },
   { href: "/perfil", texto: "Perfil", Icono: UserRound, activa: (p: string) => p.startsWith("/perfil") },
 ];
 
