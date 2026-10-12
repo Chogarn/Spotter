@@ -91,7 +91,7 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
               size="lg"
               className="h-11 w-full text-base"
               nativeButton={false}
-              render={<Link href={`/semanas/${semana.id}/dia/${proximo.day_index}`} />}
+              render={<Link href={`/semanas/${semana.id}/dia/${proximo.day_index}/entrenar`} />}
             >
               Empezar día {proximo.day_index}
             </Button>

@@ -26,40 +26,55 @@ const MEASURE = {
 // Una serie (decisión 43): su disco (que se toca para marcarla o desmarcarla, ver `DiscoSerie`) y,
 // con `edit`, el lápiz para corregir lo realizado (repeticiones y kilos; segundos o minutos según
 // el ejercicio) sin tocar el plan.
+// El modo entrenar la abre ya editando (`editarAlAbrir`) y se entera al guardar o cancelar
+// (`onTerminar`).
 export function SetRow({
   kind,
   index,
   set,
   edit,
+  editarAlAbrir = false,
+  onTerminar,
 }: {
   kind: ExerciseItem["kind"];
   index: number;
   set: SetItem;
   edit?: SetEdit;
+  editarAlAbrir?: boolean;
+  onTerminar?: () => void;
 }) {
-  const [editando, setEditando] = useState(false);
-  const [guardando, setGuardando] = useState(false);
-  const [error, setError] = useState("");
-  const [medida, setMedida] = useState("");
-  const [kilos, setKilos] = useState("");
-
   const real = set.real ?? null;
   const mostrada = real ? realAsSet(real) : set;
   const cambio = real !== null && differsFromPlan(set, real);
   const numero = index + 1;
   const puedeEditar = edit !== undefined && set.id !== undefined;
 
+  // Al empezar a editar, los campos arrancan con lo realizado o, si no hay, con lo planificado.
+  const medidaActual =
+    kind === "strength"
+      ? mostrada.reps
+      : kind === "isometric"
+        ? mostrada.duration_seconds
+        : mostrada.duration_minutes;
+  const valorMedida = medidaActual === null ? "" : String(medidaActual);
+  const valorKilos = mostrada.target_weight_kg === null ? "" : String(mostrada.target_weight_kg);
+
+  const [editando, setEditando] = useState(editarAlAbrir && puedeEditar);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState("");
+  const [medida, setMedida] = useState(valorMedida);
+  const [kilos, setKilos] = useState(valorKilos);
+
   function empezar() {
-    const actual =
-      kind === "strength"
-        ? mostrada.reps
-        : kind === "isometric"
-          ? mostrada.duration_seconds
-          : mostrada.duration_minutes;
-    setMedida(actual === null ? "" : String(actual));
-    setKilos(mostrada.target_weight_kg === null ? "" : String(mostrada.target_weight_kg));
+    setMedida(valorMedida);
+    setKilos(valorKilos);
     setError("");
     setEditando(true);
+  }
+
+  function cancelar() {
+    setEditando(false);
+    onTerminar?.();
   }
 
   async function guardar() {
@@ -100,6 +115,7 @@ export function SetRow({
       } else {
         edit.onSaved(await res.json());
         setEditando(false);
+        onTerminar?.();
       }
     } catch {
       setError("No se pudo conectar con el servidor");
@@ -159,7 +175,7 @@ export function SetRow({
               size="icon-lg"
               variant="outline"
               type="button"
-              onClick={() => setEditando(false)}
+              onClick={cancelar}
               disabled={guardando}
               aria-label={`Cancelar la edición de la serie ${numero}`}
             >

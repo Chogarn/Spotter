@@ -55,7 +55,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Navegación y pantalla Entrenar: barra fija abajo (Entrenar, Rutinas y Perfil), portada "Entrenar" con el próximo día y el progreso en discos, "Cerrar semana" al final de Entrenar y "Cerrar sesión" en el Perfil. Decisiones 42 y 44. Depende de #53 `frontend` (#54)
 - [x] Rediseño del día, las rutinas y la propuesta: series como discos que se tocan para marcarlas, acciones chicas con íconos (lápiz, tilde, cruz, candado y tacho con confirmación) y el resumen de la IA en la propuesta. Decisiones 43 y 44. Depende de #53 `frontend` (#55)
 - [x] El día con progreso, "Semana pasada" y discos a la vista: barra de progreso arriba, lo real de la última semana cerrada de la rutina en cada ejercicio (con la diferencia de peso) y discos que se marcan sin abrir. Cambio chico en `GET /weeks/{id}/days/{n}` `frontend` `backend` (#56)
-- [ ] Modo entrenar, un ejercicio a la vez: "Empezar día N" abre una pantalla con la serie actual en grande, "Serie hecha" y el ejercicio siguiente. Pendiente decidir si "Serie hecha" guarda lo planificado tal cual y si suma el reloj de descanso. Depende de #56 `frontend` (#57)
+- [x] Modo entrenar, un ejercicio a la vez: "Empezar día N" abre una pantalla con la serie actual en grande, "Serie hecha" y el ejercicio siguiente. "Serie hecha" guarda lo planificado (se corrige con el lápiz) y no hay reloj de descanso (decisión 46). Depende de #56 `frontend` (#57)
 - [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs` (#32)
 
 > **Para la Semana 4 (idea, sin definir):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
@@ -91,7 +91,7 @@ La definición completa de cada una está en su issue de GitHub.
 | ~~Navegación y pantalla Entrenar (#54)~~ | Hecho: barra fija abajo en todas las pantallas con sesión; "Entrenar" reemplaza la portada actual | #53 |
 | ~~Rediseño del día, las rutinas y la propuesta (#55)~~ | Hecho: `/semanas/{id}/dia/{n}`, `/rutinas` y `/rutina/propuesta/{id}` | #53 |
 | ~~El día con progreso y "Semana pasada" (#56)~~ | Hecho: `/semanas/{id}/dia/{n}` | — |
-| Modo entrenar (#57) | "Empezar día N" en Entrenar, o "Entrenar" en el día; nueva dirección `/semanas/{id}/dia/{n}/entrenar` | #56 y dos decisiones del usuario |
+| ~~Modo entrenar (#57)~~ | Hecho: "Empezar día N" en Entrenar, o "Entrenar serie por serie" en el día; `/semanas/{id}/dia/{n}/entrenar` | — |
 | ~~Elegir camino A o B (#43)~~ y ~~formulario de rutina actual (#44)~~ | No se hacen: se descartó el camino B (decisión 40) | — |
 | ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con la semana nueva | — |
 

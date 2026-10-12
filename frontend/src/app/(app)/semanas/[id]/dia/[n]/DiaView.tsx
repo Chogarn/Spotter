@@ -1,6 +1,7 @@
 "use client";
 
 import { LockOpen } from "lucide-react";
+import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
@@ -120,6 +121,16 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
             </div>
           )}
           {dia.mobility_notes && <p className="text-sm">Movilidad: {dia.mobility_notes}</p>}
+          {activa && !completado && (
+            <Button
+              size="lg"
+              className="mb-2 h-11 w-full text-base"
+              nativeButton={false}
+              render={<Link href={`/semanas/${id}/dia/${n}/entrenar`} />}
+            >
+              Entrenar serie por serie
+            </Button>
+          )}
           <ol className="m-0 mt-4 grid gap-3 p-0">
             {dia.exercises.map((e, i) => (
               <ExerciseRow key={i} exercise={e} edit={edit} enCurso={i === enCurso} />

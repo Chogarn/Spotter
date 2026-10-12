@@ -296,6 +296,13 @@ El usuario no le pide cambios a la IA durante la semana. El plan de la semana ac
 - **Descartaste (por ahora):** pedirle a la IA que modifique la semana activa, con vista previa y aceptar o descartar.
 - **Ojo:** queda sin resolver lo que la tarea había mostrado: aceptar un ajuste tendría que modificar la semana activa sin perder lo ya registrado (hoy aceptar siempre crea una semana nueva). El antes y después (#49) sigue sirviendo para la semana nueva. La decisión 35 queda así: el plan solo lo cambia la IA, al armar la semana nueva.
 
+### 46. Modo entrenar: "Serie hecha" guarda lo planificado y no hay reloj de descanso
+"Empezar día N" abre un modo con la serie que toca en grande (#57). "Serie hecha" guarda la serie tal como estaba planificada y pasa a la siguiente; si algo salió distinto, se corrige con el lápiz. Al terminar las series de un ejercicio, lo marca como hecho. El reloj de descanso no entra en este modo por ahora: sigue en las ideas del backlog, con la condición de que lo arranque el usuario.
+- **Origen:** elegida entre opciones (2026-10-12; la IA lo propuso con las maquetas de otras apps y la tarea se cerró así).
+- **Por qué:** *(completar)*
+- **Descartaste (por ahora):** mostrar los números ya editables en cada serie; sumar el reloj de descanso en esta tarea.
+- **Ojo:** la pantalla del día sigue siendo la vista para revisar y corregir; el modo entrenar convive con ella (se sale con la X y lo hecho ya quedó guardado).
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
