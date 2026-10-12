@@ -4,6 +4,7 @@ import { Pencil, X } from "lucide-react";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
+import { BotonDescanso, RelojCircular, useDescanso } from "@/components/Descanso";
 import { Disco } from "@/components/Disco";
 import { DoneControl } from "@/components/DoneControl";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -368,6 +369,10 @@ function SerieEnGrande({
   onSerieGuardada: (s: SetItem) => void;
   onAvanzar: () => void;
 }) {
+  const descanso = useDescanso();
+  // El descanso es de este ejercicio: se guarda con qué ejercicio lo arrancó y adónde volver.
+  const clave = `${dia.week_id}-${dia.day_index}-${pos.ej}`;
+  const href = `/semanas/${dia.week_id}/dia/${dia.day_index}/entrenar?ejercicio=${pos.ej + 1}`;
   const serie = ejercicio.sets[pos.serie];
   const real = serie.real ?? null;
   const mostrada = real ? realAsSet(real) : serie;
@@ -375,8 +380,18 @@ function SerieEnGrande({
   const boton = !real ? "Serie hecha" : todas ? "Terminar ejercicio" : "Siguiente serie";
   const anterior = ejercicio.previous;
 
+  // Mientras corre el descanso de este ejercicio, el círculo ocupa el lugar de la serie (decisión 48).
+  if (descanso.corriendo?.clave === clave) {
+    return <RelojCircular subtitulo={`Sigue la serie ${pos.serie + 1} de ${ejercicio.sets.length}`} />;
+  }
+
   return (
     <>
+      {descanso.terminado === clave && (
+        <p role="status" className="mt-3 mb-0 rounded-xl bg-disco-amarillo px-4 py-2 text-center font-medium text-disco-tinta">
+          Listo, siguiente serie
+        </p>
+      )}
       <section className="relative mt-3 rounded-2xl bg-card p-5 text-center">
         {/* El lápiz va en la esquina de la serie, lejos del botón grande (decisión 47). */}
         {!corrigiendo && (
@@ -441,9 +456,24 @@ function SerieEnGrande({
           />
         </ul>
       ) : (
-        <Button size="lg" className="mt-4 h-12 w-full text-base" type="button" onClick={onAvanzar} disabled={trabajando}>
-          {trabajando ? "Guardando..." : boton}
-        </Button>
+        <div className="mt-4 flex gap-2">
+          {/* El reloj lo arranca el usuario, nunca solo; sin descanso propuesto no aparece. */}
+          {ejercicio.rest_seconds !== null && (
+            <BotonDescanso segundos={ejercicio.rest_seconds} clave={clave} href={href} nombre={ejercicio.name} />
+          )}
+          <Button
+            size="lg"
+            className="h-12 flex-1 text-base"
+            type="button"
+            onClick={() => {
+              descanso.olvidarAviso();
+              onAvanzar();
+            }}
+            disabled={trabajando}
+          >
+            {trabajando ? "Guardando..." : boton}
+          </Button>
+        </div>
       )}
     </>
   );
