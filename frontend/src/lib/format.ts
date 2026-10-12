@@ -84,7 +84,7 @@ export function estaHecho(exercise: ExerciseItem): boolean {
 export const dayStateText = {
   pending: "",
   partial: "a medias",
-  completed: "✓ completado",
+  completed: "completado",
 } as const;
 
 export const goalText: Record<string, string> = {

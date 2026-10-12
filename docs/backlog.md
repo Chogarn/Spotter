@@ -53,7 +53,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Refactor y mejoras de UX: shadcn/ui y Tailwind en versión básica (sin estilos propios todavía), con componentes compartidos para el error y el recuadro de confirmación. Decisión 38; probado en una copia temporal `frontend` (#31)
 - [x] Diseño "Disco" (tema): colores de los discos, fuentes Barlow y Barlow Condensed, variables de shadcn en `globals.css` y modo oscuro. Decisión 41 `frontend` (#53)
 - [x] Navegación y pantalla Entrenar: barra fija abajo (Entrenar, Rutinas y Perfil), portada "Entrenar" con el próximo día y el progreso en discos, "Cerrar semana" al final de Entrenar y "Cerrar sesión" en el Perfil. Decisiones 42 y 44. Depende de #53 `frontend` (#54)
-- [ ] Rediseño del día, las rutinas y la propuesta: series como discos que se tocan para marcarlas, acciones chicas con íconos (lápiz, tilde, cruz, candado y tacho con confirmación) y el resumen de la IA en la propuesta. Decisiones 43 y 44. Depende de #53 `frontend` (#55)
+- [x] Rediseño del día, las rutinas y la propuesta: series como discos que se tocan para marcarlas, acciones chicas con íconos (lápiz, tilde, cruz, candado y tacho con confirmación) y el resumen de la IA en la propuesta. Decisiones 43 y 44. Depende de #53 `frontend` (#55)
 - [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs` (#32)
 
 > **Para la Semana 4 (idea, sin definir):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
@@ -87,7 +87,7 @@ La definición completa de cada una está en su issue de GitHub.
 | Antes y después en las propuestas (#49) | En la vista previa de la propuesta (`/rutina/propuesta/{id}`) cuando es un ajuste o una semana nueva | Ajuste (#29) y semana nueva (#27) |
 | ~~Diseño "Disco", tema (#53)~~ | Hecho: toda la app: cambian colores, fuentes y formas sin cambiar qué hace cada pantalla | Nada |
 | ~~Navegación y pantalla Entrenar (#54)~~ | Hecho: barra fija abajo en todas las pantallas con sesión; "Entrenar" reemplaza la portada actual | #53 |
-| Rediseño del día, las rutinas y la propuesta (#55) | `/semanas/{id}/dia/{n}`, `/rutinas` y `/rutina/propuesta/{id}` | #53 |
+| ~~Rediseño del día, las rutinas y la propuesta (#55)~~ | Hecho: `/semanas/{id}/dia/{n}`, `/rutinas` y `/rutina/propuesta/{id}` | #53 |
 | ~~Elegir camino A o B (#43)~~ y ~~formulario de rutina actual (#44)~~ | No se hacen: se descartó el camino B (decisión 40) | — |
 | ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con el ajuste (#29) | — |
 

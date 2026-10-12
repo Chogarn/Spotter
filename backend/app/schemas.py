@@ -131,6 +131,9 @@ class RoutineSummaryOut(BaseModel):
     level: Level
     week_count: int
     has_active_week: bool
+    # Estado de cada día de la semana más nueva ("completed", "partial" o "pending"), en orden;
+    # la lista "Tus rutinas" lo muestra como discos. Vacía si la rutina no tiene semanas.
+    last_week_day_states: list[str] = []
 
 
 class RoutineRenameIn(BaseModel):
@@ -147,6 +150,8 @@ class WeekSummaryOut(BaseModel):
     week_start: date
     closed_at: datetime | None
     day_count: int
+    # Estado de cada día ("completed", "partial" o "pending"), en orden: se muestra como discos.
+    day_states: list[str]
 
 
 class WeekDayItemOut(BaseModel):

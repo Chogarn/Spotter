@@ -1,11 +1,14 @@
 "use client";
 
+import { Check, Pencil, X } from "lucide-react";
 import { useState } from "react";
 
 import { readError, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
 import { differsFromPlan, realAsSet, setText } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Confirmar } from "@/components/Confirmar";
+import { Disco } from "@/components/Disco";
 import { InlineError } from "@/components/ErrorMessage";
 
 export type SetEdit = {
@@ -21,8 +24,9 @@ const MEASURE = {
   cardio: { label: "minutos", unit: "min" },
 } as const;
 
-// Una serie del desglose. Con `edit`, tiene un botón Editar que deja corregir lo realizado
-// (repeticiones y kilos; segundos o minutos según el ejercicio) y lo guarda sin tocar el plan.
+// Una serie (decisión 43). Su disco muestra si está hecha; con `edit`, tocarlo la marca como hecha
+// (lo planificado) o la desmarca (borra lo registrado), y el lápiz deja corregir lo realizado
+// (repeticiones y kilos; segundos o minutos según el ejercicio) sin tocar el plan.
 export function SetRow({
   kind,
   index,
@@ -37,6 +41,7 @@ export function SetRow({
   const [editando, setEditando] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [marcando, setMarcando] = useState(false);
+  const [confirmando, setConfirmando] = useState(false);
   const [error, setError] = useState("");
   const [medida, setMedida] = useState("");
   const [kilos, setKilos] = useState("");
@@ -44,6 +49,8 @@ export function SetRow({
   const real = set.real ?? null;
   const mostrada = real ? realAsSet(real) : set;
   const cambio = real !== null && differsFromPlan(set, real);
+  const numero = index + 1;
+  const puedeEditar = edit !== undefined && set.id !== undefined;
 
   // Marcar como hecha (lo planificado) y Desmarcar (borra lo registrado de esta serie).
   async function cambiarHecha(method: "POST" | "DELETE") {
@@ -62,13 +69,10 @@ export function SetRow({
     setMarcando(false);
   }
 
-  const marcar = () => cambiarHecha("POST");
-
-  function desmarcar() {
+  function tocarDisco() {
+    if (!real) return cambiarHecha("POST");
     // Si la serie tiene valores editados, desmarcarla los borra: se pide confirmación.
-    if (cambio && !window.confirm("Se va a borrar lo que registraste en esta serie. ¿Seguro?")) {
-      return;
-    }
+    if (cambio) return setConfirmando(true);
     cambiarHecha("DELETE");
   }
 
@@ -130,84 +134,99 @@ export function SetRow({
     setGuardando(false);
   }
 
-  if (editando) {
-    return (
-      <li>
-        <small>
-          Serie {index + 1} ·{" "}
-          <Input
-            aria-label={`Serie ${index + 1}: ${MEASURE[kind].label}`}
-            type="number"
-            min={1}
-            value={medida}
-            onChange={(e) => setMedida(e.target.value)}
-            className="inline-flex h-7 w-20"
-          />{" "}
-          {MEASURE[kind].unit}
-          {kind === "strength" && (
-            <>
-              {" · "}
-              <Input
-                aria-label={`Serie ${index + 1}: kilos`}
-                inputMode="decimal"
-                value={kilos}
-                onChange={(e) => setKilos(e.target.value)}
-                className="inline-flex h-7 w-20"
-              />{" "}
-              kg
-            </>
-          )}{" "}
-          <Button type="button" onClick={guardar} disabled={guardando}>
-            Guardar
-          </Button>{" "}
-          <Button variant="outline" type="button" onClick={() => setEditando(false)} disabled={guardando}>
-            Cancelar
-          </Button>
-        </small>
-        {error && (
-          <div>
-            <InlineError>{error}</InlineError>
-          </div>
-        )}
-      </li>
-    );
-  }
+  const disco = <Disco estado={real ? "hecho" : "pendiente"} className="size-8">{numero}</Disco>;
 
   return (
-    <li>
-      <small>
-        Serie {index + 1} · {setText(kind, mostrada)}
-        {cambio && <> (tocaba {setText(kind, set)})</>}
-        {real && <> · ✓ hecha</>}
-        {edit && set.id !== undefined && (
-          <>
-            {" "}
-            {!real && (
-              <>
-                <Button type="button" onClick={marcar} disabled={marcando}>
-                  Marcar como hecha
-                </Button>{" "}
-              </>
-            )}
-            <Button type="button" onClick={empezar} disabled={marcando}>
-              Editar
-            </Button>
-            {real && (
-              <>
-                {" "}
-                <Button variant="outline" type="button" onClick={desmarcar} disabled={marcando}>
-                  Desmarcar
-                </Button>
-              </>
-            )}
-          </>
+    <li className="border-t border-border py-2 first:border-t-0">
+      <div className="flex min-h-9 items-center gap-3">
+        {puedeEditar && !editando ? (
+          <button
+            type="button"
+            onClick={tocarDisco}
+            disabled={marcando}
+            aria-pressed={real !== null}
+            aria-label={`Serie ${numero}: ${real ? "desmarcar" : "marcar como hecha"}`}
+            className="rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
+          >
+            {disco}
+          </button>
+        ) : (
+          disco
         )}
-      </small>
-      {error && (
-        <div>
-          <InlineError>{error}</InlineError>
-        </div>
-      )}
+
+        {editando ? (
+          <span className="flex flex-1 flex-wrap items-center gap-1.5 text-sm">
+            <Input
+              aria-label={`Serie ${numero}: ${MEASURE[kind].label}`}
+              type="number"
+              min={1}
+              value={medida}
+              onChange={(e) => setMedida(e.target.value)}
+              className="h-9 w-16"
+            />
+            {MEASURE[kind].unit}
+            {kind === "strength" && (
+              <>
+                <Input
+                  aria-label={`Serie ${numero}: kilos`}
+                  inputMode="decimal"
+                  value={kilos}
+                  onChange={(e) => setKilos(e.target.value)}
+                  className="ml-1 h-9 w-18"
+                />
+                kg
+              </>
+            )}
+          </span>
+        ) : (
+          <span className="flex-1">
+            {setText(kind, mostrada)}
+            {cambio && <span className="ml-2 text-sm text-muted-foreground">tocaba {setText(kind, set)}</span>}
+          </span>
+        )}
+
+        {puedeEditar && editando && (
+          <span className="flex gap-1.5">
+            <Button size="icon-lg" type="button" onClick={guardar} disabled={guardando} aria-label={`Guardar serie ${numero}`}>
+              <Check />
+            </Button>
+            <Button
+              size="icon-lg"
+              variant="outline"
+              type="button"
+              onClick={() => setEditando(false)}
+              disabled={guardando}
+              aria-label={`Cancelar la edición de la serie ${numero}`}
+            >
+              <X />
+            </Button>
+          </span>
+        )}
+        {puedeEditar && !editando && (
+          <Button
+            size="icon-lg"
+            variant="outline"
+            type="button"
+            onClick={empezar}
+            disabled={marcando}
+            aria-label={`Editar serie ${numero}`}
+          >
+            <Pencil />
+          </Button>
+        )}
+      </div>
+      {error && <InlineError>{error}</InlineError>}
+      <Confirmar
+        abierto={confirmando}
+        titulo={`¿Desmarcar la serie ${numero}?`}
+        texto={`Se borra lo que registraste (${setText(kind, mostrada)}) y la serie vuelve a quedar sin hacer.`}
+        accion="Desmarcar"
+        onCancelar={() => setConfirmando(false)}
+        onConfirmar={() => {
+          setConfirmando(false);
+          cambiarHecha("DELETE");
+        }}
+      />
     </li>
   );
 }

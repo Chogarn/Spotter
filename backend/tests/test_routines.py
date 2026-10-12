@@ -188,6 +188,27 @@ def test_cambiar_el_nombre(api, entorno, monkeypatch):
     assert api.patch("/routines/999", json={"name": "x"}).status_code == 404
 
 
+def test_cada_semana_trae_el_estado_de_sus_dias(api, entorno, monkeypatch):
+    con_perfil(api)
+    generar_y_aceptar(api, monkeypatch)
+    rutina_id = api.get("/routines").json()[0]["id"]
+    semana = api.get("/weeks/active").json()["id"]
+    # Día 1 a medias (una serie hecha) y Día 2 completado; el resto sin tocar.
+    serie = api.get(f"/weeks/{semana}/days/1").json()["exercises"][0]["sets"][0]["id"]
+    assert api.post(f"/weeks/{semana}/days/1/sets/{serie}/done").status_code == 200
+    assert api.post(f"/weeks/{semana}/days/2/complete").status_code == 200
+
+    detalle = api.get(f"/routines/{rutina_id}").json()
+    lista = api.get("/routines").json()
+
+    estados = detalle["weeks"][0]["day_states"]
+    dias = len(api.get(f"/weeks/{semana}").json()["days"])
+    assert estados == ["partial", "completed"] + ["pending"] * (dias - 2)
+    assert lista[0]["last_week_day_states"] == estados
+    # Al cerrar la semana, la respuesta trae el mismo estado (los días sin hacer quedan pendientes).
+    assert api.post(f"/weeks/{semana}/close").json()["day_states"] == estados
+
+
 def test_la_semana_sabe_a_que_rutina_pertenece(api, entorno, monkeypatch):
     con_perfil(api)
     generar_y_aceptar(api, monkeypatch)

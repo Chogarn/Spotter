@@ -9,7 +9,6 @@ import { BackButton } from "@/components/BackButton";
 import { ExerciseRow } from "@/components/ExerciseRow";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ErrorMessage } from "@/components/ErrorMessage";
 
 export default function PropuestaView({
@@ -55,7 +54,7 @@ export default function PropuestaView({
     setTrabajando(false);
   }
 
-  const contenedor = { maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem" };
+  const contenedor = { maxWidth: 576, margin: "0 auto", padding: "1.5rem 1rem 0" };
 
   if (cargando) return <main style={contenedor}>Cargando...</main>;
 
@@ -63,7 +62,7 @@ export default function PropuestaView({
     return (
       <main style={contenedor}>
         <ErrorMessage>{error}</ErrorMessage>
-        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
+        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Ir a Entrenar</Button>
       </main>
     );
   }
@@ -73,7 +72,7 @@ export default function PropuestaView({
       <main style={contenedor}>
         <p>Tu rutina quedó activa: {propuesta.routine.days.length} días.</p>
         <Button variant="outline" nativeButton={false} render={<Link href="/rutinas" />}>Ver mis rutinas</Button>{" "}
-        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
+        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Ir a Entrenar</Button>
       </main>
     );
   }
@@ -82,7 +81,7 @@ export default function PropuestaView({
     return (
       <main style={contenedor}>
         <p>Esta propuesta ya fue resuelta.</p>
-        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Volver al inicio</Button>
+        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Ir a Entrenar</Button>
       </main>
     );
   }
@@ -92,14 +91,17 @@ export default function PropuestaView({
   return (
     <main style={contenedor}>
       <BackButton href="/">← Volver</BackButton>
-      <h1>Tu rutina propuesta</h1>
-      <p>La IA propone, vos decidís: nada se guarda hasta que aceptes.</p>
+      <p className="mb-0 text-sm text-muted-foreground">Propuesta de la IA</p>
+      <h1 className="mt-0">
+        {days.length} días · ~{Math.round(propuesta.day_minutes.reduce((a, b) => a + b, 0) / days.length)} min
+      </h1>
+      <p className="text-muted-foreground">La IA propone, vos decidís: nada se guarda hasta que aceptes.</p>
 
       {summary && (
-        <Alert className="my-3">
-          <AlertTitle>Resumen de la semana anterior</AlertTitle>
-          <AlertDescription>{summary}</AlertDescription>
-        </Alert>
+        <section className="my-4 rounded-2xl border-2 border-disco-amarillo bg-card p-4">
+          <h2 className="mt-0 text-lg">Resumen de la semana anterior</h2>
+          <p className="mb-0">{summary}</p>
+        </section>
       )}
       {propuesta.warnings.length > 0 && (
         <Alert className="my-3">
@@ -126,38 +128,45 @@ export default function PropuestaView({
         </Alert>
       )}
 
-      <div className="grid gap-3">
-        {days.map((dia, i) => (
-          <Card key={i}>
-            <CardHeader>
-              <CardTitle>
-                Día {i + 1} · {dia.title}
-              </CardTitle>
-              <CardDescription>~{propuesta.day_minutes[i]} min</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {dia.mobility_notes && <p>Movilidad: {dia.mobility_notes}</p>}
-              <ol>
-                {dia.exercises.map((e, j) => (
-                  <ExerciseRow key={j} exercise={e} />
-                ))}
-              </ol>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {days.map((dia, i) => (
+        <section key={i} className="mt-6">
+          <h2 className="mb-0 text-3xl">Día {i + 1}</h2>
+          <p className="mt-0 text-muted-foreground">
+            {dia.title} · ~{propuesta.day_minutes[i]} min
+          </p>
+          {dia.mobility_notes && <p className="text-sm">Movilidad: {dia.mobility_notes}</p>}
+          <ol className="m-0 grid gap-3 p-0">
+            {dia.exercises.map((e, j) => (
+              <ExerciseRow key={j} exercise={e} />
+            ))}
+          </ol>
+        </section>
+      ))}
 
       <p>
-        <small>Los pesos son orientativos. La app no da consejo médico.</small>
+        <small className="text-muted-foreground">Los pesos son orientativos. La app no da consejo médico.</small>
       </p>
-      <p>
-        <Button type="button" onClick={() => resolver("accept")} disabled={trabajando}>
-          Aceptar rutina
-        </Button>{" "}
-        <Button variant="outline" type="button" onClick={() => resolver("discard")} disabled={trabajando}>
+      <div className="mt-4 flex gap-3">
+        <Button
+          variant="outline"
+          size="lg"
+          className="h-11 flex-1 text-base"
+          type="button"
+          onClick={() => resolver("discard")}
+          disabled={trabajando}
+        >
           Descartar
         </Button>
-      </p>
+        <Button
+          size="lg"
+          className="h-11 flex-[1.4] text-base"
+          type="button"
+          onClick={() => resolver("accept")}
+          disabled={trabajando}
+        >
+          Aceptar
+        </Button>
+      </div>
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </main>
   );

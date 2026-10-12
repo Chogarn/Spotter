@@ -1,10 +1,12 @@
 "use client";
 
+import { Check, LockOpen, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { readError, type ExerciseItem, apiFetch } from "@/lib/api";
-import { differsFromPlan, estaHecho, seriesRegistradas } from "@/lib/format";
+import { estaHecho, seriesRegistradas } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { Confirmar } from "@/components/Confirmar";
 import { InlineError } from "@/components/ErrorMessage";
 
 export type DoneEdit = {
@@ -13,18 +15,18 @@ export type DoneEdit = {
   onChanged: (updated: ExerciseItem) => void;
 };
 
-// El estado del ejercicio y sus botones.
-//  - Marcar como hecho: cierra el ejercicio (lo hice como estaba planificado: las series sin
+// Los botones del ejercicio, como íconos (decisión 43).
+//  - Tilde, marcar como hecho: cierra el ejercicio (lo hice como estaba planificado: las series sin
 //    registrar copian el plan y las que ya marcaste o editaste se respetan). Cerrado, sus series
 //    no se pueden editar, marcar ni desmarcar.
-//  - Reabrir ejercicio: lo desbloquea para corregirlo, sin borrar nada de lo registrado.
-//  - Deshacer: borra lo registrado de ese ejercicio.
-// Sin `edit` (día completado) solo muestra el estado.
+//  - Candado abierto, reabrir: lo desbloquea para corregirlo, sin borrar nada de lo registrado.
+//  - Tacho, deshacer: borra lo registrado de ese ejercicio; siempre pide confirmación.
+// Sin `edit` (día completado o semana cerrada) no muestra nada.
 export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?: DoneEdit }) {
   const [trabajando, setTrabajando] = useState(false);
+  const [confirmando, setConfirmando] = useState(false);
   const [error, setError] = useState("");
 
-  const total = exercise.sets.length;
   const hechas = seriesRegistradas(exercise);
   const hecho = estaHecho(exercise);
 
@@ -44,54 +46,60 @@ export function DoneControl({ exercise, edit }: { exercise: ExerciseItem; edit?:
     setTrabajando(false);
   }
 
-  function deshacer() {
-    // Deshacer borra lo registrado: si hay series que editaste a mano, se pide confirmación.
-    const editadas = exercise.sets.some((s) => s.real && differsFromPlan(s, s.real));
-    if (editadas && !window.confirm("Se van a borrar las series que registraste en este ejercicio. ¿Seguro?")) {
-      return;
-    }
-    llamar("DELETE", "done");
-  }
-
-  const estado = hecho
-    ? "✓ Hecho"
-    : hechas > 0
-      ? `${hechas} de ${total} series hechas`
-      : "";
-  const puedeEditar = edit !== undefined && exercise.id !== undefined;
+  if (!edit || exercise.id === undefined) return null;
 
   return (
-    <div>
-      {estado && <small>{estado}</small>}
-      {puedeEditar && !hecho && (
-        <>
-          {estado && " "}
-          <Button type="button" onClick={() => llamar("POST", "done")} disabled={trabajando}>
-            Marcar como hecho
+    <div className="flex flex-col items-end gap-1">
+      <div className="flex gap-1.5">
+        {!hecho && (
+          <Button
+            size="icon-lg"
+            type="button"
+            onClick={() => llamar("POST", "done")}
+            disabled={trabajando}
+            aria-label={`Marcar ${exercise.name} como hecho`}
+          >
+            <Check />
           </Button>
-        </>
-      )}
-      {puedeEditar && hecho && (
-        <>
-          {" "}
-          <Button variant="outline" type="button" onClick={() => llamar("POST", "reopen")} disabled={trabajando}>
-            Reabrir ejercicio
+        )}
+        {hecho && (
+          <Button
+            size="icon-lg"
+            variant="outline"
+            type="button"
+            onClick={() => llamar("POST", "reopen")}
+            disabled={trabajando}
+            aria-label={`Reabrir ${exercise.name}`}
+          >
+            <LockOpen />
           </Button>
-        </>
-      )}
-      {puedeEditar && hechas > 0 && (
-        <>
-          {" "}
-          <Button variant="outline" type="button" onClick={deshacer} disabled={trabajando}>
-            Deshacer
+        )}
+        {hechas > 0 && (
+          <Button
+            size="icon-lg"
+            variant="outline"
+            type="button"
+            className="text-destructive hover:text-destructive"
+            onClick={() => setConfirmando(true)}
+            disabled={trabajando}
+            aria-label={`Deshacer ${exercise.name}: borra lo registrado`}
+          >
+            <Trash2 />
           </Button>
-        </>
-      )}
-      {error && (
-        <div>
-          <InlineError>{error}</InlineError>
-        </div>
-      )}
+        )}
+      </div>
+      {error && <InlineError>{error}</InlineError>}
+      <Confirmar
+        abierto={confirmando}
+        titulo={`¿Borrar lo registrado en ${exercise.name}?`}
+        texto={`${hechas === 1 ? "La serie registrada vuelve" : `Las ${hechas} series registradas vuelven`} a quedar sin hacer${hecho ? " y el ejercicio se reabre" : ""}.`}
+        accion="Borrar"
+        onCancelar={() => setConfirmando(false)}
+        onConfirmar={() => {
+          setConfirmando(false);
+          llamar("DELETE", "done");
+        }}
+      />
     </div>
   );
 }

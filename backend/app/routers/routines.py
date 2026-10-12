@@ -6,9 +6,23 @@ from app.db import get_db
 from app.deps import get_current_user
 from app.enums import PlanStatus
 from app.models import Routine, User
+from app.routers.weeks import week_day_states
 from app.schemas import RoutineDetailOut, RoutineRenameIn, RoutineSummaryOut, WeekSummaryOut
 
 router = APIRouter(prefix="/routines", tags=["routines"])
+
+
+def routine_summary(db: Session, user: User, routine: Routine) -> RoutineSummaryOut:
+    weeks = routine.weeks  # de la más vieja a la más nueva
+    return RoutineSummaryOut(
+        id=routine.id,
+        name=routine.name,
+        goal=routine.goal,
+        level=routine.level,
+        week_count=len(weeks),
+        has_active_week=any(w.status == PlanStatus.ACTIVE for w in weeks),
+        last_week_day_states=week_day_states(db, user, weeks[-1]) if weeks else [],
+    )
 
 
 def get_own_routine(db: Session, user: User, routine_id: int) -> Routine:
@@ -28,17 +42,7 @@ def list_routines(
         .where(Routine.user_id == user.id)
         .order_by(Routine.created_at.desc(), Routine.id.desc())
     )
-    return [
-        RoutineSummaryOut(
-            id=r.id,
-            name=r.name,
-            goal=r.goal,
-            level=r.level,
-            week_count=len(r.weeks),
-            has_active_week=any(w.status == PlanStatus.ACTIVE for w in r.weeks),
-        )
-        for r in routines
-    ]
+    return [routine_summary(db, user, r) for r in routines]
 
 
 @router.get("/{routine_id}", response_model=RoutineDetailOut)
@@ -55,6 +59,7 @@ def get_routine(
             week_start=week.week_start,
             closed_at=week.closed_at,
             day_count=len(week.days),
+            day_states=week_day_states(db, user, week),
         )
         for number, week in enumerate(routine.weeks, start=1)
     ]
@@ -80,11 +85,4 @@ def rename_routine(
         raise HTTPException(status_code=422, detail="El nombre no puede estar vacío")
     routine.name = name
     db.commit()
-    return RoutineSummaryOut(
-        id=routine.id,
-        name=routine.name,
-        goal=routine.goal,
-        level=routine.level,
-        week_count=len(routine.weeks),
-        has_active_week=any(w.status == PlanStatus.ACTIVE for w in routine.weeks),
-    )
+    return routine_summary(db, user, routine)

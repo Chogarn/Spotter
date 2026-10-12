@@ -1,5 +1,6 @@
 "use client";
 
+import { LockOpen } from "lucide-react";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
@@ -84,7 +85,7 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
   const hechos = dia ? dia.exercises.filter(estaHecho).length : 0;
 
   return (
-    <main style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem" }}>
+    <main className="mx-auto max-w-xl px-4 pt-6">
       <BackButton href={`/semanas/${id}`}>
         ← {dia ? `Semana ${dia.week_number}` : "Volver a la semana"}
       </BackButton>
@@ -92,40 +93,50 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
       {!dia && !error && <p>Cargando...</p>}
       {dia && (
         <>
-          <h1>
-            Día {dia.day_index} · {dia.title}{" "}
-            <small style={{ fontWeight: "normal" }}>
-              ~{dia.minutes} min{completado && " · ✓ completado"}
-            </small>
-          </h1>
-          {dia.mobility_notes && <p>Movilidad: {dia.mobility_notes}</p>}
-          <ol>
+          <h1 className="mb-0 text-6xl">Día {dia.day_index}</h1>
+          <p className="mt-1 text-muted-foreground">
+            {dia.title} · ~{dia.minutes} min
+          </p>
+          {dia.mobility_notes && <p className="text-sm">Movilidad: {dia.mobility_notes}</p>}
+          <ol className="m-0 mt-4 grid gap-3 p-0">
             {dia.exercises.map((e, i) => (
-              <ExerciseRow key={i} exercise={e} edit={edit} />
+              <ExerciseRow key={i} exercise={e} edit={edit} desplegado />
             ))}
           </ol>
           {activa && (
-            <p>
-              <small>
+            <section className="mt-6">
+              <p className="text-sm text-muted-foreground">
                 Hechos: {hechos} de {dia.exercises.length} ejercicios
-              </small>
-              <br />
+              </p>
               {completado ? (
-                <>
-                  ✓ Día completado{" "}
-                  <Button variant="outline" type="button" onClick={() => cambiarDia("reopen")} disabled={trabajando}>
-                    Reabrir día
+                <div className="flex items-center gap-3">
+                  <span className="flex-1 font-heading text-2xl font-bold">Día completado</span>
+                  <Button
+                    size="icon-lg"
+                    variant="outline"
+                    type="button"
+                    onClick={() => cambiarDia("reopen")}
+                    disabled={trabajando}
+                    aria-label={`Reabrir el día ${dia.day_index}`}
+                  >
+                    <LockOpen />
                   </Button>
-                </>
+                </div>
               ) : (
-                <Button type="button" onClick={() => cambiarDia("complete")} disabled={trabajando}>
+                <Button
+                  size="lg"
+                  className="h-11 w-full text-base"
+                  type="button"
+                  onClick={() => cambiarDia("complete")}
+                  disabled={trabajando}
+                >
                   Día completado
                 </Button>
               )}
-            </p>
+            </section>
           )}
           <p>
-            <small>Los pesos son orientativos. La app no da consejo médico.</small>
+            <small className="text-muted-foreground">Los pesos son orientativos. La app no da consejo médico.</small>
           </p>
         </>
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, Pencil, X } from "lucide-react";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
@@ -8,9 +9,9 @@ import { readError, type RoutineDetail, apiFetch } from "@/lib/api";
 import { goalText, shortDate, statusText } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DiscosSemana } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "cn";
 
 export default function RutinaView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -50,58 +51,86 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <main style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem" }}>
-      <BackButton href="/rutinas">← Mis rutinas</BackButton>
+    <main className="mx-auto max-w-xl px-4 pt-6">
+      <BackButton href="/rutinas">← Tus rutinas</BackButton>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!rutina && !error && <p>Cargando...</p>}
       {rutina && (
         <>
           {nombre === null ? (
-            <h1>
-              {rutina.name}{" "}
-              <Button variant="outline" type="button" onClick={() => setNombre(rutina.name)}>
-                Cambiar nombre
+            <div className="flex items-center gap-2">
+              <h1 className="my-2 flex-1">{rutina.name}</h1>
+              <Button
+                size="icon-lg"
+                variant="outline"
+                type="button"
+                onClick={() => setNombre(rutina.name)}
+                aria-label="Cambiar el nombre de la rutina"
+              >
+                <Pencil />
               </Button>
-            </h1>
+            </div>
           ) : (
-            <p>
+            <div className="my-3 flex items-center gap-1.5">
               <Input
                 value={nombre}
                 maxLength={100}
                 aria-label="Nombre de la rutina"
                 onChange={(e) => setNombre(e.target.value)}
-                className="inline-flex w-72"
-              />{" "}
-              <Button type="button" onClick={guardarNombre} disabled={guardando || !nombre.trim()}>
-                Guardar
-              </Button>{" "}
-              <Button variant="outline" type="button" onClick={() => setNombre(null)} disabled={guardando}>
-                Cancelar
+                className="h-9 flex-1"
+              />
+              <Button
+                size="icon-lg"
+                type="button"
+                onClick={guardarNombre}
+                disabled={guardando || !nombre.trim()}
+                aria-label="Guardar el nombre"
+              >
+                <Check />
               </Button>
-            </p>
+              <Button
+                size="icon-lg"
+                variant="outline"
+                type="button"
+                onClick={() => setNombre(null)}
+                disabled={guardando}
+                aria-label="Cancelar el cambio de nombre"
+              >
+                <X />
+              </Button>
+            </div>
           )}
-          <p>
-            Objetivo: {goalText[rutina.goal]} · Nivel: {rutina.level}
+          <p className="mt-0 text-muted-foreground">
+            {goalText[rutina.goal]} · {rutina.level}
           </p>
-          <div className="grid gap-3">
+          <ul className="m-0 mt-4 grid list-none gap-2 p-0">
             {rutina.weeks.map((s) => (
-              <Card key={s.id}>
-                <CardHeader>
-                  <CardTitle>
-                    <Link href={`/semanas/${s.id}`}>Semana {s.number}</Link>
-                  </CardTitle>
-                  <CardDescription>
-                    {s.day_count} días · desde el {shortDate(s.week_start)}
-                  </CardDescription>
-                  <CardAction>
-                    <Badge variant={s.status === "active" ? "default" : "secondary"}>
-                      {statusText[s.status]}
-                    </Badge>
-                  </CardAction>
-                </CardHeader>
-              </Card>
+              <li key={s.id}>
+                <Link
+                  href={`/semanas/${s.id}`}
+                  className="flex items-center gap-3 rounded-xl bg-card px-4 py-3 no-underline hover:bg-muted"
+                >
+                  <span className="flex-1">
+                    <span className="font-medium">Semana {s.number}</span>
+                    <span className="block text-sm text-muted-foreground">
+                      {s.day_count} días · desde el {shortDate(s.week_start)}
+                    </span>
+                    <span className="mt-1.5 block">
+                      <DiscosSemana estados={s.day_states} cerrada={s.status === "closed"} />
+                    </span>
+                  </span>
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-0.5 text-xs font-medium",
+                      s.status === "active" ? "bg-disco-rojo text-white" : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {s.status === "active" ? "en curso" : statusText[s.status]}
+                  </span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </>
       )}
     </main>

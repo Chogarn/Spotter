@@ -72,6 +72,7 @@ export type Routine = {
   level: string;
   week_count: number;
   has_active_week: boolean;
+  last_week_day_states: DayState[]; // los días de la semana más nueva, en orden
 };
 
 export type RoutineDetail = {
@@ -89,7 +90,10 @@ export type WeekSummary = {
   week_start: string;
   closed_at: string | null;
   day_count: number;
+  day_states: DayState[]; // cada día, en orden
 };
+
+export type DayState = "pending" | "partial" | "completed";
 
 export type WeekDetail = {
   id: number;
@@ -104,7 +108,7 @@ export type WeekDetail = {
     title: string;
     exercise_count: number;
     minutes: number;
-    state: "pending" | "partial" | "completed";
+    state: DayState;
   }[];
 };
 

@@ -149,6 +149,11 @@ def day_state(entries: dict[int, SetEntry], session: WorkoutSession | None) -> s
     return "partial" if entries else "pending"
 
 
+def week_day_states(db: Session, user: User, week: WeekPlan) -> list[str]:
+    """El estado de cada día de la semana, en orden (lo que muestran los discos)."""
+    return [day_state(day_entries(db, d), day_session(db, user, d)) for d in week.days]
+
+
 def set_out(plan_set: PlanSet, entry: SetEntry | None) -> DaySetOut:
     return DaySetOut(
         id=plan_set.id,
@@ -254,6 +259,7 @@ def close_week(
         week_start=week.week_start,
         closed_at=week.closed_at,
         day_count=len(week.days),
+        day_states=week_day_states(db, user, week),
     )
 
 

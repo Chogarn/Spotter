@@ -6,8 +6,7 @@ import { use, useEffect, useState } from "react";
 import { BackButton } from "@/components/BackButton";
 import { readError, type WeekDetail, apiFetch } from "@/lib/api";
 import { dayStateText, statusText } from "@/lib/format";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 
 export default function SemanaView({ params }: { params: Promise<{ id: string }> }) {
@@ -25,40 +24,37 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
   }, [id]);
 
   return (
-    <main style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem" }}>
+    <main className="mx-auto max-w-xl px-4 pt-6">
       <BackButton href={semana ? `/rutinas/${semana.routine_id}` : "/rutinas"}>
-        ← {semana ? semana.routine_name : "Mis rutinas"}
+        ← {semana ? semana.routine_name : "Tus rutinas"}
       </BackButton>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!semana && !error && <p>Cargando...</p>}
       {semana && (
         <>
-          <h1>
-            Semana {semana.number} · {statusText[semana.status]}
-          </h1>
-          <div className="mb-4 grid gap-3">
+          <h1 className="mb-0">Semana {semana.number}</h1>
+          <p className="mt-1 mb-4 text-muted-foreground">
+            {semana.routine_name} · {semana.status === "active" ? "en curso" : statusText[semana.status]}
+          </p>
+          <ul className="m-0 mb-4 grid list-none gap-2 p-0">
             {semana.days.map((d) => (
-              <Card key={d.day_index}>
-                <CardHeader>
-                  <CardTitle>
-                    <Link href={`/semanas/${semana.id}/dia/${d.day_index}`}>
-                      Día {d.day_index} · {d.title}
-                    </Link>
-                  </CardTitle>
-                  <CardDescription>
-                    ~{d.minutes} min · {d.exercise_count} ejercicios
-                  </CardDescription>
-                  {d.state !== "pending" && (
-                    <CardAction>
-                      <Badge variant={d.state === "completed" ? "default" : "outline"}>
-                        {dayStateText[d.state]}
-                      </Badge>
-                    </CardAction>
-                  )}
-                </CardHeader>
-              </Card>
+              <li key={d.day_index}>
+                <Link
+                  href={`/semanas/${semana.id}/dia/${d.day_index}`}
+                  className="flex items-center gap-3 rounded-xl bg-card px-4 py-3 no-underline hover:bg-muted"
+                >
+                  <Disco estado={estadoDia[d.state]} />
+                  <span className="flex-1">
+                    <span className="font-medium">Día {d.day_index}</span> · {d.title}
+                    <span className="block text-sm text-muted-foreground">
+                      ~{d.minutes} min · {d.exercise_count} ejercicios
+                      {d.state !== "pending" && <> · {dayStateText[d.state]}</>}
+                    </span>
+                  </span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
 
           {semana.status === "active" && (
             <p>
