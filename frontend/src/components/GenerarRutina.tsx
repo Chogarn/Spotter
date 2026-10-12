@@ -33,13 +33,16 @@ const OBJETIVOS = [
 
 // Botón que, antes de llamar a la IA, pregunta qué hacer (continuar una rutina o empezar una
 // nueva con su nivel y objetivo), con Cancelar. `onConflict` avisa a la pantalla si el servidor
-// dice que ya hay una semana activa.
+// dice que ya hay una semana activa. Con `soloNueva` (desde Rutinas) va directo a una rutina nueva:
+// sin la opción de continuar, que vive en Entrenar.
 export function GenerarRutina({
   etiqueta,
   onConflict,
+  soloNueva = false,
 }: {
   etiqueta: string;
   onConflict?: () => void;
+  soloNueva?: boolean;
 }) {
   const router = useRouter();
   const [preguntando, setPreguntando] = useState(false);
@@ -62,6 +65,11 @@ export function GenerarRutina({
     setPreguntando(true);
     setEleccion("");
     setRutinas(null);
+    if (soloNueva) {
+      setRutinas([]);
+      setEleccion("nueva");
+      return;
+    }
     try {
       const res = await apiFetch(`/routines`);
       if (!res.ok) throw new Error(await readError(res));
@@ -120,10 +128,12 @@ export function GenerarRutina({
       >
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Generar rutina</AlertDialogTitle>
+            <AlertDialogTitle>{soloNueva ? "Nueva rutina" : "Generar rutina"}</AlertDialogTitle>
             <AlertDialogDescription>
-              Elegí si querés continuar una rutina o empezar una nueva. La IA propone y vos decidís:
-              nada se guarda hasta que aceptes.
+              {soloNueva
+                ? "Elegí tu nivel y tu objetivo."
+                : "Elegí si querés continuar una rutina o empezar una nueva."}{" "}
+              La IA propone y vos decidís: nada se guarda hasta que aceptes.
             </AlertDialogDescription>
           </AlertDialogHeader>
           {rutinas === null && <p>Cargando...</p>}

@@ -323,6 +323,12 @@ Los discos de los días se ponen verdes al completarse (al tocar "Día completad
 - **Por qué:** *(completar)*
 - **Descartaste:** verde solo con la semana cerrada; cambiarlo solo en Entrenar.
 
+### 50. "Nueva rutina" también desde Rutinas
+En la pantalla Rutinas hay un botón **"Nueva rutina"** arriba de la lista, al lado del título. Abre el recuadro de generar directo en una rutina nueva (nivel y objetivo), sin la opción de continuar, que sigue en Entrenar. Se ve siempre; con una semana en curso, al tocarlo avisa que primero hay que cerrarla y ofrece ir a Entrenar. Antes "Generar" vivía solo en la portada.
+- **Origen:** tuya (2026-10-12): "en Rutinas debería haber un botón de generar rutina nueva"; elegiste entre opciones (1a, 2a y 3).
+- **Por qué:** *(completar)*
+- **Descartaste:** mostrarlo solo sin semana activa; ofrecer también "continuar" desde Rutinas.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
