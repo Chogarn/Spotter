@@ -269,7 +269,7 @@ Fondo gris cemento (`#E9ECEE`), tinta azul noche (`#172033`) y los colores de lo
 - **Origen:** elegida entre opciones (2026-10-12; la IA mostró "Disco" y "Estadio", y después cuatro variantes de color y una versión oscura).
 - **Por qué:** *(completar)*
 - **Descartaste:** "Estadio" (cobalto y amarillo, letras de cartel); la versión oscura grafito y turquesa; las variantes violeta, naranja, verde y rojo con azul marino.
-- **Ojo:** se aplica cambiando las variables de color de shadcn en `globals.css` y las fuentes en `layout.tsx`, sin reescribir los componentes de `components/ui/`. Reemplaza el "tema neutro" de la decisión 38.
+- **Ojo:** se aplica cambiando las variables de color de shadcn en `globals.css` y las fuentes en `layout.tsx`, sin reescribir los componentes de `components/ui/`. Reemplaza el "tema neutro" de la decisión 38. La app es **siempre clara**, aunque el sistema esté en modo oscuro (elegido por el usuario el 2026-10-12, tras ver que seguía al sistema); el modo oscuro queda definido en la clase `.dark` pero nada la aplica.
 
 ### 42. La portada se llama "Entrenar" y la navegación es una barra fija abajo
 La barra tiene tres secciones, Entrenar, Rutinas y Perfil, siempre abajo, también en la computadora. Con una semana activa, Entrenar muestra el próximo día sin completar con el botón "Empezar día N", el progreso de la semana en discos y el resto de los días. Sin semana activa, junta en un lugar la propuesta pendiente, continuar una rutina y empezar una nueva. "Cerrar sesión" pasa al Perfil.

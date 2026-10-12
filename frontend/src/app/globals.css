@@ -2,9 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* El modo oscuro sigue al sistema (no hay selector en la app), y las clases `dark:` de los
-   componentes de shadcn responden a lo mismo. */
-@custom-variant dark (@media (prefers-color-scheme: dark));
+/* La app es siempre clara (decisión del usuario, 2026-10-12). El modo oscuro queda definido en
+   la clase `.dark`, que hoy nada aplica; si algún día hay un selector, basta con ponerla en <html>. */
+@custom-variant dark (&:is(.dark *));
 
 html {
   height: 100%;
@@ -29,7 +29,7 @@ body {
  * sin capa le ganan a las clases de los componentes (los botones quedaban como texto plano).
  */
 html {
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -103,34 +103,33 @@ html {
   --radius: 0.875rem;
 }
 
-/* La misma paleta sobre azul noche: los discos se aclaran un poco para mantener el contraste. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --disco-tinta: #e9ecee;
-    --disco-rojo: #f0525f;
-    --disco-azul: #6a9be8;
-    --disco-amarillo: #f2c230;
-    --disco-verde: #4cc07e;
+/* Modo oscuro, apagado por ahora: la misma paleta sobre azul noche, con los discos un poco más
+   claros para mantener el contraste. */
+.dark {
+  --disco-tinta: #e9ecee;
+  --disco-rojo: #f0525f;
+  --disco-azul: #6a9be8;
+  --disco-amarillo: #f2c230;
+  --disco-verde: #4cc07e;
 
-    --background: #121a2a;
-    --foreground: #e9ecee;
-    --card: #1c2638;
-    --card-foreground: #e9ecee;
-    --popover: #1c2638;
-    --popover-foreground: #e9ecee;
-    --primary: #e9ecee;
-    --primary-foreground: #172033;
-    --secondary: #263248;
-    --secondary-foreground: #e9ecee;
-    --muted: #263248;
-    --muted-foreground: #a7b0bf;
-    --accent: #263248;
-    --accent-foreground: #e9ecee;
-    --destructive: #f26b76;
-    --border: #2f3c54;
-    --input: #46546e;
-    --ring: #6a9be8;
-  }
+  --background: #121a2a;
+  --foreground: #e9ecee;
+  --card: #1c2638;
+  --card-foreground: #e9ecee;
+  --popover: #1c2638;
+  --popover-foreground: #e9ecee;
+  --primary: #e9ecee;
+  --primary-foreground: #172033;
+  --secondary: #263248;
+  --secondary-foreground: #e9ecee;
+  --muted: #263248;
+  --muted-foreground: #a7b0bf;
+  --accent: #263248;
+  --accent-foreground: #e9ecee;
+  --destructive: #f26b76;
+  --border: #2f3c54;
+  --input: #46546e;
+  --ring: #6a9be8;
 }
 
 /* El botón principal es una píldora (decisión 41). Va sin capa para ganarle al redondeado que
