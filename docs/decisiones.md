@@ -303,6 +303,19 @@ El usuario no le pide cambios a la IA durante la semana. El plan de la semana ac
 - **Descartaste (por ahora):** mostrar los números ya editables en cada serie; sumar el reloj de descanso en esta tarea.
 - **Ojo:** la pantalla del día sigue siendo la vista para revisar y corregir; el modo entrenar convive con ella (se sale con la X y lo hecho ya quedó guardado).
 
+### 47. El día muestra solo lo esencial; el detalle está al entrar al ejercicio; Entrenar va al centro de la barra
+La lista del día muestra por ejercicio el nombre en grande y los números debajo (no tan chicos), y los discos en el que está en curso. "Semana pasada", las notas, el "Por qué", las series y los botones del ejercicio (tilde, candado y tacho) pasan adentro: tocar la tarjeta entra al ejercicio (el modo entrenar ubicado ahí). Adentro, el lápiz va en la esquina de la tarjeta de la serie, no al lado del botón principal. En la barra de navegación, Entrenar va al centro como un botón redondo elevado (#58).
+- **Origen:** tuya (2026-10-12): "hay demasiada info, es mejor si los detalles aparecen cuando entrás al ejercicio", el nombre chico frente a los números, la ubicación del lápiz y Entrenar al centro; la IA propuso cómo y lo aprobaste.
+- **Por qué:** *(completar)*
+- **Descartaste:** la lista con todo el detalle (#56 tal como quedó); el lápiz al lado de "Serie hecha".
+
+### 48. Reloj de descanso circular, que arranca el usuario
+Dentro del ejercicio, un botón redondo de reloj al lado de "Serie hecha" arranca el descanso con la duración que propuso la IA (`rest_seconds`). Corriendo, un círculo con la cuenta regresiva ocupa el lugar de la tarjeta de la serie, con −15 s, +15 s y "Saltar descanso". Al llegar a cero vibra (si se puede) y vuelve la serie. Si el usuario sale a otra pantalla, una franja arriba de la barra muestra el tiempo y vuelve al ejercicio (#59). Reemplaza el "sin reloj por ahora" de la decisión 46.
+- **Origen:** tuya (2026-10-12): "algo mucho muy importante", circular; entre un botón que lleve a otra pantalla y un componente que se cargue en lugar del ejercicio, aprobaste la propuesta de la IA (el componente en lugar de la serie).
+- **Por qué:** *(completar)*
+- **Descartaste:** un recuadro rectangular con barra; una pantalla aparte para el reloj; que arranque solo al marcar la serie; un sonido al terminar (necesita permiso y puede molestar).
+- **Ojo:** el tiempo se calcula con la hora de inicio (con la pantalla apagada el navegador pausa los temporizadores). Para que siga corriendo al cambiar de pantalla hace falta un estado compartido entre pantallas: es el primer caso concreto del estado global que se había dejado para cuando apareciera uno (#17).
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):

@@ -56,6 +56,8 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Rediseño del día, las rutinas y la propuesta: series como discos que se tocan para marcarlas, acciones chicas con íconos (lápiz, tilde, cruz, candado y tacho con confirmación) y el resumen de la IA en la propuesta. Decisiones 43 y 44. Depende de #53 `frontend` (#55)
 - [x] El día con progreso, "Semana pasada" y discos a la vista: barra de progreso arriba, lo real de la última semana cerrada de la rutina en cada ejercicio (con la diferencia de peso) y discos que se marcan sin abrir. Cambio chico en `GET /weeks/{id}/days/{n}` `frontend` `backend` (#56)
 - [x] Modo entrenar, un ejercicio a la vez: "Empezar día N" abre una pantalla con la serie actual en grande, "Serie hecha" y el ejercicio siguiente. "Serie hecha" guarda lo planificado (se corrige con el lápiz) y no hay reloj de descanso (decisión 46). Depende de #56 `frontend` (#57)
+- [ ] Día compacto, entrar al ejercicio y Entrenar al centro de la barra: la lista del día solo con nombre grande, números y discos del ejercicio en curso; tocar la tarjeta entra al ejercicio con el detalle (semana pasada, cómo hacerlo, por qué, lápiz en la esquina, reabrir y deshacer). Decisión 47 `frontend` (#58)
+- [ ] Reloj de descanso circular: botón redondo junto a "Serie hecha", el círculo ocupa el lugar de la serie, −15 s, +15 s y Saltar; vibra al terminar y una franja lo muestra en otras pantallas. Decisión 48. Depende de #58 `frontend` (#59)
 - [ ] Publicación LinkedIn 3: cómo la IA arma tu semana `docs` (#32)
 
 > **Para la Semana 4 (idea, sin definir):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
@@ -92,6 +94,8 @@ La definición completa de cada una está en su issue de GitHub.
 | ~~Rediseño del día, las rutinas y la propuesta (#55)~~ | Hecho: `/semanas/{id}/dia/{n}`, `/rutinas` y `/rutina/propuesta/{id}` | #53 |
 | ~~El día con progreso y "Semana pasada" (#56)~~ | Hecho: `/semanas/{id}/dia/{n}` | — |
 | ~~Modo entrenar (#57)~~ | Hecho: "Empezar día N" en Entrenar, o "Entrenar serie por serie" en el día; `/semanas/{id}/dia/{n}/entrenar` | — |
+| Día compacto y entrar al ejercicio (#58) | `/semanas/{id}/dia/{n}` y `.../entrenar?ejercicio=K`; la barra de navegación | Nada |
+| Reloj de descanso (#59) | Botón redondo junto a "Serie hecha", dentro del ejercicio; franja arriba de la barra | #58 |
 | ~~Elegir camino A o B (#43)~~ y ~~formulario de rutina actual (#44)~~ | No se hacen: se descartó el camino B (decisión 40) | — |
 | ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con la semana nueva | — |
 
@@ -111,7 +115,7 @@ Ideas anotadas durante el diseño. No son tareas todavía: antes de convertirlas
   - A definir: por qué canal llegan (dentro de la app, correo, avisos del navegador o del celular), cuándo se envían, qué eventos las disparan y cómo se desactivan.
   - Punto a decidir: respetar el control del usuario. Como el cierre de la semana es manual y los días se llaman "Día 1, Día 2" (no lunes ni martes), los avisos deberían **sugerir** ("completaste todos los días, ¿cerrar la semana?") y nunca hacer nada solos.
   - Se podrían calcular con datos que ya existen (el plan activo y las sesiones terminadas); lo nuevo sería el envío y las preferencias del usuario.
-- **Reloj o cronómetro en el día de entrenamiento** (idea del usuario, 2026-10-12). Para controlar el **descanso entre series** y el **tiempo de los ejercicios isométricos** (plancha) sin salir de la pantalla del día.
+- **Reloj o cronómetro en el día de entrenamiento** (idea del usuario, 2026-10-12). **Ya es tarea: #59** (decisión 48, reloj de descanso circular); lo que sigue queda como historial de la idea. Para controlar el **descanso entre series** y el **tiempo de los ejercicios isométricos** (plancha) sin salir de la pantalla del día.
   - **Lo activa el usuario** (decisión del usuario): el reloj nunca arranca solo ni se dispara al marcar una serie como hecha; el usuario lo inicia con un botón cuando quiere usarlo.
   - A definir: si es una cuenta regresiva que arranca con el descanso del ejercicio (`rest_seconds`) o con los segundos de la serie isométrica (`duration_seconds`), un cronómetro libre, o las dos; qué pasa al llegar a cero (aviso sonoro o vibración, pasar a la serie siguiente); y si lo medido en un isométrico se guarda como lo realizado.
   - Punto a decidir: dónde vive. En la fila de cada serie (un botón por serie) o como una barra fija al pie del día, que sirve para todas.
