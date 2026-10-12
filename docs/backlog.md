@@ -25,7 +25,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Formulario de registro de sesión: la vista del día con Editar, Marcar como hecha y Día completado `frontend` (#16)
 - [x] ~~Estado global en el frontend~~: **no se hace por ahora**. Cada pantalla pide sus datos y ninguna necesita compartir estado; se reabre si aparece un caso concreto `frontend` (#17)
 - [x] Perfil del usuario (edad, peso, altura, nivel, equipamiento, limitaciones y objetivo) `backend` `frontend` (#18)
-- [ ] Publicación LinkedIn 2: primer avance con capturas `docs` (#19)
+- [x] Publicación LinkedIn 2: primer avance con capturas, publicada el 2026-10-12 `docs` (#19)
 
 ## S3: Autenticación
 - [x] Registro de usuario `backend` (#20)
