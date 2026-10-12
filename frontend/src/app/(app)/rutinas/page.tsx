@@ -53,7 +53,7 @@ export default function MisRutinasPage() {
                 {r.last_week_day_states.length > 0 && (
                   <span className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                     Última semana
-                    <DiscosSemana estados={r.last_week_day_states} cerrada={!r.has_active_week} />
+                    <DiscosSemana estados={r.last_week_day_states} />
                   </span>
                 )}
               </Link>

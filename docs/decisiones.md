@@ -317,6 +317,12 @@ Dentro del ejercicio, un botón redondo de reloj al lado de "Serie hecha" arranc
 - **Descartaste:** un recuadro rectangular con barra; una pantalla aparte para el reloj; que arranque solo al marcar la serie; un sonido al terminar (necesita permiso y puede molestar).
 - **Ojo:** el tiempo se calcula con la hora de inicio (con la pantalla apagada el navegador pausa los temporizadores). Para que siga corriendo al cambiar de pantalla hace falta un estado compartido entre pantallas: es el primer caso concreto del estado global que se había dejado para cuando apareciera uno (#17).
 
+### 49. Verde es "día completado" en toda la app; rojo, "serie o ejercicio hecho"
+Los discos de los días se ponen verdes al completarse (al tocar "Día completado"), esté la semana en curso o cerrada, en Entrenar, en la pantalla de la semana y en Rutinas. El rojo queda para las series y los ejercicios hechos, dentro del día. Un día a medias lleva borde rojo y uno sin hacer, punteado. Reemplaza la regla de la decisión 41 de que lo hecho iba en verde solo con la semana cerrada.
+- **Origen:** tuya (2026-10-12): en Entrenar, el día hecho en rojo junto a las series en rojo "se pone confusa la vista"; aprobaste aplicarlo en toda la app para que un día verde signifique lo mismo en cualquier pantalla.
+- **Por qué:** *(completar)*
+- **Descartaste:** verde solo con la semana cerrada; cambiarlo solo en Entrenar.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):

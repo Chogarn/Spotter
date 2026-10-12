@@ -116,7 +116,7 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
                       {s.day_count} días · desde el {shortDate(s.week_start)}
                     </span>
                     <span className="mt-1.5 block">
-                      <DiscosSemana estados={s.day_states} cerrada={s.status === "closed"} />
+                      <DiscosSemana estados={s.day_states} />
                     </span>
                   </span>
                   <span
