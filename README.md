@@ -16,9 +16,7 @@ Personas que entrenan por su cuenta (de principiante a intermedio) y no pueden p
 
 1. El usuario se registra y completa sus datos: edad, peso, altura, sexo (opcional) y limitaciones. Ni los días ni la duración de las sesiones los elige: **los determina la IA** (entre 2 y 6 días) según sus datos, el nivel y el objetivo, y si prefiere entrenar más, la IA recalcula.
 2. **Cada vez que empieza una rutina nueva elige su nivel** (principiante, intermedio o avanzado) **y su objetivo** (obligatorios): ganar masa muscular, ganar fuerza, perder grasa, mejorar la condición general o mantenerse activo. No están en el perfil, porque cambian de una rutina a otra. Se da por hecho que entrena en un gimnasio completo.
-3. Empieza de una de dos formas:
-   - **La app crea su primera rutina** a partir del perfil, el nivel y el objetivo. Después puede **continuar** una rutina que ya tiene (la semana siguiente hereda su nivel y su objetivo) o **empezar una nueva**.
-   - **Carga la rutina que ya hace** (ejercicio, series × repeticiones y peso en kilos) y la IA se la mejora.
+3. **La app crea su primera rutina** a partir del perfil, el nivel y el objetivo. Después puede **continuar** una rutina que ya tiene (la semana siguiente hereda su nivel y su objetivo) o **empezar una nueva**. No se carga una rutina propia: toda rutina la arma la IA.
 4. La semana se organiza en días: **Día 1, Día 2, Día 3**... en lugar de lunes o martes, así el usuario entrena a su ritmo.
 5. En cada día, cada ejercicio muestra lo planificado (por ejemplo, press banca 3 × 8 con 50 kg) y, si el usuario lo despliega, **cada serie** con sus propias repeticiones y su propio peso. Lo **tilda** si lo hizo tal cual, o carga lo que realmente hizo (3 × 10 con 40 kg). Cada ejercicio puede traer indicaciones de ejecución (por ejemplo, "bajar lento, pausa arriba").
 6. Al terminar, toca **"Día completado"** y, si quiere, cuenta cómo se sintió.
@@ -31,7 +29,7 @@ El cierre es siempre manual: nada se genera solo por fecha.
 El proyecto se construye por etapas. Hoy funciona, con registro e inicio de sesión:
 
 - **Perfil** (datos personales y aviso legal).
-- **Generar rutina** (camino A), desde la portada: se elige continuar una rutina o empezar una nueva (nivel y objetivo), con Cancelar. Gemini arma la semana, con vista previa y avisos; el usuario acepta o descarta, y solo al aceptar se escribe en el plan (y se crea la rutina nueva).
+- **Generar rutina**, desde la portada: se elige continuar una rutina o empezar una nueva (nivel y objetivo), con Cancelar. Gemini arma la semana, con vista previa y avisos; el usuario acepta o descarta, y solo al aceptar se escribe en el plan (y se crea la rutina nueva).
 - **Mis rutinas:** las rutinas (con nombre automático que se puede cambiar), las semanas de cada una, sus días y los ejercicios de cada día, con las series desplegables.
 - **Cerrar semana:** botón en la semana activa, con aviso de los días sin completar (sin IA).
 - **Registro del día:** editar lo realizado por serie, marcar series y ejercicios como hechos (un ejercicio hecho queda bloqueado hasta reabrirlo) y **Día completado** (que también se puede reabrir).
@@ -40,7 +38,7 @@ El proyecto se construye por etapas. Hoy funciona, con registro e inicio de sesi
 - **Cuenta y sesión:** registro e inicio de sesión con cookie `httpOnly` (JWT de 7 días) y contraseñas con hash argon2; sin sesión, todas las pantallas llevan a `/login`.
 - **Interfaz** con shadcn/ui y Tailwind en versión básica (los estilos propios vienen más adelante).
 
-Todavía no están: cargar la rutina propia (camino B), el ajuste conversando, y, pospuestos por decisión del proyecto, la nota de cómo me sentí, el esfuerzo por serie y el semáforo de dolor. El catálogo de ejercicios para la IA (hoy un borrador de 84 en `backend/app/ai/exercises.json`, sin conectar) espera una consulta. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
+Todavía no están: el ajuste conversando, y, pospuestos por decisión del proyecto, la nota de cómo me sentí, el esfuerzo por serie y el semáforo de dolor. El catálogo de ejercicios para la IA (hoy un borrador de 84 en `backend/app/ai/exercises.json`, sin conectar) espera una consulta. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
 ## Funcionalidades
 
@@ -53,7 +51,7 @@ Todavía no están: cargar la rutina propia (camino B), el ajuste conversando, y
 ### Valor de la IA
 La IA trabaja sobre los datos del usuario y siempre **propone**: el usuario ve una vista previa de los cambios y los acepta o los descarta. No es un chat genérico.
 
-1. **Primera rutina o mejora de la existente**, según el objetivo.
+1. **Primera rutina**, según el nivel y el objetivo.
 2. **Cierre de semana:** analiza lo planificado frente a lo real de la semana anterior y propone la siguiente con un resumen de evolución. *(Hoy sube la carga o la mantiene según lo que hiciste; detectar fatiga necesita el esfuerzo por serie, que está pospuesto.)*
 3. **Ajuste conversando:** "no tengo esa máquina", "me molesta el hombro". La IA propone una versión modificada de la semana.
 4. **Explicación por ejercicio:** botón "¿por qué esto?" con la razón basada en los números del usuario.

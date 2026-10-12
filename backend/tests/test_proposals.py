@@ -292,7 +292,6 @@ def test_aceptar_crea_la_semana_los_dias_los_ejercicios_y_las_series(api, entorn
     with api.session() as db:
         semana = db.scalars(select(WeekPlan)).one()
         assert semana.status == PlanStatus.ACTIVE
-        assert semana.origin.value == "generated"
         assert [d.day_index for d in semana.days] == [1, 2]
         assert len(semana.days[0].exercises) == 6
         primero = semana.days[0].exercises[0]

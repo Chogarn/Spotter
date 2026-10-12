@@ -22,6 +22,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0012` objetivo y nivel por semana | Agrega `week_plans.goal` y `level` (copiados del perfil) y quita `profiles.level`, `goal` y `equipment` | Implementada |
 | `0013` rutinas | Crea `routines` (nombre, objetivo y nivel); agrega `week_plans.routine_id` (obligatoria) y quita `week_plans.goal` y `level`, que pasan a la rutina. Una rutina por cada objetivo y nivel que ya existían | Implementada |
 | `0014` comentario al cerrar la semana | Agrega `week_plans.closing_note` (texto opcional, hasta 1.000 caracteres) | Implementada |
+| `0015` sin camino B | Quita `week_plans.origin` y `week_plans.original_routine`, y el tipo `improve` de propuestas y llamadas a la IA (decisión 40) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
 ## Diagrama
@@ -102,8 +103,6 @@ erDiagram
         datetime closed_at
         text closing_note
         string status
-        string origin
-        json original_routine
         text ai_summary
         datetime created_at
     }
@@ -247,8 +246,6 @@ Un plan por semana. Las semanas anteriores se conservan como historial. La seman
 | closed_at | Cuándo el usuario la cerró con el botón. Vacío mientras sigue abierta |
 | closing_note | Comentario libre y opcional del usuario al cerrar la semana (cómo se sintió). Queda fijo; la IA lo lee al armar la semana siguiente como dato del usuario |
 | status | `draft`, `active` o `closed` |
-| origin | `generated` (camino A) o `improved` (camino B) |
-| original_routine | JSON con la rutina que cargó el usuario; solo en el camino B |
 | ai_summary | Resumen de evolución que genera la IA al cerrar la semana |
 
 ### plan_days
@@ -329,7 +326,7 @@ Lo que propone la IA antes de aplicarse.
 
 | Campo | Detalle |
 |---|---|
-| kind | `adjust`, `week_close`, `improve` o `repeat_exercise` |
+| kind | `generate`, `adjust`, `week_close` o `repeat_exercise` |
 | request_text | Pedido del usuario, si lo hubo ("no tengo esa máquina") |
 | proposed_changes | JSON con los cambios, validado con Pydantic. En `generate` tiene dos claves: `routine` (la semana completa: días, ejercicios, series) y `warnings` (lista de `{rule, message}` con los avisos del código: volumen, duración) |
 | status | `pending`, `accepted` o `discarded` |

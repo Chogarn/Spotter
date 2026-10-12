@@ -1,4 +1,4 @@
-"""Formato de la rutina que devuelve Gemini (camino A). Pydantic lo valida.
+"""Formato de la rutina que devuelve Gemini. Pydantic lo valida.
 
 Acá solo va la FORMA (tipos, listas cerradas de R13, rangos de sentido común). Las reglas de
 entrenamiento (R1, R11, R17...) están en `rules.py`.

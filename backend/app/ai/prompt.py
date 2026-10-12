@@ -1,4 +1,4 @@
-"""Arma el prompt de "Generar rutina" (camino A).
+"""Arma el prompt de "Generar rutina".
 
 Las reglas viven en `prompts/generar_rutina.md`, un archivo de texto que el usuario puede leer y
 corregir. Acá solo se completa con los datos del perfil.

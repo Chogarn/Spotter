@@ -21,11 +21,6 @@ class PlanStatus(str, enum.Enum):
     CLOSED = "closed"
 
 
-class PlanOrigin(str, enum.Enum):
-    GENERATED = "generated"
-    IMPROVED = "improved"
-
-
 class ExerciseKind(str, enum.Enum):
     STRENGTH = "strength"  # se mide en repeticiones
     CARDIO = "cardio"  # se mide en minutos
@@ -83,10 +78,9 @@ class Feeling(str, enum.Enum):
 
 
 class ProposalKind(str, enum.Enum):
-    GENERATE = "generate"  # camino A: la primera rutina
+    GENERATE = "generate"  # la primera rutina
     ADJUST = "adjust"
     WEEK_CLOSE = "week_close"
-    IMPROVE = "improve"
     REPEAT_EXERCISE = "repeat_exercise"
 
 
@@ -102,5 +96,4 @@ class AiCallKind(str, enum.Enum):
     GENERATE = "generate"
     ADJUST = "adjust"
     WEEK_CLOSE = "week_close"
-    IMPROVE = "improve"
     REPEAT_EXERCISE = "repeat_exercise"

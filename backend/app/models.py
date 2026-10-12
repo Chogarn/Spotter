@@ -35,7 +35,6 @@ from app.enums import (
     Goal,
     Level,
     Muscle,
-    PlanOrigin,
     PlanStatus,
     ProposalKind,
     ProposalStatus,
@@ -181,11 +180,6 @@ class WeekPlan(Base):
     closing_note: Mapped[str | None] = mapped_column(Text)
     status: Mapped[PlanStatus] = mapped_column(
         enum_column(PlanStatus), default=PlanStatus.DRAFT, server_default="draft"
-    )
-    origin: Mapped[PlanOrigin] = mapped_column(enum_column(PlanOrigin))
-    # Rutina original que cargó el usuario (solo camino B).
-    original_routine: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON().with_variant(JSONB(), "postgresql")
     )
     ai_summary: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(

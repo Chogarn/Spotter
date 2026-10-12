@@ -15,6 +15,7 @@ Las decisiones importantes del producto, con quién las tomó, por qué y qué s
 - **Descartaste:** que la IA fije los objetivos, como decía la idea original que se le mandó al profesor.
 
 ### 2. Dos caminos para empezar
+*Reemplazada por la decisión 40: se descartó el camino B y queda un solo camino.*
 La app crea la primera rutina, o el usuario carga la que ya hace con un formulario: nombre del ejercicio, series × repeticiones y peso en kg.
 - **Origen:** tuya.
 - **Por qué:** que la app "se la mejore en base a sus objetivos". *(completar el resto)*
@@ -115,7 +116,7 @@ El piso de 10 series o más por semana por grupo muscular (R3, masa muscular) no
 - **Descartaste:** un piso más bajo para principiantes.
 
 ### 19. La IA determina los días de la semana
-La cantidad de días (entre 2 y 6) la determina la IA según los parámetros de la persona: objetivo, nivel, volumen necesario y, en el camino B, la rutina que cargó. El usuario no los elige, pero si prefiere **entrenar más días** puede pedirlo y la IA recalcula (nunca menos). No existe el pedido "solo puedo 3 días".
+La cantidad de días (entre 2 y 6) la determina la IA según los parámetros de la persona: objetivo, nivel y volumen necesario. El usuario no los elige, pero si prefiere **entrenar más días** puede pedirlo y la IA recalcula (nunca menos). No existe el pedido "solo puedo 3 días".
 - **Origen:** tuya.
 - **Por qué:** querés que la cantidad de días la defina la rutina y no el usuario; si la persona quiere más días, que la IA recalcule. *(completar el resto)*
 - **Descartaste:** que el usuario elija sus días por semana; una semana fija de 5 días para todos (lo decidiste antes y lo cambiaste el mismo día); que los días dependan solo del nivel.
@@ -255,6 +256,13 @@ El inicio de sesión usa un JWT firmado con `JWT_SECRET` que el backend guarda e
 - **Por qué:** *(completar)*
 - **Descartaste:** guardar el token en `localStorage` (queda expuesto a scripts y la protección de rutas solo podría hacerse del lado del cliente), una sesión con refresco (más código para un MVP) y registrarte de cero dejando el usuario de desarrollo sin uso.
 - **Ojo:** la cookie la lee el servidor de Next (`proxy.ts`), así que en producción el frontend y la API deben estar en el mismo sitio. El `proxy.ts` solo comprueba que haya cookie; la validez real la decide la API. Pasar la lectura de datos a Server Components de Next quedó para la Semana 4: hoy las pantallas siguen pidiendo los datos desde el navegador, con `credentials: "include"`.
+
+### 40. Se descarta el camino B: la app solo crea la rutina, no mejora una existente
+El usuario no carga la rutina que ya hace. Toda rutina la arma la IA desde cero con "Generar rutina" (nivel y objetivo al empezar), y de ahí en adelante se ajusta semana a semana. Se eliminó todo lo del camino B: el formulario de rutina actual (#44), la pantalla de elección de camino (#43), el tipo de propuesta `improve` y las columnas `week_plans.origin` y `week_plans.original_routine` (migración 0015).
+- **Origen:** tuya (2026-10-12).
+- **Por qué:** *(completar)*
+- **Descartaste:** cargar la rutina propia (formulario, texto libre o foto) y que la IA se la mejore; dejar las columnas sin usar.
+- **Ojo:** la decisión 2 queda como historial. Quien ya tiene una rutina propia y la quiere seguir no tiene cómo traerla: solo puede dejar que la IA arme una desde su nivel y objetivo.
 
 ## Decisiones abiertas
 

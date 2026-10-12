@@ -23,3 +23,6 @@ Thumbs.db
 # Editores
 .vscode/
 .idea/
+
+# Respaldos de la base (tienen datos reales)
+backups/

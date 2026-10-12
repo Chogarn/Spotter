@@ -6,9 +6,7 @@ Este documento describe cómo se usa la aplicación de principio a fin. Es la ba
 
 1. El usuario se registra e inicia sesión.
 2. Completa sus datos personales.
-3. Elige cómo empezar, y **cada vez que empieza una rutina nueva elige su nivel y su objetivo** (obligatorios):
-   - **Camino A:** la app crea su primera rutina.
-   - **Camino B:** carga la rutina que ya hace y la app se la mejora.
+3. Toca **"Generar rutina"**: **cada vez que empieza una rutina nueva elige su nivel y su objetivo** (obligatorios) y la IA le arma la primera semana. No existe un camino para cargar una rutina propia (decisión 40).
 4. La semana se organiza en días: **Día 1, Día 2, Día 3**... El usuario entrena a su ritmo.
 5. En cada día **tilda** los ejercicios que hizo como estaban planificados o carga lo que realmente hizo, y termina con **"Día completado"**.
 6. Si necesita un cambio durante la semana, se lo pide a la IA, que propone y el usuario decide.
@@ -21,13 +19,7 @@ Este documento describe cómo se usa la aplicación de principio a fin. Es la ba
 flowchart TD
     A[Registro / Login] --> B[Datos del usuario]
     B --> C[Elegir nivel y objetivo<br/>al empezar cada rutina]
-    C --> D{Cómo empezar}
-    D -->|A| E[La IA crea la primera semana]
-    D -->|B| F[Cargar mi rutina actual<br/>nombre, series x reps, peso kg]
-    F --> G[La IA propone una versión mejorada]
-    G --> H{Usuario revisa}
-    H -->|Acepta| I[Semana activa<br/>Día 1, Día 2, Día 3...]
-    H -->|Descarta| F
+    C --> E[La IA crea la primera semana]
     E --> J{Usuario revisa}
     J -->|Acepta| I
     J -->|Descarta| E
@@ -76,7 +68,7 @@ Se piden una sola vez y se pueden editar después. El nivel y el objetivo no van
 
 **Aviso legal:** la app no da consejo médico y el usuario debe aceptarlo. No se piden datos de salud más allá de lesiones o limitaciones. El peso corporal se puede actualizar con el tiempo para ver la evolución.
 
-## Camino A: la app crea mi primera rutina
+## Generar rutina: la app crea mi primera rutina
 
 1. El usuario ya completó sus datos y, en el recuadro de "Generar rutina", eligió **continuar una rutina existente** (hereda su nivel y objetivo) o **empezar una nueva** (elige nivel y objetivo; la rutina se crea recién al aceptar). El recuadro tiene un botón **Cancelar**.
 2. La IA arma la primera semana (días, ejercicios, series, repeticiones y peso orientativo).
@@ -86,25 +78,13 @@ Se piden una sola vez y se pueden editar después. El nivel y el objetivo no van
 
 **Mientras la IA trabaja:** la llamada a Gemini puede tardar (en las pruebas, de 10 a 90 segundos). El botón "Generar rutina" se deshabilita y la pantalla avisa: *"Tu rutina se está generando. Puede tardar hasta 2 minutos."* Si pasa de 2 minutos la app corta la espera, muestra un error y el usuario puede volver a intentar (la llamada igual cuenta en el tope diario).
 
-## Camino B: cargo la rutina que ya hago
-
-1. El usuario completa un formulario, ejercicio por ejercicio y por día, con:
-   - nombre del ejercicio,
-   - series × repeticiones,
-   - peso en kilos,
-   - opcionalmente, indicaciones de ejecución ("bajar lento, pausa arriba").
-
-   Cada ejercicio se puede **desglosar serie por serie** para que cada una tenga sus propias repeticiones y su propio peso (ver "Series desglosables").
-2. La IA devuelve una versión mejorada según su objetivo, con el motivo de cada cambio.
-3. La rutina original se conserva. El usuario acepta o descarta los cambios.
-
 ## La semana y los días
 
 ### La semana es un ciclo
 La semana no está atada al calendario: empieza cuando el usuario la activa y termina cuando la cierra con el botón. Si tarda más de siete días en completarla, sigue siendo la misma semana. Solo hay una semana activa a la vez, y las semanas anteriores se conservan como historial.
 
 ### Cuántos días tiene la semana
-Ni los días ni la duración de cada sesión **los elige el usuario**: **los determina la IA** a partir de sus parámetros: el objetivo, el nivel, el volumen que pide la regla del objetivo y, en el camino B, la rutina que cargó. Siempre **entre 2 y 6 días** (al menos 2 por R1, y al menos un día de descanso).
+Ni los días ni la duración de cada sesión **los elige el usuario**: **los determina la IA** a partir de sus parámetros: el objetivo, el nivel, y el volumen que pide la regla del objetivo. Siempre **entre 2 y 6 días** (al menos 2 por R1, y al menos un día de descanso).
 
 Si el usuario **prefiere entrenar más** (más días o sesiones más largas), puede pedirlo y la IA **recalcula** la semana, con vista previa para aceptar o descartar. Puede pedir **más, nunca menos**. Si después no puede entrenar algún día, no pasa nada: se marca como no hecho y se cuenta como información al cerrar la semana.
 
@@ -138,7 +118,7 @@ Cada ejercicio muestra una **fila compacta** con un solo tilde. Si el usuario la
 - **El tilde es por ejercicio.** No hay tilde por serie.
 - **Qué edita cada cosa durante el día:** si el usuario cambia una serie mientras entrena, registra **lo que hizo**; el plan queda visible como referencia ("tocaba 8 × 55 kg"). Así se conserva la comparación entre lo planificado y lo real. El plan **no se edita a mano**: solo lo cambia la IA.
 - **Tilde sin cambios:** se crea una serie real por cada serie planificada, con su propio peso.
-- **Indicaciones de ejecución:** cada ejercicio puede mostrar su indicación ("bajar lento, pausa de 2 segundos arriba"). El usuario la escribe o la edita, y la IA puede proponerla al armar o mejorar la rutina. Se muestran como orientativas, no como consejo de un profesional, junto con el aviso legal.
+- **Indicaciones de ejecución:** cada ejercicio puede mostrar su indicación ("bajar lento, pausa de 2 segundos arriba"). El usuario la escribe o la edita, y la IA puede proponerla al armar la rutina. Se muestran como orientativas, no como consejo de un profesional, junto con el aviso legal.
 
 ### Descanso y movilidad
 - **Descanso:** cada ejercicio muestra el **descanso entre series** sugerido por la IA (por ejemplo, "2 min"). El usuario lo puede cambiar. Es un campo propio del ejercicio, no se calcula.
@@ -209,12 +189,10 @@ Como el cierre es una acción del usuario, el gasto en IA es predecible: una lla
 1. Registro e inicio de sesión (`/registro` y `/login`; sin sesión, cualquier otra pantalla redirige a `/login`)
 2. Datos del usuario
 3. Elegir qué hacer al generar: continuar una rutina o empezar una nueva (nivel y objetivo)
-4. Elegir camino A o B
-5. Formulario de rutina actual (camino B)
-6. Rutina, semana y sus días
-7. Día de entrenamiento (tildar o cargar, y "Día completado")
-8. Resumen del día y "cómo me sentí"
-9. Cierre y resumen de la semana
+4. Rutina, semana y sus días
+5. Día de entrenamiento (tildar o cargar, y "Día completado")
+6. Resumen del día y "cómo me sentí"
+7. Cierre y resumen de la semana
 
 ### Cómo se navega entre las pantallas de la rutina
 
@@ -261,7 +239,7 @@ Lo ya aplicado está en `docs/modelo-datos.md`. Resumen de cómo se refleja este
 
 - `profiles`: edad, peso, altura, sexo (opcional) y limitaciones. Sin nivel, objetivo ni equipamiento.
 - `routines`: nombre, objetivo (uno de los 5) y nivel; agrupan las semanas.
-- `week_plans`: pertenece a una rutina (`routine_id`); `week_start` es cuándo se activó la semana, `closed_at` cuándo se cerró, y un campo de origen (`generated` o `improved`) con la rutina original en el camino B.
+- `week_plans`: pertenece a una rutina (`routine_id`); `week_start` es cuándo se activó la semana, `closed_at` cuándo se cerró. Toda semana la arma la IA.
 - `plan_days`: `day_index` es el orden (Día 1, Día 2...), no un día del calendario.
 - `plan_exercises`: el ejercicio planificado, con `execution_notes` (indicaciones). El marcador `edited_by_user` ya no se usa.
 - `plan_sets`: una fila por serie planificada, con sus repeticiones y su peso.

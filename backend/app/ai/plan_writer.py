@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.ai.routine import RoutineProposal
-from app.enums import PlanOrigin, PlanStatus
+from app.enums import PlanStatus
 from app.models import Exercise, PlanDay, PlanExercise, PlanSet, Routine, WeekPlan
 
 
@@ -41,7 +41,6 @@ def write_plan(
         user_id=user_id,
         week_start=date.today(),
         status=PlanStatus.ACTIVE,
-        origin=PlanOrigin.GENERATED,
         routine=plan_routine,
         ai_summary=routine.summary,
     )
