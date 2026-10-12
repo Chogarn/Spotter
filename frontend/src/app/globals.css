@@ -2,7 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/* El modo oscuro sigue al sistema (no hay selector en la app), y las clases `dark:` de los
+   componentes de shadcn responden a lo mismo. */
+@custom-variant dark (@media (prefers-color-scheme: dark));
 
 html {
   height: 100%;
@@ -23,31 +25,21 @@ body {
 }
 
 /*
- * Tema claro fijo por ahora (los estilos propios y el modo oscuro vienen más adelante).
- * Se quitaron el reinicio de márgenes y rellenos y el estilo de los enlaces que había acá:
- * Tailwind ya los reinicia, y estas reglas sin capa le ganaban a las clases de los componentes
- * (los botones y las tarjetas quedaban sin relleno, como texto plano).
+ * No hay reinicio de márgenes ni estilo de enlaces acá: Tailwind ya los reinicia, y las reglas
+ * sin capa le ganan a las clases de los componentes (los botones quedaban como texto plano).
  */
 html {
-  color-scheme: light;
+  color-scheme: light dark;
 }
 
 @theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  --font-sans: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-barlow-condensed), var(--font-barlow), ui-sans-serif, sans-serif;
+  --color-disco-rojo: var(--disco-rojo);
+  --color-disco-azul: var(--disco-azul);
+  --color-disco-amarillo: var(--disco-amarillo);
+  --color-disco-verde: var(--disco-verde);
+  --color-disco-tinta: var(--disco-tinta);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -75,73 +67,76 @@ html {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * Diseño "Disco" (decisión 41), inspirado en los discos de pesas.
+ * Fondo gris cemento, tinta azul noche y los colores de los discos de competición para los
+ * estados: rojo serie hecha o semana en curso, azul la carga, amarillo avisos y propuesta
+ * pendiente, verde cumplido o semana cerrada. El rojo y el verde se usan como relleno (discos,
+ * marcas); el verde no tiene contraste suficiente para texto chico sobre blanco.
+ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --disco-tinta: #172033;
+  --disco-rojo: #d7263d;
+  --disco-azul: #1f5fbf;
+  --disco-amarillo: #f2c230;
+  --disco-verde: #2e9e5b;
+
+  --background: #e9ecee;
+  --foreground: var(--disco-tinta);
+  --card: #ffffff;
+  --card-foreground: var(--disco-tinta);
+  --popover: #ffffff;
+  --popover-foreground: var(--disco-tinta);
+  --primary: var(--disco-tinta);
+  --primary-foreground: #ffffff;
+  --secondary: #dde2e7;
+  --secondary-foreground: var(--disco-tinta);
+  --muted: #dde2e7;
+  --muted-foreground: #4a5568;
+  --accent: #dde2e7;
+  --accent-foreground: var(--disco-tinta);
+  /* Texto de error: el rojo del disco, un poco más oscuro, para llegar a contraste AA sobre el fondo. */
+  --destructive: #c41f35;
+  --border: #cbd2d9;
+  --input: #a9b2bd;
+  --ring: var(--disco-azul);
+  --radius: 0.875rem;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* La misma paleta sobre azul noche: los discos se aclaran un poco para mantener el contraste. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --disco-tinta: #e9ecee;
+    --disco-rojo: #f0525f;
+    --disco-azul: #6a9be8;
+    --disco-amarillo: #f2c230;
+    --disco-verde: #4cc07e;
+
+    --background: #121a2a;
+    --foreground: #e9ecee;
+    --card: #1c2638;
+    --card-foreground: #e9ecee;
+    --popover: #1c2638;
+    --popover-foreground: #e9ecee;
+    --primary: #e9ecee;
+    --primary-foreground: #172033;
+    --secondary: #263248;
+    --secondary-foreground: #e9ecee;
+    --muted: #263248;
+    --muted-foreground: #a7b0bf;
+    --accent: #263248;
+    --accent-foreground: #e9ecee;
+    --destructive: #f26b76;
+    --border: #2f3c54;
+    --input: #46546e;
+    --ring: #6a9be8;
+  }
+}
+
+/* El botón principal es una píldora (decisión 41). Va sin capa para ganarle al redondeado que
+   traen los botones de shadcn, sin editar `components/ui/`. */
+[data-slot="button"] {
+  border-radius: 9999px;
 }
 
 @layer base {
@@ -158,8 +153,8 @@ html {
 
 /*
  * Base mínima de lectura. Tailwind "limpia" los estilos del navegador (títulos, listas, campos);
- * esto los devuelve para que las pantallas sigan siendo legibles hasta que se les ponga diseño
- * propio (decisión 38: los estilos van más adelante).
+ * esto los devuelve para que las pantallas sigan siendo legibles. Los títulos van en Barlow
+ * Condensed, como las placas de una máquina (decisión 41).
  */
 @layer base {
   /* El cuerpo es una columna flex y cada pantalla se centra con margen automático: sin un ancho,
@@ -167,15 +162,27 @@ html {
   main {
     width: 100%;
   }
+  h1,
+  h2 {
+    font-family: var(--font-heading);
+    line-height: 1.05;
+  }
   h1 {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     font-weight: 700;
     margin: 1rem 0 0.5rem;
   }
   h2 {
-    font-size: 1.15rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    margin: 1rem 0 0.4rem;
+    margin: 1.25rem 0 0.4rem;
+  }
+  /* Foco visible con teclado en lo que no trae el suyo (enlaces sueltos, resúmenes plegables). */
+  a:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
   p {
     margin: 0.5rem 0;
