@@ -86,7 +86,7 @@ export function CerrarSemana({
               disabled={cerrando}
               onChange={(e) => setComentario(e.target.value)}
             />
-            <small>La IA lo tiene en cuenta al armar la semana siguiente.</small>
+            <small>La IA lo lee al armar la semana siguiente: contale si algo te costó, te sobró o te dolió.</small>
           </div>
           {error && <ErrorMessage>{error}</ErrorMessage>}
           <AlertDialogFooter>
