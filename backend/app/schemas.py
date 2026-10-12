@@ -226,6 +226,10 @@ class DayExerciseOut(BaseModel):
     execution_notes: str | None
     reason: str | None
     sets: list[DaySetOut]
+    # "Semana pasada": lo realizado en este ejercicio en la semana cerrada anterior de la rutina,
+    # serie por serie (vacía la que no se registró). None si no hay semana anterior o el ejercicio
+    # no estaba en ella.
+    previous: list[RealSetOut | None] | None = None
 
 
 class DayDetailOut(BaseModel):

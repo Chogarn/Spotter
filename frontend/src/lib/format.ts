@@ -70,6 +70,34 @@ export function differsFromPlan(plan: SetItem, real: RealSet): boolean {
   );
 }
 
+// "Semana pasada" en una línea: lo realizado con el mismo formato que el plan ("4 × 8 a 6 · 57,5 kg").
+// Si no se registraron todas las series, lo dice ("2 de 4 series · ..."). Null si no hay semana
+// pasada para este ejercicio.
+export function previousText(exercise: ExerciseItem): string | null {
+  const previous = exercise.previous;
+  if (!previous) return null;
+  const hechas = previous.filter((r): r is RealSet => r !== null);
+  if (hechas.length === 0) return "sin registrar";
+  const texto = summarize({ ...exercise, sets: hechas.map(realAsSet) });
+  return hechas.length < previous.length ? `${hechas.length} de ${previous.length} series · ${texto}` : texto;
+}
+
+// Cuánto cambia el peso de hoy frente a la semana pasada: el mayor planificado contra el mayor
+// levantado. Null si alguno de los dos no tiene peso o no cambia.
+export function weightChange(exercise: ExerciseItem): number | null {
+  const hoy = exercise.sets.map((s) => s.target_weight_kg).filter((w): w is number => w !== null);
+  const antes = (exercise.previous ?? [])
+    .map((r) => r?.weight_kg ?? null)
+    .filter((w): w is number => w !== null);
+  if (hoy.length === 0 || antes.length === 0) return null;
+  const diferencia = Math.round((Math.max(...hoy) - Math.max(...antes)) * 100) / 100;
+  return diferencia === 0 ? null : diferencia;
+}
+
+export function kgText(kg: number): string {
+  return `${kg > 0 ? "+" : "−"}${number(Math.abs(kg))} kg`;
+}
+
 // Cuántas series del ejercicio ya tienen algo registrado ("hechas").
 export function seriesRegistradas(exercise: ExerciseItem): number {
   return exercise.sets.filter((s) => s.real).length;

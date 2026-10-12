@@ -164,21 +164,56 @@ def set_out(plan_set: PlanSet, entry: SetEntry | None) -> DaySetOut:
         target_weight_kg=(
             None if plan_set.target_weight_kg is None else float(plan_set.target_weight_kg)
         ),
-        real=(
-            None
-            if entry is None
-            else RealSetOut(
-                reps=entry.reps,
-                duration_minutes=entry.duration_minutes,
-                duration_seconds=entry.duration_seconds,
-                weight_kg=None if entry.weight_kg is None else float(entry.weight_kg),
-            )
-        ),
+        real=None if entry is None else real_out(entry),
     )
 
 
+def real_out(entry: SetEntry) -> RealSetOut:
+    return RealSetOut(
+        reps=entry.reps,
+        duration_minutes=entry.duration_minutes,
+        duration_seconds=entry.duration_seconds,
+        weight_kg=None if entry.weight_kg is None else float(entry.weight_kg),
+    )
+
+
+def previous_week(db: Session, week: WeekPlan) -> WeekPlan | None:
+    """La última semana cerrada de la rutina activada antes que esta (para "Semana pasada")."""
+    weeks = routine_weeks(db, week.routine_id)
+    before = weeks[: [w.id for w in weeks].index(week.id)]
+    return next((w for w in reversed(before) if w.status == PlanStatus.CLOSED), None)
+
+
+def previous_by_exercise(db: Session, week: WeekPlan) -> dict[int, list[RealSetOut | None]]:
+    """Lo realizado en la semana anterior, por ejercicio (no por día: si la IA lo movió de día,
+    igual se encuentra). Si el ejercicio se repetía en la semana, vale la primera vez."""
+    previous = previous_week(db, week)
+    if previous is None:
+        return {}
+    result: dict[int, list[RealSetOut | None]] = {}
+    for day in previous.days:
+        entries = day_entries(db, day)
+        for exercise in day.exercises:
+            if exercise.exercise_id not in result:
+                result[exercise.exercise_id] = [
+                    real_out(entries[s.id]) if s.id in entries else None for s in exercise.sets
+                ]
+    return result
+
+
+def previous_for(
+    db: Session, week: WeekPlan, exercise: PlanExercise
+) -> list[RealSetOut | None] | None:
+    """"Semana pasada" de un solo ejercicio: va también en la respuesta de marcarlo o reabrirlo,
+    para que la pantalla no la pierda al reemplazar el ejercicio."""
+    return previous_by_exercise(db, week).get(exercise.exercise_id)
+
+
 def exercise_out(
-    exercise: PlanExercise, entries: dict[int, SetEntry], completed: bool
+    exercise: PlanExercise,
+    entries: dict[int, SetEntry],
+    completed: bool,
+    previous: list[RealSetOut | None] | None = None,
 ) -> DayExerciseOut:
     return DayExerciseOut(
         id=exercise.id,
@@ -189,6 +224,7 @@ def exercise_out(
         execution_notes=exercise.execution_notes,
         reason=exercise.reason,
         sets=[set_out(s, entries.get(s.id)) for s in exercise.sets],
+        previous=previous,
     )
 
 
@@ -275,6 +311,7 @@ def get_day(
     entries = day_entries(db, day)
     session = day_session(db, user, day)
     done = completed_ids(db, day)
+    previous = previous_by_exercise(db, week)
     return DayDetailOut(
         week_id=week.id,
         week_number=number,
@@ -284,7 +321,10 @@ def get_day(
         mobility_notes=day.mobility_notes,
         minutes=day_minutes(day),
         finished_at=None if session is None else session.finished_at,
-        exercises=[exercise_out(e, entries, e.id in done) for e in day.exercises],
+        exercises=[
+            exercise_out(e, entries, e.id in done, previous.get(e.exercise_id))
+            for e in day.exercises
+        ],
     )
 
 
@@ -462,7 +502,9 @@ def mark_exercise_done(
     if plan_exercise.id not in completed_ids(db, day):
         db.add(ExerciseCompletion(session_id=session.id, plan_exercise_id=plan_exercise.id))
     db.commit()
-    return exercise_out(plan_exercise, day_entries(db, day), True)
+    return exercise_out(
+        plan_exercise, day_entries(db, day), True, previous_for(db, week, plan_exercise)
+    )
 
 
 @router.delete(
@@ -501,7 +543,9 @@ def undo_exercise_done(
             )
         )
         db.commit()
-    return exercise_out(plan_exercise, day_entries(db, day), False)
+    return exercise_out(
+        plan_exercise, day_entries(db, day), False, previous_for(db, week, plan_exercise)
+    )
 
 
 @router.post(
@@ -534,7 +578,9 @@ def reopen_exercise(
             )
         )
         db.commit()
-    return exercise_out(plan_exercise, day_entries(db, day), False)
+    return exercise_out(
+        plan_exercise, day_entries(db, day), False, previous_for(db, week, plan_exercise)
+    )
 
 
 @router.post("/{week_id}/days/{day_index}/complete", response_model=DayStatusOut)

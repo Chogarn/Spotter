@@ -7,8 +7,7 @@ import { readError, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api"
 import { differsFromPlan, realAsSet, setText } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Confirmar } from "@/components/Confirmar";
-import { Disco } from "@/components/Disco";
+import { DiscoSerie } from "@/components/DiscoSerie";
 import { InlineError } from "@/components/ErrorMessage";
 
 export type SetEdit = {
@@ -24,9 +23,9 @@ const MEASURE = {
   cardio: { label: "minutos", unit: "min" },
 } as const;
 
-// Una serie (decisión 43). Su disco muestra si está hecha; con `edit`, tocarlo la marca como hecha
-// (lo planificado) o la desmarca (borra lo registrado), y el lápiz deja corregir lo realizado
-// (repeticiones y kilos; segundos o minutos según el ejercicio) sin tocar el plan.
+// Una serie (decisión 43): su disco (que se toca para marcarla o desmarcarla, ver `DiscoSerie`) y,
+// con `edit`, el lápiz para corregir lo realizado (repeticiones y kilos; segundos o minutos según
+// el ejercicio) sin tocar el plan.
 export function SetRow({
   kind,
   index,
@@ -40,8 +39,6 @@ export function SetRow({
 }) {
   const [editando, setEditando] = useState(false);
   const [guardando, setGuardando] = useState(false);
-  const [marcando, setMarcando] = useState(false);
-  const [confirmando, setConfirmando] = useState(false);
   const [error, setError] = useState("");
   const [medida, setMedida] = useState("");
   const [kilos, setKilos] = useState("");
@@ -51,30 +48,6 @@ export function SetRow({
   const cambio = real !== null && differsFromPlan(set, real);
   const numero = index + 1;
   const puedeEditar = edit !== undefined && set.id !== undefined;
-
-  // Marcar como hecha (lo planificado) y Desmarcar (borra lo registrado de esta serie).
-  async function cambiarHecha(method: "POST" | "DELETE") {
-    if (!edit || set.id === undefined) return;
-    setMarcando(true);
-    setError("");
-    try {
-      const res = await apiFetch(`/weeks/${edit.weekId}/days/${edit.dayIndex}/sets/${set.id}/done`,
-        { method },
-      );
-      if (res.ok) edit.onSaved(await res.json());
-      else setError(await readError(res));
-    } catch {
-      setError("No se pudo conectar con el servidor");
-    }
-    setMarcando(false);
-  }
-
-  function tocarDisco() {
-    if (!real) return cambiarHecha("POST");
-    // Si la serie tiene valores editados, desmarcarla los borra: se pide confirmación.
-    if (cambio) return setConfirmando(true);
-    cambiarHecha("DELETE");
-  }
 
   function empezar() {
     const actual =
@@ -134,25 +107,17 @@ export function SetRow({
     setGuardando(false);
   }
 
-  const disco = <Disco estado={real ? "hecho" : "pendiente"} className="size-8">{numero}</Disco>;
-
   return (
     <li className="border-t border-border py-2 first:border-t-0">
       <div className="flex min-h-9 items-center gap-3">
-        {puedeEditar && !editando ? (
-          <button
-            type="button"
-            onClick={tocarDisco}
-            disabled={marcando}
-            aria-pressed={real !== null}
-            aria-label={`Serie ${numero}: ${real ? "desmarcar" : "marcar como hecha"}`}
-            className="rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
-          >
-            {disco}
-          </button>
-        ) : (
-          disco
-        )}
+        <DiscoSerie
+          kind={kind}
+          index={index}
+          set={set}
+          edit={puedeEditar && !editando ? edit : undefined}
+          onError={setError}
+          className="size-8"
+        />
 
         {editando ? (
           <span className="flex flex-1 flex-wrap items-center gap-1.5 text-sm">
@@ -208,7 +173,6 @@ export function SetRow({
             variant="outline"
             type="button"
             onClick={empezar}
-            disabled={marcando}
             aria-label={`Editar serie ${numero}`}
           >
             <Pencil />
@@ -216,17 +180,6 @@ export function SetRow({
         )}
       </div>
       {error && <InlineError>{error}</InlineError>}
-      <Confirmar
-        abierto={confirmando}
-        titulo={`¿Desmarcar la serie ${numero}?`}
-        texto={`Se borra lo que registraste (${setText(kind, mostrada)}) y la serie vuelve a quedar sin hacer.`}
-        accion="Desmarcar"
-        onCancelar={() => setConfirmando(false)}
-        onConfirmar={() => {
-          setConfirmando(false);
-          cambiarHecha("DELETE");
-        }}
-      />
     </li>
   );
 }

@@ -43,6 +43,9 @@ export type ExerciseItem = {
   execution_notes: string | null;
   reason: string | null;
   sets: SetItem[];
+  // "Semana pasada" (solo en la vista del día): lo realizado en la semana cerrada anterior de la
+  // rutina, serie por serie (null la que no se registró). Vacío si no hay semana anterior.
+  previous?: (RealSet | null)[] | null;
 };
 
 export type DayItem = {
