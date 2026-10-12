@@ -100,7 +100,7 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
           {dia.mobility_notes && <p className="text-sm">Movilidad: {dia.mobility_notes}</p>}
           <ol className="m-0 mt-4 grid gap-3 p-0">
             {dia.exercises.map((e, i) => (
-              <ExerciseRow key={i} exercise={e} edit={edit} desplegado />
+              <ExerciseRow key={i} exercise={e} edit={edit} />
             ))}
           </ol>
           {activa && (
