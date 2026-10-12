@@ -159,11 +159,13 @@ Se guarda con la sesión y la IA lo lee junto con los números al cerrar la sema
 Si un ejercicio aparece en más de un día (por ejemplo, press banca en el Día 1 y en el Día 3), lo registrado la primera vez también ajusta la segunda. Al completar un día, la app detecta los ejercicios que se repiten más adelante y, si hay alguno, la IA propone el cambio para esa próxima aparición, con vista previa y confirmación. Es una llamada a Gemini por día completado y solo cuando hay ejercicios repetidos.
 
 ### El plan no se edita a mano
-Ni el plan aceptado ni la propuesta se pueden editar a mano (decisión 35). Lo que el usuario edita es **lo realizado**, serie por serie, para que la IA tome nota: si un ejercicio le queda muy pesado o muy liviano, o no llega a las repeticiones, carga lo que hizo. El plan lo cambia solo la IA, con el ajuste conversando o la semana nueva, siempre con vista previa y aceptar o descartar.
+Ni el plan aceptado ni la propuesta se pueden editar a mano (decisión 35). Lo que el usuario edita es **lo realizado**, serie por serie, para que la IA tome nota: si un ejercicio le queda muy pesado o muy liviano, o no llega a las repeticiones, carga lo que hizo. El plan lo cambia solo la IA, con la semana nueva (el ajuste conversando se descartó por ahora, decisión 45), siempre con vista previa y aceptar o descartar.
 
 ## La IA propone, el usuario decide
 
-### Ajuste durante la semana
+### Ajuste durante la semana (descartado por ahora)
+> **Descartado por ahora** (decisión 45, 2026-10-12, tarea #29 cerrada). Queda la idea como referencia; durante la semana el plan no cambia y lo que no anda se cuenta en el comentario al cerrarla.
+
 El usuario escribe un pedido dentro de la pantalla de la semana ("no tengo esa máquina", "me molesta el hombro"). Sí puede pedir **entrenar más días**, pero no menos (ver "Cuántos días tiene la semana"). La IA devuelve una **propuesta**, no un cambio directo:
 
 1. Se muestra una vista previa antes y después (qué día, ejercicio o carga cambia y por qué).
@@ -231,7 +233,6 @@ Todavía no están decididos:
 
 - **Avisos al usuario.** Se propone, a futuro, algo suave que sugiera sin hacer nada solo (por ejemplo, "completaste todos los días, ¿cerrar la semana?"). Ver las ideas en `docs/backlog.md`.
 - **Ajuste de ejercicios repetidos.** ¿Lo hace la IA (una llamada por día completado) o una regla simple sin IA, más barata y predecible?
-- **Dónde vive el pedido de ajuste.** Se recomienda una caja de texto dentro de la pantalla de la semana, en lugar de un chat aparte.
 
 ## Efectos sobre el modelo de datos
 

@@ -289,6 +289,13 @@ En la propuesta se muestra el resumen de la IA (`ai_summary`, que ya existe). El
 - **Origen:** elegida entre opciones (2026-10-12; la IA lo propuso y lo confirmaste).
 - **Por qué:** *(completar)*
 
+### 45. El ajuste conversando se descarta por ahora
+El usuario no le pide cambios a la IA durante la semana. El plan de la semana activa no cambia hasta cerrarla: lo que no anda (una máquina que no hay, una molestia) se cuenta en el comentario al cerrar la semana (#50) y la IA lo tiene en cuenta al armar la siguiente. La tarea #29 se cerró como "no se hace por ahora".
+- **Origen:** tuya (2026-10-12), al ver las decisiones que pedía la tarea (dónde se pide, qué días puede cambiar la IA, si es un pedido o un chat).
+- **Por qué:** *(completar)*
+- **Descartaste (por ahora):** pedirle a la IA que modifique la semana activa, con vista previa y aceptar o descartar.
+- **Ojo:** queda sin resolver lo que la tarea había mostrado: aceptar un ajuste tendría que modificar la semana activa sin perder lo ya registrado (hoy aceptar siempre crea una semana nueva). El antes y después (#49) sigue sirviendo para la semana nueva. La decisión 35 queda así: el plan solo lo cambia la IA, al armar la semana nueva.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
@@ -296,7 +303,6 @@ Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
 - **Cuánto reducir el volumen** en la semana liviana (R30).
 - Avisos al usuario.
 - Ajuste de ejercicios repetidos en la semana: ¿lo hace la IA o una regla simple?
-- Dónde va el pedido de ajuste: dentro de la pantalla de la semana o en un chat aparte.
 
 Ya resueltas: **el plan no se edita a mano** (decisión 35); los **botones Cerrar semana y Generar** (cerrar en la semana activa con aviso de los días sin completar, generar en la portada); el **login** se hizo en la semana 3 (decisión 39); **reabrir un día completado** se puede (decisión 33 y "Reabrir día"); la confirmación al cerrar con días sin hacer queda definida en la tarea #47.
 

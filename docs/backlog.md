@@ -40,10 +40,10 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Cerrar semana: botón con aviso de los días sin completar, sin IA `backend` `frontend` (#47)
 - [x] Generar semana nueva: al continuar una rutina, la IA lee lo planificado frente a lo real de la última semana cerrada y propone la siguiente, con un resumen (antes "Cierre semanal"). Probada con Gemini real `ia` (#27)
 - [ ] Pantalla de resumen semanal `frontend` (#28)
-- [ ] Ajuste conversando (regenera la semana y la guarda) `ia` (#29)
+- [x] ~~Ajuste conversando (regenera la semana y la guarda)~~: **no se hace por ahora** (decisión 45, 2026-10-12). Durante la semana el plan no cambia; lo que no anda se cuenta al cerrarla. Cerrada como "no se hace por ahora" `ia` (#29)
 - [x] Topes de uso de Gemini (diario y por minuto) `ia` `backend` (#30)
 - [x] Propuestas de la IA: ver la pendiente desde la portada (`GET /proposals/pending`) y vista previa con aceptar o descartar para "Generar rutina" `ia` `backend` `frontend` (#45). El antes y después pasó a #49
-- [ ] Antes y después en las propuestas de ajuste y de semana nueva: qué cambia, con el valor anterior y el nuevo. Depende de #29 y #27 `ia` `backend` `frontend` (#49)
+- [ ] Antes y después en las propuestas de semana nueva: qué cambia, con el valor anterior y el nuevo. Depende de #27 (hecha); el ajuste (#29) se descartó por ahora `ia` `backend` `frontend` (#49)
 - [ ] Nota de cómo me sentí al terminar la sesión (botones y texto). **Pospuesta**: decisión 37 `backend` `frontend` (#46)
 - [x] Comentario escrito del usuario al cerrar la semana (cómo se sintió), que la IA lee al armar la semana siguiente `backend` `ia` `frontend` (#50)
 - [ ] Esfuerzo por serie (1 a 10) al editar lo realizado. **Pospuesto**: decisión 37 `backend` `frontend` (#48)
@@ -84,14 +84,14 @@ La definición completa de cada una está en su issue de GitHub.
 | Esfuerzo por serie (#48), pospuesto | Campo opcional al tocar "Editar" en una serie | Nada |
 | Semáforo de dolor (#51), pospuesto | Zona y gravedad en la nota del día, al elegir "con dolor" | #46 |
 | Catálogo de ejercicios / RAG (#52), pendiente de consulta | Cambia cómo se arma la propuesta al tocar "Generar rutina"; no es una pantalla | Respuesta del profesor y revisión del catálogo |
-| Antes y después en las propuestas (#49) | En la vista previa de la propuesta (`/rutina/propuesta/{id}`) cuando es un ajuste o una semana nueva | Ajuste (#29) y semana nueva (#27) |
+| Antes y después en las propuestas (#49) | En la vista previa de la propuesta (`/rutina/propuesta/{id}`) cuando es una semana nueva | Semana nueva (#27, hecha) |
 | ~~Diseño "Disco", tema (#53)~~ | Hecho: toda la app: cambian colores, fuentes y formas sin cambiar qué hace cada pantalla | Nada |
 | ~~Navegación y pantalla Entrenar (#54)~~ | Hecho: barra fija abajo en todas las pantallas con sesión; "Entrenar" reemplaza la portada actual | #53 |
 | ~~Rediseño del día, las rutinas y la propuesta (#55)~~ | Hecho: `/semanas/{id}/dia/{n}`, `/rutinas` y `/rutina/propuesta/{id}` | #53 |
 | ~~Elegir camino A o B (#43)~~ y ~~formulario de rutina actual (#44)~~ | No se hacen: se descartó el camino B (decisión 40) | — |
-| ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con el ajuste (#29) | — |
+| ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con la semana nueva | — |
 
-**Decisiones pendientes del usuario:** cuántas series por ejercicio (hoy se admiten 2; quiere "3 a 4": opciones A, B o C), si R20, R24 y R25 comparan contra series directas solas o con indirectas, aprobar R5b (músculo secundario), la consulta al profesor sobre el catálogo y los vectores (#52), cuánto reducir el volumen en la semana liviana (R30), los avisos al usuario, el ajuste de ejercicios repetidos y dónde va el pedido de ajuste. (Resueltos: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
+**Decisiones pendientes del usuario:** cuántas series por ejercicio (hoy se admiten 2; quiere "3 a 4": opciones A, B o C), si R20, R24 y R25 comparan contra series directas solas o con indirectas, aprobar R5b (músculo secundario), la consulta al profesor sobre el catálogo y los vectores (#52), cuánto reducir el volumen en la semana liviana (R30), los avisos al usuario, el ajuste de ejercicios repetidos. (Resueltos: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
 
 ## Ideas para después (fuera del MVP, sin definir)
 

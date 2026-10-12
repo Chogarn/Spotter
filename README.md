@@ -38,7 +38,7 @@ El proyecto se construye por etapas. Hoy funciona, con registro e inicio de sesi
 - **Cuenta y sesión:** registro e inicio de sesión con cookie `httpOnly` (JWT de 7 días) y contraseñas con hash argon2; sin sesión, todas las pantallas llevan a `/login`.
 - **Interfaz** con shadcn/ui y Tailwind en versión básica (los estilos propios vienen más adelante).
 
-Todavía no están: el ajuste conversando, y, pospuestos por decisión del proyecto, la nota de cómo me sentí, el esfuerzo por serie y el semáforo de dolor. El catálogo de ejercicios para la IA (hoy un borrador de 84 en `backend/app/ai/exercises.json`, sin conectar) espera una consulta. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
+Descartado por ahora: el ajuste conversando durante la semana. Pospuestos por decisión del proyecto: la nota de cómo me sentí, el esfuerzo por serie y el semáforo de dolor. El catálogo de ejercicios para la IA (hoy un borrador de 84 en `backend/app/ai/exercises.json`, sin conectar) espera una consulta. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan, al armar la semana nueva. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
 ## Funcionalidades
 
@@ -49,7 +49,7 @@ Todavía no están: el ajuste conversando, y, pospuestos por decisión del proye
 - Registro de sesiones: lo realizado frente a lo planificado, serie por serie. *(El esfuerzo del 1 al 10 y la nota de cómo se sintió el día están definidos pero pospuestos.)*
 
 ### Valor de la IA
-La IA trabaja sobre los datos del usuario y siempre **propone**: el usuario ve una vista previa de los cambios y los acepta o los descarta. No es un chat genérico.
+La IA trabaja sobre los datos del usuario y siempre **propone**: el usuario ve una vista previa de los cambios y los acepta o los descarta. No es un chat genérico. (La 3 se descartó por ahora: decisión 45.)
 
 1. **Primera rutina**, según el nivel y el objetivo.
 2. **Cierre de semana:** analiza lo planificado frente a lo real de la semana anterior y propone la siguiente con un resumen de evolución. *(Hoy sube la carga o la mantiene según lo que hiciste; detectar fatiga necesita el esfuerzo por serie, que está pospuesto.)*
