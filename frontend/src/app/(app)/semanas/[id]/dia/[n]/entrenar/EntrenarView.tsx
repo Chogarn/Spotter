@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, X } from "lucide-react";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
@@ -167,6 +167,13 @@ export default function EntrenarView({
   }
 
   const total = actual.exercises.length;
+  // En el cierre del día (sin ejercicio a la vista), "anterior" lleva al último ejercicio.
+  const actualEj = pos ? pos.ej : total;
+
+  function irA(i: number) {
+    setCorrigiendo(false);
+    setPos({ ej: i, serie: serieInicial(actual.exercises[i]) });
+  }
 
   return (
     <main className="mx-auto max-w-xl px-4 pt-4">
@@ -180,17 +187,23 @@ export default function EntrenarView({
           <X />
         </Button>
       </div>
-      {/* Una barra por ejercicio: rojo hecho, tinta el actual. Tocar una abre ese ejercicio. */}
-      <div className="mt-1 mb-4 flex gap-1">
+      {/* Una barra por ejercicio: rojo hecho, tinta el actual. Tocar una abre ese ejercicio; las
+          flechas pasan al anterior o al siguiente en el orden del día, esté hecho o no. En los
+          extremos la flecha no se muestra (sin dar la vuelta), pero guarda su lugar. */}
+      <div className="mt-1 mb-4 flex items-center gap-1">
+        <Flecha
+          direccion="anterior"
+          visible={actualEj > 0}
+          disabled={trabajando}
+          nombre={actual.exercises[actualEj - 1]?.name}
+          onClick={() => irA(actualEj - 1)}
+        />
         {actual.exercises.map((e, i) => (
           <button
             key={i}
             type="button"
             disabled={trabajando}
-            onClick={() => {
-              setCorrigiendo(false);
-              setPos({ ej: i, serie: serieInicial(e) });
-            }}
+            onClick={() => irA(i)}
             aria-label={`Ir a ${e.name}`}
             aria-current={pos?.ej === i ? "step" : undefined}
             className={cn(
@@ -199,6 +212,13 @@ export default function EntrenarView({
             )}
           />
         ))}
+        <Flecha
+          direccion="siguiente"
+          visible={pos !== null && actualEj < total - 1}
+          disabled={trabajando}
+          nombre={actual.exercises[actualEj + 1]?.name}
+          onClick={() => irA(actualEj + 1)}
+        />
       </div>
 
       {error && <ErrorMessage>{error}</ErrorMessage>}
@@ -509,5 +529,38 @@ function Medida({ kind, serie }: { kind: ExerciseItem["kind"]; serie: SetItem })
         </p>
       )}
     </div>
+  );
+}
+
+// "‹" o "›" grande y sin recuadro, al lado de las barras de los ejercicios.
+function Flecha({
+  direccion,
+  visible,
+  disabled,
+  nombre,
+  onClick,
+}: {
+  direccion: "anterior" | "siguiente";
+  visible: boolean;
+  disabled: boolean;
+  nombre?: string;
+  onClick: () => void;
+}) {
+  const Icono = direccion === "anterior" ? ChevronLeft : ChevronRight;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled || !visible}
+      aria-hidden={!visible}
+      tabIndex={visible ? undefined : -1}
+      aria-label={nombre ? `Ejercicio ${direccion}: ${nombre}` : `Ejercicio ${direccion}`}
+      className={cn(
+        "-my-2 flex size-11 shrink-0 items-center justify-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50",
+        !visible && "invisible",
+      )}
+    >
+      <Icono className="size-9" strokeWidth={3} />
+    </button>
   );
 }
