@@ -1,13 +1,15 @@
 "use client";
 
-import { Check, ChevronRight, LockOpen } from "lucide-react";
-import Link from "next/link";
+import { Check, ChevronDown, LockOpen } from "lucide-react";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
 import { Disco } from "@/components/Disco";
+import { DoneControl } from "@/components/DoneControl";
 import { Resumen } from "@/components/ExerciseRow";
-import { readError, type DayDetail, type ExerciseItem, apiFetch } from "@/lib/api";
+import { SemanaPasada } from "@/components/SemanaPasada";
+import { SetRow } from "@/components/SetRow";
+import { readError, type DayDetail, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
 import { estaHecho, summarize } from "@/lib/format";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
@@ -18,6 +20,8 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
   const [dia, setDia] = useState<DayDetail | null>(null);
   const [error, setError] = useState("");
   const [trabajando, setTrabajando] = useState(false);
+  // La tarjeta desplegada (una por vez), o null si están todas cerradas.
+  const [abierta, setAbierta] = useState<number | null>(null);
 
   useEffect(() => {
     apiFetch(`/weeks/${id}/days/${n}`)
@@ -27,6 +31,30 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
       })
       .catch((e) => setError(e.message));
   }, [id, n]);
+
+  // Al guardar una serie, el backend devuelve esa serie actualizada: se reemplaza en pantalla.
+  function serieGuardada(updated: SetItem) {
+    setDia((actual) =>
+      actual
+        ? {
+            ...actual,
+            exercises: actual.exercises.map((e) => ({
+              ...e,
+              sets: e.sets.map((s) => (s.id === updated.id ? updated : s)),
+            })),
+          }
+        : actual,
+    );
+  }
+
+  // Al marcar, reabrir o deshacer un ejercicio, el backend devuelve el ejercicio entero.
+  function ejercicioCambiado(updated: ExerciseItem) {
+    setDia((actual) =>
+      actual
+        ? { ...actual, exercises: actual.exercises.map((e) => (e.id === updated.id ? updated : e)) }
+        : actual,
+    );
+  }
 
   async function cambiarDia(accion: "complete" | "reopen") {
     if (!dia) return;
@@ -94,9 +122,13 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
               <TarjetaEjercicio
                 key={i}
                 exercise={e}
-                href={`/semanas/${id}/dia/${n}/entrenar?ejercicio=${i + 1}`}
+                dia={dia}
+                registra={activa && !completado}
+                abierta={abierta === i}
+                onAlternar={() => setAbierta((a) => (a === i ? null : i))}
                 enCurso={i === enCurso}
-                hecho={activa && estaHecho(e)}
+                onSerieGuardada={serieGuardada}
+                onEjercicioCambiado={ejercicioCambiado}
               />
             ))}
           </ol>
@@ -138,36 +170,56 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
   );
 }
 
-// Un ejercicio en la lista del día (decisión 47): solo el nombre grande, los números y, en el que
-// está en curso, los discos de sus series. Tocarla entra al ejercicio, donde está el detalle.
+// Un ejercicio en la lista del día (decisión 47): cerrada, solo el nombre grande, los números y,
+// en el que está en curso, los discos. Tocarla la despliega ahí mismo (una por vez) con lo
+// demás: las series (disco para marcar y lápiz para corregir), semana pasada, cómo hacerlo, por
+// qué y los botones del ejercicio. El modo entrenar se abre con "Empezar día N" desde Entrenar.
 function TarjetaEjercicio({
   exercise,
-  href,
+  dia,
+  registra,
+  abierta,
+  onAlternar,
   enCurso,
-  hecho,
+  onSerieGuardada,
+  onEjercicioCambiado,
 }: {
   exercise: ExerciseItem;
-  href: string;
+  dia: DayDetail;
+  registra: boolean;
+  abierta: boolean;
+  onAlternar: () => void;
   enCurso: boolean;
-  hecho: boolean;
+  onSerieGuardada: (s: SetItem) => void;
+  onEjercicioCambiado: (e: ExerciseItem) => void;
 }) {
+  const hecho = estaHecho(exercise);
+  // Las series se registran con el día abierto y el ejercicio sin cerrar.
+  const seriesAbiertas = registra && !hecho;
+  const idDetalle = `ejercicio-${exercise.id ?? exercise.name}`;
+
   return (
-    <li>
-      <Link
-        href={href}
-        className={cn(
-          "flex items-center gap-3 rounded-2xl border-2 border-transparent bg-card px-4 py-3 no-underline hover:bg-muted",
-          enCurso && "border-disco-tinta",
-          hecho && "bg-card/60",
-        )}
+    <li
+      className={cn(
+        "rounded-2xl border-2 border-transparent bg-card",
+        enCurso && "border-disco-tinta",
+        registra && hecho && !abierta && "bg-card/60",
+      )}
+    >
+      <button
+        type="button"
+        onClick={onAlternar}
+        aria-expanded={abierta}
+        aria-controls={idDetalle}
+        className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <span className="min-w-0 flex-1">
           <span className="block font-heading text-[1.35rem] leading-tight font-bold">{exercise.name}</span>
           <Resumen
             texto={summarize(exercise)}
-            className={cn("font-heading text-lg leading-tight font-semibold", !enCurso && "text-muted-foreground")}
+            className={cn("font-heading text-lg leading-tight font-semibold", !enCurso && !abierta && "text-muted-foreground")}
           />
-          {enCurso && (
+          {enCurso && !abierta && (
             <span className="mt-1.5 flex gap-1.5" aria-hidden="true">
               {exercise.sets.map((s, i) => (
                 <Disco key={i} estado={s.real ? "hecho" : "pendiente"} className="size-6">
@@ -177,14 +229,57 @@ function TarjetaEjercicio({
             </span>
           )}
         </span>
-        {hecho ? (
+        {registra && hecho && (
           <Disco estado="hecho" className="size-7">
             <Check className="size-4" aria-label="Hecho" />
           </Disco>
-        ) : (
-          <ChevronRight className="size-6 text-muted-foreground" aria-hidden="true" />
         )}
-      </Link>
+        <ChevronDown
+          className={cn("size-6 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none", abierta && "rotate-180")}
+          aria-hidden="true"
+        />
+      </button>
+
+      {abierta && (
+        <div id={idDetalle} className="px-4 pb-4">
+          <ul className="m-0 list-none p-0">
+            {exercise.sets.map((s, i) => (
+              <SetRow
+                key={i}
+                kind={exercise.kind}
+                index={i}
+                set={s}
+                edit={
+                  seriesAbiertas
+                    ? { weekId: dia.week_id, dayIndex: dia.day_index, onSaved: onSerieGuardada }
+                    : undefined
+                }
+              />
+            ))}
+          </ul>
+          <SemanaPasada ejercicio={exercise} />
+          {exercise.execution_notes && (
+            <details className="border-t border-border py-1">
+              <summary className="cursor-pointer py-1.5 font-medium">Cómo hacerlo</summary>
+              <p className="mt-0 mb-2 text-sm">{exercise.execution_notes}</p>
+            </details>
+          )}
+          {exercise.reason && (
+            <details className="border-t border-border py-1">
+              <summary className="cursor-pointer py-1.5 font-medium">Por qué está en tu rutina</summary>
+              <p className="mt-0 mb-2 text-sm">{exercise.reason}</p>
+            </details>
+          )}
+          {registra && (
+            <div className="mt-2 flex justify-end">
+              <DoneControl
+                exercise={exercise}
+                edit={{ weekId: dia.week_id, dayIndex: dia.day_index, onChanged: onEjercicioCambiado }}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </li>
   );
 }

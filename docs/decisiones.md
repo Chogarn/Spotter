@@ -308,6 +308,7 @@ La lista del día muestra por ejercicio el nombre en grande y los números debaj
 - **Origen:** tuya (2026-10-12): "hay demasiada info, es mejor si los detalles aparecen cuando entrás al ejercicio", el nombre chico frente a los números, la ubicación del lápiz y Entrenar al centro; la IA propuso cómo y lo aprobaste.
 - **Por qué:** *(completar)*
 - **Descartaste:** la lista con todo el detalle (#56 tal como quedó); el lápiz al lado de "Serie hecha".
+- **Cambio (2026-10-12, tuyo):** tocar la tarjeta ya **no entra al modo entrenar**: la despliega ahí mismo, en la lista (una por vez), con las series (disco y lápiz), semana pasada, cómo hacerlo, por qué y los botones del ejercicio (tilde, candado y tacho). El modo entrenar queda para entrenar y se abre solo con "Empezar día N" desde Entrenar; sin botón "Entrenar" en la tarjeta. Motivo: no convencía que mirar un ejercicio y entrenarlo fueran la misma vista.
 
 ### 48. Reloj de descanso circular, que arranca el usuario
 Dentro del ejercicio, un botón redondo de reloj al lado de "Serie hecha" arranca el descanso con la duración que propuso la IA (`rest_seconds`). Corriendo, un círculo con la cuenta regresiva ocupa el lugar de la tarjeta de la serie, con −15 s, +15 s y "Saltar descanso". Al llegar a cero vibra (si se puede) y vuelve la serie. Si el usuario sale a otra pantalla, una franja arriba de la barra muestra el tiempo y vuelve al ejercicio (#59). Reemplaza el "sin reloj por ahora" de la decisión 46.

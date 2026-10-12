@@ -8,6 +8,7 @@ import { BotonDescanso, RelojCircular, useDescanso } from "@/components/Descanso
 import { Disco } from "@/components/Disco";
 import { DoneControl } from "@/components/DoneControl";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { SemanaPasada } from "@/components/SemanaPasada";
 import { SetRow } from "@/components/SetRow";
 import { Button } from "@/components/ui/button";
 import { readError, type DayDetail, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
@@ -496,20 +497,6 @@ function SerieEnGrande({
         </div>
       )}
     </>
-  );
-}
-
-// "Semana pasada" del ejercicio entero, para la vista en lectura.
-function SemanaPasada({ ejercicio }: { ejercicio: ExerciseItem }) {
-  const anterior = ejercicio.previous;
-  if (!anterior) return null;
-  return (
-    <p className="mt-2 mb-1 text-sm text-muted-foreground">
-      Semana pasada:{" "}
-      {anterior.every((r) => r === null)
-        ? "sin registrar"
-        : anterior.map((r) => (r ? setText(ejercicio.kind, realAsSet(r)) : "—")).join(" · ")}
-    </p>
   );
 }
 
