@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { errorText, apiFetch } from "@/lib/api";
+import { errorText, apiFetch, type SessionUser } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -38,6 +37,20 @@ export default function PerfilPage() {
   const [form, setForm] = useState<Form>(VACIO);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [usuario, setUsuario] = useState<SessionUser | null>(null);
+
+  useEffect(() => {
+    apiFetch(`/auth/me`)
+      .then(async (res) => {
+        if (res.ok) setUsuario(await res.json());
+      })
+      .catch(() => {});
+  }, []);
+
+  async function cerrarSesion() {
+    await apiFetch(`/auth/logout`, { method: "POST" }).catch(() => {});
+    router.push("/login");
+  }
 
   useEffect(() => {
     apiFetch(`/profile`)
@@ -158,10 +171,21 @@ export default function PerfilPage() {
           />
           <Label htmlFor="accept_legal_notice">Entiendo que la app no da consejo médico</Label>
         </div>
-        <Button type="submit">Guardar</Button>{" "}
-        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Volver</Button>
+        <Button type="submit">Guardar</Button>
       </form>
       {error && <ErrorMessage>{error}</ErrorMessage>}
+
+      {/* Cerrar sesión vive en el Perfil (decisión 42); antes estaba en la portada. */}
+      <section className="mt-8 border-t border-border pt-4">
+        {usuario && (
+          <p className="text-sm text-muted-foreground">
+            Sesión iniciada como {usuario.name} ({usuario.email})
+          </p>
+        )}
+        <Button variant="outline" type="button" onClick={cerrarSesion}>
+          Cerrar sesión
+        </Button>
+      </section>
     </main>
   );
 }
