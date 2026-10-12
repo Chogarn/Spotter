@@ -264,6 +264,31 @@ El usuario no carga la rutina que ya hace. Toda rutina la arma la IA desde cero 
 - **Descartaste:** cargar la rutina propia (formulario, texto libre o foto) y que la IA se la mejore; dejar las columnas sin usar.
 - **Ojo:** la decisión 2 queda como historial. Quien ya tiene una rutina propia y la quiere seguir no tiene cómo traerla: solo puede dejar que la IA arme una desde su nivel y objetivo.
 
+### 41. El diseño visual es "Disco", inspirado en los discos de pesas
+Fondo gris cemento (`#E9ECEE`), tinta azul noche (`#172033`) y los colores de los discos de competición para los estados: rojo (`#D7263D`) serie hecha o semana en curso, azul (`#1F5FBF`) la carga, amarillo (`#F2C230`) avisos y propuestas pendientes, verde (`#2E9E5B`) cumplido o semana cerrada. Letras Barlow Condensed para números y títulos, y Barlow para el texto. Bordes redondeados, botón principal en forma de píldora oscura. Cada serie se muestra como un disco que se rellena al marcarla como hecha.
+- **Origen:** elegida entre opciones (2026-10-12; la IA mostró "Disco" y "Estadio", y después cuatro variantes de color y una versión oscura).
+- **Por qué:** *(completar)*
+- **Descartaste:** "Estadio" (cobalto y amarillo, letras de cartel); la versión oscura grafito y turquesa; las variantes violeta, naranja, verde y rojo con azul marino.
+- **Ojo:** se aplica cambiando las variables de color de shadcn en `globals.css` y las fuentes en `layout.tsx`, sin reescribir los componentes de `components/ui/`. Reemplaza el "tema neutro" de la decisión 38.
+
+### 42. La portada se llama "Entrenar" y la navegación es una barra fija abajo
+La barra tiene tres secciones, Entrenar, Rutinas y Perfil, siempre abajo, también en la computadora. Con una semana activa, Entrenar muestra el próximo día sin completar con el botón "Empezar día N", el progreso de la semana en discos y el resto de los días. Sin semana activa, junta en un lugar la propuesta pendiente, continuar una rutina y empezar una nueva. "Cerrar sesión" pasa al Perfil.
+- **Origen:** elegida entre opciones (2026-10-12; la IA propuso la reorganización y el nombre "Hoy"; elegiste "Entrenar" y la barra abajo siempre).
+- **Por qué:** *(completar)*
+- **Descartaste:** la portada como lista de botones; los nombres "Hoy" e "Inicio"; un menú arriba.
+
+### 43. Las acciones chicas son íconos; las que cierran algo llevan texto
+Lápiz para editar, tilde y cruz para guardar y cancelar, candado abierto para reabrir y tacho para deshacer, que siempre pide confirmación. Una serie se marca o desmarca tocando su disco. "Día completado", "Cerrar semana", "Aceptar" y "Descartar" siguen con texto.
+- **Origen:** tuya (2026-10-12; pediste íconos "tipo lápiz, cruces, tachos de basura"); el reparto entre íconos y texto lo propuso la IA.
+- **Por qué:** *(completar)*
+- **Descartaste:** botones con texto para todas las acciones.
+- **Ojo:** cada ícono necesita un nombre accesible (`aria-label`) y un área táctil de 36 px o más.
+
+### 44. La propuesta muestra el resumen de la IA y "Cerrar semana" pasa a Entrenar
+En la propuesta se muestra el resumen de la IA (`ai_summary`, que ya existe). El peso anterior junto al nuevo espera a la tarea #49. "Cerrar semana" va al final de la pantalla Entrenar, discreto, y se quita de la pantalla de la semana.
+- **Origen:** elegida entre opciones (2026-10-12; la IA lo propuso y lo confirmaste).
+- **Por qué:** *(completar)*
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
