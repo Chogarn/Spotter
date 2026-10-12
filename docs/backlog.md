@@ -101,3 +101,9 @@ Ideas anotadas durante el diseño. No son tareas todavía: antes de convertirlas
   - A definir: por qué canal llegan (dentro de la app, correo, avisos del navegador o del celular), cuándo se envían, qué eventos las disparan y cómo se desactivan.
   - Punto a decidir: respetar el control del usuario. Como el cierre de la semana es manual y los días se llaman "Día 1, Día 2" (no lunes ni martes), los avisos deberían **sugerir** ("completaste todos los días, ¿cerrar la semana?") y nunca hacer nada solos.
   - Se podrían calcular con datos que ya existen (el plan activo y las sesiones terminadas); lo nuevo sería el envío y las preferencias del usuario.
+- **Reloj o cronómetro en el día de entrenamiento** (idea del usuario, 2026-10-12). Para controlar el **descanso entre series** y el **tiempo de los ejercicios isométricos** (plancha) sin salir de la pantalla del día.
+  - **Lo activa el usuario** (decisión del usuario): el reloj nunca arranca solo ni se dispara al marcar una serie como hecha; el usuario lo inicia con un botón cuando quiere usarlo.
+  - A definir: si es una cuenta regresiva que arranca con el descanso del ejercicio (`rest_seconds`) o con los segundos de la serie isométrica (`duration_seconds`), un cronómetro libre, o las dos; qué pasa al llegar a cero (aviso sonoro o vibración, pasar a la serie siguiente); y si lo medido en un isométrico se guarda como lo realizado.
+  - Punto a decidir: dónde vive. En la fila de cada serie (un botón por serie) o como una barra fija al pie del día, que sirve para todas.
+  - Detalle técnico a tener en cuenta: en el celular, la pantalla se apaga y el navegador pausa los temporizadores; el tiempo debería calcularse con la hora de inicio y no contando segundos, y el sonido o la vibración necesitan un permiso del navegador.
+  - Se podría construir con datos que ya existen (`plan_exercises.rest_seconds` y `plan_sets.duration_seconds`), sin tablas nuevas ni llamadas a la IA.
