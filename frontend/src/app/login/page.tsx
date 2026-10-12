@@ -89,6 +89,9 @@ export default function LoginPage() {
       <p>
         ¿No tenés cuenta? <Link href="/registro">Registrate</Link>
       </p>
+      <p>
+        <Link href="/">Volver al inicio</Link>
+      </p>
     </main>
   );
 }
