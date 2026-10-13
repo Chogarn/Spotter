@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Pencil, X } from "lucide-react";
+import { Check, ChevronRight, Pencil, X } from "lucide-react";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
@@ -118,36 +118,48 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
               de una misma rutina. El punto es rojo si está en curso y verde si se cerró. */}
           <ol className="relative m-0 mt-5 list-none p-0">
             {rutina.weeks.map((s, i) => (
-              <li key={s.id} className="relative pl-8">
+              <li key={s.id} className="relative pb-2.5 pl-7">
+                {/* El tramo de línea que baja hasta la semana siguiente. */}
                 {i < rutina.weeks.length - 1 && (
-                  <span aria-hidden className="absolute top-4 bottom-0 left-[9px] w-0.5 bg-disco-tinta" />
+                  <span aria-hidden className="absolute top-6 bottom-0 left-[7px] w-0.5 bg-disco-tinta" />
                 )}
                 <span
                   aria-hidden
                   className={cn(
-                    "absolute top-2.5 left-0.5 size-4 rounded-full",
+                    "absolute top-5 left-0 size-4 rounded-full",
                     s.status === "active" ? "bg-disco-rojo" : "border-2 border-disco-tinta bg-disco-verde",
                   )}
                 />
+                {/* Cada semana es una tarjeta, como los días de la semana; la en curso con borde oscuro. */}
                 <Link
                   href={`/semanas/${s.id}`}
-                  className="block rounded-xl px-2 py-1.5 pb-4 no-underline hover:bg-muted"
+                  className={cn(
+                    "flex items-center gap-3 rounded-2xl border-2 border-transparent bg-card px-4 py-3 no-underline hover:bg-muted",
+                    s.status === "active" && "border-disco-tinta",
+                  )}
                 >
-                  <span className="flex items-center justify-between gap-2">
-                    <span className="font-heading text-xl font-bold">Semana {s.number}</span>
-                    {s.status === "active" ? (
-                      <span className="rounded-full bg-disco-rojo px-2.5 py-0.5 text-xs font-medium text-white">
-                        en curso
-                      </span>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">
-                        {s.status === "closed" ? "completada" : statusText[s.status]}
-                      </span>
-                    )}
+                  <span className="flex-1">
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="font-heading text-[1.35rem] leading-tight font-bold">Semana {s.number}</span>
+                      {s.status === "active" ? (
+                        <span className="rounded-full bg-disco-rojo px-2.5 py-0.5 text-xs font-medium text-white">
+                          En curso
+                        </span>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">
+                          {s.status === "closed" ? "Completada" : statusText[s.status]}
+                        </span>
+                      )}
+                    </span>
+                    <span className="block font-heading text-lg leading-tight font-semibold text-muted-foreground">
+                      Desde el {shortDate(s.week_start)} ·{" "}
+                      {s.day_states.filter((e) => e === "completed").length} de {s.day_states.length} días
+                    </span>
+                    <span className="mt-1.5 block">
+                      <DiscosSemana estados={s.day_states} />
+                    </span>
                   </span>
-                  <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                    desde el {shortDate(s.week_start)} · <DiscosSemana estados={s.day_states} />
-                  </span>
+                  <ChevronRight className="size-6 shrink-0 text-muted-foreground" aria-hidden />
                 </Link>
               </li>
             ))}

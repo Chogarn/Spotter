@@ -1,11 +1,13 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
 import { readError, type WeekDetail, apiFetch } from "@/lib/api";
-import { dayStateText, statusText } from "@/lib/format";
+import { dayStateText, shortDate, statusText } from "@/lib/format";
+import { cn } from "cn";
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 
@@ -32,25 +34,39 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
       {!semana && !error && <p>Cargando...</p>}
       {semana && (
         <>
-          <h1 className="mb-0">Semana {semana.number}</h1>
-          <p className="mt-1 mb-4 text-muted-foreground">
-            {semana.routine_name} · {semana.status === "active" ? "en curso" : statusText[semana.status]}
-          </p>
-          <ul className="m-0 mb-4 grid list-none gap-2 p-0">
+          {/* Título grande y etiquetas, como la pantalla de la rutina y la del día. */}
+          <h1 className="mt-2 mb-0 text-6xl">Semana {semana.number}</h1>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            <span
+              className={cn(
+                "rounded-full px-3 py-1 text-sm",
+                semana.status === "active" ? "bg-disco-rojo text-white" : "bg-card text-muted-foreground",
+              )}
+            >
+              {semana.status === "active" ? "En curso" : semana.status === "closed" ? "Completada" : statusText[semana.status]}
+            </span>
+            <span className="rounded-full bg-card px-3 py-1 text-sm">Desde el {shortDate(semana.week_start)}</span>
+            <span className="rounded-full bg-card px-3 py-1 text-sm">{semana.days.length} días</span>
+          </div>
+          {/* Cada día como las tarjetas de ejercicio del día; la flecha avisa que se entra tocándola. */}
+          <ul className="m-0 mt-4 mb-4 grid list-none gap-2.5 p-0">
             {semana.days.map((d) => (
               <li key={d.day_index}>
                 <Link
                   href={`/semanas/${semana.id}/dia/${d.day_index}`}
-                  className="flex items-center gap-3 rounded-xl bg-card px-4 py-3 no-underline hover:bg-muted"
+                  className="flex items-center gap-3 rounded-2xl bg-card px-4 py-3.5 no-underline hover:bg-muted"
                 >
                   <Disco estado={estadoDia[d.state]} />
                   <span className="flex-1">
-                    <span className="font-medium">Día {d.day_index}</span> · {d.title}
-                    <span className="block text-sm text-muted-foreground">
+                    <span className="block font-heading text-[1.35rem] leading-tight font-bold">
+                      Día {d.day_index} · {d.title}
+                    </span>
+                    <span className="block font-heading text-lg leading-tight font-semibold text-muted-foreground">
                       ~{d.minutes} min · {d.exercise_count} ejercicios
                       {d.state !== "pending" && <> · {dayStateText[d.state]}</>}
                     </span>
                   </span>
+                  <ChevronRight className="size-6 shrink-0 text-muted-foreground" aria-hidden />
                 </Link>
               </li>
             ))}
