@@ -1,5 +1,6 @@
 "use client";
 
+import { Lock } from "lucide-react";
 import { useState } from "react";
 
 import { readError, apiFetch } from "@/lib/api";
@@ -19,8 +20,8 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 
 // "Cerrar semana" con su recuadro: avisa los días sin completar (cuentan como no hechos) y deja
 // un comentario opcional que la IA lee al armar la semana siguiente. Vive en Entrenar (decisión 44).
-// `destacado`: botón principal (cuando ya se completaron todos los días); si no, una tarjeta
-// "¿Terminaste la semana?" con un botón con borde.
+// `destacado`: botón principal (cuando ya se completaron todos los días); si no, un botón con
+// borde y candado. El recuadro tiene el formato de tarjeta (decisión 57).
 export function CerrarSemana({
   weekId,
   pendientes,
@@ -56,6 +57,7 @@ export function CerrarSemana({
   }
 
   const faltan = pendientes.length;
+  const faltanTexto = `Te ${faltan === 1 ? "falta 1 día" : `faltan ${faltan} días`}`;
 
   return (
     <>
@@ -64,33 +66,28 @@ export function CerrarSemana({
           Cerrar semana
         </Button>
       ) : (
-        // Con días por hacer, una tarjeta propia que explica qué pasa antes de cerrar.
-        <section className="rounded-2xl bg-card p-5">
-          <h2 className="mt-0 mb-1 text-2xl">¿Terminaste la semana?</h2>
-          <p className="mt-0 mb-4 text-sm text-muted-foreground">
-            {faltan > 0 && `Te ${faltan === 1 ? "falta 1 día" : `faltan ${faltan} días`}. `}
-            La IA arma la siguiente con lo que hiciste.
-          </p>
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            className="h-11 w-full border-2 border-disco-tinta text-base"
-            onClick={() => setConfirmando(true)}
-          >
-            Cerrar semana
-          </Button>
-        </section>
+        // Con días por hacer, un botón con borde a todo el ancho, menos fuerte que "Empezar día N".
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="h-11 w-full rounded-full border-2 border-disco-tinta text-base"
+          onClick={() => setConfirmando(true)}
+        >
+          <Lock data-icon="inline-start" />
+          Cerrar semana
+        </Button>
       )}
+      {/* El recuadro con el formato de una tarjeta: pregunta, qué pasa y el botón con borde. */}
       <AlertDialog open={confirmando} onOpenChange={(abierto) => !cerrando && setConfirmando(abierto)}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Cerrar semana</AlertDialogTitle>
+            <AlertDialogTitle className="font-heading text-2xl font-bold">¿Terminaste la semana?</AlertDialogTitle>
             <AlertDialogDescription>
-              {pendientes.length > 0
-                ? `Te faltan por completar: ${pendientes.map((n) => `Día ${n}`).join(", ")}. Esos días se cuentan como no hechos.`
-                : "Completaste todos los días."}{" "}
-              ¿Cerrar la semana? No se puede deshacer.
+              {faltan > 0
+                ? `${faltanTexto}: ${pendientes.map((n) => `Día ${n}`).join(", ")}. Se cuentan como no hechos. `
+                : "Completaste todos los días. "}
+              La IA arma la siguiente con lo que hiciste. No se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div>
@@ -108,7 +105,13 @@ export function CerrarSemana({
           {error && <ErrorMessage>{error}</ErrorMessage>}
           <AlertDialogFooter>
             <AlertDialogCancel disabled={cerrando}>Cancelar</AlertDialogCancel>
-            <Button type="button" onClick={cerrar} disabled={cerrando}>
+            <Button
+              type="button"
+              variant="outline"
+              className="border-2 border-disco-tinta"
+              onClick={cerrar}
+              disabled={cerrando}
+            >
               {cerrando ? "Cerrando..." : "Cerrar semana"}
             </Button>
           </AlertDialogFooter>

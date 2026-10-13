@@ -365,11 +365,11 @@ Si el día tiene movilidad (`mobility_notes`, R26), el modo entrenar empieza por
 - **Por qué:** *(completar)*
 - **Descartaste:** marcarla como hecha (habría que guardarla en la base); dejarla como la línea "Movilidad: …".
 
-### 57. "Cerrar semana" con días por hacer va en una tarjeta propia
-Al final de Entrenar, mientras quedan días por hacer, "Cerrar semana" deja de ser un enlace gris: es una tarjeta **"¿Terminaste la semana?"** con "Te faltan N días. La IA arma la siguiente con lo que hiciste." y un botón con borde oscuro. Con todos los días completados sigue el botón oscuro dentro de la tarjeta de arriba. El recuadro de confirmación, con el comentario, no cambia.
-- **Origen:** tuya (2026-10-13): "el botón de cerrar semana debería tener otro formato"; elegiste la opción C.
+### 57. "Cerrar semana" con borde y candado, y el recuadro con formato de tarjeta
+Al final de Entrenar, mientras quedan días por hacer, "Cerrar semana" deja de ser un enlace gris: es un **botón con borde oscuro a todo el ancho, con un candado** (menos fuerte que "Empezar día N"). Al tocarlo, el recuadro de confirmación pregunta **"¿Terminaste la semana?"**, dice qué días faltan (se cuentan como no hechos), que la IA arma la siguiente con lo que hiciste y que no se puede deshacer; tiene el comentario opcional y el botón "Cerrar semana" con borde oscuro. Con todos los días completados sigue el botón oscuro dentro de la tarjeta de arriba.
+- **Origen:** tuya (2026-10-13): "el botón de cerrar semana debería tener otro formato"; probaste la tarjeta (C) y la fila con candado (B), y te quedaste con el botón de la A y el recuadro en el formato de la C.
 - **Por qué:** *(completar)*
-- **Descartaste:** un botón con borde solo (A); una fila como "Día completado" con candado (B).
+- **Descartaste:** una fila como "Día completado" con candado (B); la tarjeta "¿Terminaste la semana?" en la pantalla (C).
 
 ## Decisiones abiertas
 
