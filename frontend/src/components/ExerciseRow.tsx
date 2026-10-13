@@ -4,6 +4,7 @@ import type { ExerciseItem } from "@/lib/api";
 import { restText, summarize } from "@/lib/format";
 import { cn } from "cn";
 
+import { type CambioEjercicio, EtiquetaCambio } from "./Cambios";
 import { SetRow } from "./SetRow";
 
 // Un ejercicio de la propuesta de la IA, en lectura, con el mismo formato que en el día
@@ -14,14 +15,17 @@ export function ExerciseRow({
   exercise,
   abierta,
   onAlternar,
+  cambio,
 }: {
   exercise: ExerciseItem;
   abierta: boolean;
   onAlternar: () => void;
+  // En una semana nueva, qué cambió respecto de la anterior (#49).
+  cambio?: CambioEjercicio;
 }) {
   const idDetalle = `propuesta-${exercise.name}`;
   return (
-    <li className="rounded-2xl bg-card">
+    <li className={cn("rounded-2xl border-2 border-transparent bg-card", cambio?.status === "nuevo" && "border-dashed border-disco-azul")}>
       <button
         type="button"
         onClick={onAlternar}
@@ -32,6 +36,7 @@ export function ExerciseRow({
         <span className="min-w-0 flex-1">
           <span className="block font-heading text-[1.35rem] leading-tight font-bold">{exercise.name}</span>
           <Resumen texto={summarize(exercise)} className="font-heading text-lg leading-tight font-semibold" />
+          {cambio && <EtiquetaCambio cambio={cambio} kind={exercise.kind} />}
         </span>
         <ChevronDown
           className={cn(

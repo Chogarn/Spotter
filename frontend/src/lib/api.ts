@@ -63,6 +63,25 @@ export type Proposal = {
   warnings: { rule: string; message: string }[];
 };
 
+// Antes y después de una propuesta de semana nueva (#49). `has_base` falso en la primera rutina.
+export type ProposalChanges = {
+  has_base: boolean;
+  base_week_number: number | null;
+  exercises: {
+    name: string;
+    day_index: number;
+    status: "nuevo" | "cambia" | "igual";
+    sets_before: SetItem[];
+    sets_after: SetItem[];
+    load: "sube" | "baja" | null;
+    sets_changed: boolean;
+    rest_before: number | null;
+    rest_after: number | null;
+    rest_changed: boolean;
+  }[];
+  removed: string[];
+};
+
 export type Week = {
   id: number;
   days: { day_index: number; title: string }[];

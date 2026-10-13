@@ -12,6 +12,8 @@ from app.ai.generate import (
     ProfileMissing,
     generate_proposal,
 )
+from app.ai.changes import compare
+from app.ai.history import last_closed_week
 from app.ai.plan_writer import active_week, write_plan
 from app.ai.routine import RoutineProposal
 from app.ai.rules import allowed_days, estimate_day_minutes
@@ -20,7 +22,15 @@ from app.deps import get_current_user
 from app.enums import Goal, Level, ProposalKind, ProposalStatus
 from app.models import PlanProposal, Routine, User
 from app.routines import create_routine
-from app.schemas import GenerateIn, ProposalOut, WarningOut
+from app.routers.weeks import routine_weeks
+from app.schemas import (
+    ExerciseChangeOut,
+    GenerateIn,
+    ProposalChangesOut,
+    ProposalOut,
+    SetShapeOut,
+    WarningOut,
+)
 
 router = APIRouter(prefix="/proposals", tags=["proposals"])
 
@@ -125,6 +135,41 @@ def get_proposal(
     proposal_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ) -> ProposalOut:
     return to_out(get_own_proposal(db, user, proposal_id))
+
+
+@router.get("/{proposal_id}/changes", response_model=ProposalChangesOut)
+def get_changes(
+    proposal_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> ProposalChangesOut:
+    """Antes y después (#49): lo planificado en la semana anterior de la rutina frente a lo que
+    propone la IA. La primera rutina no tiene semana anterior (`has_base` falso)."""
+    proposal = get_own_proposal(db, user, proposal_id)
+    routine_id = proposal.proposed_changes.get("routine_id")
+    base = last_closed_week(db, routine_id) if routine_id is not None else None
+    if base is None:
+        return ProposalChangesOut(has_base=False)
+    changes = compare(base, RoutineProposal.model_validate(proposal.proposed_changes["routine"]))
+    number = [w.id for w in routine_weeks(db, routine_id)].index(base.id) + 1
+    return ProposalChangesOut(
+        has_base=True,
+        base_week_number=number,
+        exercises=[
+            ExerciseChangeOut(
+                name=c.name,
+                day_index=c.day_index,
+                status=c.status,
+                sets_before=[SetShapeOut(**vars(s)) for s in c.sets_before],
+                sets_after=[SetShapeOut(**vars(s)) for s in c.sets_after],
+                load=c.load,
+                sets_changed=c.sets_changed,
+                rest_before=c.rest_before,
+                rest_after=c.rest_after,
+                rest_changed=c.rest_changed,
+            )
+            for c in changes.exercises
+        ],
+        removed=changes.removed,
+    )
 
 
 @router.post("/{proposal_id}/accept", response_model=ProposalOut)

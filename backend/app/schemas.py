@@ -101,6 +101,37 @@ class WarningOut(BaseModel):
     message: str
 
 
+class SetShapeOut(BaseModel):
+    reps: int | None
+    duration_minutes: int | None
+    duration_seconds: int | None
+    target_weight_kg: float | None
+
+
+class ExerciseChangeOut(BaseModel):
+    """Qué cambió en un ejercicio respecto de la semana anterior (#49)."""
+
+    name: str
+    day_index: int
+    status: str  # "nuevo", "cambia" o "igual"
+    sets_before: list[SetShapeOut]
+    sets_after: list[SetShapeOut]
+    load: str | None  # "sube", "baja" o vacío
+    sets_changed: bool
+    rest_before: int | None
+    rest_after: int | None
+    rest_changed: bool
+
+
+class ProposalChangesOut(BaseModel):
+    """Antes y después de una propuesta de semana nueva. `has_base` falso en la primera rutina."""
+
+    has_base: bool
+    base_week_number: int | None = None
+    exercises: list[ExerciseChangeOut] = []
+    removed: list[str] = []
+
+
 class ProposalOut(BaseModel):
     """Una propuesta de la IA lista para mostrar: la rutina, sus avisos y su estado."""
 

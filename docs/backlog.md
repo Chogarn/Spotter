@@ -44,7 +44,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] ~~Ajuste conversando (regenera la semana y la guarda)~~: **no se hace por ahora** (decisión 45, 2026-10-12). Durante la semana el plan no cambia; lo que no anda se cuenta al cerrarla. Cerrada como "no se hace por ahora" `ia` (#29)
 - [x] Topes de uso de Gemini (diario y por minuto) `ia` `backend` (#30)
 - [x] Propuestas de la IA: ver la pendiente desde la portada (`GET /proposals/pending`) y vista previa con aceptar o descartar para "Generar rutina" `ia` `backend` `frontend` (#45). El antes y después pasó a #49
-- [ ] Antes y después en las propuestas de semana nueva: qué cambia, con el valor anterior y el nuevo. Depende de #27 (hecha); el ajuste (#29) se descartó por ahora `ia` `backend` `frontend` (#49)
+- [x] Antes y después en las propuestas de semana nueva: qué cambia, con el valor anterior y el nuevo. Depende de #27 (hecha); el ajuste (#29) se descartó por ahora `ia` `backend` `frontend` (#49)
 - [ ] Nota de cómo me sentí al terminar la sesión (botones y texto). **Pospuesta**: decisión 37 `backend` `frontend` (#46)
 - [x] Comentario escrito del usuario al cerrar la semana (cómo se sintió), que la IA lee al armar la semana siguiente `backend` `ia` `frontend` (#50)
 - [ ] Esfuerzo por serie (1 a 10) al editar lo realizado. **Pospuesto**: decisión 37 `backend` `frontend` (#48)

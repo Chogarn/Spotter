@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
-import { readError, type Proposal, apiFetch } from "@/lib/api";
+import { readError, type Proposal, type ProposalChanges, apiFetch } from "@/lib/api";
+import { claveEjercicio, ListaCambios } from "@/components/Cambios";
 import { BackButton } from "@/components/BackButton";
 import { ExerciseRow } from "@/components/ExerciseRow";
 import { Flecha } from "@/components/Flecha";
@@ -25,7 +26,9 @@ export default function PropuestaView({
   const [trabajando, setTrabajando] = useState(false);
   const [aceptada, setAceptada] = useState(false);
   const [error, setError] = useState("");
-  const [pestana, setPestana] = useState<"semana" | "avisos">("semana");
+  const [pestana, setPestana] = useState<"semana" | "cambios" | "avisos">("semana");
+  // Antes y después (#49): solo en una semana nueva; en la primera rutina viene sin base.
+  const [cambios, setCambios] = useState<ProposalChanges | null>(null);
   // El día a la vista (uno por vez) y la tarjeta desplegada de ese día.
   const [diaActual, setDiaActual] = useState(0);
   const [abierta, setAbierta] = useState<number | null>(null);
@@ -38,6 +41,14 @@ export default function PropuestaView({
       })
       .catch((e) => setError(e.message))
       .finally(() => setCargando(false));
+  }, [id]);
+
+  useEffect(() => {
+    apiFetch(`/proposals/${id}/changes`)
+      .then(async (res) => {
+        if (res.ok) setCambios(await res.json());
+      })
+      .catch(() => {});
   }, [id]);
 
   async function resolver(accion: "accept" | "discard") {
@@ -95,6 +106,13 @@ export default function PropuestaView({
   const { days, notices, summary } = propuesta.routine;
   const totalAvisos = (summary ? 1 : 0) + propuesta.warnings.length + notices.length;
   const dia = days[diaActual] ?? days[0];
+  const conBase = cambios?.has_base ? cambios : null;
+  const cambioPorClave = new Map(conBase?.exercises.map((c) => [claveEjercicio(c.name), c]) ?? []);
+  const totalCambios = conBase
+    ? conBase.exercises.filter((c) => c.status !== "igual").length + conBase.removed.length
+    : 0;
+  const tipos = Object.fromEntries(days.flatMap((d) => d.exercises.map((e) => [claveEjercicio(e.name), e.kind])));
+  const pestanas = conBase ? (["semana", "cambios", "avisos"] as const) : (["semana", "avisos"] as const);
 
   function irADia(i: number) {
     setDiaActual(i);
@@ -112,7 +130,7 @@ export default function PropuestaView({
 
       {/* Dos pestañas: la semana día por día y los avisos (resumen, avisos del código y notas). */}
       <div role="tablist" aria-label="Propuesta" className="my-3 flex rounded-full bg-muted p-1">
-        {(["semana", "avisos"] as const).map((p) => (
+        {pestanas.map((p) => (
           <button
             key={p}
             type="button"
@@ -124,7 +142,7 @@ export default function PropuestaView({
               pestana === p ? "bg-primary text-primary-foreground" : "text-foreground",
             )}
           >
-            {p === "semana" ? "Semana" : `Avisos (${totalAvisos})`}
+            {p === "semana" ? "Semana" : p === "cambios" ? `Cambios (${totalCambios})` : `Avisos (${totalAvisos})`}
           </button>
         ))}
       </div>
@@ -173,12 +191,17 @@ export default function PropuestaView({
                 exercise={e}
                 abierta={abierta === j}
                 onAlternar={() => setAbierta((a) => (a === j ? null : j))}
+                cambio={cambioPorClave.get(claveEjercicio(e.name))}
               />
             ))}
           </ol>
           <p>
             <small className="text-muted-foreground">Los pesos son orientativos. La app no da consejo médico.</small>
           </p>
+        </section>
+      ) : pestana === "cambios" && conBase ? (
+        <section role="tabpanel" aria-label="Cambios">
+          <ListaCambios cambios={conBase} tipos={tipos} />
         </section>
       ) : (
         <section role="tabpanel" aria-label="Avisos" className="grid gap-2.5">
