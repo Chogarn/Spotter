@@ -116,7 +116,9 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
               </div>
             </div>
           )}
-          <ol className="m-0 mt-4 grid list-none gap-2.5 p-0">
+          {/* grid-cols-1 limita la columna al ancho de la pantalla: sin eso, el texto cortado de la
+              entrada en calor (en una sola línea) la estira y las tarjetas se desbordan. */}
+          <ol className="m-0 mt-4 grid list-none grid-cols-1 gap-2.5 p-0">
             {dia.mobility_notes && (
               <TarjetaCalor
                 texto={dia.mobility_notes}
