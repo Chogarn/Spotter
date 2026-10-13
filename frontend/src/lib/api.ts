@@ -100,6 +100,18 @@ export type WeekSummary = {
 
 export type DayState = "pending" | "partial" | "completed";
 
+// Progreso (#62): los ejercicios de una rutina y la evolución de uno a lo largo de las semanas.
+export type RoutineExercise = { id: number; name: string; kind: ExerciseItem["kind"] };
+
+export type ExerciseHistory = {
+  exercise_id: number;
+  name: string;
+  kind: ExerciseItem["kind"];
+  unit: "kg" | "reps" | "s" | "min";
+  weeks: { week_id: number; number: number; status: string; value: number | null }[];
+  record: number | null;
+};
+
 // El resumen de una semana para Progreso (#28): se calcula en el backend, no se guarda.
 export type WeekSummaryDetail = {
   week_id: number;

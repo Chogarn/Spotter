@@ -190,6 +190,36 @@ class ExerciseResultOut(BaseModel):
     signal: str  # "superó", "cumplió", "no llegó" o "sin registrar"
 
 
+class RoutineExerciseOut(BaseModel):
+    """Un ejercicio que aparece en alguna semana de la rutina (para elegir qué graficar)."""
+
+    id: int
+    name: str
+    kind: str
+
+
+class ExerciseWeekPointOut(BaseModel):
+    """Lo mejor realizado en un ejercicio en una semana. `value` vacío si no se registró nada."""
+
+    week_id: int
+    number: int
+    status: str
+    value: float | None
+
+
+class ExerciseHistoryOut(BaseModel):
+    """La evolución de un ejercicio a lo largo de las semanas de una rutina (#62)."""
+
+    exercise_id: int
+    name: str
+    kind: str
+    # Qué se mide: "kg" (mayor peso), "reps" (sin peso: más repeticiones), "s" (isométrico: más
+    # segundos) o "min" (cardio: minutos de la semana).
+    unit: str
+    weeks: list[ExerciseWeekPointOut]  # de la más vieja a la más nueva
+    record: float | None
+
+
 class WeekSummaryDetailOut(BaseModel):
     """El resumen de una semana para la pantalla Progreso (#28). Se calcula, no se guarda."""
 
