@@ -341,6 +341,30 @@ Al generar una rutina nueva se elige la cantidad de días, obligatoria como el n
 - **Por qué:** *(completar)*
 - **Descartaste:** que la IA decida los días (opción B, con un pedido opcional de más días); ofrecer de 2 a 6 también a principiantes; que la IA pueda proponer más días que los elegidos; que la cantidad quede fija con la rutina; que elegir sea opcional.
 
+### 53. El día se ve igual entrando desde Rutinas o desde Entrenar
+La pantalla del día no cambia según de dónde se llega: en la semana en curso tiene "Día completado" y el candado para reabrir, también desde Rutinas. Se deshizo un cambio (commit `55a90dc`) que dejaba el día en lectura desde Rutinas con `?desde=entrenar`. Con la semana cerrada, el final del día dice **"Día completado"** (sin candado, porque ya no se reabre) o **"Día sin completar"** en gris.
+- **Origen:** tuya (2026-10-13): el cambio "me modificó el estilo en un lugar que no debía"; aprobaste la maqueta del día en una semana cerrada.
+- **Por qué:** *(completar)*
+- **Descartaste:** el día en lectura desde Rutinas.
+
+### 54. Rutinas "en pausa" y la rutina como línea de tiempo
+En Rutinas, la rutina con semana activa lleva "en curso" (rojo) y las demás **"en pausa"** (gris), porque se pueden continuar al generar. La pantalla de una rutina tiene el título grande, etiquetas (objetivo, nivel, días por semana) y las semanas como **línea de tiempo**: cada semana es una tarjeta colgada de la línea, con borde oscuro la en curso, "Desde el 13/10 · N de M días" (solo los días completados) y los discos. Así no se confunde con la lista de rutinas.
+- **Origen:** tuya (2026-10-13): "parece la misma pantalla anterior y eso genera confusión"; aprobaste las maquetas.
+- **Por qué:** *(completar)*
+- **Descartaste:** "terminada" o "dejada" en lugar de "en pausa"; las semanas como texto suelto sobre la línea.
+
+### 55. La semana con el mismo diseño que el día, sin barra de progreso
+La pantalla de una semana tiene el título grande, etiquetas (En curso o Completada, la fecha y los días) y cada día como las tarjetas de ejercicio, con una flecha para entrar. Al final, con la semana cerrada, **"Semana completada"** como "Día completado" pero sin candado (la semana no se reabre); con la semana en curso, "La semana se cierra desde Entrenar" en gris y chico. Una semana cerrada se llama "completada" aunque tenga días sin hacer: los discos muestran cuáles faltaron.
+- **Origen:** tuya (2026-10-13): "el diseño está medio raro comparado con el anterior y el siguiente"; aprobaste la maqueta.
+- **Por qué:** *(completar)*
+- **Descartaste:** una barra de progreso de días en la semana (los discos ya lo muestran); resaltar el día que toca con un botón "Empezar día N" en esta pantalla.
+
+### 56. La entrada en calor es el primer paso del modo entrenar
+Si el día tiene movilidad (`mobility_notes`, R26), el modo entrenar empieza por **"Entrada en calor"**: el texto en una tarjeta y "Listo, empezar", que lleva al primer ejercicio sin hacer. Tiene su barrita y se llega con las flechas como a un ejercicio, pero no tiene series, no se guarda y no cuenta en los ejercicios hechos: se da por hecha en cuanto hay algo registrado en el día. En la lista del día sigue como la línea "Movilidad: …".
+- **Origen:** tuya (2026-10-13): "que la entrada en calor se vea como cualquier otro ejercicio en entrenar".
+- **Por qué:** *(completar)*
+- **Descartaste:** marcarla como hecha (habría que guardarla en la base); mostrarla también como tarjeta en la lista del día.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
