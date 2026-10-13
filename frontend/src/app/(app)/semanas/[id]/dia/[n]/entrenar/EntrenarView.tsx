@@ -1,11 +1,12 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Pencil, X } from "lucide-react";
+import { Pencil, X } from "lucide-react";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { BotonDescanso, RelojCircular, useDescanso } from "@/components/Descanso";
 import { Disco } from "@/components/Disco";
+import { Flecha } from "@/components/Flecha";
 import { DoneControl } from "@/components/DoneControl";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { SemanaPasada } from "@/components/SemanaPasada";
@@ -516,38 +517,5 @@ function Medida({ kind, serie }: { kind: ExerciseItem["kind"]; serie: SetItem })
         </p>
       )}
     </div>
-  );
-}
-
-// "‹" o "›" grande y sin recuadro, al lado de las barras de los ejercicios.
-function Flecha({
-  direccion,
-  visible,
-  disabled,
-  nombre,
-  onClick,
-}: {
-  direccion: "anterior" | "siguiente";
-  visible: boolean;
-  disabled: boolean;
-  nombre?: string;
-  onClick: () => void;
-}) {
-  const Icono = direccion === "anterior" ? ChevronLeft : ChevronRight;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled || !visible}
-      aria-hidden={!visible}
-      tabIndex={visible ? undefined : -1}
-      aria-label={nombre ? `Ejercicio ${direccion}: ${nombre}` : `Ejercicio ${direccion}`}
-      className={cn(
-        "-my-2 flex size-11 shrink-0 items-center justify-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50",
-        !visible && "invisible",
-      )}
-    >
-      <Icono className="size-9" strokeWidth={3} />
-    </button>
   );
 }
