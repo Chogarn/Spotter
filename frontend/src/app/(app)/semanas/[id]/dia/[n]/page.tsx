@@ -4,18 +4,11 @@ import { Cargando } from "@/components/Cargando";
 
 import DiaView from "./DiaView";
 
-// Esta página no lee `params` ni `searchParams` ella misma: se los pasa a la vista, que los lee
-// dentro del <Suspense>.
-export default function DiaPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string; n: string }>;
-  searchParams: Promise<{ desde?: string }>;
-}) {
+// Esta página no lee `params` ella misma: se lo pasa a la vista, que lo lee dentro del <Suspense>.
+export default function DiaPage({ params }: { params: Promise<{ id: string; n: string }> }) {
   return (
     <Suspense fallback={<Cargando />}>
-      <DiaView params={params} searchParams={searchParams} />
+      <DiaView params={params} />
     </Suspense>
   );
 }

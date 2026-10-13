@@ -77,7 +77,7 @@ export default function EntrenarView({
       .catch((e) => setError(e.message));
   }, [id, n, pedido]);
 
-  const volver = `/semanas/${id}/dia/${n}?desde=entrenar`;
+  const volver = `/semanas/${id}/dia/${n}`;
 
   if (error && !dia) {
     return (

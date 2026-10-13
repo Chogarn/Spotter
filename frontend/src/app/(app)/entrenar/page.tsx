@@ -112,7 +112,7 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
         {semana.days.map((d) => (
           <li key={d.day_index}>
             <Link
-              href={`/semanas/${semana.id}/dia/${d.day_index}?desde=entrenar`}
+              href={`/semanas/${semana.id}/dia/${d.day_index}`}
               className="flex items-center gap-3 rounded-xl bg-card px-4 py-3 no-underline hover:bg-muted"
             >
               <Disco estado={estadoDia[d.state]} />

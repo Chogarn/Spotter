@@ -1,7 +1,6 @@
 "use client";
 
 import { Check, ChevronDown, LockOpen } from "lucide-react";
-import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
@@ -16,17 +15,8 @@ import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 
-export default function DiaView({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string; n: string }>;
-  searchParams: Promise<{ desde?: string }>;
-}) {
+export default function DiaView({ params }: { params: Promise<{ id: string; n: string }> }) {
   const { id, n } = use(params);
-  // El día solo se completa o se reabre llegando desde Entrenar; desde Rutinas se ve en lectura.
-  const { desde } = use(searchParams);
-  const puedeCerrarDia = desde === "entrenar";
   const [dia, setDia] = useState<DayDetail | null>(null);
   const [error, setError] = useState("");
   const [trabajando, setTrabajando] = useState(false);
@@ -133,8 +123,7 @@ export default function DiaView({
                 key={i}
                 exercise={e}
                 dia={dia}
-                registra={activa && !completado && puedeCerrarDia}
-                seguimiento={activa && !completado}
+                registra={activa && !completado}
                 abierta={abierta === i}
                 onAlternar={() => setAbierta((a) => (a === i ? null : i))}
                 enCurso={i === enCurso}
@@ -143,23 +132,21 @@ export default function DiaView({
               />
             ))}
           </ol>
-          {activa && (completado || puedeCerrarDia) && (
+          {activa && (
             <section className="mt-6">
               {completado ? (
                 <div className="flex items-center gap-3">
                   <span className="flex-1 font-heading text-2xl font-bold">Día completado</span>
-                  {puedeCerrarDia && (
-                    <Button
-                      size="icon-lg"
-                      variant="outline"
-                      type="button"
-                      onClick={() => cambiarDia("reopen")}
-                      disabled={trabajando}
-                      aria-label={`Reabrir el día ${dia.day_index}`}
-                    >
-                      <LockOpen />
-                    </Button>
-                  )}
+                  <Button
+                    size="icon-lg"
+                    variant="outline"
+                    type="button"
+                    onClick={() => cambiarDia("reopen")}
+                    disabled={trabajando}
+                    aria-label={`Reabrir el día ${dia.day_index}`}
+                  >
+                    <LockOpen />
+                  </Button>
                 </div>
               ) : (
                 <Button
@@ -173,12 +160,6 @@ export default function DiaView({
                 </Button>
               )}
             </section>
-          )}
-          {activa && !completado && !puedeCerrarDia && (
-            <p className="mt-6">
-              Desde Rutinas el día se ve en lectura.{" "}
-              <Link href={`/semanas/${id}/dia/${n}/entrenar`}>Entrenar este día</Link>
-            </p>
           )}
           <p>
             <small className="text-muted-foreground">Los pesos son orientativos. La app no da consejo médico.</small>
@@ -197,7 +178,6 @@ function TarjetaEjercicio({
   exercise,
   dia,
   registra,
-  seguimiento,
   abierta,
   onAlternar,
   enCurso,
@@ -206,10 +186,7 @@ function TarjetaEjercicio({
 }: {
   exercise: ExerciseItem;
   dia: DayDetail;
-  // Se puede editar y marcar; si es false, la tarjeta es de lectura.
   registra: boolean;
-  // El día está abierto: se muestra qué ejercicios ya están hechos, se pueda editar o no.
-  seguimiento: boolean;
   abierta: boolean;
   onAlternar: () => void;
   enCurso: boolean;
@@ -226,7 +203,7 @@ function TarjetaEjercicio({
       className={cn(
         "rounded-2xl border-2 border-transparent bg-card",
         enCurso && "border-disco-tinta",
-        seguimiento && hecho && !abierta && "bg-card/60",
+        registra && hecho && !abierta && "bg-card/60",
       )}
     >
       <button
@@ -252,7 +229,7 @@ function TarjetaEjercicio({
             </span>
           )}
         </span>
-        {seguimiento && hecho && (
+        {registra && hecho && (
           <Disco estado="hecho" className="size-7">
             <Check className="size-4" aria-label="Hecho" />
           </Disco>
