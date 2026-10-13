@@ -56,9 +56,14 @@ export default function MisRutinasPage() {
               >
                 <span className="flex items-center justify-between gap-2">
                   <span className="font-heading text-2xl font-bold">{r.name}</span>
-                  {r.has_active_week && (
-                    <span className="rounded-full bg-disco-rojo px-2.5 py-0.5 text-xs font-medium text-white">
+                  {/* Sin semana activa, la rutina queda "en pausa": se puede continuar al generar. */}
+                  {r.has_active_week ? (
+                    <span className="shrink-0 rounded-full bg-disco-rojo px-2.5 py-0.5 text-xs font-medium text-white">
                       en curso
+                    </span>
+                  ) : (
+                    <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                      en pausa
                     </span>
                   )}
                 </span>

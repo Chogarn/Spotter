@@ -58,8 +58,8 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
       {rutina && (
         <>
           {nombre === null ? (
-            <div className="flex items-center gap-2">
-              <h1 className="my-2 flex-1">{rutina.name}</h1>
+            <div className="flex items-start gap-2">
+              <h1 className="mt-2 mb-0 flex-1 text-5xl leading-none">{rutina.name}</h1>
               <Button
                 size="icon-lg"
                 variant="outline"
@@ -100,37 +100,58 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
               </Button>
             </div>
           )}
-          <p className="mt-0 text-muted-foreground">
-            {goalText[rutina.goal]} · {rutina.level}
-          </p>
-          <ul className="m-0 mt-4 grid list-none gap-2 p-0">
-            {rutina.weeks.map((s) => (
-              <li key={s.id}>
+          {/* Los datos de la rutina como etiquetas, para que no se confunda con la lista de rutinas. */}
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {[
+              goalText[rutina.goal],
+              rutina.level.charAt(0).toUpperCase() + rutina.level.slice(1),
+              rutina.days_per_week !== null && `${rutina.days_per_week} días por semana`,
+            ]
+              .filter(Boolean)
+              .map((t) => (
+                <span key={String(t)} className="rounded-full bg-card px-3 py-1 text-sm">
+                  {t}
+                </span>
+              ))}
+          </div>
+          {/* Las semanas como línea de tiempo (de la más nueva a la más vieja): la línea une los pasos
+              de una misma rutina. El punto es rojo si está en curso y verde si se cerró. */}
+          <ol className="relative m-0 mt-5 list-none p-0">
+            {rutina.weeks.map((s, i) => (
+              <li key={s.id} className="relative pl-8">
+                {i < rutina.weeks.length - 1 && (
+                  <span aria-hidden className="absolute top-4 bottom-0 left-[9px] w-0.5 bg-disco-tinta" />
+                )}
+                <span
+                  aria-hidden
+                  className={cn(
+                    "absolute top-2.5 left-0.5 size-4 rounded-full",
+                    s.status === "active" ? "bg-disco-rojo" : "border-2 border-disco-tinta bg-disco-verde",
+                  )}
+                />
                 <Link
                   href={`/semanas/${s.id}`}
-                  className="flex items-center gap-3 rounded-xl bg-card px-4 py-3 no-underline hover:bg-muted"
+                  className="block rounded-xl px-2 py-1.5 pb-4 no-underline hover:bg-muted"
                 >
-                  <span className="flex-1">
-                    <span className="font-medium">Semana {s.number}</span>
-                    <span className="block text-sm text-muted-foreground">
-                      {s.day_count} días · desde el {shortDate(s.week_start)}
-                    </span>
-                    <span className="mt-1.5 block">
-                      <DiscosSemana estados={s.day_states} />
-                    </span>
-                  </span>
-                  <span
-                    className={cn(
-                      "rounded-full px-2.5 py-0.5 text-xs font-medium",
-                      s.status === "active" ? "bg-disco-rojo text-white" : "bg-muted text-muted-foreground",
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="font-heading text-xl font-bold">Semana {s.number}</span>
+                    {s.status === "active" ? (
+                      <span className="rounded-full bg-disco-rojo px-2.5 py-0.5 text-xs font-medium text-white">
+                        en curso
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        {s.status === "closed" ? "completada" : statusText[s.status]}
+                      </span>
                     )}
-                  >
-                    {s.status === "active" ? "en curso" : statusText[s.status]}
+                  </span>
+                  <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                    desde el {shortDate(s.week_start)} · <DiscosSemana estados={s.day_states} />
                   </span>
                 </Link>
               </li>
             ))}
-          </ul>
+          </ol>
         </>
       )}
     </main>

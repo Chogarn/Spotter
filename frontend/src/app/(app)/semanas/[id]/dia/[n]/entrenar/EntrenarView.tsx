@@ -19,6 +19,15 @@ import { cn } from "cn";
 // Dónde va el usuario: el ejercicio y la serie que se muestran en grande.
 type Posicion = { ej: number; serie: number };
 
+// La entrada en calor (`mobility_notes`) va como un paso antes del primer ejercicio. No tiene
+// series ni se guarda: no cuenta en los ejercicios hechos.
+const CALOR = -1;
+
+// Se da por hecha en cuanto hay algo registrado en el día.
+function empezoElDia(dia: DayDetail): boolean {
+  return dia.exercises.some((e) => estaHecho(e) || e.sets.some((s) => s.real));
+}
+
 // La primera serie sin registrar del ejercicio; si están todas, la última (falta cerrarlo).
 function serieInicial(ejercicio: ExerciseItem): number {
   const libre = ejercicio.sets.findIndex((s) => !s.real);
@@ -35,12 +44,14 @@ function proximoEjercicio(dia: DayDetail, desde: number): number | null {
   return null;
 }
 
-// Dónde abrir: el ejercicio pedido (`?ejercicio=K`, desde la tarjeta del día) o, si no hay, el
-// primero sin hacer. Null si no queda ninguno: se muestra el cierre del día.
+// Dónde abrir: el ejercicio pedido (`?ejercicio=K`, desde la tarjeta del día); si no hay, la
+// entrada en calor mientras el día no haya empezado, o el primero sin hacer. Null si no queda
+// ninguno: se muestra el cierre del día.
 function posicionInicial(dia: DayDetail, pedido: number | null, registra: boolean): Posicion | null {
   if (pedido !== null && pedido >= 0 && pedido < dia.exercises.length) {
     return { ej: pedido, serie: serieInicial(dia.exercises[pedido]) };
   }
+  if (dia.mobility_notes && (!registra || !empezoElDia(dia))) return { ej: CALOR, serie: 0 };
   const ej = registra ? dia.exercises.findIndex((e) => !estaHecho(e)) : 0;
   return ej === -1 ? null : { ej, serie: serieInicial(dia.exercises[ej]) };
 }
@@ -171,10 +182,16 @@ export default function EntrenarView({
   const total = actual.exercises.length;
   // En el cierre del día (sin ejercicio a la vista), "anterior" lleva al último ejercicio.
   const actualEj = pos ? pos.ej : total;
+  const hayCalor = Boolean(actual.mobility_notes);
+  const primero = hayCalor ? CALOR : 0;
 
   function irA(i: number) {
     setCorrigiendo(false);
-    setPos({ ej: i, serie: serieInicial(actual.exercises[i]) });
+    setPos(i === CALOR ? { ej: CALOR, serie: 0 } : { ej: i, serie: serieInicial(actual.exercises[i]) });
+  }
+
+  function nombreDe(i: number): string | undefined {
+    return i === CALOR ? "Entrada en calor" : actual.exercises[i]?.name;
   }
 
   return (
@@ -182,7 +199,7 @@ export default function EntrenarView({
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
           Día {actual.day_index}
-          {pos && ` · ejercicio ${pos.ej + 1} de ${total}`}
+          {pos && (pos.ej === CALOR ? " · entrada en calor" : ` · ejercicio ${pos.ej + 1} de ${total}`)}
           {!registra && " · solo lectura"}
         </span>
         <Button size="icon-lg" variant="ghost" nativeButton={false} render={<Link href={volver} />} aria-label="Volver al día">
@@ -195,11 +212,24 @@ export default function EntrenarView({
       <div className="mt-1 mb-4 flex items-center gap-1">
         <Flecha
           direccion="anterior"
-          visible={actualEj > 0}
+          visible={actualEj > primero}
           disabled={trabajando}
-          nombre={actual.exercises[actualEj - 1]?.name}
+          nombre={nombreDe(actualEj - 1)}
           onClick={() => irA(actualEj - 1)}
         />
+        {hayCalor && (
+          <button
+            type="button"
+            disabled={trabajando}
+            onClick={() => irA(CALOR)}
+            aria-label="Ir a Entrada en calor"
+            aria-current={pos?.ej === CALOR ? "step" : undefined}
+            className={cn(
+              "h-2 flex-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+              pos?.ej === CALOR ? "bg-disco-tinta" : empezoElDia(actual) ? "bg-disco-rojo" : "bg-border",
+            )}
+          />
+        )}
         {actual.exercises.map((e, i) => (
           <button
             key={i}
@@ -218,14 +248,23 @@ export default function EntrenarView({
           direccion="siguiente"
           visible={pos !== null && actualEj < total - 1}
           disabled={trabajando}
-          nombre={actual.exercises[actualEj + 1]?.name}
+          nombre={nombreDe(actualEj + 1)}
           onClick={() => irA(actualEj + 1)}
         />
       </div>
 
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
-      {pos ? (
+      {pos?.ej === CALOR ? (
+        <EntradaEnCalor
+          dia={actual}
+          registra={registra}
+          onEmpezar={() => {
+            const siguiente = proximoEjercicio(actual, CALOR);
+            setPos(siguiente === null ? null : { ej: siguiente, serie: serieInicial(actual.exercises[siguiente]) });
+          }}
+        />
+      ) : pos ? (
         <Ejercicio
           dia={actual}
           pos={pos}
@@ -267,6 +306,39 @@ export default function EntrenarView({
         </section>
       )}
     </main>
+  );
+}
+
+// La entrada en calor en grande, como un ejercicio más pero sin series: el texto y un botón para
+// pasar al primer ejercicio sin hacer.
+function EntradaEnCalor({
+  dia,
+  registra,
+  onEmpezar,
+}: {
+  dia: DayDetail;
+  registra: boolean;
+  onEmpezar: () => void;
+}) {
+  const siguiente = registra ? proximoEjercicio(dia, CALOR) : null;
+  return (
+    <>
+      <h1 className="my-0 text-4xl">Entrada en calor</h1>
+      <section className="mt-3 rounded-2xl bg-card p-5">
+        <p className="m-0">{dia.mobility_notes}</p>
+      </section>
+      {registra && (
+        <Button size="lg" className="mt-4 h-12 w-full text-base" type="button" onClick={onEmpezar}>
+          Listo, empezar
+        </Button>
+      )}
+      {siguiente !== null && (
+        <p className="mt-4 rounded-xl bg-card px-4 py-3 text-sm">
+          <span className="text-muted-foreground">Después:</span> {dia.exercises[siguiente].name} ·{" "}
+          {summarize(dia.exercises[siguiente])}
+        </p>
+      )}
+    </>
   );
 }
 

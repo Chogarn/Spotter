@@ -58,21 +58,28 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
 
           {semana.status === "active" && (
             <p>
-              La semana se cierra desde <Link href="/entrenar">Entrenar</Link>.
+              <small className="text-muted-foreground">
+                La semana se cierra desde <Link href="/entrenar">Entrenar</Link>.
+              </small>
             </p>
           )}
           {semana.status === "closed" && (
             <>
-              <p className="mt-6 mb-0 font-heading text-2xl font-bold">Semana completada</p>
+              {/* Igual que "Día completado", pero sin candado: la semana cerrada no se reabre. */}
+              <section className="mt-6">
+                <span className="font-heading text-2xl font-bold">Semana completada</span>
+              </section>
+              <p>
+                <small className="text-muted-foreground">
+                  <Link href="/entrenar">Andá a Entrenar</Link> para generar la siguiente.
+                </small>
+              </p>
               {semana.closing_note && (
                 <>
                   <h2>Cómo te sentiste esta semana</h2>
                   <p style={{ whiteSpace: "pre-wrap" }}>{semana.closing_note}</p>
                 </>
               )}
-              <p>
-                <Link href="/entrenar">Andá a Entrenar</Link> para generar la siguiente.
-              </p>
             </>
           )}
         </>

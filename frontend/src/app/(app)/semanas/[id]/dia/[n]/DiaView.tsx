@@ -161,6 +161,14 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
               )}
             </section>
           )}
+          {/* Con la semana cerrada, el mismo cierre pero sin candado: el día ya no se reabre. */}
+          {!activa && (
+            <section className="mt-6">
+              <span className={cn("font-heading text-2xl font-bold", !completado && "text-muted-foreground")}>
+                {completado ? "Día completado" : "Día sin completar"}
+              </span>
+            </section>
+          )}
           <p>
             <small className="text-muted-foreground">Los pesos son orientativos. La app no da consejo médico.</small>
           </p>
