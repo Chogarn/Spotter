@@ -360,10 +360,10 @@ La pantalla de una semana tiene el título grande, etiquetas (En curso o Complet
 - **Descartaste:** una barra de progreso de días en la semana (los discos ya lo muestran); resaltar el día que toca con un botón "Empezar día N" en esta pantalla.
 
 ### 56. La entrada en calor es el primer paso del modo entrenar
-Si el día tiene movilidad (`mobility_notes`, R26), el modo entrenar empieza por **"Entrada en calor"**: el texto en una tarjeta y "Listo, empezar", que lleva al primer ejercicio sin hacer. Tiene su barrita y se llega con las flechas como a un ejercicio, pero no tiene series, no se guarda y no cuenta en los ejercicios hechos: se da por hecha en cuanto hay algo registrado en el día. En la lista del día sigue como la línea "Movilidad: …".
-- **Origen:** tuya (2026-10-13): "que la entrada en calor se vea como cualquier otro ejercicio en entrenar".
+Si el día tiene movilidad (`mobility_notes`, R26), el modo entrenar empieza por **"Entrada en calor"**: el texto en una tarjeta y "Listo, empezar", que lleva al primer ejercicio sin hacer. Tiene su barrita y se llega con las flechas como a un ejercicio, pero no tiene series, no se guarda y no cuenta en los ejercicios hechos: se da por hecha en cuanto hay algo registrado en el día. En la lista del día es la **primera tarjeta**, que se despliega con el texto, sin series ni tilde.
+- **Origen:** tuya (2026-10-13): "que la entrada en calor se vea como cualquier otro ejercicio en entrenar", y después "la movilidad como tarjeta en la lista del día".
 - **Por qué:** *(completar)*
-- **Descartaste:** marcarla como hecha (habría que guardarla en la base); mostrarla también como tarjeta en la lista del día.
+- **Descartaste:** marcarla como hecha (habría que guardarla en la base); dejarla como la línea "Movilidad: …".
 
 ## Decisiones abiertas
 

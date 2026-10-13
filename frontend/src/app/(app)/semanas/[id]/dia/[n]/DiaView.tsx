@@ -116,8 +116,14 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
               </div>
             </div>
           )}
-          {dia.mobility_notes && <p className="text-sm">Movilidad: {dia.mobility_notes}</p>}
           <ol className="m-0 mt-4 grid list-none gap-2.5 p-0">
+            {dia.mobility_notes && (
+              <TarjetaCalor
+                texto={dia.mobility_notes}
+                abierta={abierta === CALOR}
+                onAlternar={() => setAbierta((a) => (a === CALOR ? null : CALOR))}
+              />
+            )}
             {dia.exercises.map((e, i) => (
               <TarjetaEjercicio
                 key={i}
@@ -175,6 +181,42 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
         </>
       )}
     </main>
+  );
+}
+
+// La entrada en calor (`mobility_notes`) como la primera tarjeta de la lista (decisión 56): se
+// despliega igual que un ejercicio, pero solo con el texto; no tiene series ni cuenta como hecha.
+const CALOR = -1;
+
+function TarjetaCalor({ texto, abierta, onAlternar }: { texto: string; abierta: boolean; onAlternar: () => void }) {
+  return (
+    <li className="rounded-2xl border-2 border-transparent bg-card">
+      <button
+        type="button"
+        onClick={onAlternar}
+        aria-expanded={abierta}
+        aria-controls="entrada-en-calor"
+        className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block font-heading text-[1.35rem] leading-tight font-bold">Entrada en calor</span>
+          {!abierta && (
+            <span className="block truncate font-heading text-lg leading-tight font-semibold text-muted-foreground">
+              {texto}
+            </span>
+          )}
+        </span>
+        <ChevronDown
+          className={cn("size-6 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none", abierta && "rotate-180")}
+          aria-hidden="true"
+        />
+      </button>
+      {abierta && (
+        <p id="entrada-en-calor" className="m-0 px-4 pb-4">
+          {texto}
+        </p>
+      )}
+    </li>
   );
 }
 
