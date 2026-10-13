@@ -236,16 +236,15 @@ export default function PerfilPage() {
             </fieldset>
           </>
         ) : (
-          <>
-            <div className="grid grid-cols-3 gap-2">
-              <Dato valor={form.age} unidad="años" />
-              <Dato valor={Number(form.weight_kg).toLocaleString("es-AR")} unidad="kg" azul />
-              <Dato valor={form.height_cm} unidad="cm" />
+          // Los tres números en fila y el sexo debajo, a todo el ancho, con el mismo formato.
+          <div className="grid grid-cols-3 gap-2">
+            <Dato valor={form.age} unidad="años" />
+            <Dato valor={Number(form.weight_kg).toLocaleString("es-AR")} unidad="kg" azul />
+            <Dato valor={form.height_cm} unidad="cm" />
+            <div className="col-span-3">
+              <Dato valor={SEXOS.find(([v]) => v === form.sex)?.[1] ?? "Sin indicar"} unidad="sexo" />
             </div>
-            <p className="mt-3 mb-0 text-sm text-muted-foreground">
-              Sexo: <span className="text-foreground">{SEXOS.find(([v]) => v === form.sex)?.[1] ?? "Sin indicar"}</span>
-            </p>
-          </>
+          </div>
         )}
       </section>
 
