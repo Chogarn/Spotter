@@ -101,6 +101,9 @@ html {
   --input: #a9b2bd;
   --ring: var(--disco-azul);
   --radius: 0.875rem;
+  /* Alto de la barra de navegación de abajo (sin el borde ni el margen seguro del celular): lo que
+     va fijo justo encima (los botones de la propuesta) se apoya en esta medida. */
+  --alto-barra: 3.75rem;
 }
 
 /* Modo oscuro, apagado por ahora: la misma paleta sobre azul noche, con los discos un poco más

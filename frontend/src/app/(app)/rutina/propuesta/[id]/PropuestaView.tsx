@@ -204,8 +204,8 @@ export default function PropuestaView({
       )}
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
-      {/* Aceptar y Descartar fijos abajo, arriba de la barra de navegación. */}
-      <div className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 border-t border-border bg-card">
+      {/* Aceptar y Descartar fijos abajo, apoyados sobre la barra de navegación (su alto más su borde). */}
+      <div className="fixed inset-x-0 bottom-[calc(var(--alto-barra)+1px+env(safe-area-inset-bottom))] z-30 border-t border-border bg-card">
         <div className="mx-auto flex max-w-xl gap-3 px-4 py-3">
           <Button
             variant="outline"

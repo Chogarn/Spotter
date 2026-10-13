@@ -44,7 +44,7 @@ function Barra({ pathname }: { pathname: string | null }) {
       aria-label="Secciones"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]"
     >
-      <ul className="mx-auto my-0 flex max-w-xl list-none items-end justify-around p-0">
+      <ul className="mx-auto my-0 flex h-(--alto-barra) max-w-xl list-none items-end justify-around p-0">
         {SECCIONES.map(({ href, texto, Icono, activa, central }) => {
           const actual = pathname !== null && activa(pathname);
           return (
