@@ -4,10 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
+import { CampoAcceso, CampoContrasena, PantallaAcceso } from "@/components/Acceso";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { API, readError } from "@/lib/api";
 
 export default function LoginPage() {
@@ -54,44 +53,34 @@ export default function LoginPage() {
   const ocupado = enviando || navegando;
 
   return (
-    <main style={{ maxWidth: 420, margin: "0 auto", padding: "4rem 1.5rem" }}>
-      <h1>Iniciar sesión</h1>
+    <PantallaAcceso titulo="Hola de nuevo" bajada="Entrá para seguir tu semana." disco="rojo">
       <form onSubmit={entrar}>
-        <div className="mb-3 grid gap-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="mb-4 grid gap-1.5">
-          <Label htmlFor="password">Contraseña</Label>
-          <Input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        <CampoAcceso
+          id="email"
+          etiqueta="Email"
+          type="email"
+          autoComplete="email"
+          placeholder="vos@correo.com"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <CampoContrasena
+          id="password"
+          etiqueta="Contraseña"
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        <div className="mt-4">
-          <Button type="submit" disabled={ocupado}>
-            {ocupado ? "Entrando..." : "Entrar"}
-          </Button>
-        </div>
+        <Button type="submit" size="lg" className="mt-2 h-12 w-full text-base" disabled={ocupado}>
+          {ocupado ? "Entrando..." : "Entrar"}
+        </Button>
       </form>
-      <p>
-        ¿No tenés cuenta? <Link href="/registro">Registrate</Link>
+      <p className="mt-5 text-center text-muted-foreground">
+        ¿No tenés cuenta? <Link href="/registro" className="font-medium text-foreground">Creala</Link>
       </p>
-      <p>
-        <Link href="/">Volver al inicio</Link>
-      </p>
-    </main>
+    </PantallaAcceso>
   );
 }

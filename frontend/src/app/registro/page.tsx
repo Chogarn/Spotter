@@ -4,10 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
+import { CampoAcceso, CampoContrasena, PantallaAcceso } from "@/components/Acceso";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { API, errorText } from "@/lib/api";
 
 export default function RegistroPage() {
@@ -45,54 +44,47 @@ export default function RegistroPage() {
   const ocupado = enviando || navegando;
 
   return (
-    <main style={{ maxWidth: 420, margin: "0 auto", padding: "4rem 1.5rem" }}>
-      <h1>Crear cuenta</h1>
+    <PantallaAcceso titulo="Empezá hoy" bajada="Tres datos y la IA arma tu primera semana." disco="azul">
       <form onSubmit={registrar}>
-        <div className="mb-3 grid gap-1.5">
-          <Label htmlFor="name">Nombre</Label>
-          <Input
-            id="name"
-            autoComplete="name"
-            required
-            maxLength={100}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div className="mb-3 grid gap-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="mb-4 grid gap-1.5">
-          <Label htmlFor="password">Contraseña (mínimo 8 caracteres)</Label>
-          <Input
-            id="password"
-            type="password"
-            autoComplete="new-password"
-            required
-            minLength={8}
-            maxLength={128}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        <CampoAcceso
+          id="name"
+          etiqueta="Nombre"
+          autoComplete="name"
+          placeholder="Cómo querés que te llame"
+          required
+          maxLength={100}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <CampoAcceso
+          id="email"
+          etiqueta="Email"
+          type="email"
+          autoComplete="email"
+          placeholder="vos@correo.com"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <CampoContrasena
+          id="password"
+          etiqueta="Contraseña"
+          autoComplete="new-password"
+          placeholder="Mínimo 8 caracteres"
+          required
+          minLength={8}
+          maxLength={128}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        <div className="mt-4">
-          <Button type="submit" disabled={ocupado}>
-            {ocupado ? "Creando..." : "Crear cuenta"}
-          </Button>
-        </div>
+        <Button type="submit" size="lg" className="mt-2 h-12 w-full text-base" disabled={ocupado}>
+          {ocupado ? "Creando..." : "Crear cuenta"}
+        </Button>
       </form>
-      <p>
-        ¿Ya tenés cuenta? <Link href="/login">Iniciá sesión</Link>
+      <p className="mt-5 text-center text-muted-foreground">
+        ¿Ya tenés cuenta? <Link href="/login" className="font-medium text-foreground">Entrá</Link>
       </p>
-    </main>
+    </PantallaAcceso>
   );
 }
