@@ -100,6 +100,26 @@ export type WeekSummary = {
 
 export type DayState = "pending" | "partial" | "completed";
 
+// El resumen de una semana para Progreso (#28): se calcula en el backend, no se guarda.
+export type WeekSummaryDetail = {
+  week_id: number;
+  routine_id: number;
+  routine_name: string;
+  number: number;
+  status: "draft" | "active" | "closed";
+  week_start: string;
+  closed_at: string | null;
+  day_states: DayState[];
+  days_completed: number;
+  sets_done: number;
+  sets_planned: number;
+  kg_moved: number;
+  cardio_minutes: number;
+  exercises: { name: string; kind: ExerciseItem["kind"]; signal: string }[];
+  ai_summary: string | null;
+  closing_note: string | null;
+};
+
 export type WeekDetail = {
   id: number;
   closing_note?: string | null;

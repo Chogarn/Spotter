@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from app.ai.history import signal
 from app.ai.plan_writer import active_week
 from app.ai.rules import estimate_day_minutes
 from app.db import get_db
@@ -27,11 +28,13 @@ from app.schemas import (
     DayExerciseOut,
     DaySetOut,
     DayStatusOut,
+    ExerciseResultOut,
     RealSetOut,
     SetEntryIn,
     WeekDayItemOut,
     WeekDetailOut,
     WeekOut,
+    WeekSummaryDetailOut,
     WeekSummaryOut,
 )
 
@@ -267,6 +270,63 @@ def get_week(
             )
             for d in week.days
         ],
+    )
+
+
+@router.get("/{week_id}/summary", response_model=WeekSummaryDetailOut)
+def get_week_summary(
+    week_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> WeekSummaryDetailOut:
+    """Resumen de la semana para Progreso (#28): cuánto se entrenó, cómo le fue en cada
+    ejercicio y qué dijo la IA. Vale también para la semana en curso (lo registrado hasta ahora)."""
+    week, number = get_own_week(db, user, week_id)
+    sets_done = sets_planned = cardio = 0
+    kg = Decimal(0)
+    # Un ejercicio repetido en la semana junta sus series y tiene una sola señal.
+    pairs_by_exercise: dict[int, list[tuple[PlanSet, SetEntry | None]]] = {}
+    names: dict[int, PlanExercise] = {}
+    for day in week.days:
+        entries = day_entries(db, day)
+        for exercise in day.exercises:
+            names.setdefault(exercise.exercise_id, exercise)
+            pairs = pairs_by_exercise.setdefault(exercise.exercise_id, [])
+            for plan_set in exercise.sets:
+                entry = entries.get(plan_set.id)
+                pairs.append((plan_set, entry))
+                sets_planned += 1
+                if entry is None:
+                    continue
+                sets_done += 1
+                if entry.reps is not None and entry.weight_kg is not None:
+                    kg += entry.reps * entry.weight_kg
+                cardio += entry.duration_minutes or 0
+    states = week_day_states(db, user, week)
+    weeks = routine_weeks(db, week.routine_id)
+    following = weeks[number] if number < len(weeks) else None  # `number` empieza en 1
+    return WeekSummaryDetailOut(
+        week_id=week.id,
+        routine_id=week.routine_id,
+        routine_name=week.routine.name,
+        number=number,
+        status=week.status.value,
+        week_start=week.week_start,
+        closed_at=week.closed_at,
+        day_states=states,
+        days_completed=states.count("completed"),
+        sets_done=sets_done,
+        sets_planned=sets_planned,
+        kg_moved=float(kg),
+        cardio_minutes=cardio,
+        exercises=[
+            ExerciseResultOut(
+                name=names[exercise_id].exercise.name,
+                kind=names[exercise_id].exercise.kind.value,
+                signal=signal(pairs),
+            )
+            for exercise_id, pairs in pairs_by_exercise.items()
+        ],
+        ai_summary=following.ai_summary if following else None,
+        closing_note=week.closing_note,
     )
 
 

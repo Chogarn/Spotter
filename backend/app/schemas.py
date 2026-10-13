@@ -182,6 +182,36 @@ class CloseWeekIn(BaseModel):
     note: str | None = Field(default=None, max_length=1000)
 
 
+class ExerciseResultOut(BaseModel):
+    """Cómo le fue en un ejercicio de la semana (la misma señal que recibe la IA)."""
+
+    name: str
+    kind: str
+    signal: str  # "superó", "cumplió", "no llegó" o "sin registrar"
+
+
+class WeekSummaryDetailOut(BaseModel):
+    """El resumen de una semana para la pantalla Progreso (#28). Se calcula, no se guarda."""
+
+    week_id: int
+    routine_id: int
+    routine_name: str
+    number: int
+    status: str
+    week_start: date
+    closed_at: datetime | None
+    day_states: list[str]
+    days_completed: int
+    sets_done: int
+    sets_planned: int
+    kg_moved: float  # repeticiones × kilos de lo realizado
+    cardio_minutes: int
+    exercises: list[ExerciseResultOut]
+    # El resumen que escribió la IA al armar la semana siguiente de la rutina (si ya existe).
+    ai_summary: str | None
+    closing_note: str | None
+
+
 class WeekDetailOut(BaseModel):
     id: int
     routine_id: int

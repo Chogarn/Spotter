@@ -39,7 +39,8 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Prompt y respuesta en JSON validada con Pydantic, para la primera rutina `ia` `backend` (#26). El prompt de la semana siguiente va en #27
 - [x] Cerrar semana: botón con aviso de los días sin completar, sin IA `backend` `frontend` (#47)
 - [x] Generar semana nueva: al continuar una rutina, la IA lee lo planificado frente a lo real de la última semana cerrada y propone la siguiente, con un resumen (antes "Cierre semanal"). Probada con Gemini real `ia` (#27)
-- [ ] Pantalla de resumen semanal `frontend` (#28)
+- [x] Progreso: resumen de cada semana (días, series, kilos movidos, minutos de cardio, cómo te fue en cada ejercicio, lo que dijo la IA y el comentario), con `GET /weeks/{id}/summary` `frontend` `backend` (#28)
+- [ ] Progreso: gráfico de un ejercicio a lo largo de las semanas (mayor peso por semana y récord, en SVG). Depende de #28 `frontend` `backend` (#62)
 - [x] ~~Ajuste conversando (regenera la semana y la guarda)~~: **no se hace por ahora** (decisión 45, 2026-10-12). Durante la semana el plan no cambia; lo que no anda se cuenta al cerrarla. Cerrada como "no se hace por ahora" `ia` (#29)
 - [x] Topes de uso de Gemini (diario y por minuto) `ia` `backend` (#30)
 - [x] Propuestas de la IA: ver la pendiente desde la portada (`GET /proposals/pending`) y vista previa con aceptar o descartar para "Generar rutina" `ia` `backend` `frontend` (#45). El antes y después pasó a #49

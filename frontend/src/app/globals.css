@@ -39,6 +39,8 @@ html {
   --color-disco-azul: var(--disco-azul);
   --color-disco-amarillo: var(--disco-amarillo);
   --color-disco-verde: var(--disco-verde);
+  --color-disco-verde-texto: var(--disco-verde-texto);
+  --color-disco-amarillo-texto: var(--disco-amarillo-texto);
   --color-disco-tinta: var(--disco-tinta);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -80,6 +82,10 @@ html {
   --disco-azul: #1f5fbf;
   --disco-amarillo: #f2c230;
   --disco-verde: #2e9e5b;
+  /* El verde y el amarillo de los discos no llegan a contraste AA como texto chico: para texto
+     (por ejemplo, "superaste" y "no llegaste" en Progreso), versiones más oscuras. */
+  --disco-verde-texto: #1c7040;
+  --disco-amarillo-texto: #6b5000;
 
   --background: #e9ecee;
   --foreground: var(--disco-tinta);
