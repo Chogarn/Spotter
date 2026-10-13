@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { InlineError } from "@/components/ErrorMessage";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { BuscarEjercicio } from "@/components/BuscarEjercicio";
 import { readError, apiFetch, type ExerciseHistory, type RoutineExercise } from "@/lib/api";
 
 const UNIDAD: Record<ExerciseHistory["unit"], string> = { kg: "kg", reps: "reps", s: "s", min: "min" };
@@ -53,20 +53,7 @@ export function GraficoEjercicio({ rutinaId }: { rutinaId: number }) {
   return (
     <section className="mt-4 mb-3 rounded-2xl bg-card p-4">
       <h3 className="mt-0 mb-2 font-heading text-xl font-bold">Evolución</h3>
-      {ejercicios && (
-        <NativeSelect
-          aria-label="Ejercicio"
-          className="mb-3 w-full"
-          value={ejercicioId ?? ""}
-          onChange={(e) => setEjercicioId(Number(e.target.value))}
-        >
-          {ejercicios.map((e) => (
-            <NativeSelectOption key={e.id} value={e.id}>
-              {e.name}
-            </NativeSelectOption>
-          ))}
-        </NativeSelect>
-      )}
+      {ejercicios && <BuscarEjercicio ejercicios={ejercicios} elegido={ejercicioId} onElegir={setEjercicioId} />}
       {error && <InlineError>{error}</InlineError>}
       {historial && historial.exercise_id === ejercicioId && <Linea historial={historial} />}
     </section>

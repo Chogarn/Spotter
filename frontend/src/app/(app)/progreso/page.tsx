@@ -150,14 +150,66 @@ export default function Progreso() {
   );
 }
 
-// Qué se muestra para cada señal (la misma que recibe la IA). Amarillo y no rojo para "no llegaste":
-// no es un error, la IA mantiene el peso; el rojo de la app significa "hecho".
-const SENALES: Record<string, { texto: string; clase: string }> = {
-  "superó": { texto: "↑ superaste", clase: "bg-disco-verde/15 text-disco-verde-texto" },
-  "cumplió": { texto: "= cumpliste", clase: "bg-muted text-foreground" },
-  "no llegó": { texto: "↓ no llegaste", clase: "bg-disco-amarillo/30 text-disco-amarillo-texto" },
-  "sin registrar": { texto: "sin registrar", clase: "bg-muted/60 text-muted-foreground" },
-};
+// "a, b y c": una lista de nombres dentro de una frase.
+function enFrase(nombres: string[]): string {
+  return nombres.length <= 1 ? (nombres[0] ?? "") : `${nombres.slice(0, -1).join(", ")} y ${nombres.at(-1)}`;
+}
+
+// "Cómo te fue" (versión C): solo lo destacado. Dos números (superaste y no llegaste) y dos frases;
+// lo que salió como estaba planificado no ocupa lugar. Las señales son las mismas que recibe la IA.
+// Amarillo y no rojo para "no llegaste": no es un error (la IA mantiene el peso) y el rojo de la
+// app significa "hecho".
+function ComoTeFue({ ejercicios }: { ejercicios: WeekSummaryDetail["exercises"] }) {
+  const con = (senal: string) => ejercicios.filter((e) => e.signal === senal).map((e) => e.name);
+  const supero = con("superó");
+  const noLlego = con("no llegó");
+  const cumplio = con("cumplió");
+  const sinRegistrar = con("sin registrar");
+  const nada = sinRegistrar.length === ejercicios.length;
+
+  return (
+    <section className="mb-3 rounded-2xl bg-card p-4">
+      <h3 className="mt-0 mb-2 font-heading text-xl font-bold">Cómo te fue</h3>
+      {nada ? (
+        <p className="m-0 text-muted-foreground">Esta semana no registraste series.</p>
+      ) : (
+        <>
+          <div className="mb-3 grid grid-cols-2 gap-2">
+            <div className="rounded-xl bg-disco-verde/15 px-2 py-2.5 text-center">
+              <p className="m-0 font-heading text-3xl leading-none font-bold text-disco-verde-texto">{supero.length}</p>
+              <p className="m-0 mt-1 text-xs text-muted-foreground">superaste</p>
+            </div>
+            <div className="rounded-xl bg-disco-amarillo/30 px-2 py-2.5 text-center">
+              <p className="m-0 font-heading text-3xl leading-none font-bold text-disco-amarillo-texto">{noLlego.length}</p>
+              <p className="m-0 mt-1 text-xs text-muted-foreground">no llegaste</p>
+            </div>
+          </div>
+          {supero.length > 0 && (
+            <p className="mt-0 mb-1.5">
+              <span aria-hidden="true">↑ </span>
+              <span className="font-medium">Subiste en</span> {enFrase(supero)}.
+            </p>
+          )}
+          {noLlego.length > 0 && (
+            <p className="mt-0 mb-1.5">
+              <span aria-hidden="true">↓ </span>
+              <span className="font-medium">Te costó</span> {enFrase(noLlego)}.
+            </p>
+          )}
+          <p className="m-0 text-sm text-muted-foreground">
+            {supero.length === 0 && noLlego.length === 0
+              ? "Hiciste todo como estaba planificado."
+              : cumplio.length > 0
+                ? "El resto, como estaba planificado."
+                : ""}
+            {sinRegistrar.length > 0 &&
+              ` ${sinRegistrar.length} ${sinRegistrar.length === 1 ? "ejercicio quedó" : "ejercicios quedaron"} sin registrar.`}
+          </p>
+        </>
+      )}
+    </section>
+  );
+}
 
 function ResumenSemana({ resumen }: { resumen: WeekSummaryDetail }) {
   const enCurso = resumen.status === "active";
@@ -184,20 +236,7 @@ function ResumenSemana({ resumen }: { resumen: WeekSummaryDetail }) {
         {resumen.cardio_minutes > 0 && <Numero valor={String(resumen.cardio_minutes)} texto="min de cardio" />}
       </div>
 
-      <section className="mb-3 rounded-2xl bg-card p-4">
-        <h3 className="mt-0 mb-1 font-heading text-xl font-bold">Cómo te fue</h3>
-        <ul className="m-0 list-none p-0">
-          {resumen.exercises.map((e) => {
-            const senal = SENALES[e.signal] ?? SENALES["sin registrar"];
-            return (
-              <li key={e.name} className="flex items-center gap-3 border-t border-border py-2 first:border-t-0">
-                <span className="flex-1">{e.name}</span>
-                <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-medium", senal.clase)}>{senal.texto}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+      <ComoTeFue ejercicios={resumen.exercises} />
 
       {resumen.ai_summary && (
         <section className="mb-3 flex gap-3 rounded-2xl border-2 border-disco-amarillo bg-card p-4">
