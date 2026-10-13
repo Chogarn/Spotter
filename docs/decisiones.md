@@ -335,6 +335,12 @@ Con sesión iniciada, la portada (`/`) es **Inicio**: una franja oscura de salud
 - **Por qué:** *(completar)*
 - **Descartaste:** que la portada fuera Entrenar (decisión 42); la barra con cuatro lugares.
 
+### 52. El usuario elige cuántos días por semana entrena
+Al generar una rutina nueva se elige la cantidad de días, obligatoria como el nivel y el objetivo: principiante 2 o 3 (R12), el resto de 2 a 6 (R11). Se guarda en la rutina (`routines.days_per_week`, migración 0016; las rutinas que ya existían tomaron la cantidad de su semana más nueva) y al continuar viene marcada y se puede cambiar. La IA arma exactamente esa cantidad y el código lo comprueba. Como la IA ya no puede sumar días, R35 saltea su primer paso (alarga la sesión y avisa; como último recurso recorta accesorios y músculos chicos). Reemplaza "los días los determina la IA" y "no existe el pedido 'solo puedo 3 días'" (#61).
+- **Origen:** tuya (2026-10-13), tras comparar con otras apps que preguntan los días; elegiste la opción A y 1a, 2a, 3a y 4a.
+- **Por qué:** *(completar)*
+- **Descartaste:** que la IA decida los días (opción B, con un pedido opcional de más días); ofrecer de 2 a 6 también a principiantes; que la IA pueda proponer más días que los elegidos; que la cantidad quede fija con la rutina; que elegir sea opcional.
+
 ## Decisiones abiertas
 
 Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):

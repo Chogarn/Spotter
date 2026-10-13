@@ -56,7 +56,12 @@ def _correction(problems: list[str]) -> str:
 
 
 def generate_proposal(
-    db: Session, user: User, goal: Goal, level: Level, routine_id: int | None = None
+    db: Session,
+    user: User,
+    goal: Goal,
+    level: Level,
+    routine_id: int | None = None,
+    days: int | None = None,
 ) -> PlanProposal:
     if user.profile is None:
         raise ProfileMissing
@@ -68,7 +73,7 @@ def generate_proposal(
     previous = build_previous_week(db, routine_id) if routine_id is not None else None
     kind = ProposalKind.WEEK_CLOSE if previous is not None else ProposalKind.GENERATE
     call_kind = AiCallKind.WEEK_CLOSE if previous is not None else AiCallKind.GENERATE
-    base_prompt = build_prompt(profile, goal, level, previous.text if previous else None)
+    base_prompt = build_prompt(profile, goal, level, previous.text if previous else None, days)
     prompt = base_prompt
     problems: list[str] = []
 
@@ -87,13 +92,13 @@ def generate_proposal(
         except ValidationError as error:
             problems = _pydantic_problems(error)
         else:
-            result = validate_routine(routine, goal, level)
+            result = validate_routine(routine, goal, level, days)
             if result.ok:
                 if previous is not None:
                     result.warnings += [
                         Issue(rule, message) for rule, message in weight_jump_warnings(routine, previous)
                     ]
-                return _save(db, user, routine, result, goal, level, routine_id, kind)
+                return _save(db, user, routine, result, goal, level, routine_id, kind, days)
             problems = [f"{i.rule}: {i.message}" for i in result.errors]
 
         if attempt + 1 < MAX_ATTEMPTS:
@@ -106,6 +111,7 @@ def _save(
     db: Session, user: User, routine: RoutineProposal, result, goal: Goal, level: Level,
     routine_id: int | None,
     kind: ProposalKind = ProposalKind.GENERATE,
+    days: int | None = None,
 ) -> PlanProposal:
     # Queda una sola propuesta pendiente: las anteriores se descartan al llegar la nueva.
     now = datetime.now(timezone.utc)
@@ -128,6 +134,8 @@ def _save(
             "level": level.value,
             # Vacío: la rutina se crea recién al aceptar. Con id: es la semana siguiente de esa rutina.
             "routine_id": routine_id,
+            # Los días que eligió el usuario: se guardan en la rutina al aceptar (decisión 52).
+            "days": days,
             "warnings": [{"rule": w.rule, "message": w.message} for w in result.warnings],
         },
     )

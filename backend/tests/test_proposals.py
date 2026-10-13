@@ -19,7 +19,7 @@ PERFIL = {
     "limitations": None,
     "accept_legal_notice": True,
 }
-ELECCION = {"goal": "masa", "level": "principiante"}
+ELECCION = {"goal": "masa", "level": "principiante", "days": 2}
 GRANDES = [
     ("Press de banca", "chest", "upper", "push"),
     ("Remo con barra", "back", "upper", "pull"),
@@ -250,7 +250,7 @@ def test_generar_sin_objetivo_o_sin_nivel_da_422_y_no_llama_a_la_ia(api, entorno
     assert api.post("/proposals/generate").status_code == 422
     assert api.post("/proposals/generate", json={"goal": "masa"}).status_code == 422
     assert api.post("/proposals/generate", json={"level": "avanzado"}).status_code == 422
-    assert api.post("/proposals/generate", json={"goal": "volar", "level": "avanzado"}).status_code == 422
+    assert api.post("/proposals/generate", json={"goal": "volar", "level": "avanzado", "days": 2}).status_code == 422
     assert falso.llamadas == 0
     assert contar(api, AiCall) == 0
 
@@ -260,7 +260,7 @@ def test_el_prompt_lleva_lo_elegido_y_la_semana_lo_guarda_al_aceptar(api, entorn
     falso = usar_gemini(monkeypatch, rutina())
 
     propuesta = api.post(
-        "/proposals/generate", json={"goal": "fuerza", "level": "avanzado"}
+        "/proposals/generate", json={"goal": "fuerza", "level": "avanzado", "days": 2}
     ).json()
 
     assert "Nivel: avanzado" in falso.prompts[0]

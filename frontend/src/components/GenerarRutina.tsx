@@ -23,6 +23,12 @@ const NIVELES = [
   ["intermedio", "intermedio"],
   ["avanzado", "avanzado"],
 ];
+// Los días por semana que se pueden elegir (decisión 52): R12 para principiantes (2 o 3) y R11
+// para el resto (2 a 6). El backend vuelve a comprobarlo.
+function diasPermitidos(nivel: string): number[] {
+  return nivel === "principiante" ? [2, 3] : [2, 3, 4, 5, 6];
+}
+
 const OBJETIVOS = [
   ["masa", "masa"],
   ["fuerza", "fuerza"],
@@ -51,6 +57,8 @@ export function GenerarRutina({
   const [eleccion, setEleccion] = useState("");
   const [nivel, setNivel] = useState("");
   const [objetivo, setObjetivo] = useState("");
+  // Cuántos días por semana: obligatorio. Al continuar, viene la cantidad actual de la rutina.
+  const [dias, setDias] = useState<number | null>(null);
   const [error, setError] = useState("");
   // `pidiendo`: esperando a la IA. `navegando`: abriendo la propuesta; se apaga solo cuando la
   // nueva página está lista (así esta pantalla no queda "generando" al volver a ella).
@@ -58,12 +66,31 @@ export function GenerarRutina({
   const [navegando, startTransition] = useTransition();
   const generando = pidiendo || navegando;
 
-  const listo = eleccion === "nueva" ? Boolean(nivel && objetivo) : eleccion !== "";
+  // El nivel que manda en los días: el elegido (rutina nueva) o el de la rutina que se continúa.
+  const rutinaElegida = rutinas?.find((r) => String(r.id) === eleccion);
+  const nivelActual = eleccion === "nueva" ? nivel : (rutinaElegida?.level ?? "");
+  const listo =
+    (eleccion === "nueva" ? Boolean(nivel && objetivo) : eleccion !== "") &&
+    dias !== null &&
+    Boolean(nivelActual);
+
+  function elegir(valor: string) {
+    setEleccion(valor);
+    const rutina = rutinas?.find((r) => String(r.id) === valor);
+    setDias(rutina?.days_per_week ?? null);
+  }
+
+  function cambiarNivel(valor: string) {
+    setNivel(valor);
+    // Si los días elegidos no entran en el nivel nuevo (por ejemplo 4 para un principiante), se borran.
+    if (dias !== null && !diasPermitidos(valor).includes(dias)) setDias(null);
+  }
 
   async function abrir() {
     setError("");
     setPreguntando(true);
     setEleccion("");
+    setDias(null);
     setRutinas(null);
     if (soloNueva) {
       setRutinas([]);
@@ -90,7 +117,9 @@ export function GenerarRutina({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
-          eleccion === "nueva" ? { goal: objetivo, level: nivel } : { routine_id: Number(eleccion) },
+          eleccion === "nueva"
+            ? { goal: objetivo, level: nivel, days: dias }
+            : { routine_id: Number(eleccion), days: dias },
         ),
       });
       if (res.ok) {
@@ -140,7 +169,7 @@ export function GenerarRutina({
           {rutinas !== null && rutinas.length > 0 && (
             <fieldset>
               <legend>¿Qué querés hacer?</legend>
-              <RadioGroup value={eleccion} onValueChange={(v) => setEleccion(String(v))}>
+              <RadioGroup value={eleccion} onValueChange={(v) => elegir(String(v))}>
                 {rutinas.map((r) => (
                   <Label key={r.id} className="gap-2">
                     <RadioGroupItem value={String(r.id)} />
@@ -156,7 +185,7 @@ export function GenerarRutina({
           )}
           {eleccion === "nueva" && (
             <>
-              <Opciones titulo="Nivel" nombre="nivel" valor={nivel} opciones={NIVELES} onChange={setNivel} />
+              <Opciones titulo="Nivel" nombre="nivel" valor={nivel} opciones={NIVELES} onChange={cambiarNivel} />
               <Opciones
                 titulo="Objetivo"
                 nombre="objetivo"
@@ -165,6 +194,35 @@ export function GenerarRutina({
                 onChange={setObjetivo}
               />
             </>
+          )}
+          {nivelActual && (
+            <fieldset className="border-0 p-0">
+              <legend className="mb-1.5 text-sm font-medium">¿Cuántos días por semana querés entrenar?</legend>
+              <div className="flex gap-2">
+                {diasPermitidos(nivelActual).map((d) => (
+                  <label
+                    key={d}
+                    className={
+                      "flex size-11 cursor-pointer items-center justify-center rounded-full border-2 font-heading text-xl font-bold has-focus-visible:ring-3 has-focus-visible:ring-ring/50 " +
+                      (dias === d ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card")
+                    }
+                  >
+                    <input
+                      type="radio"
+                      name="dias"
+                      value={d}
+                      checked={dias === d}
+                      onChange={() => setDias(d)}
+                      className="sr-only"
+                    />
+                    {d}
+                  </label>
+                ))}
+              </div>
+              {nivelActual === "principiante" && (
+                <p className="mt-1.5 mb-0 text-xs text-muted-foreground">Para empezar, 2 o 3 días.</p>
+              )}
+            </fieldset>
           )}
           {error && <ErrorMessage>{error}</ErrorMessage>}
           <AlertDialogFooter>

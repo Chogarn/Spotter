@@ -36,7 +36,7 @@ Respondé **solo** con el JSON pedido, sin texto antes ni después. Todo el text
 
 # Días de la semana
 
-- **Vos decidís cuántos días** entrena la persona, entre **2 y 6**, según su objetivo, su nivel y el volumen que pide su objetivo. El usuario no los elige. Siempre al menos un día de descanso en la semana.
+- {{DIAS}} Siempre al menos un día de descanso en la semana.
 - **Principiante: cuerpo completo, 2 o 3 días.**
 - Reparto por defecto según los días: 2 → cuerpo completo A y B · 3 → cuerpo completo ×3 · 4 → torso y pierna ×2 · 5 → híbrido · 6 → empuje, tirón y pierna ×2.
 - **Al menos 2 días de fuerza por semana**, y en la semana tienen que quedar cubiertos los **6 grupos grandes**: pecho, espalda, hombros, cuádriceps, isquios y glúteos.
@@ -77,9 +77,10 @@ Ejemplo resuelto: un ejercicio de **4 series de 10 repeticiones con 120 s de des
 
 Si el volumen que pide el objetivo no entra en la duración de referencia, resolvelo **en este orden**:
 
-1. **Sumá días**, hasta el máximo del nivel (3 para principiantes, hasta 6 para el resto).
-2. Si aún no entra, dejá la sesión **más larga que la referencia** y **avisalo en `notices`**.
-3. **Solo como último recurso**, recortá series de **menor prioridad** y avisalo en `notices`. Menor prioridad son los ejercicios accesorios (monoarticulares) y los músculos chicos (bíceps, tríceps, gemelos y core). Los multiarticulares principales no se recortan primero.
+**No sumes días**: la cantidad la eligió la persona.
+
+1. Dejá la sesión **más larga que la referencia** y **avisalo en `notices`**.
+2. **Solo como último recurso**, recortá series de **menor prioridad** y avisalo en `notices`. Menor prioridad son los ejercicios accesorios (monoarticulares) y los músculos chicos (bíceps, tríceps, gemelos y core). Los multiarticulares principales no se recortan primero.
 
 # Semana anterior y progresión
 

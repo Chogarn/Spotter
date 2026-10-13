@@ -41,7 +41,7 @@ def test_continuar_manda_lo_real_y_guarda_el_resumen(api, entorno, monkeypatch):
     rutina_id = api.get("/routines").json()[0]["id"]
     falso = usar_gemini(monkeypatch, rutina(summary="Subió el press de banca; el Día 2 no se hizo."))
 
-    respuesta = api.post("/proposals/generate", json={"routine_id": rutina_id})
+    respuesta = api.post("/proposals/generate", json={"routine_id": rutina_id, "days": 2})
 
     assert respuesta.status_code == 201
     assert respuesta.json()["kind"] == "week_close"
@@ -64,7 +64,7 @@ def test_la_primera_semana_no_lleva_semana_anterior(api, entorno, monkeypatch):
     con_perfil(api)
     falso = usar_gemini(monkeypatch, rutina())
 
-    api.post("/proposals/generate", json={"goal": "fuerza", "level": "avanzado"})
+    api.post("/proposals/generate", json={"goal": "fuerza", "level": "avanzado", "days": 2})
 
     assert "primera semana de esta rutina" in falso.prompts[0]
     assert "Semana anterior de esta rutina (" not in falso.prompts[0]
@@ -79,9 +79,9 @@ def test_la_pendiente_de_semana_nueva_se_ve_y_la_nueva_reemplaza_a_la_anterior(
     rutina_id = api.get("/routines").json()[0]["id"]
     usar_gemini(monkeypatch, rutina(), rutina())
 
-    primera = api.post("/proposals/generate", json={"routine_id": rutina_id}).json()
+    primera = api.post("/proposals/generate", json={"routine_id": rutina_id, "days": 2}).json()
     assert api.get("/proposals/pending").json()["id"] == primera["id"]
-    segunda = api.post("/proposals/generate", json={"routine_id": rutina_id}).json()
+    segunda = api.post("/proposals/generate", json={"routine_id": rutina_id, "days": 2}).json()
 
     assert api.get("/proposals/pending").json()["id"] == segunda["id"]
     assert api.get(f"/proposals/{primera['id']}").json()["status"] == "discarded"

@@ -115,7 +115,15 @@ def reference_minutes(goal: Goal, level: Level) -> tuple[int, int] | None:
     return None  # avanzado con masa o fuerza: R18 no lo define
 
 
-def validate_routine(routine: RoutineProposal, goal: Goal, level: Level) -> ValidationResult:
+def allowed_days(level: Level) -> tuple[int, ...]:
+    """Los días por semana que puede elegir el usuario (decisión 52): R12 para principiantes
+    (2 o 3) y R11 para el resto (2 a 6)."""
+    return (2, 3) if level == Level.PRINCIPIANTE else (2, 3, 4, 5, 6)
+
+
+def validate_routine(
+    routine: RoutineProposal, goal: Goal, level: Level, days: int | None = None
+) -> ValidationResult:
     result = ValidationResult()
     error = lambda rule, msg: result.errors.append(Issue(rule, msg))  # noqa: E731
     warn = lambda rule, msg: result.warnings.append(Issue(rule, msg))  # noqa: E731
@@ -126,6 +134,9 @@ def validate_routine(routine: RoutineProposal, goal: Goal, level: Level) -> Vali
         error("R11", f"La semana tiene {n_days} días y debe tener entre 2 y 6.")
     if level == Level.PRINCIPIANTE and n_days not in (2, 3):
         error("R12", f"Un principiante entrena 2 o 3 días y la rutina trae {n_days}.")
+    # Decisión 52: los días los elige el usuario y la rutina tiene que traer exactamente esos.
+    if days is not None and n_days != days:
+        error("Días", f"La persona eligió {days} días por semana y la rutina trae {n_days}.")
 
     n_strength = strength_days(routine)
     if n_strength < 2:

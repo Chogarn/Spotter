@@ -21,6 +21,7 @@ def routine_summary(db: Session, user: User, routine: Routine) -> RoutineSummary
         level=routine.level,
         week_count=len(weeks),
         has_active_week=any(w.status == PlanStatus.ACTIVE for w in weeks),
+        days_per_week=routine.days_per_week,
         last_week_day_states=week_day_states(db, user, weeks[-1]) if weeks else [],
     )
 
@@ -68,6 +69,7 @@ def get_routine(
         name=routine.name,
         goal=routine.goal,
         level=routine.level,
+        days_per_week=routine.days_per_week,
         weeks=weeks[::-1],
     )
 

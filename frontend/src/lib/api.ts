@@ -75,6 +75,7 @@ export type Routine = {
   level: string;
   week_count: number;
   has_active_week: boolean;
+  days_per_week: number | null; // cuántos días por semana entrena (decisión 52)
   last_week_day_states: DayState[]; // los días de la semana más nueva, en orden
 };
 
@@ -83,6 +84,7 @@ export type RoutineDetail = {
   name: string;
   goal: string;
   level: string;
+  days_per_week: number | null;
   weeks: WeekSummary[]; // de la más nueva a la más vieja
 };
 

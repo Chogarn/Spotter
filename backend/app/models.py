@@ -15,6 +15,7 @@ from sqlalchemy import (
     Index,
     Integer,
     Numeric,
+    SmallInteger,
     String,
     Text,
     UniqueConstraint,
@@ -90,6 +91,9 @@ class Routine(Base):
     """Una rutina: un objetivo y un nivel, con las semanas que el usuario fue sumando."""
 
     __tablename__ = "routines"
+    __table_args__ = (
+        CheckConstraint("days_per_week BETWEEN 2 AND 6", name="ck_routines_days_per_week"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
@@ -98,6 +102,9 @@ class Routine(Base):
     # Los elige el usuario al empezar la rutina; las semanas siguientes los heredan.
     goal: Mapped[Goal] = mapped_column(enum_column(Goal))
     level: Mapped[Level] = mapped_column(enum_column(Level))
+    # Cuántos días por semana entrena (decisión 52). Lo elige el usuario al generar y lo puede
+    # cambiar al continuar. Vacío solo en rutinas sin semanas (no debería pasar).
+    days_per_week: Mapped[int | None] = mapped_column(SmallInteger)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

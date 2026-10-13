@@ -14,7 +14,7 @@ from app.ai.generate import (
 )
 from app.ai.plan_writer import active_week, write_plan
 from app.ai.routine import RoutineProposal
-from app.ai.rules import estimate_day_minutes
+from app.ai.rules import allowed_days, estimate_day_minutes
 from app.db import get_db
 from app.deps import get_current_user
 from app.enums import Goal, Level, ProposalKind, ProposalStatus
@@ -64,8 +64,14 @@ def generate(
         if routine is None or routine.user_id != user.id:
             raise HTTPException(status_code=404, detail="No existe esa rutina")
         goal, level = routine.goal, routine.level  # el nivel queda fijo mientras sigue la rutina
+    permitidos = allowed_days(level)  # R12 para principiantes, R11 para el resto
+    if data.days not in permitidos:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Con nivel {level.value} se entrena de {permitidos[0]} a {permitidos[-1]} días por semana",
+        )
     try:
-        return to_out(generate_proposal(db, user, goal, level, data.routine_id))
+        return to_out(generate_proposal(db, user, goal, level, data.routine_id, data.days))
     except ProfileMissing:
         raise HTTPException(status_code=409, detail="Completá tu perfil primero") from None
     except ActiveWeekExists:
@@ -140,8 +146,11 @@ def accept(
     else:
         # Recién acá nace la rutina nueva: si el usuario descarta la propuesta, no queda nada.
         plan_routine = create_routine(
-            db, user.id, Goal(changes["goal"]), Level(changes["level"])
+            db, user.id, Goal(changes["goal"]), Level(changes["level"]), changes.get("days")
         )
+    # Al continuar con otra cantidad de días, la rutina se queda con la nueva (decisión 52).
+    if changes.get("days") is not None:
+        plan_routine.days_per_week = changes["days"]
     week = write_plan(db, user.id, routine, plan_routine)
     proposal.week_plan_id = week.id
     proposal.status = ProposalStatus.ACCEPTED

@@ -81,6 +81,9 @@ class GenerateIn(BaseModel):
     routine_id: int | None = None
     goal: Goal | None = None
     level: Level | None = None
+    # Cuántos días por semana entrena (decisión 52): obligatorio, también al continuar.
+    # Que entre en lo que permite el nivel (2 o 3 para principiantes) lo comprueba el endpoint.
+    days: int = Field(ge=2, le=6)
 
     @model_validator(mode="after")
     def one_way_or_the_other(self):
@@ -131,6 +134,7 @@ class RoutineSummaryOut(BaseModel):
     level: Level
     week_count: int
     has_active_week: bool
+    days_per_week: int | None
     # Estado de cada día de la semana más nueva ("completed", "partial" o "pending"), en orden;
     # la lista "Tus rutinas" lo muestra como discos. Vacía si la rutina no tiene semanas.
     last_week_day_states: list[str] = []
@@ -168,6 +172,7 @@ class RoutineDetailOut(BaseModel):
     name: str
     goal: Goal
     level: Level
+    days_per_week: int | None
     weeks: list[WeekSummaryOut]  # de la más nueva a la más vieja
 
 

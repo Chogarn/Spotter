@@ -57,8 +57,23 @@ def profile_block(profile: Profile, goal: Goal, level: Level) -> str:
 FIRST_WEEK = "Es la primera semana de esta rutina: no hay semana anterior. Armala desde cero."
 
 
+def days_text(days: int | None) -> str:
+    """Decisión 52: los días los elige el usuario. Sin el dato (pruebas viejas), decide la IA."""
+    if days is None:
+        return "**Vos decidís cuántos días** entrena la persona, entre **2 y 6**, según su objetivo y su nivel."
+    return (
+        f"**La persona eligió entrenar {days} días por semana: armá exactamente {days} días.** "
+        "No agregues ni quites días."
+    )
+
+
 def build_prompt(
-    profile: Profile, goal: Goal, level: Level, previous: str | None = None
+    profile: Profile,
+    goal: Goal,
+    level: Level,
+    previous: str | None = None,
+    days: int | None = None,
 ) -> str:
     text = _template().replace("{{PERFIL}}", profile_block(profile, goal, level))
+    text = text.replace("{{DIAS}}", days_text(days))
     return text.replace("{{SEMANA_ANTERIOR}}", previous or FIRST_WEEK)
