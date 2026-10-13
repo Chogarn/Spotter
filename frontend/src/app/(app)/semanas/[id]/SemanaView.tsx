@@ -53,7 +53,7 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
             {semana.days.map((d) => (
               <li key={d.day_index}>
                 <Link
-                  href={`/semanas/${semana.id}/dia/${d.day_index}`}
+                  href={`/semanas/${semana.id}/dia/${d.day_index}?desde=rutinas`}
                   className="flex items-center gap-3 rounded-2xl bg-card px-4 py-3.5 no-underline hover:bg-muted"
                 >
                   <Disco estado={estadoDia[d.state]} />

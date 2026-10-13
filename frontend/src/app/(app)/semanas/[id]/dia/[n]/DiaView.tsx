@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, ChevronDown, LockOpen } from "lucide-react";
+import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
@@ -15,8 +16,16 @@ import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 
-export default function DiaView({ params }: { params: Promise<{ id: string; n: string }> }) {
+export default function DiaView({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string; n: string }>;
+  searchParams: Promise<{ desde?: string }>;
+}) {
   const { id, n } = use(params);
+  // Desde Rutinas el día es para mirar (decisión 53): no se registra ni se cierra; eso es en Entrenar.
+  const desdeRutinas = use(searchParams).desde === "rutinas";
   const [dia, setDia] = useState<DayDetail | null>(null);
   const [error, setError] = useState("");
   const [trabajando, setTrabajando] = useState(false);
@@ -79,9 +88,11 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
   // Solo se registra en la semana activa; las cerradas quedan en lectura.
   const activa = dia?.week_status === "active";
   const completado = dia?.finished_at != null;
+  // Se registra y se cierra solo en la semana activa y llegando desde Entrenar.
+  const editable = activa && !desdeRutinas;
   const hechos = dia ? dia.exercises.filter(estaHecho).length : 0;
   // El ejercicio en curso (el primero sin hacer) lleva un borde, solo mientras se puede registrar.
-  const enCurso = dia && activa && !completado ? dia.exercises.findIndex((e) => !estaHecho(e)) : -1;
+  const enCurso = dia && editable && !completado ? dia.exercises.findIndex((e) => !estaHecho(e)) : -1;
 
   return (
     <main className="mx-auto max-w-xl px-4 pt-6">
@@ -131,7 +142,7 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
                 key={i}
                 exercise={e}
                 dia={dia}
-                registra={activa && !completado}
+                registra={editable && !completado}
                 abierta={abierta === i}
                 onAlternar={() => setAbierta((a) => (a === i ? null : i))}
                 enCurso={i === enCurso}
@@ -140,7 +151,7 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
               />
             ))}
           </ol>
-          {activa && (
+          {editable && (
             <section className="mt-6">
               {completado ? (
                 <div className="flex items-center gap-3">
@@ -169,12 +180,19 @@ export default function DiaView({ params }: { params: Promise<{ id: string; n: s
               )}
             </section>
           )}
-          {/* Con la semana cerrada, el mismo cierre pero sin candado: el día ya no se reabre. */}
-          {!activa && (
+          {/* Con la semana cerrada o desde Rutinas, el mismo cierre pero sin candado: solo se mira. */}
+          {!editable && (
             <section className="mt-6">
               <span className={cn("font-heading text-2xl font-bold", !completado && "text-muted-foreground")}>
                 {completado ? "Día completado" : "Día sin completar"}
               </span>
+              {activa && !completado && (
+                <p className="mt-1 mb-0">
+                  <small className="text-muted-foreground">
+                    Para registrarlo, andá a <Link href="/entrenar">Entrenar</Link>.
+                  </small>
+                </p>
+              )}
             </section>
           )}
           <p>

@@ -341,11 +341,11 @@ Al generar una rutina nueva se elige la cantidad de días, obligatoria como el n
 - **Por qué:** *(completar)*
 - **Descartaste:** que la IA decida los días (opción B, con un pedido opcional de más días); ofrecer de 2 a 6 también a principiantes; que la IA pueda proponer más días que los elegidos; que la cantidad quede fija con la rutina; que elegir sea opcional.
 
-### 53. El día se ve igual entrando desde Rutinas o desde Entrenar
-La pantalla del día no cambia según de dónde se llega: en la semana en curso tiene "Día completado" y el candado para reabrir, también desde Rutinas. Se deshizo un cambio (commit `55a90dc`) que dejaba el día en lectura desde Rutinas con `?desde=entrenar`. Con la semana cerrada, el final del día dice **"Día completado"** (sin candado, porque ya no se reabre) o **"Día sin completar"** en gris.
-- **Origen:** tuya (2026-10-13): el cambio "me modificó el estilo en un lugar que no debía"; aprobaste la maqueta del día en una semana cerrada.
+### 53. Desde Rutinas el día es para mirar; se registra y se cierra en Entrenar
+Rutinas es el historial y Entrenar el lugar donde se registra. Llegando desde Rutinas (la pantalla de la semana enlaza con `?desde=rutinas`), el día no se cierra ni se reabre y tampoco se marcan ni editan series o ejercicios: las tarjetas se despliegan solo para mirar. El final es el mismo que con la semana cerrada: **"Día completado"** (sin candado) o **"Día sin completar"** en gris y, si la semana está en curso, "Para registrarlo, andá a Entrenar.". Sin esa marca (desde Entrenar, Inicio o el modo entrenar), el día funciona completo, con "Día completado" y el candado para reabrir.
+- **Origen:** tuya (2026-10-13). Primero se deshizo un cambio de otra sesión (commit `55a90dc`, con `?desde=entrenar`) porque "me modificó el estilo en un lugar que no debía"; después aclaraste que lo que no querías era el estilo, no que se pudiera cerrar el día desde Rutinas, y elegiste bloquear todo (1A).
 - **Por qué:** *(completar)*
-- **Descartaste:** el día en lectura desde Rutinas.
+- **Descartaste:** bloquear solo cerrar y reabrir el día (1B); el estilo del primer intento (texto "Desde Rutinas el día se ve en lectura" y enlace "Entrenar este día").
 
 ### 54. Rutinas "en pausa" y la rutina como línea de tiempo
 En Rutinas, la rutina con semana activa lleva "en curso" (rojo) y las demás **"en pausa"** (gris), porque se pueden continuar al generar. La pantalla de una rutina tiene el título grande, etiquetas (objetivo, nivel, días por semana) y las semanas como **línea de tiempo**: cada semana es una tarjeta colgada de la línea, con borde oscuro la en curso, "Desde el 13/10 · N de M días" (solo los días completados) y los discos. Así no se confunde con la lista de rutinas.
@@ -364,6 +364,12 @@ Si el día tiene movilidad (`mobility_notes`, R26), el modo entrenar empieza por
 - **Origen:** tuya (2026-10-13): "que la entrada en calor se vea como cualquier otro ejercicio en entrenar", y después "la movilidad como tarjeta en la lista del día".
 - **Por qué:** *(completar)*
 - **Descartaste:** marcarla como hecha (habría que guardarla en la base); dejarla como la línea "Movilidad: …".
+
+### 57. "Cerrar semana" con días por hacer va en una tarjeta propia
+Al final de Entrenar, mientras quedan días por hacer, "Cerrar semana" deja de ser un enlace gris: es una tarjeta **"¿Terminaste la semana?"** con "Te faltan N días. La IA arma la siguiente con lo que hiciste." y un botón con borde oscuro. Con todos los días completados sigue el botón oscuro dentro de la tarjeta de arriba. El recuadro de confirmación, con el comentario, no cambia.
+- **Origen:** tuya (2026-10-13): "el botón de cerrar semana debería tener otro formato"; elegiste la opción C.
+- **Por qué:** *(completar)*
+- **Descartaste:** un botón con borde solo (A); una fila como "Día completado" con candado (B).
 
 ## Decisiones abiertas
 

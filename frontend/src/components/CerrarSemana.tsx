@@ -19,7 +19,8 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 
 // "Cerrar semana" con su recuadro: avisa los días sin completar (cuentan como no hechos) y deja
 // un comentario opcional que la IA lee al armar la semana siguiente. Vive en Entrenar (decisión 44).
-// `destacado`: botón principal (cuando ya se completaron todos los días); si no, va discreto.
+// `destacado`: botón principal (cuando ya se completaron todos los días); si no, una tarjeta
+// "¿Terminaste la semana?" con un botón con borde.
 export function CerrarSemana({
   weekId,
   pendientes,
@@ -54,17 +55,33 @@ export function CerrarSemana({
     setCerrando(false);
   }
 
+  const faltan = pendientes.length;
+
   return (
     <>
-      <Button
-        type="button"
-        variant={destacado ? "default" : "link"}
-        size={destacado ? "lg" : "default"}
-        className={destacado ? "w-full" : "px-0 text-muted-foreground"}
-        onClick={() => setConfirmando(true)}
-      >
-        Cerrar semana
-      </Button>
+      {destacado ? (
+        <Button type="button" size="lg" className="w-full" onClick={() => setConfirmando(true)}>
+          Cerrar semana
+        </Button>
+      ) : (
+        // Con días por hacer, una tarjeta propia que explica qué pasa antes de cerrar.
+        <section className="rounded-2xl bg-card p-5">
+          <h2 className="mt-0 mb-1 text-2xl">¿Terminaste la semana?</h2>
+          <p className="mt-0 mb-4 text-sm text-muted-foreground">
+            {faltan > 0 && `Te ${faltan === 1 ? "falta 1 día" : `faltan ${faltan} días`}. `}
+            La IA arma la siguiente con lo que hiciste.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            className="h-11 w-full border-2 border-disco-tinta text-base"
+            onClick={() => setConfirmando(true)}
+          >
+            Cerrar semana
+          </Button>
+        </section>
+      )}
       <AlertDialog open={confirmando} onOpenChange={(abierto) => !cerrando && setConfirmando(abierto)}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
