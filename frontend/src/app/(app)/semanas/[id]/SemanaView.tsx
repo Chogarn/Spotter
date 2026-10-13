@@ -63,6 +63,7 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
           )}
           {semana.status === "closed" && (
             <>
+              <p className="mt-6 mb-0 font-heading text-2xl font-bold">Semana completada</p>
               {semana.closing_note && (
                 <>
                   <h2>Cómo te sentiste esta semana</h2>
@@ -70,7 +71,7 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
                 </>
               )}
               <p>
-                Semana cerrada. <Link href="/entrenar">Andá a Entrenar</Link> para generar la siguiente.
+                <Link href="/entrenar">Andá a Entrenar</Link> para generar la siguiente.
               </p>
             </>
           )}
