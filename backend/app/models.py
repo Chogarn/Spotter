@@ -21,6 +21,7 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
+from pgvector.sqlalchemy import Vector
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -400,6 +401,32 @@ class AiCall(Base):
     model: Mapped[str] = mapped_column(String(64))
     # Vacío mientras la llamada está en curso (o si la app se cayó en el medio).
     succeeded: Mapped[bool | None] = mapped_column(Boolean)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+# gemini-embedding-001 a 768 dimensiones (una de las recomendadas por Google). Cambiarla exige
+# una migración y reindexar el catálogo.
+EMBEDDING_DIM = 768
+
+
+class CatalogEmbedding(Base):
+    """El vector de un ejercicio del catálogo (`exercises.json`), para recuperarlo por similitud.
+
+    Es un dato derivado: se puede borrar y volver a generar con `app.scripts.index_catalog`.
+    `text_hash` dice con qué texto se calculó, para reindexar solo lo que cambió.
+    """
+
+    __tablename__ = "catalog_embeddings"
+
+    catalog_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    text_hash: Mapped[str] = mapped_column(String(64))
+    model: Mapped[str] = mapped_column(String(64))
+    # En PostgreSQL es un `vector(768)` de pgvector; en SQLite de los tests, una lista en JSON.
+    embedding: Mapped[list[float]] = mapped_column(
+        JSON().with_variant(Vector(EMBEDDING_DIM), "postgresql")
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

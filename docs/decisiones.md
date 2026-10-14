@@ -61,11 +61,11 @@ Se muestra una vista previa y el usuario acepta o descarta.
 - **Por qué:** *(completar; tené en cuenta lo que dijo el profesor: la IA no puede ser quien toma las decisiones)*
 - **Descartaste:** que los cambios se apliquen directo.
 
-### 10. Los ejercicios no salen de un catálogo fijo
-La IA los elige y la tabla de ejercicios se completa sola.
+### 10. ~~Los ejercicios no salen de un catálogo fijo~~ (reemplazada por la 58)
+La IA los elegía libremente y la tabla de ejercicios se completaba sola.
 - **Origen:** elegida entre opciones.
-- **Por qué:** no estabas seguro de querer un catálogo fijo de ejercicios. *(completar el resto)*
-- **Descartaste:** un catálogo fijo precargado.
+- **Por qué:** no estabas seguro de querer un catálogo fijo de ejercicios. Después cambiaste de idea: ver la decisión 58.
+- **Descartaste:** un catálogo fijo precargado (luego se adoptó).
 
 ### 11. Las series de un ejercicio se pueden desglosar
 Un ejercicio se ve como una fila compacta con un tilde ("press de pecho · 4 × 10 · 50 kg"); al desplegarlo, cada serie tiene sus propias repeticiones y su propio peso (por ejemplo 10 × 50, 8 × 55, 6 × 60, 4 × 65).
@@ -370,6 +370,12 @@ Al final de Entrenar, mientras quedan días por hacer, "Cerrar semana" deja de s
 - **Origen:** tuya (2026-10-13): "el botón de cerrar semana debería tener otro formato"; probaste la tarjeta (C) y la fila con candado (B), y te quedaste con el botón de la A y el recuadro en el formato de la C.
 - **Por qué:** *(completar)*
 - **Descartaste:** una fila como "Día completado" con candado (B); la tarjeta "¿Terminaste la semana?" en la pantalla (C).
+
+### 58. Los ejercicios de la rutina salen de un catálogo
+La IA arma la semana **solo con ejercicios del catálogo** (`backend/app/ai/exercises.json`, borrador de 118 con descripción y alias). Reemplaza a la decisión 10. El código comprueba que cada ejercicio devuelto esté en el catálogo; si no, la rutina se rechaza y se reintenta. **Se le pasa con RAG:** cada ejercicio tiene un *embedding* (Gemini) guardado en **PostgreSQL con pgvector**; al generar, se recuperan por similitud los candidatos de cada grupo muscular y solo esos van al prompt. Si el embedding falla o se alcanza un tope, el prompt lleva todo lo permitido por nivel y objetivo. **Cómo se hace cumplir:** el código reemplaza nombre y etiquetas por las del catálogo (la IA elige el ejercicio, el catálogo lo etiqueta) y rechaza la rutina, con un reintento, si trae un ejercicio que no está o con otro tipo (fuerza, cardio, isométrico); al continuar una rutina se permiten los de la semana anterior aunque sean viejos. **Las lesiones no entran en la búsqueda por vectores** (un vector mide parecido, no "evitar"): las razona la IA con el perfil. **El catálogo lo aprobaste el 2026-10-14** (nombres, músculos, niveles, descripciones y alias); queda para más adelante la revisión de una persona con formación en educación física y el criterio R5b.
+- **Origen:** tuya (2026-10-14): "los ejercicios de la rutina tienen que salir del catálogo" (cambio de diseño posterior a la decisión 10) y "tiene que ser de vectores" (pgvector, no JSON).
+- **Por qué:** *(completar)*
+- **Descartaste:** que la IA elija libremente y la tabla `exercises` crezca sola.
 
 ## Decisiones abiertas
 

@@ -208,7 +208,7 @@ Datos personales del usuario. Una fila por usuario. **No tiene nivel, objetivo n
 Historial del peso corporal, para ver la evolución. Cuando el usuario actualiza su peso se agrega una fila y se actualiza `profiles.weight_kg`.
 
 ### exercises
-Ejercicios conocidos por la app. **No hay catálogo precargado**: la tabla crece sola.
+Ejercicios conocidos por la app. La tabla se completa al guardar un plan. Desde la decisión 58 los ejercicios salen del catálogo `backend/app/ai/exercises.json`; sus vectores (RAG) están en `catalog_embeddings`.
 
 | Campo | Detalle |
 |---|---|
@@ -337,7 +337,7 @@ Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan co
 
 ## Decisiones de diseño
 
-1. **Los ejercicios crecen solos.** La IA elige libremente los ejercicios. Al guardar un plan se busca el ejercicio por `name_normalized`; si no existe, se crea. Así "Press banca" y "press de banca" son el mismo ejercicio y el historial queda comparable.
+1. **Los ejercicios salen de un catálogo** (decisión 58). La IA elige de la lista que recupera `retrieve.py` y el código rechaza lo que no esté. Al guardar un plan se busca el ejercicio por `name_normalized`; si no existe, se crea. Así "Press banca" y "press de banca" son el mismo ejercicio y el historial queda comparable.
 2. **Planificado y real van separados.** `plan_exercises` guarda lo que toca y `set_entries` lo que se hizo. Esa diferencia es la base del análisis semanal.
 3. **La IA propone y el usuario decide.** Los cambios se guardan primero en `plan_proposals` con estado `pending` y solo se escriben en `week_plans` cuando el usuario acepta.
 4. **`ai_calls` no se borra.** Igual que el tope diario de Gemini, depende de contar filas; borrarlas permitiría saltearse el límite. Por eso no hay endpoint para eliminarlas.

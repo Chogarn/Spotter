@@ -3,7 +3,8 @@
 
 services:
   db:
-    image: postgres:17-alpine
+    # pgvector (decisión 58): Postgres 17 oficial + extensión. Solo hay variantes Debian, sin alpine.
+    image: pgvector/pgvector:pg17
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-spotter}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-spotter_dev}
@@ -12,7 +13,7 @@ services:
       # 5434 en tu PC (el 5432 lo usa el Postgres de Windows). Solo accesible desde localhost.
       - "127.0.0.1:5434:5432"
     volumes:
-      - spotter_db_data:/var/lib/postgresql/data
+      - spotter_db_data_pgvector:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-spotter} -d ${POSTGRES_DB:-spotter}"]
       interval: 5s
@@ -30,6 +31,9 @@ services:
       GEMINI_MODEL: ${GEMINI_MODEL:-}
       GEMINI_DAILY_LIMIT: ${GEMINI_DAILY_LIMIT:-}
       GEMINI_RPM_LIMIT: ${GEMINI_RPM_LIMIT:-}
+      GEMINI_EMBEDDING_MODEL: ${GEMINI_EMBEDDING_MODEL:-}
+      GEMINI_EMBEDDING_RPM_LIMIT: ${GEMINI_EMBEDDING_RPM_LIMIT:-}
+      GEMINI_EMBEDDING_DAILY_LIMIT: ${GEMINI_EMBEDDING_DAILY_LIMIT:-}
       WATCHFILES_FORCE_POLLING: "true"
     ports:
       - "127.0.0.1:8000:8000"
@@ -56,4 +60,4 @@ services:
       - backend
 
 volumes:
-  spotter_db_data:
+  spotter_db_data_pgvector:

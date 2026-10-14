@@ -36,13 +36,13 @@ def test_la_rutina_lista_sus_ejercicios_en_el_orden_en_que_aparecen(api):
 
     nombres = [e["name"] for e in api.get(f"/routines/{rutina_id(api)}/exercises").json()]
 
-    assert nombres == ["Press de banca", "Plancha", "Sentadilla", "Cinta"]
+    assert nombres == ["Press de banca con barra", "Plancha", "Sentadilla con barra", "Cinta"]
 
 
 def test_fuerza_mayor_peso_por_semana_sin_inventar_las_vacias(api):
     # Semana 1: una serie editada (52,5 kg) y otra marcada como planificada (9 × 55).
     primera = semana_activa(api, date(2026, 9, 1))
-    series = dia(api, primera, 1)["Press de banca"]["sets"]
+    series = dia(api, primera, 1)["Press de banca con barra"]["sets"]
     api.put(f"/weeks/{primera}/days/1/sets/{series[0]['id']}", json={"reps": 10, "weight_kg": 52.5})
     api.post(f"/weeks/{primera}/days/1/sets/{series[1]['id']}/done")
     api.post(f"/weeks/{primera}/close")
@@ -50,10 +50,10 @@ def test_fuerza_mayor_peso_por_semana_sin_inventar_las_vacias(api):
     crear_semana(api, date(2026, 9, 8))
     # Semana 3, en curso: 60 kg.
     tercera = semana_activa(api, date(2026, 9, 15))
-    serie = dia(api, tercera, 1)["Press de banca"]["sets"][0]
+    serie = dia(api, tercera, 1)["Press de banca con barra"]["sets"][0]
     api.put(f"/weeks/{tercera}/days/1/sets/{serie['id']}", json={"reps": 8, "weight_kg": 60})
 
-    cuerpo = historial(api, "Press de banca")
+    cuerpo = historial(api, "Press de banca con barra")
 
     assert cuerpo["unit"] == "kg"
     assert [(s["number"], s["value"]) for s in cuerpo["weeks"]] == [(1, 55.0), (2, None), (3, 60.0)]
@@ -78,7 +78,7 @@ def test_isometrico_en_segundos_y_cardio_en_minutos(api):
 def test_sin_registros_no_hay_record(api):
     crear_semana(api, date(2026, 9, 1))
 
-    cuerpo = historial(api, "Sentadilla")
+    cuerpo = historial(api, "Sentadilla con barra")
 
     assert cuerpo["record"] is None
     assert all(s["value"] is None for s in cuerpo["weeks"])

@@ -17,6 +17,7 @@ TABLAS_ESPERADAS = {
     "workout_sessions",
     "set_entries",
     "exercise_completions",
+    "catalog_embeddings",
 }
 
 

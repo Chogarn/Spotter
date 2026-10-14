@@ -51,42 +51,42 @@ def test_sin_semana_cerrada_no_hay_semana_anterior(api):
 
 def test_superar_las_repeticiones_es_superó_y_parte_del_peso_real(api, semana):
     # plan del press: 10, 9, 8, 7 reps con 50, 55, 60, 65 kg
-    registrar(api, semana, 1, "Press de banca", [(12, 52.5), (11, 57.5), (10, 62.5), (9, 67.5)])
+    registrar(api, semana, 1, "Press de banca con barra", [(12, 52.5), (11, 57.5), (10, 62.5), (9, 67.5)])
 
     previa = anterior(api, semana)
 
     assert previa.has_data
-    assert "Press de banca [fuerza] — señal: superó" in previa.text
+    assert "Press de banca con barra [fuerza] — señal: superó" in previa.text
     assert "plan 10 reps · 50 kg → real 12 reps · 52.5 kg" in previa.text
-    assert previa.last_weights["press de banca"] == 67.5
+    assert previa.last_weights["press de banca con barra"] == 67.5
 
 
 def test_quedar_corto_es_no_llegó(api, semana):
-    registrar(api, semana, 1, "Press de banca", [(8, 50), (7, 55), (6, 60), (5, 65)])
+    registrar(api, semana, 1, "Press de banca con barra", [(8, 50), (7, 55), (6, 60), (5, 65)])
 
     assert "señal: no llegó" in anterior(api, semana).text
 
 
 def test_hacerlo_como_estaba_es_cumplió(api, semana):
-    registrar(api, semana, 1, "Press de banca", [(10, 50), (9, 55), (8, 60), (7, 65)])
+    registrar(api, semana, 1, "Press de banca con barra", [(10, 50), (9, 55), (8, 60), (7, 65)])
 
     assert "señal: cumplió" in anterior(api, semana).text
 
 
 def test_un_dato_aislado_no_cambia_la_señal(api, semana):
     # una sola serie por encima de cuatro: no es "superó"
-    registrar(api, semana, 1, "Press de banca", [(10, 50), (9, 55), (8, 60), (9, 65)])
+    registrar(api, semana, 1, "Press de banca con barra", [(10, 50), (9, 55), (8, 60), (9, 65)])
 
     assert "señal: cumplió" in anterior(api, semana).text
 
 
 def test_un_dia_o_ejercicio_sin_registrar_es_informacion(api, semana):
-    registrar(api, semana, 1, "Press de banca", [(10, 50)])
+    registrar(api, semana, 1, "Press de banca con barra", [(10, 50)])
 
     texto = anterior(api, semana).text
 
     assert "Día 2 · Pierna A — no hecho (nada registrado)" in texto
-    assert "Sentadilla [fuerza] — señal: sin registrar" in texto
+    assert "Sentadilla con barra [fuerza] — señal: sin registrar" in texto
     assert "→ sin registrar" in texto
 
 
@@ -98,7 +98,7 @@ def test_sin_nada_registrado_pide_repetir_la_semana(api, semana):
 
 
 def test_el_esfuerzo_viaja_si_esta_cargado(api, semana):
-    registrar(api, semana, 1, "Press de banca", [(10, 50)])
+    registrar(api, semana, 1, "Press de banca con barra", [(10, 50)])
     with api.session() as db:
         entry = db.scalars(select(SetEntry)).first()
         entry.effort = 9
@@ -108,14 +108,14 @@ def test_el_esfuerzo_viaja_si_esta_cargado(api, semana):
 
 
 def test_avisa_una_subida_de_mas_de_10_por_ciento(api, semana):
-    registrar(api, semana, 1, "Press de banca", [(10, 50), (9, 55), (8, 60), (7, 65)])
+    registrar(api, semana, 1, "Press de banca con barra", [(10, 50), (9, 55), (8, 60), (7, 65)])
     previa = anterior(api, semana)
 
     def propuesta(kg):
         return RoutineProposal.model_validate({
             "days": [{
                 "title": "Torso", "exercises": [{
-                    "name": "Press de banca", "kind": "strength", "region": "upper",
+                    "name": "Press de banca con barra", "kind": "strength", "region": "upper",
                     "direction": "push", "primary_muscle": "chest", "secondary_muscles": [],
                     "mechanic": "compound", "equipment": "barbell", "level": "intermedio",
                     "rest_seconds": 120, "sets": [{"reps": 8, "target_weight_kg": kg}],
@@ -127,5 +127,5 @@ def test_avisa_una_subida_de_mas_de_10_por_ciento(api, semana):
 
     assert len(avisos) == 1
     assert avisos[0][0] == "R9"
-    assert "Press de banca" in avisos[0][1]
+    assert "Press de banca con barra" in avisos[0][1]
     assert weight_jump_warnings(propuesta(70), previa) == []  # 65 -> 70 kg: dentro de 10 %

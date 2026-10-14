@@ -32,7 +32,18 @@ Respondé **solo** con el JSON pedido, sin texto antes ni después. Todo el text
 - `mobility_notes`: ver movilidad más abajo. Vacío en los días que no la llevan.
 - `notices`: avisos para el usuario (ver "Si el volumen no entra").
 - Límites técnicos: hasta 12 ejercicios por día, 10 series por ejercicio, 50 repeticiones por serie, 600 segundos por serie isométrica y 180 minutos por serie de cardio.
-- Usá solo ejercicios que se puedan hacer con el equipamiento del usuario.
+- Los ejercicios salen **solo** de la lista de "Ejercicios disponibles" (ver abajo).
+
+# Ejercicios disponibles
+
+Elegí los ejercicios **solo de esta lista**. Cada línea trae el nombre, las etiquetas y una descripción breve:
+
+{{CATALOGO}}
+
+- Usá el **nombre exacto** de la lista y copiá sus etiquetas (`kind`, `region`, `direction`, `primary_muscle`, `secondary_muscles`, `mechanic`, `equipment`, `level`) sin cambiarlas.
+- **No inventes ejercicios** ni uses nombres que no estén en la lista: el código los rechaza y te pide armar la rutina de nuevo.
+- La lista ya está filtrada para el nivel y el objetivo de la persona. El orden dentro de cada grupo **no es una prioridad**: elegí según las reglas de este documento.
+- Al continuar una rutina, podés **mantener un ejercicio de la semana anterior** aunque no figure en la lista, con su nombre exacto.
 
 # Días de la semana
 

@@ -10,8 +10,11 @@ bíceps, tríceps, gemelos y core trabajan por las series indirectas (R5). Solo 
 """
 
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 
+from app.ai.catalog import find
+from app.ai.plan_writer import normalize_name
 from app.ai.routine import DayProposal, RoutineProposal
 from app.enums import ExerciseKind, Goal, Level, Muscle
 
@@ -121,9 +124,48 @@ def allowed_days(level: Level) -> tuple[int, ...]:
     return (2, 3) if level == Level.PRINCIPIANTE else (2, 3, 4, 5, 6)
 
 
+def catalog_problems(routine: RoutineProposal, extra_names: Iterable[str] = ()) -> list[str]:
+    """Ejercicios que no salen del catálogo (decisión 58) o con otro `kind` que el del catálogo.
+
+    `extra_names`: ejercicios de la semana anterior que se pueden mantener aunque no estén en el
+    catálogo (rutinas viejas, de antes del catálogo).
+    """
+    extra = {normalize_name(n) for n in extra_names}
+    unknown: list[str] = []
+    problems: list[str] = []
+    for day in routine.days:
+        for e in day.exercises:
+            found = find(e.name)
+            if found is None:
+                if normalize_name(e.name) not in extra and e.name not in unknown:
+                    unknown.append(e.name)
+            elif found.kind != e.kind:
+                problems.append(
+                    f'"{e.name}" figura como {found.kind.value} en la lista de ejercicios '
+                    f"disponibles y la rutina lo trae como {e.kind.value}: usá las etiquetas de la lista."
+                )
+    if unknown:
+        listado = ", ".join(f'"{n}"' for n in unknown[:5]) + (
+            f" y {len(unknown) - 5} más" if len(unknown) > 5 else ""
+        )
+        problems.insert(
+            0,
+            f"Ejercicios que no están en la lista de ejercicios disponibles: {listado}. "
+            "Reemplazalos por ejercicios de la lista, con su nombre exacto.",
+        )
+    return problems
+
+
 def validate_routine(
-    routine: RoutineProposal, goal: Goal, level: Level, days: int | None = None
+    routine: RoutineProposal,
+    goal: Goal,
+    level: Level,
+    days: int | None = None,
+    catalog_extra_names: Iterable[str] | None = None,
 ) -> ValidationResult:
+    """`catalog_extra_names`: si es None no se exige el catálogo (llamadas directas, tests de
+    reglas); si es una lista (aunque esté vacía), todo ejercicio tiene que salir del catálogo o
+    estar en esa lista (decisión 58)."""
     result = ValidationResult()
     error = lambda rule, msg: result.errors.append(Issue(rule, msg))  # noqa: E731
     warn = lambda rule, msg: result.warnings.append(Issue(rule, msg))  # noqa: E731
@@ -137,6 +179,10 @@ def validate_routine(
     # Decisión 52: los días los elige el usuario y la rutina tiene que traer exactamente esos.
     if days is not None and n_days != days:
         error("Días", f"La persona eligió {days} días por semana y la rutina trae {n_days}.")
+
+    if catalog_extra_names is not None:
+        for message in catalog_problems(routine, catalog_extra_names):
+            error("Catálogo", message)
 
     n_strength = strength_days(routine)
     if n_strength < 2:

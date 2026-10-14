@@ -64,10 +64,10 @@ def test_la_misma_semana_no_tiene_cambios(api):
 
 def test_sube_la_carga_cambian_las_series_y_el_descanso(api):
     semana_base(api)
-    press = fuerza("Press de banca", rest=90)  # mismo esquema, descanso de 120 a 90 s
+    press = fuerza("Press de banca con barra", rest=90)  # mismo esquema, descanso de 120 a 90 s
     for serie in press.sets:
         serie.target_weight_kg += 2.5  # la mayor pasa de 65 a 67,5 kg
-    sentadilla = fuerza("Sentadilla", sets=3)  # de 4 series a 3
+    sentadilla = fuerza("Sentadilla con barra", sets=3)  # de 4 series a 3
     propuesta = RoutineProposal(days=[
         DayProposal(title="Torso A", exercises=[press, plancha()]),
         DayProposal(title="Pierna A", exercises=[sentadilla, cardio()]),
@@ -75,22 +75,22 @@ def test_sube_la_carga_cambian_las_series_y_el_descanso(api):
 
     ejercicios = por_nombre(cambios(api, guardar_propuesta(api, propuesta)))
 
-    assert ejercicios["Press de banca"]["status"] == "cambia"
-    assert ejercicios["Press de banca"]["load"] == "sube"
-    assert ejercicios["Press de banca"]["sets_changed"] is False
-    assert (ejercicios["Press de banca"]["rest_before"], ejercicios["Press de banca"]["rest_after"]) == (120, 90)
-    assert ejercicios["Press de banca"]["rest_changed"] is True
-    assert ejercicios["Sentadilla"]["sets_changed"] is True
-    assert len(ejercicios["Sentadilla"]["sets_before"]) == 4
-    assert len(ejercicios["Sentadilla"]["sets_after"]) == 3
+    assert ejercicios["Press de banca con barra"]["status"] == "cambia"
+    assert ejercicios["Press de banca con barra"]["load"] == "sube"
+    assert ejercicios["Press de banca con barra"]["sets_changed"] is False
+    assert (ejercicios["Press de banca con barra"]["rest_before"], ejercicios["Press de banca con barra"]["rest_after"]) == (120, 90)
+    assert ejercicios["Press de banca con barra"]["rest_changed"] is True
+    assert ejercicios["Sentadilla con barra"]["sets_changed"] is True
+    assert len(ejercicios["Sentadilla con barra"]["sets_before"]) == 4
+    assert len(ejercicios["Sentadilla con barra"]["sets_after"]) == 3
     assert ejercicios["Plancha"]["status"] == "igual"
 
 
 def test_un_ejercicio_que_entra_y_otro_que_sale(api):
     semana_base(api)
     propuesta = RoutineProposal(days=[
-        DayProposal(title="Torso A", exercises=[fuerza("Press de banca"), fuerza("Remo con barra")]),
-        DayProposal(title="Pierna A", exercises=[fuerza("Sentadilla"), cardio()]),
+        DayProposal(title="Torso A", exercises=[fuerza("Press de banca con barra"), fuerza("Remo con barra")]),
+        DayProposal(title="Pierna A", exercises=[fuerza("Sentadilla con barra"), cardio()]),
     ])
 
     cuerpo = cambios(api, guardar_propuesta(api, propuesta))
@@ -105,14 +105,14 @@ def test_un_ejercicio_que_entra_y_otro_que_sale(api):
 def test_se_compara_por_nombre_sin_importar_el_dia_ni_las_mayusculas(api):
     semana_base(api)
     propuesta = RoutineProposal(days=[
-        DayProposal(title="Pierna", exercises=[fuerza("SENTADILLA"), cardio()]),
-        DayProposal(title="Torso", exercises=[fuerza("press de banca"), plancha()]),
+        DayProposal(title="Pierna", exercises=[fuerza("SENTADILLA CON BARRA"), cardio()]),
+        DayProposal(title="Torso", exercises=[fuerza("press de banca con barra"), plancha()]),
     ])
 
     ejercicios = por_nombre(cambios(api, guardar_propuesta(api, propuesta)))
 
-    assert ejercicios["SENTADILLA"]["status"] == "igual"
-    assert ejercicios["press de banca"]["day_index"] == 2
+    assert ejercicios["SENTADILLA CON BARRA"]["status"] == "igual"
+    assert ejercicios["press de banca con barra"]["day_index"] == 2
 
 
 def test_la_primera_rutina_no_tiene_semana_anterior(api):

@@ -26,6 +26,17 @@ def _usuario_de_prueba(db: Session = Depends(get_db)) -> User:
 
 
 @pytest.fixture(autouse=True)
+def sin_embeddings_del_entorno(monkeypatch):
+    """El contenedor hereda el .env: sin esto, cada generación de prueba reservaría un embedding."""
+    for nombre in (
+        "GEMINI_EMBEDDING_MODEL",
+        "GEMINI_EMBEDDING_RPM_LIMIT",
+        "GEMINI_EMBEDDING_DAILY_LIMIT",
+    ):
+        monkeypatch.delenv(nombre, raising=False)
+
+
+@pytest.fixture(autouse=True)
 def usuario_inyectado():
     app.dependency_overrides[get_current_user] = _usuario_de_prueba
     yield

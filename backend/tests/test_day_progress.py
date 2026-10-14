@@ -52,7 +52,7 @@ def reales(ejercicio):
 
 
 def test_marcar_como_hecho_copia_lo_planificado_en_cada_serie(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
 
     response = marcar(api, semana, 1, press["id"])
 
@@ -66,14 +66,14 @@ def test_marcar_como_hecho_copia_lo_planificado_en_cada_serie(api, semana):
 
 
 def test_marcar_dos_veces_no_duplica(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     marcar(api, semana, 1, press["id"])
     marcar(api, semana, 1, press["id"])
     assert contar(api, SetEntry) == 4
 
 
 def test_marcar_respeta_las_series_que_ya_se_editaron(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     serie_2 = press["sets"][1]
     api.put(f"/weeks/{semana}/days/1/sets/{serie_2['id']}", json={"reps": 6, "weight_kg": 60})
 
@@ -86,9 +86,9 @@ def test_marcar_respeta_las_series_que_ya_se_editaron(api, semana):
 
 
 def test_marcar_no_cambia_el_plan(api, semana):
-    antes = ejercicios(api, semana, 1)["Press de banca"]["sets"]
-    marcar(api, semana, 1, ejercicios(api, semana, 1)["Press de banca"]["id"])
-    despues = ejercicios(api, semana, 1)["Press de banca"]["sets"]
+    antes = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"]
+    marcar(api, semana, 1, ejercicios(api, semana, 1)["Press de banca con barra"]["id"])
+    despues = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"]
     campos = ("reps", "target_weight_kg", "duration_seconds", "duration_minutes")
     assert [{c: s[c] for c in campos} for s in antes] == [{c: s[c] for c in campos} for s in despues]
     with api.session() as db:
@@ -108,7 +108,7 @@ def test_el_isometrico_y_el_cardio_copian_sus_segundos_y_minutos(api, semana):
 
 
 def test_marcar_un_ejercicio_no_toca_los_demas(api, semana):
-    marcar(api, semana, 1, ejercicios(api, semana, 1)["Press de banca"]["id"])
+    marcar(api, semana, 1, ejercicios(api, semana, 1)["Press de banca con barra"]["id"])
     assert all(r is None for r in reales(ejercicios(api, semana, 1)["Plancha"]))
 
 
@@ -124,7 +124,7 @@ def desmarcar_serie(api, semana, dia, serie_id):
 
 
 def test_marcar_una_serie_copia_lo_planificado_y_solo_esa(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     plan = press["sets"][1]  # 9 reps x 55 kg
 
     response = serie_hecha(api, semana, 1, plan["id"])
@@ -133,14 +133,14 @@ def test_marcar_una_serie_copia_lo_planificado_y_solo_esa(api, semana):
     assert response.json()["real"] == {
         "reps": 9, "duration_minutes": None, "duration_seconds": None, "weight_kg": 55.0,
     }
-    assert [s["real"] is not None for s in ejercicios(api, semana, 1)["Press de banca"]["sets"]] == [
+    assert [s["real"] is not None for s in ejercicios(api, semana, 1)["Press de banca con barra"]["sets"]] == [
         False, True, False, False,
     ]
     assert contar(api, SetEntry) == 1 and contar(api, WorkoutSession) == 1
 
 
 def test_marcar_una_serie_ya_editada_respeta_lo_editado_y_no_duplica(api, semana):
-    plan = ejercicios(api, semana, 1)["Press de banca"]["sets"][0]
+    plan = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"][0]
     api.put(f"/weeks/{semana}/days/1/sets/{plan['id']}", json={"reps": 6, "weight_kg": 60})
 
     real = serie_hecha(api, semana, 1, plan["id"]).json()["real"]
@@ -150,7 +150,7 @@ def test_marcar_una_serie_ya_editada_respeta_lo_editado_y_no_duplica(api, semana
 
 
 def test_marcar_dos_veces_la_misma_serie_no_duplica(api, semana):
-    plan = ejercicios(api, semana, 1)["Press de banca"]["sets"][0]
+    plan = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"][0]
     serie_hecha(api, semana, 1, plan["id"])
     serie_hecha(api, semana, 1, plan["id"])
     assert contar(api, SetEntry) == 1
@@ -165,7 +165,7 @@ def test_una_serie_de_plancha_y_de_cinta_copia_segundos_y_minutos(api, semana):
 
 
 def test_desmarcar_una_serie_borra_solo_esa(api, semana):
-    series = ejercicios(api, semana, 1)["Press de banca"]["sets"]
+    series = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"]
     serie_hecha(api, semana, 1, series[0]["id"])
     serie_hecha(api, semana, 1, series[1]["id"])
 
@@ -173,21 +173,21 @@ def test_desmarcar_una_serie_borra_solo_esa(api, semana):
 
     assert response.status_code == 200
     assert response.json()["real"] is None
-    despues = ejercicios(api, semana, 1)["Press de banca"]["sets"]
+    despues = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"]
     assert [s["real"] is not None for s in despues] == [False, True, False, False]
 
 
 def test_desmarcar_sin_nada_registrado_no_crea_sesion(api, semana):
-    serie = ejercicios(api, semana, 1)["Press de banca"]["sets"][0]
+    serie = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"][0]
     assert desmarcar_serie(api, semana, 1, serie["id"]).status_code == 200
     assert contar(api, WorkoutSession) == 0
 
 
 def test_el_plan_no_cambia_al_marcar_ni_al_desmarcar_series(api, semana):
-    antes = ejercicios(api, semana, 1)["Press de banca"]["sets"]
+    antes = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"]
     serie_hecha(api, semana, 1, antes[0]["id"])
     desmarcar_serie(api, semana, 1, antes[0]["id"])
-    despues = ejercicios(api, semana, 1)["Press de banca"]["sets"]
+    despues = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"]
     campos = ("reps", "target_weight_kg", "duration_seconds", "duration_minutes")
     assert [{c: s[c] for c in campos} for s in antes] == [{c: s[c] for c in campos} for s in despues]
 
@@ -197,7 +197,7 @@ def test_el_caso_completo_de_marcadas_editadas_y_sin_tocar_al_marcar_el_ejercici
 
     Todas quedan como hechas: la 1, 2 y 4 con lo planificado y la 3 con lo que se editó.
     """
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     s1, s2, s3, s4 = press["sets"]
     serie_hecha(api, semana, 1, s1["id"])
     serie_hecha(api, semana, 1, s2["id"])
@@ -216,24 +216,24 @@ def test_el_caso_completo_de_marcadas_editadas_y_sin_tocar_al_marcar_el_ejercici
 
 
 def test_marcar_series_no_es_obligatorio_para_marcar_el_ejercicio(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     hecho = marcar(api, semana, 1, press["id"]).json()  # sin marcar ninguna serie antes
     assert all(r is not None for r in reales(hecho))
 
 
 def test_con_el_dia_completado_no_se_marcan_ni_desmarcan_series(api, semana):
-    serie = ejercicios(api, semana, 1)["Press de banca"]["sets"][0]
+    serie = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"][0]
     serie_hecha(api, semana, 1, serie["id"])
     completar(api, semana, 1)
 
-    assert serie_hecha(api, semana, 1, ejercicios(api, semana, 1)["Press de banca"]["sets"][1]["id"]).status_code == 409
+    assert serie_hecha(api, semana, 1, ejercicios(api, semana, 1)["Press de banca con barra"]["sets"][1]["id"]).status_code == 409
     assert desmarcar_serie(api, semana, 1, serie["id"]).status_code == 409
     assert contar(api, SetEntry) == 1
 
 
 def test_una_semana_cerrada_no_admite_marcar_series(api):
     cerrada = crear_semana(api, date(2026, 9, 1), status=PlanStatus.CLOSED)
-    serie = ejercicios(api, cerrada, 1)["Press de banca"]["sets"][0]
+    serie = ejercicios(api, cerrada, 1)["Press de banca con barra"]["sets"][0]
 
     assert serie_hecha(api, cerrada, 1, serie["id"]).status_code == 409
     assert desmarcar_serie(api, cerrada, 1, serie["id"]).status_code == 409
@@ -241,7 +241,7 @@ def test_una_semana_cerrada_no_admite_marcar_series(api):
 
 
 def test_la_serie_debe_ser_de_ese_dia_y_de_ese_usuario_al_marcar(api, semana):
-    del_dia_2 = ejercicios(api, semana, 2)["Sentadilla"]["sets"][0]["id"]
+    del_dia_2 = ejercicios(api, semana, 2)["Sentadilla con barra"]["sets"][0]["id"]
     ajena = crear_semana(api, date(2026, 9, 2), status=PlanStatus.ACTIVE, email="otro@spotter.local")
 
     assert serie_hecha(api, semana, 1, del_dia_2).status_code == 404  # otro día
@@ -262,30 +262,30 @@ def cerrado(api, semana, dia, nombre):
 
 
 def test_un_ejercicio_empieza_sin_cerrar(api, semana):
-    assert cerrado(api, semana, 1, "Press de banca") is False
+    assert cerrado(api, semana, 1, "Press de banca con barra") is False
 
 
 def test_marcar_el_ejercicio_lo_cierra(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
 
     respuesta = marcar(api, semana, 1, press["id"]).json()
 
     assert respuesta["completed"] is True
-    assert cerrado(api, semana, 1, "Press de banca") is True
+    assert cerrado(api, semana, 1, "Press de banca con barra") is True
     assert cerrado(api, semana, 1, "Plancha") is False  # los demás siguen abiertos
 
 
 def test_marcar_todas_las_series_a_mano_no_cierra_el_ejercicio(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     for serie in press["sets"]:
         serie_hecha(api, semana, 1, serie["id"])
 
-    assert all(s["real"] is not None for s in ejercicios(api, semana, 1)["Press de banca"]["sets"])
-    assert cerrado(api, semana, 1, "Press de banca") is False
+    assert all(s["real"] is not None for s in ejercicios(api, semana, 1)["Press de banca con barra"]["sets"])
+    assert cerrado(api, semana, 1, "Press de banca con barra") is False
 
 
 def test_un_ejercicio_cerrado_no_admite_editar_marcar_ni_desmarcar_series(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     marcar(api, semana, 1, press["id"])
     serie = press["sets"][0]["id"]
 
@@ -294,13 +294,13 @@ def test_un_ejercicio_cerrado_no_admite_editar_marcar_ni_desmarcar_series(api, s
     assert desmarcar_serie(api, semana, 1, serie).status_code == 409
     # nada cambió: sigue con lo copiado del plan
     assert contar(api, SetEntry) == 4
-    assert ejercicios(api, semana, 1)["Press de banca"]["sets"][0]["real"]["reps"] == press["sets"][0]["reps"]
+    assert ejercicios(api, semana, 1)["Press de banca con barra"]["sets"][0]["real"]["reps"] == press["sets"][0]["reps"]
 
 
 def test_marcar_de_nuevo_un_ejercicio_cerrado_no_duplica_nada(api, semana):
     from app.models import ExerciseCompletion
 
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     marcar(api, semana, 1, press["id"])
     assert marcar(api, semana, 1, press["id"]).status_code == 200
     assert contar(api, ExerciseCompletion) == 1
@@ -308,7 +308,7 @@ def test_marcar_de_nuevo_un_ejercicio_cerrado_no_duplica_nada(api, semana):
 
 
 def test_reabrir_el_ejercicio_conserva_lo_registrado_y_deja_corregir(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     serie = press["sets"][1]
     api.put(f"/weeks/{semana}/days/1/sets/{serie['id']}", json={"reps": 6, "weight_kg": 60})
     marcar(api, semana, 1, press["id"])
@@ -317,8 +317,8 @@ def test_reabrir_el_ejercicio_conserva_lo_registrado_y_deja_corregir(api, semana
 
     assert respuesta.status_code == 200
     assert respuesta.json()["completed"] is False
-    assert cerrado(api, semana, 1, "Press de banca") is False
-    despues = ejercicios(api, semana, 1)["Press de banca"]["sets"]
+    assert cerrado(api, semana, 1, "Press de banca con barra") is False
+    despues = ejercicios(api, semana, 1)["Press de banca con barra"]["sets"]
     assert all(s["real"] is not None for s in despues)  # no se borró nada
     assert (despues[1]["real"]["reps"], despues[1]["real"]["weight_kg"]) == (6, 60.0)  # ni lo editado
     assert contar(api, SetEntry) == 4
@@ -327,14 +327,14 @@ def test_reabrir_el_ejercicio_conserva_lo_registrado_y_deja_corregir(api, semana
 
 
 def test_se_puede_cerrar_de_nuevo_despues_de_reabrir(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     marcar(api, semana, 1, press["id"])
     reabrir_ejercicio(api, semana, 1, press["id"])
     assert marcar(api, semana, 1, press["id"]).json()["completed"] is True
 
 
 def test_reabrir_un_ejercicio_que_no_estaba_cerrado_no_hace_nada(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     assert reabrir_ejercicio(api, semana, 1, press["id"]).status_code == 200
     assert contar(api, WorkoutSession) == 0
 
@@ -342,7 +342,7 @@ def test_reabrir_un_ejercicio_que_no_estaba_cerrado_no_hace_nada(api, semana):
 def test_deshacer_un_ejercicio_cerrado_borra_lo_registrado_y_el_cierre(api, semana):
     from app.models import ExerciseCompletion
 
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     marcar(api, semana, 1, press["id"])
 
     respuesta = destildar(api, semana, 1, press["id"])
@@ -355,7 +355,7 @@ def test_deshacer_un_ejercicio_cerrado_borra_lo_registrado_y_el_cierre(api, sema
 
 
 def test_cerrar_un_ejercicio_no_bloquea_a_los_otros(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     plancha = ejercicios(api, semana, 1)["Plancha"]
     marcar(api, semana, 1, press["id"])
 
@@ -364,29 +364,29 @@ def test_cerrar_un_ejercicio_no_bloquea_a_los_otros(api, semana):
 
 
 def test_reabrir_el_dia_no_reabre_los_ejercicios_cerrados(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     marcar(api, semana, 1, press["id"])
     completar(api, semana, 1)
     reabrir(api, semana, 1)
-    assert cerrado(api, semana, 1, "Press de banca") is True
+    assert cerrado(api, semana, 1, "Press de banca con barra") is True
 
 
 def test_con_el_dia_completado_no_se_reabre_un_ejercicio(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     marcar(api, semana, 1, press["id"])
     completar(api, semana, 1)
     assert reabrir_ejercicio(api, semana, 1, press["id"]).status_code == 409
-    assert cerrado(api, semana, 1, "Press de banca") is True
+    assert cerrado(api, semana, 1, "Press de banca con barra") is True
 
 
 def test_una_semana_cerrada_no_admite_reabrir_ejercicios(api):
     semana_cerrada = crear_semana(api, date(2026, 9, 1), status=PlanStatus.CLOSED)
-    press = ejercicios(api, semana_cerrada, 1)["Press de banca"]
+    press = ejercicios(api, semana_cerrada, 1)["Press de banca con barra"]
     assert reabrir_ejercicio(api, semana_cerrada, 1, press["id"]).status_code == 409
 
 
 def test_reabrir_el_ejercicio_debe_ser_de_ese_dia_y_de_ese_usuario(api, semana):
-    del_dia_2 = ejercicios(api, semana, 2)["Sentadilla"]["id"]
+    del_dia_2 = ejercicios(api, semana, 2)["Sentadilla con barra"]["id"]
     ajena = crear_semana(api, date(2026, 9, 2), status=PlanStatus.ACTIVE, email="otro@spotter.local")
 
     assert reabrir_ejercicio(api, semana, 1, del_dia_2).status_code == 404
@@ -398,7 +398,7 @@ def test_reabrir_el_ejercicio_debe_ser_de_ese_dia_y_de_ese_usuario(api, semana):
 
 
 def test_destildar_borra_las_series_reales_de_ese_ejercicio_y_solo_ellas(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     plancha = ejercicios(api, semana, 1)["Plancha"]
     marcar(api, semana, 1, press["id"])
     marcar(api, semana, 1, plancha["id"])
@@ -412,14 +412,14 @@ def test_destildar_borra_las_series_reales_de_ese_ejercicio_y_solo_ellas(api, se
 
 
 def test_destildar_tambien_borra_lo_editado_a_mano(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     api.put(f"/weeks/{semana}/days/1/sets/{press['sets'][0]['id']}", json={"reps": 3})
     destildar(api, semana, 1, press["id"])
     assert contar(api, SetEntry) == 0
 
 
 def test_destildar_sin_nada_registrado_no_hace_nada_ni_crea_sesion(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     assert destildar(api, semana, 1, press["id"]).status_code == 200
     assert contar(api, WorkoutSession) == 0
 
@@ -437,7 +437,7 @@ def test_completar_el_dia_cierra_la_sesion(api, semana):
 
 
 def test_se_puede_completar_con_ejercicios_sin_hacer(api, semana):
-    marcar(api, semana, 1, ejercicios(api, semana, 1)["Press de banca"]["id"])
+    marcar(api, semana, 1, ejercicios(api, semana, 1)["Press de banca con barra"]["id"])
     completar(api, semana, 1)
     # la plancha sigue sin series reales: queda como no hecha
     assert all(r is None for r in reales(ejercicios(api, semana, 1)["Plancha"]))
@@ -452,7 +452,7 @@ def test_completar_dos_veces_conserva_la_primera_hora(api, semana):
 
 
 def test_un_dia_completado_no_admite_cambios(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     marcar(api, semana, 1, press["id"])
     completar(api, semana, 1)
 
@@ -464,7 +464,7 @@ def test_un_dia_completado_no_admite_cambios(api, semana):
 
 
 def test_reabrir_deja_corregir_de_nuevo(api, semana):
-    press = ejercicios(api, semana, 1)["Press de banca"]
+    press = ejercicios(api, semana, 1)["Press de banca con barra"]
     plancha = ejercicios(api, semana, 1)["Plancha"]
     marcar(api, semana, 1, press["id"])  # este ejercicio queda cerrado
     completar(api, semana, 1)
@@ -487,7 +487,7 @@ def test_reabrir_un_dia_que_no_estaba_completado_no_hace_nada(api, semana):
 def test_cada_dia_se_completa_por_separado(api, semana):
     completar(api, semana, 1)
     assert api.get(f"/weeks/{semana}/days/2").json()["finished_at"] is None
-    assert marcar(api, semana, 2, ejercicios(api, semana, 2)["Sentadilla"]["id"]).status_code == 200
+    assert marcar(api, semana, 2, ejercicios(api, semana, 2)["Sentadilla con barra"]["id"]).status_code == 200
 
 
 # --- semana cerrada y propiedad ---
@@ -495,7 +495,7 @@ def test_cada_dia_se_completa_por_separado(api, semana):
 
 def test_una_semana_cerrada_no_admite_nada_de_esto(api):
     cerrada = crear_semana(api, date(2026, 9, 1), status=PlanStatus.CLOSED)
-    press = ejercicios(api, cerrada, 1)["Press de banca"]
+    press = ejercicios(api, cerrada, 1)["Press de banca con barra"]
 
     assert marcar(api, cerrada, 1, press["id"]).status_code == 409
     assert destildar(api, cerrada, 1, press["id"]).status_code == 409
@@ -505,7 +505,7 @@ def test_una_semana_cerrada_no_admite_nada_de_esto(api):
 
 
 def test_el_ejercicio_debe_ser_de_ese_dia_y_de_ese_usuario(api, semana):
-    del_dia_2 = ejercicios(api, semana, 2)["Sentadilla"]["id"]
+    del_dia_2 = ejercicios(api, semana, 2)["Sentadilla con barra"]["id"]
     ajena = crear_semana(api, date(2026, 9, 2), status=PlanStatus.ACTIVE, email="otro@spotter.local")
 
     assert marcar(api, semana, 1, del_dia_2).status_code == 404  # es de otro día
@@ -526,7 +526,7 @@ def estados(api, semana):
 def test_el_estado_de_los_dias_pasa_de_pendiente_a_a_medias_a_completado(api, semana):
     assert estados(api, semana) == ["pending", "pending"]
 
-    marcar(api, semana, 1, ejercicios(api, semana, 1)["Press de banca"]["id"])
+    marcar(api, semana, 1, ejercicios(api, semana, 1)["Press de banca con barra"]["id"])
     assert estados(api, semana) == ["partial", "pending"]
 
     completar(api, semana, 1)

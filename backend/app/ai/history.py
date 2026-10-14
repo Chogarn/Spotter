@@ -47,6 +47,9 @@ class PreviousWeek:
     has_data: bool  # alguna serie con algo registrado
     # Mayor peso realmente levantado por ejercicio (nombre normalizado), para avisar saltos.
     last_weights: dict[str, Decimal] = field(default_factory=dict)
+    # Nombres de los ejercicios de esa semana: al continuar se pueden mantener aunque no estén
+    # en el catálogo (rutinas viejas).
+    exercise_names: list[str] = field(default_factory=list)
 
 
 def last_closed_week(db: Session, routine_id: int) -> WeekPlan | None:
@@ -145,7 +148,8 @@ def build_previous_week(db: Session, routine_id: int) -> PreviousWeek | None:
         lines.append(
             "No se registró nada en esta semana: proponé repetir la misma semana y avisalo en `notices`."
         )
-    return PreviousWeek("\n".join([header, *lines]), has_data, last_weights)
+    names = [e.exercise.name for d in week.days for e in d.exercises]
+    return PreviousWeek("\n".join([header, *lines]), has_data, last_weights, names)
 
 
 def _exercise_lines(

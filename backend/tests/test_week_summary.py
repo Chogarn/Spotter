@@ -27,7 +27,7 @@ def resultado(cuerpo, nombre):
 
 def test_la_semana_en_curso_cuenta_lo_registrado_hasta_ahora(api):
     semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
-    press = dia(api, semana, 1)["Press de banca"]["sets"]
+    press = dia(api, semana, 1)["Press de banca con barra"]["sets"]
     base = f"/weeks/{semana}/days/1/sets"
     # Plan del press: 10 × 50 y 9 × 55. Las dos series superan lo planificado.
     api.put(f"{base}/{press[0]['id']}", json={"reps": 12, "weight_kg": 50})
@@ -45,7 +45,7 @@ def test_la_semana_en_curso_cuenta_lo_registrado_hasta_ahora(api):
     assert (cuerpo["sets_done"], cuerpo["sets_planned"]) == (3, 12)
     assert cuerpo["kg_moved"] == 12 * 50 + 10 * 55
     assert cuerpo["cardio_minutes"] == 30
-    assert resultado(cuerpo, "Press de banca") == "superó"
+    assert resultado(cuerpo, "Press de banca con barra") == "superó"
     assert resultado(cuerpo, "Plancha") == "sin registrar"
     assert resultado(cuerpo, "Cinta") == "cumplió"
 
@@ -87,8 +87,8 @@ def test_un_ejercicio_repetido_en_la_semana_aparece_una_vez(api):
             db,
             routine.user_id,
             RoutineProposal(days=[
-                DayProposal(title="A", exercises=[fuerza("Press de banca"), fuerza("Remo")]),
-                DayProposal(title="B", exercises=[fuerza("Press de banca"), fuerza("Remo")]),
+                DayProposal(title="A", exercises=[fuerza("Press de banca con barra"), fuerza("Remo")]),
+                DayProposal(title="B", exercises=[fuerza("Press de banca con barra"), fuerza("Remo")]),
             ]),
             routine,
         )
@@ -98,7 +98,7 @@ def test_un_ejercicio_repetido_en_la_semana_aparece_una_vez(api):
 
     nombres = [e["name"] for e in resumen(api, semana)["exercises"]]
 
-    assert sorted(nombres) == ["Press de banca", "Remo"]
+    assert sorted(nombres) == ["Press de banca con barra", "Remo"]
 
 
 def test_la_semana_de_otro_usuario_da_404(api):

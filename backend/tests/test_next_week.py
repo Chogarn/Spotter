@@ -48,7 +48,7 @@ def test_continuar_manda_lo_real_y_guarda_el_resumen(api, entorno, monkeypatch):
     assert respuesta.json()["routine"]["summary"].startswith("Subió el press")
     prompt = falso.prompts[0]
     assert "Semana anterior de esta rutina" in prompt
-    assert "Press de banca [fuerza] — señal: superó" in prompt
+    assert "Press de banca con barra [fuerza] — señal: superó" in prompt
     assert "no hecho (nada registrado)" in prompt
     with api.session() as db:
         assert db.scalars(select(AiCall.kind).order_by(AiCall.id.desc())).first().value == "week_close"

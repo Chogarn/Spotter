@@ -10,9 +10,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.ai.gemini import AiConfigError, AiLimitError, generate_json
+from app.ai.catalog import canonicalize
 from app.ai.history import PreviousWeek, build_previous_week, weight_jump_warnings
 from app.ai.plan_writer import active_week
 from app.ai.prompt import build_prompt
+from app.ai.retrieve import retrieve_candidates
 from app.ai.routine import RoutineProposal
 from app.ai.rules import Issue, validate_routine
 from app.enums import AiCallKind, Goal, Level, ProposalKind, ProposalStatus
@@ -73,7 +75,14 @@ def generate_proposal(
     previous = build_previous_week(db, routine_id) if routine_id is not None else None
     kind = ProposalKind.WEEK_CLOSE if previous is not None else ProposalKind.GENERATE
     call_kind = AiCallKind.WEEK_CLOSE if previous is not None else AiCallKind.GENERATE
-    base_prompt = build_prompt(profile, goal, level, previous.text if previous else None, days)
+    # RAG (decisión 58): 1 embedding de la consulta y los ejercicios más adecuados de cada grupo.
+    # Si no se puede, devuelve todo lo permitido por nivel y objetivo: no se cae la generación.
+    candidates = retrieve_candidates(
+        db, user.id, goal, level, keep_names=previous.exercise_names if previous else ()
+    )
+    base_prompt = build_prompt(
+        profile, goal, level, previous.text if previous else None, days, candidates.exercises
+    )
     prompt = base_prompt
     problems: list[str] = []
 
@@ -92,7 +101,13 @@ def generate_proposal(
         except ValidationError as error:
             problems = _pydantic_problems(error)
         else:
-            result = validate_routine(routine, goal, level, days)
+            # Decisión 58: los ejercicios salen del catálogo y sus etiquetas las pone el catálogo.
+            # Al continuar, los de la semana anterior se pueden mantener aunque sean viejos.
+            routine = canonicalize(routine)
+            result = validate_routine(
+                routine, goal, level, days,
+                catalog_extra_names=previous.exercise_names if previous else (),
+            )
             if result.ok:
                 if previous is not None:
                     result.warnings += [

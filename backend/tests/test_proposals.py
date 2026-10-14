@@ -21,12 +21,12 @@ PERFIL = {
 }
 ELECCION = {"goal": "masa", "level": "principiante", "days": 2}
 GRANDES = [
-    ("Press de banca", "chest", "upper", "push"),
+    ("Press de banca con barra", "chest", "upper", "push"),
     ("Remo con barra", "back", "upper", "pull"),
-    ("Press militar", "shoulders", "upper", "push"),
-    ("Sentadilla", "quadriceps", "lower", "none"),
-    ("Peso muerto rumano", "hamstrings", "lower", "none"),
-    ("Hip thrust", "glutes", "lower", "none"),
+    ("Press de hombros con barra", "shoulders", "upper", "push"),
+    ("Sentadilla con barra", "quadriceps", "lower", "none"),
+    ("Peso muerto rumano con barra", "hamstrings", "lower", "none"),
+    ("Hip thrust con barra", "glutes", "lower", "none"),
 ]
 
 
@@ -319,7 +319,8 @@ def test_un_ejercicio_que_ya_existia_conserva_sus_etiquetas(api, entorno, monkey
     con_perfil(api)
     with api.session() as db:
         db.add(Exercise(
-            name="Press de Banca", name_normalized="press de banca", kind="strength", region="upper",
+            name="Press de Banca con Barra", name_normalized="press de banca con barra",
+            kind="strength", region="upper",
             direction="push", primary_muscle="chest", secondary_muscles=["triceps"],
             mechanic="compound", equipment="dumbbell", level="avanzado",
         ))
@@ -329,7 +330,7 @@ def test_un_ejercicio_que_ya_existia_conserva_sus_etiquetas(api, entorno, monkey
     api.post(f"/proposals/{propuesta['id']}/accept")
 
     with api.session() as db:
-        press = db.scalars(select(Exercise).where(Exercise.name_normalized == "press de banca")).one()
+        press = db.scalars(select(Exercise).where(Exercise.name_normalized == "press de banca con barra")).one()
         assert press.equipment.value == "dumbbell"  # no se pisó con la etiqueta de la IA
         assert contar(api, Exercise) == 6
 

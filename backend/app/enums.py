@@ -91,9 +91,10 @@ class ProposalStatus(str, enum.Enum):
 
 
 class AiCallKind(str, enum.Enum):
-    """Para qué se llamó a Gemini. Mismos valores que ProposalKind."""
+    """Para qué se llamó a Gemini. Los primeros cuatro son los de ProposalKind."""
 
     GENERATE = "generate"
     ADJUST = "adjust"
     WEEK_CLOSE = "week_close"
     REPEAT_EXERCISE = "repeat_exercise"
+    EMBED = "embed"  # un embedding del catálogo o de una consulta (RAG, decisión 58)

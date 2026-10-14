@@ -5,10 +5,12 @@ corregir. Acá solo se completa con los datos del perfil.
 """
 
 import re
+from collections.abc import Sequence
 from functools import lru_cache
 from pathlib import Path
 
-from app.enums import Goal, Level
+from app.ai.catalog import MUSCLE_TEXT, CatalogExercise, load_catalog
+from app.enums import Goal, Level, Muscle
 from app.models import Profile
 
 PROMPT_FILE = Path(__file__).parent / "prompts" / "generar_rutina.md"
@@ -67,13 +69,40 @@ def days_text(days: int | None) -> str:
     )
 
 
+def catalog_block(candidates: Sequence[CatalogExercise]) -> str:
+    """La lista de ejercicios que se le ofrece a la IA, agrupada por músculo principal."""
+    by_muscle: dict[Muscle, list[CatalogExercise]] = {}
+    for exercise in candidates:
+        by_muscle.setdefault(exercise.primary_muscle, []).append(exercise)
+    lines: list[str] = []
+    for muscle in Muscle:  # orden fijo: el del enum
+        group = by_muscle.get(muscle)
+        if not group:
+            continue
+        lines.append(f"## {MUSCLE_TEXT[muscle].capitalize()} (primary_muscle: {muscle.value})")
+        for e in group:
+            secondary = ",".join(m.value for m in e.secondary_muscles) or "-"
+            lines.append(
+                f"- {e.name} | kind={e.kind.value} region={e.region.value} "
+                f"direction={e.direction.value} secondary_muscles=[{secondary}] "
+                f"mechanic={e.mechanic.value} equipment={e.equipment.value} "
+                f"level={e.level.value} | {e.description}"
+            )
+    return "\n".join(lines)
+
+
 def build_prompt(
     profile: Profile,
     goal: Goal,
     level: Level,
     previous: str | None = None,
     days: int | None = None,
+    candidates: Sequence[CatalogExercise] | None = None,
 ) -> str:
+    """`candidates`: los ejercicios que recuperó `retrieve.py`. Sin ellos, va el catálogo entero."""
     text = _template().replace("{{PERFIL}}", profile_block(profile, goal, level))
     text = text.replace("{{DIAS}}", days_text(days))
+    text = text.replace(
+        "{{CATALOGO}}", catalog_block(load_catalog() if candidates is None else candidates)
+    )
     return text.replace("{{SEMANA_ANTERIOR}}", previous or FIRST_WEEK)

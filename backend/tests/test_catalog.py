@@ -106,3 +106,49 @@ ESTABILIZADORES = [
 def test_los_estabilizadores_no_figuran_como_secundarios(ejercicios, ejercicio_id, musculo):
     ejercicio = next(e for e in ejercicios if e["id"] == ejercicio_id)
     assert musculo not in ejercicio["secondary_muscles"]
+
+
+# --- Versión 2: datos para el RAG (descripción y alias) ---
+
+
+def _normalizar(texto: str) -> str:
+    """Igual que `normalize_name` de plan_writer: minúsculas y sin tildes."""
+    import unicodedata
+
+    sin_tildes = "".join(
+        c for c in unicodedata.normalize("NFKD", texto) if not unicodedata.combining(c)
+    )
+    return re.sub(r"\s+", " ", sin_tildes).strip().lower()
+
+
+def test_cada_ejercicio_tiene_descripcion_y_alias(ejercicios):
+    for e in ejercicios:
+        assert len(e["description"].strip()) >= 20, e["id"]
+        assert isinstance(e["aliases"], list) and e["aliases"], e["id"]
+        assert all(a.strip() for a in e["aliases"]), e["id"]
+
+
+def test_ningun_nombre_ni_alias_apunta_a_dos_ejercicios(ejercicios):
+    """El código busca por nombre o alias: si dos ejercicios lo comparten, el resultado es ambiguo."""
+    dueno: dict[str, str] = {}
+    choques = []
+    for e in ejercicios:
+        for texto in [e["name"], *e["aliases"]]:
+            clave = _normalizar(texto)
+            if clave in dueno and dueno[clave] != e["id"]:
+                choques.append((texto, dueno[clave], e["id"]))
+            dueno.setdefault(clave, e["id"])
+    assert choques == []
+
+
+def test_hay_mas_de_un_ejercicio_por_grupo_y_nivel_para_que_la_ia_elija(ejercicios):
+    for grupo in BIG_GROUPS:
+        del_grupo = [e for e in ejercicios if e["primary_muscle"] == grupo]
+        assert len(del_grupo) >= 8, grupo
+    for grupo in ("calves", "core", "biceps", "triceps"):
+        assert len([e for e in ejercicios if e["primary_muscle"] == grupo]) >= 4, grupo
+
+
+def test_hay_variedad_de_equipamiento(ejercicios):
+    for equipo in ("barbell", "dumbbell", "machine", "cable", "bodyweight", "band", "kettlebell"):
+        assert any(e["equipment"] == equipo for e in ejercicios), equipo
