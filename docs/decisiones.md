@@ -377,13 +377,45 @@ La IA arma la semana **solo con ejercicios del catálogo** (`backend/app/ai/exer
 - **Por qué:** *(completar)*
 - **Descartaste:** que la IA elija libremente y la tabla `exercises` crezca sola.
 
+### 59. Las series por ejercicio se quedan como dicen las fuentes
+R4 (fuerza) pide 2 a 3 series por ejercicio, R24 (mantenerme activo) 2 y R25 (condición general) 2 a 3. Se descarta la idea de pasar a "3 a 4". El código y el prompt ya trabajan así: no cambia nada. En una prueba con Gemini real, masa salió casi siempre con 3 o 4 series (por el volumen semanal de R3) y fuerza con la mitad de los ejercicios en 2.
+- **Origen:** tuya (2026-10-14): "dejá como dicen las fuentes, ignorá mi idea de 3 o 4".
+- **Por qué:** *(completar)*
+- **Descartaste:** subir el piso a 3 series por ejercicio (opciones A, B y C del 2026-10-10).
+
+### 60. Músculo secundario (R5b): solo sinergistas principales
+Un músculo figura como secundario de un ejercicio solo si es **sinergista principal** del movimiento; los **estabilizadores** (el core en una sentadilla, la espalda baja en un peso muerto rumano) **no suman**. Ya está aplicado al catálogo de ejercicios (16 etiquetas).
+- **Origen:** tuya (2026-10-14): aprobaste mi recomendación.
+- **Por qué:** *(completar)* Es un criterio del proyecto, sin fuente publicada y de certeza baja; una persona con formación en educación física lo revisa más adelante.
+- **Descartaste:** contar también a los estabilizadores como indirectos.
+
+### 61. R20, R24 y R25 cuentan las series con indirectas a 0,5
+Las tres reglas comparan las series semanales por grupo grande contando las **indirectas a 0,5**, igual que R3 (R5). Es como ya lo hace el código; solo avisan.
+- **Origen:** tuya (2026-10-14): aprobaste mi recomendación.
+- **Por qué:** *(completar)* Una sola forma de contar para todos los objetivos; las fuentes de esas reglas son una síntesis de baja certeza.
+- **Descartaste:** comparar contra series directas solas.
+
+### 62. R30 (semana liviana): no implementada
+La regla queda en la tabla, marcada **"no implementada"**. No tiene disparador: depende del esfuerzo por serie (#48), que está pospuesto (decisión 37). **No se define cuánto reducir** el volumen hasta que exista esa señal: no hay evidencia que respalde una cifra (Bell 2023 sin acuerdo; Coleman 2024, una descarga programada no mejoró nada). Si #48 se hace, se vuelve a mirar: la IA propondría mantener la carga y bajar series, y el usuario decide.
+- **Origen:** tuya (2026-10-14): "ponele no implementada".
+- **Por qué:** *(completar)*
+- **Descartaste:** inventar una cifra de reducción hoy; sacar la regla (renumerar R31 a R35 toca muchos archivos).
+
+### 63. Avisos al usuario: no por ahora
+Los avisos suaves ("completaste todos los días, ¿cerrar la semana?") quedan en las ideas futuras de `docs/backlog.md`. El caso principal ya está resuelto: con todos los días completados, "Cerrar semana" pasa a ser el botón oscuro principal (decisión 57).
+- **Origen:** tuya (2026-10-14): aprobaste mi recomendación.
+- **Por qué:** *(completar)*
+- **Descartaste:** construir avisos en esta etapa.
+
+### 64. Ajuste de ejercicios repetidos: no se hace
+Si el mismo ejercicio cae en dos días de la semana, no se ajusta el segundo con lo que pasó en el primero, ni con IA ni con una regla simple. Coherente con las decisiones 35 y 45: el plan no cambia durante la semana, y lo que pasó viaja a la IA al armar la semana siguiente. También queda cerrado "dónde va el pedido de ajuste", que dependía del ajuste conversando (#29), descartado en la 45.
+- **Origen:** tuya (2026-10-14): aprobaste mi recomendación.
+- **Por qué:** *(completar)*
+- **Descartaste:** ajustar el plan a mitad de semana, con IA o con una regla simple.
+
 ## Decisiones abiertas
 
-Todavía sin decidir; el detalle está en [`flujo-app.md`](flujo-app.md):
-
-- **Cuánto reducir el volumen** en la semana liviana (R30).
-- Avisos al usuario.
-- Ajuste de ejercicios repetidos en la semana: ¿lo hace la IA o una regla simple?
+Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.
 
 Ya resueltas: **el plan no se edita a mano** (decisión 35); los **botones Cerrar semana y Generar** (cerrar en la semana activa con aviso de los días sin completar, generar en la portada); el **login** se hizo en la semana 3 (decisión 39); **reabrir un día completado** se puede (decisión 33 y "Reabrir día"); la confirmación al cerrar con días sin hacer queda definida en la tarea #47.
 

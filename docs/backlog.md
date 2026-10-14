@@ -102,7 +102,7 @@ La definición completa de cada una está en su issue de GitHub.
 | ~~Elegir camino A o B (#43)~~ y ~~formulario de rutina actual (#44)~~ | No se hacen: se descartó el camino B (decisión 40) | — |
 | ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con la semana nueva | — |
 
-**Decisiones pendientes del usuario:** cuántas series por ejercicio (hoy se admiten 2; quiere "3 a 4": opciones A, B o C), si R20, R24 y R25 comparan contra series directas solas o con indirectas, aprobar R5b (músculo secundario), la consulta al profesor sobre si el RAG con pgvector de #52 es lo que se espera, cuánto reducir el volumen en la semana liviana (R30), los avisos al usuario, el ajuste de ejercicios repetidos. (Resueltos: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
+**Decisiones pendientes del usuario:** consultar al profesor si el RAG con pgvector de #52 es lo que se espera. (Cerradas el 2026-10-14, decisiones 59 a 64: series por ejercicio, R5b, R20/R24/R25, R30 "no implementada", avisos y ejercicios repetidos. Resueltos antes: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
 
 ## Ideas para después (fuera del MVP, sin definir)
 

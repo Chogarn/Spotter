@@ -229,10 +229,10 @@ Resueltos:
 - **Dónde van Cerrar semana y Generar:** cerrar en la pantalla de la semana activa (con aviso de los días sin completar, tarea #47) y generar en la portada.
 - **Reabrir un día completado:** se puede, con el botón **Reabrir día** (ver "Día completado"). Lo mismo con un ejercicio cerrado: **Reabrir ejercicio**.
 
-Todavía no están decididos:
+Cerrados el 2026-10-14:
 
-- **Avisos al usuario.** Se propone, a futuro, algo suave que sugiera sin hacer nada solo (por ejemplo, "completaste todos los días, ¿cerrar la semana?"). Ver las ideas en `docs/backlog.md`.
-- **Ajuste de ejercicios repetidos.** ¿Lo hace la IA (una llamada por día completado) o una regla simple sin IA, más barata y predecible?
+- **Avisos al usuario:** no por ahora (decisión 63). Con todos los días completados, "Cerrar semana" ya pasa a ser el botón principal. Las ideas siguen en `docs/backlog.md`.
+- **Ajuste de ejercicios repetidos:** no se hace (decisión 64). El plan no cambia durante la semana; lo que pasó viaja a la IA al armar la siguiente.
 
 ## Efectos sobre el modelo de datos
 
