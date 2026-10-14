@@ -48,7 +48,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [ ] Nota de cómo me sentí al terminar la sesión (botones y texto). **Pospuesta**: decisión 37 `backend` `frontend` (#46)
 - [x] Comentario escrito del usuario al cerrar la semana (cómo se sintió), que la IA lee al armar la semana siguiente `backend` `ia` `frontend` (#50)
 - [ ] Esfuerzo por serie (1 a 10) al editar lo realizado. **Pospuesto**: decisión 37 `backend` `frontend` (#48)
-- [ ] Catálogo de ejercicios para la IA (RAG): la IA arma la semana solo con ejercicios de `backend/app/ai/exercises.json` (borrador de 84, ya subido). **Pendiente de una consulta al profesor** (si RAG implica vectores y qué se espera recuperar); no se construye antes `backend` `ia` (#52)
+- [x] Catálogo de ejercicios para la IA (RAG): la IA arma la semana solo con ejercicios de `backend/app/ai/exercises.json` (118, aprobado el 2026-10-14). Embeddings de Gemini en PostgreSQL con pgvector, recuperación por nivel y similitud, y el código rechaza lo que no esté en el catálogo. Decisión 58. Pendiente: consultar al profesor si es lo que se espera de RAG `backend` `ia` (#52)
 - [ ] Semáforo de dolor (R31): zona y gravedad de 0 a 10 en la nota del día. **Pospuesto**: decisión 37; depende de #46 `backend` `frontend` `ia` (#51)
 - ~~Elegir camino A o B al empezar (#43) y formulario de rutina actual, camino B (#44)~~ **No se hacen**: se descartó el camino B (decisión 40); el nivel y el objetivo se eligen al generar
 - [x] Refactor y mejoras de UX: shadcn/ui y Tailwind en versión básica (sin estilos propios todavía), con componentes compartidos para el error y el recuadro de confirmación. Decisión 38; probado en una copia temporal `frontend` (#31)
@@ -90,7 +90,7 @@ La definición completa de cada una está en su issue de GitHub.
 | Nota de cómo me sentí (#46), pospuesta | Al tocar "Día completado" en la vista del día | Nada |
 | Esfuerzo por serie (#48), pospuesto | Campo opcional al tocar "Editar" en una serie | Nada |
 | Semáforo de dolor (#51), pospuesto | Zona y gravedad en la nota del día, al elegir "con dolor" | #46 |
-| Catálogo de ejercicios / RAG (#52), pendiente de consulta | Cambia cómo se arma la propuesta al tocar "Generar rutina"; no es una pantalla | Respuesta del profesor y revisión del catálogo |
+| Catálogo de ejercicios / RAG (#52), hecho | Cambia cómo se arma la propuesta al tocar "Generar rutina"; no es una pantalla | Consulta al profesor y revisión de una persona de educación física |
 | Antes y después en las propuestas (#49) | En la vista previa de la propuesta (`/rutina/propuesta/{id}`) cuando es una semana nueva | Semana nueva (#27, hecha) |
 | ~~Diseño "Disco", tema (#53)~~ | Hecho: toda la app: cambian colores, fuentes y formas sin cambiar qué hace cada pantalla | Nada |
 | ~~Navegación y pantalla Entrenar (#54)~~ | Hecho: barra fija abajo en todas las pantallas con sesión; "Entrenar" reemplaza la portada actual | #53 |
@@ -102,7 +102,7 @@ La definición completa de cada una está en su issue de GitHub.
 | ~~Elegir camino A o B (#43)~~ y ~~formulario de rutina actual (#44)~~ | No se hacen: se descartó el camino B (decisión 40) | — |
 | ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con la semana nueva | — |
 
-**Decisiones pendientes del usuario:** cuántas series por ejercicio (hoy se admiten 2; quiere "3 a 4": opciones A, B o C), si R20, R24 y R25 comparan contra series directas solas o con indirectas, aprobar R5b (músculo secundario), la consulta al profesor sobre el catálogo y los vectores (#52), cuánto reducir el volumen en la semana liviana (R30), los avisos al usuario, el ajuste de ejercicios repetidos. (Resueltos: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
+**Decisiones pendientes del usuario:** cuántas series por ejercicio (hoy se admiten 2; quiere "3 a 4": opciones A, B o C), si R20, R24 y R25 comparan contra series directas solas o con indirectas, aprobar R5b (músculo secundario), la consulta al profesor sobre si el RAG con pgvector de #52 es lo que se espera, cuánto reducir el volumen en la semana liviana (R30), los avisos al usuario, el ajuste de ejercicios repetidos. (Resueltos: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
 
 ## Ideas para después (fuera del MVP, sin definir)
 
