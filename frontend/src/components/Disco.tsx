@@ -2,15 +2,19 @@ import { cn } from "cn";
 
 // Un disco de pesas (decisión 41): marca el estado de una serie, un ejercicio o un día.
 // Rojo lleno: serie o ejercicio hecho. Verde lleno: día completado (en cualquier semana, en curso
-// o cerrada; decisión 49). Borde rojo: día a medias. Punteado: falta.
-export type EstadoDisco = "hecho" | "completo" | "parcial" | "pendiente";
+// o cerrada; decisión 49). Borde rojo: día a medias. Borde amarillo: aviso (no llegaste a lo
+// planificado; no es un error). Punteado: falta.
+export type EstadoDisco = "hecho" | "completo" | "parcial" | "aviso" | "pendiente";
 
 export function Disco({
   estado,
+  hoy = false,
   className,
   children,
 }: {
   estado: EstadoDisco;
+  // El día que toca hoy: aro azul (el azul es la carga y lo que se está por hacer).
+  hoy?: boolean;
   className?: string;
   children?: React.ReactNode;
 }) {
@@ -22,7 +26,9 @@ export function Disco({
         estado === "hecho" && "bg-disco-rojo",
         estado === "completo" && "bg-disco-verde",
         estado === "parcial" && "border-disco-rojo",
+        estado === "aviso" && "border-disco-amarillo bg-card",
         estado === "pendiente" && "border-dashed border-muted-foreground/60 text-muted-foreground",
+        hoy && "border-solid border-disco-azul",
         className,
       )}
     >

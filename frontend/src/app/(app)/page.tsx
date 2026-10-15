@@ -96,7 +96,7 @@ export default function Inicio() {
             </p>
             <div className="mt-2 mb-4 flex items-center gap-1.5">
               {semana.days.map((d) => (
-                <Disco key={d.day_index} estado={estadoDia[d.state]} />
+                <Disco key={d.day_index} estado={estadoDia[d.state]} hoy={d.day_index === proximo?.day_index} />
               ))}
               <span className="ml-1.5 text-sm text-muted-foreground">
                 {hechos} de {semana.days.length} días

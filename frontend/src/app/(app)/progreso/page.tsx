@@ -4,7 +4,7 @@ import { MessageSquare, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Disco, estadoDia } from "@/components/Disco";
+import { Disco, type EstadoDisco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Flecha } from "@/components/Flecha";
 import { PestanasProgreso } from "@/components/PestanasProgreso";
@@ -151,22 +151,25 @@ export default function Progreso() {
   );
 }
 
-// "a, b y c": una lista de nombres dentro de una frase.
-function enFrase(nombres: string[]): string {
-  return nombres.length <= 1 ? (nombres[0] ?? "") : `${nombres.slice(0, -1).join(", ")} y ${nombres.at(-1)}`;
-}
+// Cómo se dibuja cada señal de un ejercicio (las calcula el servidor, las mismas que recibe la IA).
+// Un disco por ejercicio, con el vocabulario del resto de la app: verde superaste, rojo cumpliste,
+// borde amarillo no llegaste (no es un error: la IA mantiene el peso) y punteado sin registrar.
+const SENALES: Record<string, { estado: EstadoDisco; texto: string }> = {
+  "superó": { estado: "completo", texto: "superaste" },
+  "cumplió": { estado: "hecho", texto: "como estaba" },
+  "no llegó": { estado: "aviso", texto: "no llegaste" },
+  "sin registrar": { estado: "pendiente", texto: "sin registrar" },
+};
 
-// "Cómo te fue" (versión C): solo lo destacado. Dos números (superaste y no llegaste) y dos frases;
-// lo que salió como estaba planificado no ocupa lugar. Las señales son las mismas que recibe la IA.
-// Amarillo y no rojo para "no llegaste": no es un error (la IA mantiene el peso) y el rojo de la
-// app significa "hecho".
+const LEYENDA: { estado: EstadoDisco; texto: string }[] = [
+  { estado: "completo", texto: "superaste" },
+  { estado: "hecho", texto: "cumpliste" },
+  { estado: "aviso", texto: "no llegaste" },
+  { estado: "pendiente", texto: "sin registrar" },
+];
+
 function ComoTeFue({ ejercicios }: { ejercicios: WeekSummaryDetail["exercises"] }) {
-  const con = (senal: string) => ejercicios.filter((e) => e.signal === senal).map((e) => e.name);
-  const supero = con("superó");
-  const noLlego = con("no llegó");
-  const cumplio = con("cumplió");
-  const sinRegistrar = con("sin registrar");
-  const nada = sinRegistrar.length === ejercicios.length;
+  const nada = ejercicios.every((e) => e.signal === "sin registrar");
 
   return (
     <section className="mb-3 rounded-2xl bg-card p-4">
@@ -175,37 +178,27 @@ function ComoTeFue({ ejercicios }: { ejercicios: WeekSummaryDetail["exercises"] 
         <p className="m-0 text-muted-foreground">Esta semana no registraste series.</p>
       ) : (
         <>
-          <div className="mb-3 grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-disco-verde/15 px-2 py-2.5 text-center">
-              <p className="m-0 font-heading text-3xl leading-none font-bold text-disco-verde-texto">{supero.length}</p>
-              <p className="m-0 mt-1 text-xs text-muted-foreground">superaste</p>
-            </div>
-            <div className="rounded-xl bg-disco-amarillo/30 px-2 py-2.5 text-center">
-              <p className="m-0 font-heading text-3xl leading-none font-bold text-disco-amarillo-texto">{noLlego.length}</p>
-              <p className="m-0 mt-1 text-xs text-muted-foreground">no llegaste</p>
-            </div>
-          </div>
-          {supero.length > 0 && (
-            <p className="mt-0 mb-1.5">
-              <span aria-hidden="true">↑ </span>
-              <span className="font-medium">Subiste en</span> {enFrase(supero)}.
-            </p>
-          )}
-          {noLlego.length > 0 && (
-            <p className="mt-0 mb-1.5">
-              <span aria-hidden="true">↓ </span>
-              <span className="font-medium">Te costó</span> {enFrase(noLlego)}.
-            </p>
-          )}
-          <p className="m-0 text-sm text-muted-foreground">
-            {supero.length === 0 && noLlego.length === 0
-              ? "Hiciste todo como estaba planificado."
-              : cumplio.length > 0
-                ? "El resto, como estaba planificado."
-                : ""}
-            {sinRegistrar.length > 0 &&
-              ` ${sinRegistrar.length} ${sinRegistrar.length === 1 ? "ejercicio quedó" : "ejercicios quedaron"} sin registrar.`}
-          </p>
+          <ul className="m-0 list-none p-0">
+            {ejercicios.map((e, i) => {
+              const senal = SENALES[e.signal] ?? SENALES["sin registrar"];
+              return (
+                <li key={i} className="flex items-center gap-3 border-t border-border py-2 first:border-t-0">
+                  <Disco estado={senal.estado} />
+                  <span className="min-w-0 flex-1 font-heading text-lg leading-tight font-semibold">{e.name}</span>
+                  <span className="shrink-0 text-sm text-muted-foreground">{senal.texto}</span>
+                </li>
+              );
+            })}
+          </ul>
+          {/* La leyenda: qué significa cada disco. */}
+          <ul className="mx-0 mt-3 mb-0 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-xs text-muted-foreground">
+            {LEYENDA.map((l) => (
+              <li key={l.texto} className="flex items-center gap-1.5">
+                <Disco estado={l.estado} className="size-3.5 border-2" />
+                {l.texto}
+              </li>
+            ))}
+          </ul>
         </>
       )}
     </section>

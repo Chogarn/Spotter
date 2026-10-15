@@ -18,7 +18,7 @@ texto en Barlow.
 |---|---|---|---|
 | `disco-tinta` | `#172033` | texto, botón principal, "hoy" | relleno y texto |
 | `disco-rojo` | `#d7263d` | serie o ejercicio hecho, semana en curso, logo | **relleno**, nunca como error |
-| `disco-azul` | `#1f5fbf` | la carga (kg), selección, foco | texto grande, bordes, relleno |
+| `disco-azul` | `#1f5fbf` | la carga (kg), **el día que toca hoy** (aro), **el récord**, selección, foco | texto grande, aros, relleno |
 | `disco-amarillo` | `#f2c230` | avisos y propuesta pendiente | borde o relleno |
 | `disco-verde` | `#2e9e5b` | día completado, cumplido, semana cerrada | **relleno**, no texto |
 | `disco-verde-texto` | `#1c7040` | verde para texto | texto chico |
@@ -36,6 +36,8 @@ texto en Barlow.
 | Día completado | disco **verde** lleno | semana, Inicio, Rutinas, Progreso |
 | Día a medias | borde rojo, sin relleno | semana, Rutinas |
 | Pendiente | borde punteado gris | semana, Rutinas |
+| Hoy (el próximo día) | aro **azul** sólido | Inicio y Entrenar |
+| No llegaste | borde **amarillo** (aviso, no error) | Progreso |
 
 ### Tipografía
 - **Títulos** (`h1`, `h2`): Barlow Condensed 700, interlineado 1.05. `h1` global de 2.5 rem; cada
@@ -145,12 +147,18 @@ habitual para tocar con el dedo es 44 px. Los botones grandes ya llegan; los de 
 `base`) en lugar de las 19 combinaciones `h-11`/`h-12` + `text-base` armadas a mano; los
 botones "Generar la semana siguiente" y "Empezar una rutina nueva" de Inicio, que medían 32 px,
 ahora usan `xl`; y un solo componente de tarjeta de acceso (`TarjetaAcceso.tsx`, enlace o botón) en
-lugar de dos copias. Lo que sigue es lo que falta:
+lugar de dos copias.
+
+**Hecho el 2026-10-15 (hallazgo 2):** Progreso y Estadísticas con discos. En "Cómo te fue" cada
+ejercicio lleva su disco (verde superaste, rojo cumpliste, borde amarillo no llegaste, punteado sin
+registrar) con su leyenda; en el gráfico, las rutinas se separan con fondos grises (sin rojo) y los
+puntos son discos con borde de tinta, con el récord en **azul**. `Disco.tsx` suma el estado `aviso`.
+El perfil lleva franja oscura arriba, como Inicio, y los datos siguen en tarjetas (sin discos, por decisión del usuario). Queda pendiente mostrar cuánto subió cada ejercicio ("subiste 2,5 kg"): el servidor hoy solo manda la
+señal, no la diferencia. Lo que sigue es lo que falta:
 
 1. ~~**Fijar los botones** (hallazgos 1 y 3)~~ — hecho (arriba). Falta decidir si los accesos de Inicio
    llevan algún detalle de disco (hoy son tarjetas blancas con ícono de línea).
-2. **Rediseñar Progreso y Estadísticas con discos** (hallazgo 2), con maqueta antes: discos para
-   "superaste" y "no llegaste", y el gráfico sin el rojo como fondo.
+2. ~~**Rediseñar Progreso y Estadísticas con discos**~~ — hecho (arriba).
 3. **Escala de títulos y de espacios** (4 y 5): tres alturas de arriba y cuatro tamaños de título
    con nombre, y reemplazar los valores sueltos.
 4. **Un componente de recuadro importante** (7) y retirar `Card` y `Badge` (8).

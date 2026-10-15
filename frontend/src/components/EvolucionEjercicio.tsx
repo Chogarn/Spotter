@@ -15,12 +15,11 @@ const QUE_MIDE: Record<ExerciseTimeline["unit"], string> = {
   min: "Minutos de la semana",
 };
 
-// Un color de fondo suave por rutina, en el orden en que aparecen (decisión 69).
+// Un fondo gris por rutina, alternando dos tonos, en el orden en que aparecen (decisión 69). Sin
+// colores: el rojo, el verde y el amarillo de la app significan estados (hecho, cumplido, aviso).
 const FONDOS = [
-  { banda: "fill-disco-amarillo/25", pastilla: "bg-disco-amarillo/40" },
-  { banda: "fill-disco-azul/15", pastilla: "bg-disco-azul/20" },
-  { banda: "fill-disco-verde/20", pastilla: "bg-disco-verde/30" },
-  { banda: "fill-disco-rojo/15", pastilla: "bg-disco-rojo/20" },
+  { banda: "fill-muted", pastilla: "bg-muted" },
+  { banda: "fill-border/30", pastilla: "bg-border/40" },
 ];
 
 // "22/10": en el eje alcanza con día y mes (el año completo va en la versión para lectores).
@@ -196,14 +195,14 @@ function Linea({ historial }: { historial: ExerciseTimeline }) {
         {lineasGuia.map((v, i) => (
           <g key={i}>
             <line x1={izq} x2={ancho - der} y1={y(v)} y2={y(v)} className="stroke-border" strokeWidth="1" />
-            <text x={izq - 6} y={y(v) + 4} textAnchor="end" className="fill-muted-foreground text-[10px]">
+            <text x={izq - 6} y={y(v) + 4} textAnchor="end" className="fill-muted-foreground text-[11px]">
               {numero(v)}
             </text>
           </g>
         ))}
         {puntos.map((p, i) =>
           mostrarFecha(i) ? (
-            <text key={p.week_id} x={x(i)} y={alto - 8} textAnchor="middle" className="fill-muted-foreground text-[10px]">
+            <text key={p.week_id} x={x(i)} y={alto - 8} textAnchor="middle" className="fill-muted-foreground text-[11px]">
               {p.week_start ? diaYMes(p.week_start) : `S${p.number}`}
             </text>
           ) : null,
@@ -227,9 +226,9 @@ function Linea({ historial }: { historial: ExerciseTimeline }) {
               <circle
                 cx={x(i)}
                 cy={y(p.value)}
-                r={i === indiceRecord ? 7 : 4.5}
-                className={i === indiceRecord ? "fill-disco-amarillo stroke-disco-tinta" : "fill-disco-rojo stroke-card"}
-                strokeWidth="2"
+                r={i === indiceRecord ? 8 : 6}
+                className={i === indiceRecord ? "fill-disco-azul stroke-disco-tinta" : "fill-disco-rojo stroke-disco-tinta"}
+                strokeWidth="2.5"
               />
               {/* Área para tocar, más grande que el punto. */}
               <circle

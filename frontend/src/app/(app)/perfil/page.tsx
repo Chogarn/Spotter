@@ -144,30 +144,38 @@ export default function PerfilPage() {
 
   const form = guardado;
   const nombre = form.name || usuario?.name || "";
-  const lapiz = (t: Tarjeta, etiqueta: string) => (
+  const lapiz = (t: Tarjeta, etiqueta: string, className?: string) => (
     <Button size="icon-lg" variant="outline" type="button" onClick={() => setEditando(t)}
-      aria-label={`Cambiar ${etiqueta}`}>
+      className={className} aria-label={`Cambiar ${etiqueta}`}>
       <Pencil />
     </Button>
   );
 
   return (
-    <main className="mx-auto max-w-xl px-4 pt-8">
-      {/* Encabezado: inicial, nombre grande y correo. */}
-      <div className="mb-5 flex items-center gap-3">
+    <main className="flex flex-1 flex-col">
+      {/* Franja oscura como la de Inicio, con el borde de un disco asomando: el nombre grande, el
+          correo y el lápiz para cambiarlo. */}
+      <section className="relative overflow-hidden bg-primary px-4 pt-8 pb-7 text-primary-foreground">
+        <div className="mx-auto max-w-xl">
+          {usuario && <p className="m-0 truncate text-sm text-primary-foreground/70">{usuario.email}</p>}
+          <div className="mt-1 flex items-center gap-3">
+            <h1 className="my-0 min-w-0 truncate text-5xl">{nombre || "Tu nombre"}</h1>
+            <div className="relative z-10 shrink-0">{lapiz(
+                "nombre",
+                "el nombre",
+                // Sobre la franja oscura: transparente con borde claro, como los botones de la bienvenida.
+                "border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground",
+              )}
+            </div>
+          </div>
+        </div>
         <span
           aria-hidden="true"
-          className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary font-heading text-3xl font-bold text-primary-foreground"
-        >
-          {nombre.trim().charAt(0).toUpperCase() || "?"}
-        </span>
-        <div className="min-w-0 flex-1">
-          <h1 className="my-0 truncate text-4xl">{nombre || "Tu nombre"}</h1>
-          {usuario && <p className="m-0 truncate text-sm text-muted-foreground">{usuario.email}</p>}
-        </div>
-        {lapiz("nombre", "el nombre")}
-      </div>
+          className="pointer-events-none absolute -top-10 -right-10 size-36 rounded-full border-[18px] border-disco-rojo"
+        />
+      </section>
 
+      <div className="mx-auto w-full max-w-xl px-4 pt-5">
       <section className="mb-3 rounded-2xl bg-card p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="my-0 text-xl">Tu cuerpo</h2>
@@ -207,6 +215,7 @@ export default function PerfilPage() {
           <LogOut aria-hidden="true" />
           Cerrar sesión
         </Button>
+      </div>
       </div>
     </main>
   );

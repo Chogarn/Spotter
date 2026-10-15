@@ -159,6 +159,11 @@ Ideas anotadas durante el diseño. No son tareas todavía: antes de convertirlas
   - A definir: qué cuenta como día cumplido, como semana cumplida y como mes cumplido; qué rompe una racha; dónde se muestra.
   - Punto a decidir: la racha diaria debería contar los **días planificados**, no los días del calendario, para que un día de descanso no la rompa.
   - Se podría calcular con datos que ya existen (sesiones terminadas y series reales), sin tablas nuevas.
+- **Calendario de entrenamientos** (idea del usuario, 2026-10-15). Un calendario donde se ven marcados los días en que se entrenó, para ver de un vistazo qué días de la semana (y del mes) se cumplió.
+  - Los días del plan se llaman "Día 1, Día 2" y no son del calendario (decisión de producto); el calendario mostraría las **fechas reales** en que se completó cada día (`workout_sessions.finished_at`, que ya se guarda), sin cambiar ese criterio.
+  - A definir: dónde vive (una tercera pestaña de Progreso, o en Inicio), si es vista de semana, de mes o las dos, cómo se marca un día entrenado (con el disco verde de "completado", igual que en el resto) y qué muestra al tocar un día (qué día del plan fue y cuánto duró).
+  - Punto a decidir: qué hacer con un día completado que se reabrió después, y con dos días completados el mismo día del calendario.
+  - Se puede construir con datos que ya existen, sin tablas nuevas ni IA; lo nuevo sería un endpoint de lectura de las fechas. Se relaciona con la idea de rachas (arriba): el calendario sería su vista natural.
 - **Logros y récords personales** (relacionado con las rachas): marcas como "mejor peso en press banca".
 - **Entrada por voz** para contar cómo se sintió el usuario (hoy solo texto y botones rápidos).
 - **Notificaciones al usuario.** Avisos que ayudan a seguir el plan, por ejemplo: "Hoy te toca el Día 3", "Tenés pendiente el Día 2" o "Te salteaste el Día 4".

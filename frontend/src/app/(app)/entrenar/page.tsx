@@ -73,7 +73,7 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
       </p>
       <div className="mt-2 mb-5 flex items-center gap-1.5">
         {semana.days.map((d) => (
-          <Disco key={d.day_index} estado={estadoDia[d.state]} />
+          <Disco key={d.day_index} estado={estadoDia[d.state]} hoy={d.day_index === proximo?.day_index} />
         ))}
         <span className="ml-1.5 text-sm text-muted-foreground">
           {hechos} de {semana.days.length} días
@@ -116,7 +116,7 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
               href={`/semanas/${semana.id}/dia/${d.day_index}`}
               className="flex items-center gap-3 rounded-xl bg-card px-4 py-3 no-underline hover:bg-muted"
             >
-              <Disco estado={estadoDia[d.state]} />
+              <Disco estado={estadoDia[d.state]} hoy={d.day_index === proximo?.day_index} />
               <span className="flex-1">
                 <span className="font-medium">Día {d.day_index}</span> · {d.title}
               </span>
