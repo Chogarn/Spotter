@@ -12,11 +12,13 @@ from app.ai.generate import (
     ProfileMissing,
     generate_proposal,
 )
+from app.ai.catalog import find
 from app.ai.changes import compare
 from app.ai.history import last_closed_week
 from app.ai.plan_writer import active_week, write_plan
 from app.ai.routine import RoutineProposal
-from app.ai.rules import allowed_days, estimate_day_minutes
+from app.ai.rules import allowed_days, estimate_day_minutes, validate_routine
+from app.ai.swap import SwapError, alternatives, swap
 from app.db import get_db
 from app.deps import get_current_user
 from app.enums import Goal, Level, ProposalKind, ProposalStatus
@@ -24,11 +26,13 @@ from app.models import PlanProposal, Routine, User
 from app.routines import create_routine
 from app.routers.weeks import routine_weeks
 from app.schemas import (
+    AlternativeOut,
     ExerciseChangeOut,
     GenerateIn,
     ProposalChangesOut,
     ProposalOut,
     SetShapeOut,
+    SwapIn,
     WarningOut,
 )
 
@@ -170,6 +174,82 @@ def get_changes(
         ],
         removed=changes.removed,
     )
+
+
+@router.get("/{proposal_id}/alternatives", response_model=list[AlternativeOut])
+def get_alternatives(
+    proposal_id: int,
+    name: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[AlternativeOut]:
+    """Los ejercicios del catálogo por los que se puede cambiar `name` (decisión 65)."""
+    proposal = get_own_proposal(db, user, proposal_id)
+    require_pending(proposal)
+    changes = proposal.proposed_changes
+    routine = RoutineProposal.model_validate(changes["routine"])
+    try:
+        options = alternatives(routine, name, Goal(changes["goal"]), Level(changes["level"]))
+    except SwapError as error:
+        raise HTTPException(status_code=error.status, detail=str(error)) from None
+    return [
+        AlternativeOut(
+            id=c.id,
+            name=c.name,
+            description=c.description,
+            equipment=c.equipment.value,
+            level=c.level.value,
+            mechanic=c.mechanic.value,
+        )
+        for c in options
+    ]
+
+
+@router.post("/{proposal_id}/swap", response_model=ProposalOut)
+def swap_exercise(
+    proposal_id: int,
+    data: SwapIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> ProposalOut:
+    """Cambia un ejercicio de la propuesta por otro del catálogo, en todos los días donde está.
+
+    Sin IA. Solo en la propuesta pendiente: la semana ya aceptada no cambia (decisión 45).
+    """
+    proposal = get_own_proposal(db, user, proposal_id)
+    require_pending(proposal)
+    changes = proposal.proposed_changes
+    goal, level = Goal(changes["goal"]), Level(changes["level"])
+    routine = RoutineProposal.model_validate(changes["routine"])
+    try:
+        new_routine = swap(routine, data.from_name, data.to_id, goal, level)
+    except SwapError as error:
+        raise HTTPException(status_code=error.status, detail=str(error)) from None
+
+    # Se vuelven a comprobar las reglas con la rutina nueva. Los ejercicios que ya venían de la
+    # semana anterior (fuera del catálogo) se permiten, igual que al generar.
+    legacy = [e.name for d in new_routine.days for e in d.exercises if find(e.name) is None]
+    result = validate_routine(new_routine, goal, level, changes.get("days"), catalog_extra_names=legacy)
+    if result.errors:
+        raise HTTPException(
+            status_code=422,
+            detail="Con ese cambio la rutina rompe una regla: "
+            + "; ".join(f"{e.rule}: {e.message}" for e in result.errors),
+        )
+
+    # Los avisos de saltos de peso (R9) siguen valiendo salvo el del ejercicio que se fue.
+    kept = [
+        w
+        for w in changes.get("warnings", [])
+        if w["rule"] == "R9" and not w["message"].startswith(f"{data.from_name}:")
+    ]
+    proposal.proposed_changes = {
+        **changes,
+        "routine": new_routine.model_dump(mode="json"),
+        "warnings": kept + [{"rule": w.rule, "message": w.message} for w in result.warnings],
+    }
+    db.commit()
+    return to_out(proposal)
 
 
 @router.post("/{proposal_id}/accept", response_model=ProposalOut)

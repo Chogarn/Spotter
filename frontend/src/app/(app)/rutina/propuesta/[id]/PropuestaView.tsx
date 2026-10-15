@@ -8,6 +8,7 @@ import { use, useEffect, useState } from "react";
 import { readError, type Proposal, type ProposalChanges, apiFetch } from "@/lib/api";
 import { claveEjercicio, ListaCambios } from "@/components/Cambios";
 import { BackButton } from "@/components/BackButton";
+import { CambiarEjercicio } from "@/components/CambiarEjercicio";
 import { ExerciseRow } from "@/components/ExerciseRow";
 import { Flecha } from "@/components/Flecha";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,8 @@ export default function PropuestaView({
   // El día a la vista (uno por vez) y la tarjeta desplegada de ese día.
   const [diaActual, setDiaActual] = useState(0);
   const [abierta, setAbierta] = useState<number | null>(null);
+  // El ejercicio que se está cambiando por otro del catálogo (decisión 65), si hay uno.
+  const [cambiando, setCambiando] = useState<string | null>(null);
 
   useEffect(() => {
     apiFetch(`/proposals/${id}`)
@@ -43,13 +46,15 @@ export default function PropuestaView({
       .finally(() => setCargando(false));
   }, [id]);
 
-  useEffect(() => {
+  function cargarCambios() {
     apiFetch(`/proposals/${id}/changes`)
       .then(async (res) => {
         if (res.ok) setCambios(await res.json());
       })
       .catch(() => {});
-  }, [id]);
+  }
+
+  useEffect(cargarCambios, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function resolver(accion: "accept" | "discard") {
     setError("");
@@ -192,6 +197,7 @@ export default function PropuestaView({
                 abierta={abierta === j}
                 onAlternar={() => setAbierta((a) => (a === j ? null : j))}
                 cambio={cambioPorClave.get(claveEjercicio(e.name))}
+                onCambiar={() => setCambiando(e.name)}
               />
             ))}
           </ol>
@@ -224,6 +230,21 @@ export default function PropuestaView({
             </Aviso>
           ))}
         </section>
+      )}
+      {cambiando && (
+        <CambiarEjercicio
+          key={cambiando}
+          propuestaId={id}
+          nombre={cambiando}
+          veces={days.flatMap((d) => d.exercises).filter((x) => x.name === cambiando).length}
+          onCerrar={() => setCambiando(null)}
+          onCambiado={(nueva) => {
+            setPropuesta(nueva);
+            setCambiando(null);
+            setAbierta(null);
+            cargarCambios();
+          }}
+        />
       )}
       {error && <ErrorMessage>{error}</ErrorMessage>}
 

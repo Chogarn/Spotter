@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, Lightbulb, ListChecks, Sparkles, UserRound } from "lucide-react";
+import { ChartLine, Lightbulb, ListChecks, Sparkles, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -152,17 +152,16 @@ export default function Inicio() {
         )}
 
         <nav aria-label="Accesos rápidos" className="grid grid-cols-2 gap-2.5">
-          <Acceso href="/entrenar" Icono={CalendarDays} texto="Ver la semana" />
           <Acceso href="/rutinas" Icono={ListChecks} texto="Tus rutinas" />
           <Acceso href="/rutinas" Icono={Sparkles} texto="Nueva rutina" />
-          <Acceso href="/perfil" Icono={UserRound} texto="Tu perfil" />
+          <Acceso href="/progreso" Icono={ChartLine} texto="Progreso" />
         </nav>
       </div>
     </main>
   );
 }
 
-function Acceso({ href, Icono, texto }: { href: string; Icono: typeof CalendarDays; texto: string }) {
+function Acceso({ href, Icono, texto }: { href: string; Icono: LucideIcon; texto: string }) {
   return (
     <Link
       href={href}

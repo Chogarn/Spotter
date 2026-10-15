@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { ArrowLeftRight, ChevronDown } from "lucide-react";
 
 import type { ExerciseItem } from "@/lib/api";
 import { restText, summarize } from "@/lib/format";
@@ -16,12 +16,15 @@ export function ExerciseRow({
   abierta,
   onAlternar,
   cambio,
+  onCambiar,
 }: {
   exercise: ExerciseItem;
   abierta: boolean;
   onAlternar: () => void;
   // En una semana nueva, qué cambió respecto de la anterior (#49).
   cambio?: CambioEjercicio;
+  // Si se pasa, la tarjeta desplegada muestra "Cambiar ejercicio" (decisión 65).
+  onCambiar?: () => void;
 }) {
   const idDetalle = `propuesta-${exercise.name}`;
   return (
@@ -67,6 +70,18 @@ export function ExerciseRow({
               <summary className="cursor-pointer py-1.5 font-medium">Por qué está en tu rutina</summary>
               <p className="mt-0 mb-2 text-sm">{exercise.reason}</p>
             </details>
+          )}
+          {onCambiar && (
+            <div className="border-t border-border pt-3">
+              <button
+                type="button"
+                onClick={onCambiar}
+                className="inline-flex items-center gap-2 rounded-full border-2 border-disco-tinta px-4 py-2 font-medium outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                <ArrowLeftRight className="size-4" aria-hidden="true" />
+                Cambiar ejercicio
+              </button>
+            </div>
           )}
         </div>
       )}

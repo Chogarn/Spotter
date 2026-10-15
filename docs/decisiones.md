@@ -138,7 +138,7 @@ Cuerpo completo, 2 o 3 días por semana, con sesiones de unos 60 minutos (R12).
 ### 22. Se suman las reglas R19 a R31
 Reglas para perder grasa (fuerza y cardio), condición general y mantenerse activo, repeticiones, progresión, esfuerzo como repeticiones en reserva, descarga por señales y dolor. Están en [`criterios-entrenamiento.md`](criterios-entrenamiento.md) con su fuente, certeza y cómo se aplican.
 - **Origen:** tuya (las revisaste y las aprobaste, a partir del informe de investigación).
-- **Por qué:** *(completar)*
+- **Por qué:** Porque las revisé y me parecieron que estaban bien.
 - **Descartaste:** *(completar)*
 - **Ojo:** R20, R24 y R25 son síntesis del investigador, y R29 es una deducción sin verificar en la tabla original.
 
@@ -260,21 +260,21 @@ El inicio de sesión usa un JWT firmado con `JWT_SECRET` que el backend guarda e
 ### 40. Se descarta el camino B: la app solo crea la rutina, no mejora una existente
 El usuario no carga la rutina que ya hace. Toda rutina la arma la IA desde cero con "Generar rutina" (nivel y objetivo al empezar), y de ahí en adelante se ajusta semana a semana. Se eliminó todo lo del camino B: el formulario de rutina actual (#44), la pantalla de elección de camino (#43), el tipo de propuesta `improve` y las columnas `week_plans.origin` y `week_plans.original_routine` (migración 0015).
 - **Origen:** tuya (2026-10-12).
-- **Por qué:** *(completar)*
+- **Por qué:** Por recomendación del profesor: me dijo que era mejor que la IA genere la rutina, y me pareció que sí, que era un buen esfuerzo.
 - **Descartaste:** cargar la rutina propia (formulario, texto libre o foto) y que la IA se la mejore; dejar las columnas sin usar.
 - **Ojo:** la decisión 2 queda como historial. Quien ya tiene una rutina propia y la quiere seguir no tiene cómo traerla: solo puede dejar que la IA arme una desde su nivel y objetivo.
 
 ### 41. El diseño visual es "Disco", inspirado en los discos de pesas
 Fondo gris cemento (`#E9ECEE`), tinta azul noche (`#172033`) y los colores de los discos de competición para los estados: rojo (`#D7263D`) serie hecha o semana en curso, azul (`#1F5FBF`) la carga, amarillo (`#F2C230`) avisos y propuestas pendientes, verde (`#2E9E5B`) cumplido o semana cerrada. Letras Barlow Condensed para números y títulos, y Barlow para el texto. Bordes redondeados, botón principal en forma de píldora oscura. Cada serie se muestra como un disco que se rellena al marcarla como hecha.
 - **Origen:** elegida entre opciones (2026-10-12; la IA mostró "Disco" y "Estadio", y después cuatro variantes de color y una versión oscura).
-- **Por qué:** *(completar)*
+- **Por qué:** Me pareció que tenía un estilo más de gimnasio y me gustaba más.
 - **Descartaste:** "Estadio" (cobalto y amarillo, letras de cartel); la versión oscura grafito y turquesa; las variantes violeta, naranja, verde y rojo con azul marino.
 - **Ojo:** se aplica cambiando las variables de color de shadcn en `globals.css` y las fuentes en `layout.tsx`, sin reescribir los componentes de `components/ui/`. Reemplaza el "tema neutro" de la decisión 38. La app es **siempre clara**, aunque el sistema esté en modo oscuro (elegido por el usuario el 2026-10-12, tras ver que seguía al sistema); el modo oscuro queda definido en la clase `.dark` pero nada la aplica.
 
 ### 42. La portada se llama "Entrenar" y la navegación es una barra fija abajo
 La barra tiene tres secciones, Entrenar, Rutinas y Perfil, siempre abajo, también en la computadora. Con una semana activa, Entrenar muestra el próximo día sin completar con el botón "Empezar día N", el progreso de la semana en discos y el resto de los días. Sin semana activa, junta en un lugar la propuesta pendiente, continuar una rutina y empezar una nueva. "Cerrar sesión" pasa al Perfil.
 - **Origen:** elegida entre opciones (2026-10-12; la IA propuso la reorganización y el nombre "Hoy"; elegiste "Entrenar" y la barra abajo siempre).
-- **Por qué:** *(completar)*
+- **Por qué:** Para navegar en el celular es mejor una barra inferior que una superior, con un botón central. Es un diseño que la mayoría de las apps tienen y sirve para entrar rápido a lo que hay que hacer hoy.
 - **Descartaste:** la portada como lista de botones; los nombres "Hoy" e "Inicio"; un menú arriba.
 
 ### 43. Las acciones chicas son íconos; las que cierran algo llevan texto
@@ -299,7 +299,7 @@ El usuario no le pide cambios a la IA durante la semana. El plan de la semana ac
 ### 46. Modo entrenar: "Serie hecha" guarda lo planificado y no hay reloj de descanso
 "Empezar día N" abre un modo con la serie que toca en grande (#57). "Serie hecha" guarda la serie tal como estaba planificada y pasa a la siguiente; si algo salió distinto, se corrige con el lápiz. Al terminar las series de un ejercicio, lo marca como hecho. El reloj de descanso no entra en este modo por ahora: sigue en las ideas del backlog, con la condición de que lo arranque el usuario.
 - **Origen:** elegida entre opciones (2026-10-12; la IA lo propuso con las maquetas de otras apps y la tarea se cerró así).
-- **Por qué:** *(completar)*
+- **Por qué:** Porque hay una forma de guardar las series por defecto, sin modificarlas, y es más fácil.
 - **Descartaste (por ahora):** mostrar los números ya editables en cada serie; sumar el reloj de descanso en esta tarea.
 - **Ojo:** la pantalla del día sigue siendo la vista para revisar y corregir; el modo entrenar convive con ella (se sale con la X y lo hecho ya quedó guardado).
 
@@ -332,13 +332,13 @@ En la pantalla Rutinas hay un botón **"Nueva rutina"** arriba de la lista, al l
 ### 51. Inicio es la portada; Entrenar pasa a `/entrenar`; la barra tiene cinco lugares
 Con sesión iniciada, la portada (`/`) es **Inicio**: una franja oscura de saludo (fecha, "Hola, nombre", la rutina, la semana y sus discos), la tarjeta "Hoy te toca" con "Empezar día N" (o "Armá tu próxima semana" sin semana en curso), el aviso de propuesta pendiente y accesos rápidos (Ver la semana, Tus rutinas, Nueva rutina, Tu perfil). La semana en curso con sus días pasa a **Entrenar**, en `/entrenar`. La barra queda con cinco lugares: Inicio · Rutinas · **Entrenar** (centro, elevado) · Progreso · Perfil. Progreso es el lugar del resumen semanal (#28) y, mientras no exista, avisa que está en camino (#60).
 - **Origen:** tuya (2026-10-12): "una página principal como una de bienvenida una vez logueado, que tenga opciones de cosas"; te gustó la maqueta y elegiste cinco lugares.
-- **Por qué:** *(completar)*
+- **Por qué:** Porque tiene que haber una pantalla de inicio. La barra de cinco lugares todavía la estamos viendo.
 - **Descartaste:** que la portada fuera Entrenar (decisión 42); la barra con cuatro lugares.
 
 ### 52. El usuario elige cuántos días por semana entrena
 Al generar una rutina nueva se elige la cantidad de días, obligatoria como el nivel y el objetivo: principiante 2 o 3 (R12), el resto de 2 a 6 (R11). Se guarda en la rutina (`routines.days_per_week`, migración 0016; las rutinas que ya existían tomaron la cantidad de su semana más nueva) y al continuar viene marcada y se puede cambiar. La IA arma exactamente esa cantidad y el código lo comprueba. Como la IA ya no puede sumar días, R35 saltea su primer paso (alarga la sesión y avisa; como último recurso recorta accesorios y músculos chicos). Reemplaza "los días los determina la IA" y "no existe el pedido 'solo puedo 3 días'" (#61).
 - **Origen:** tuya (2026-10-13), tras comparar con otras apps que preguntan los días; elegiste la opción A y 1a, 2a, 3a y 4a.
-- **Por qué:** *(completar)*
+- **Por qué:** Para que el usuario tenga libertad de elegir la cantidad de días que quiere entrenar en esa semana; muchas apps lo dejan.
 - **Descartaste:** que la IA decida los días (opción B, con un pedido opcional de más días); ofrecer de 2 a 6 también a principiantes; que la IA pueda proponer más días que los elegidos; que la cantidad quede fija con la rutina; que elegir sea opcional.
 
 ### 53. Desde Rutinas el día es para mirar; se registra y se cierra en Entrenar
@@ -412,6 +412,13 @@ Si el mismo ejercicio cae en dos días de la semana, no se ajusta el segundo con
 - **Origen:** tuya (2026-10-14): aprobaste mi recomendación.
 - **Por qué:** *(completar)*
 - **Descartaste:** ajustar el plan a mitad de semana, con IA o con una regla simple.
+
+### 65. Cambiar un ejercicio de la propuesta por otro del catálogo
+En la propuesta pendiente, cada ejercicio desplegado tiene **"Cambiar ejercicio"**: abre una lista de alternativas del catálogo (mismo músculo principal, mismo tipo, de tu nivel o menor, y que no estén ya en la semana). Al elegir una, **se cambia en todos los días donde aparece**, sin preguntar. Las series y repeticiones se copian del ejercicio reemplazado; el **peso queda en blanco** y se ajusta al entrenar. Sin IA y sin gasto de cuota; el código vuelve a comprobar las reglas y recalcula los avisos. **Solo en la propuesta pendiente** (cuando se genera una rutina o una semana nueva): la semana ya aceptada no cambia. No se puede sacar un ejercicio sin reemplazo (podría dejar un grupo muscular sin cubrir).
+- **Origen:** tuya (2026-10-15): "si me gustan todos pero menos esto, que no sé qué hacer o no quiero hacerlo, poder modificarlo"; elegiste que el cambio valga para todos los días y que sea solo al generar.
+- **Por qué:** A veces me gustan todos los ejercicios menos uno, que no sé cómo se hace o que no quiero hacer, y quiero poder cambiarlo sin tener que descartar toda la semana.
+- **Descartaste:** pedirle a la IA que regenere el hueco (gasta una llamada); cambiarlo solo en uno de los días; cambiar la semana ya aceptada; borrar un ejercicio sin reemplazo.
+- **Ojo:** reabre un pedazo de la decisión 35 ("la propuesta no se edita a mano"): ahora se puede **elegir** entre ejercicios del catálogo, pero no escribir uno libre ni tocar las series.
 
 ## Decisiones abiertas
 

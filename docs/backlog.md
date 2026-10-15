@@ -67,7 +67,8 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 
 ## S5: Calidad y despliegue
 - [ ] Explicación por ejercicio ("¿por qué esto?") `ia` `complementaria`
-- [ ] Sustitución de ejercicios `ia` `complementaria`
+- [x] Sustitución de ejercicios en la propuesta: botón "Cambiar ejercicio" con las alternativas del catálogo, en todos los días donde aparece y sin IA (decisión 65, 2026-10-15) `backend` `frontend`. Pendiente aparte, sin definir: cambiar un ejercicio ya aceptado en la semana activa.
+- [ ] Animación de carga mientras se genera la rutina (hoy aparece solo un texto) `frontend`
 - [ ] Aviso legal visible en la app `frontend`
 - [ ] Más tests y revisión de errores `backend`
 - [ ] Deploy en producción `docker`

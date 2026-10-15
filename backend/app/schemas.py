@@ -101,6 +101,24 @@ class WarningOut(BaseModel):
     message: str
 
 
+class AlternativeOut(BaseModel):
+    """Un ejercicio del catálogo que puede reemplazar a otro de la propuesta (decisión 65)."""
+
+    id: str
+    name: str
+    description: str
+    equipment: str
+    level: str
+    mechanic: str
+
+
+class SwapIn(BaseModel):
+    """Cambiar `from_name` por el ejercicio del catálogo `to_id`, en todos los días."""
+
+    from_name: str = Field(min_length=1, max_length=150)
+    to_id: str = Field(min_length=1, max_length=64)
+
+
 class SetShapeOut(BaseModel):
     reps: int | None
     duration_minutes: int | None
