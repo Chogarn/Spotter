@@ -116,8 +116,8 @@ export default function PropuestaView({
           </div>
           <div className="mt-5 grid gap-2.5">
             <Button
-              size="lg"
-              className="h-12 w-full text-base"
+              size="xl"
+              className="w-full"
               nativeButton={false}
               render={
                 <Link
@@ -129,8 +129,8 @@ export default function PropuestaView({
             </Button>
             <Button
               variant="outline"
-              size="lg"
-              className="h-12 w-full text-base"
+              size="xl"
+              className="w-full"
               nativeButton={false}
               render={<Link href={propuesta.routine_id ? `/rutinas/${propuesta.routine_id}` : "/rutinas"} />}
             >
@@ -296,8 +296,8 @@ export default function PropuestaView({
         <div className="mx-auto flex max-w-xl gap-3 px-4 py-3">
           <Button
             variant="outline"
-            size="lg"
-            className="h-11 flex-1 text-base"
+            size="xl"
+            className="flex-1"
             type="button"
             onClick={() => resolver("discard")}
             disabled={trabajando}
@@ -305,8 +305,8 @@ export default function PropuestaView({
             Descartar
           </Button>
           <Button
-            size="lg"
-            className="h-11 flex-[1.4] text-base"
+            size="xl"
+            className="flex-[1.4]"
             type="button"
             onClick={() => resolver("accept")}
             disabled={trabajando}

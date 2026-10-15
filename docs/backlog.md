@@ -116,6 +116,41 @@ La definición completa de cada una está en su issue de GitHub.
 - [x] Pantalla del día: pasar al día anterior o al siguiente con barritas y flechas.
 - [ ] Sin definir: cambiar un ejercicio ya aceptado en la semana activa (hoy solo en la propuesta).
 
+## Anotado el 2026-10-15 (para hacer; el usuario pidió agendarlas)
+
+Surgieron al probar los asistentes, la barra con tres botones y Inicio. Cada una dice qué está claro y qué falta decidir; **no se construyen sin que el usuario vea antes una maqueta** (reglas de trabajo del proyecto). Sin issues de GitHub todavía: se crean cuando el usuario lo confirme.
+
+- [ ] **Rediseño de los botones y accesos al estilo Disco** `frontend`
+  - **Para qué:** los accesos de Inicio ("Tus rutinas", "Nueva rutina", "Resúmenes semanales", "Estadísticas por ejercicio") y otros botones se ven genéricos frente a la estética que se fue formando (discos, tinta, píldoras, Barlow Condensed). El usuario duda de que estén de acuerdo.
+  - **Alcance a revisar:** accesos de Inicio, y el botón "Nueva rutina" de Rutinas (hoy chico, arriba a la derecha; opciones mostradas el 2026-10-15: A tarjeta punteada arriba, **B botón ancho abajo, la tentativa**, C "+" flotante).
+  - **A definir:** forma y jerarquía de los botones (principal, secundario, de acceso), qué ícono o disco lleva cada acceso y cuántos van por fila.
+  - **Criterios:** maqueta aprobada por el usuario antes de tocar el código; mismos colores y fuentes que el resto; sin perder las etiquetas accesibles.
+
+- [ ] **Pausar la rutina activa y ver otra, desde Rutinas** `frontend` `backend`
+  - **Para qué:** poder tener otra rutina a mano sin cerrar la semana en curso, con **una sola activa a la vez**.
+  - **Cómo se accede:** botón en Rutinas (en la tarjeta de la rutina o en su detalle).
+  - **Depende de una decisión del usuario, todavía abierta:** hoy no se puede generar ni empezar otra rutina con una semana en curso (409). Opciones planteadas: (1) dejarlo como está; (2) crear la nueva **en espera** y activarla al cerrar la actual; (3) **pausar** la semana en curso y alternar. Recomendación de la IA: la 2, porque respeta que cerrar sea manual y que la IA analice la semana. Falta también si puede haber más de una en espera.
+  - **Impacto técnico si se hace:** estado nuevo de semana en la base (migración 0019), y cambios en Rutinas, Inicio y Entrenar.
+
+- [ ] **Estadísticas y Progreso con la estética de la app** `frontend`
+  - **Para qué:** cómo se muestran lo hecho, lo no hecho, lo que se llegó y lo que no se llegó ("Cómo te fue": cuadros verde y amarillo con "superaste" y "no llegaste", frases con flechas) y el gráfico de evolución tiene una estética distinta a la del resto.
+  - **Alcance:** las dos pantallas de Progreso (Resúmenes semanales y Estadísticas por ejercicio).
+  - **A definir:** cómo se ven "hecho / no hecho / llegó / no llegó" con los discos y la paleta Disco (rojo hecho, verde cumplido, amarillo aviso), sin que el rojo signifique error.
+  - **Criterios:** maqueta aprobada; los estados se entienden sin leer el texto.
+
+- [ ] **Recuperar y restablecer la contraseña** `backend` `frontend`
+  - **Para qué:** hoy, si alguien olvida la contraseña, no tiene cómo volver a entrar.
+  - **Cómo se accede:** enlace "Olvidé mi contraseña" en el inicio de sesión.
+  - **A definir:** cómo llega el enlace (correo) y con qué servicio; **verificar en la fuente oficial** si el plan gratuito del servicio alcanza antes de elegirlo; vencimiento del enlace; si cierra las sesiones abiertas.
+  - **Datos:** un token de un solo uso con vencimiento, guardado hasheado. La contraseña se sigue guardando con argon2.
+  - **Criterios:** el enlace funciona una sola vez y vence; la respuesta es igual exista o no el correo (no revela cuentas); tests.
+
+- [ ] **Encabezado de Inicio: dónde va la fecha y el logo** `frontend` `docs`
+  - **Para qué:** ordenar lo de arriba de Inicio ("Hola, nombre"): el usuario no sabe si la **fecha** va ahí, un poco más abajo o en otro lado, y si el **logo** va arriba del nombre, a la izquierda, o solo en Inicio.
+  - **Primer paso: investigación de diseño** (referencias de apps y sitios similares, jerarquía del encabezado, uso del logo) y recién después propuesta con maquetas.
+  - **A definir:** posición de la fecha, posición y tamaño del logo, y si el logo se repite en otras pantallas. El logo es **provisorio**: falta elegir el definitivo y revisar el amarillo sobre fondo claro.
+  - **Criterios:** maqueta aprobada por el usuario; el encabezado no repite información de "Hoy te toca".
+
 ## Ideas para después (fuera del MVP, sin definir)
 
 Ideas anotadas durante el diseño. No son tareas todavía: antes de convertirlas en issues hay que definirlas (qué ve el usuario, qué acciones tiene, criterios de aceptación).

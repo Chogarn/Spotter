@@ -91,8 +91,8 @@ export function PasoAsistente({
         {nota && <p className="mt-0 mb-3 text-center text-sm text-muted-foreground">{nota}</p>}
         <Button
           type="button"
-          size="lg"
-          className="mt-2 h-12 w-full rounded-full text-base"
+          size="xl"
+          className="mt-2 w-full"
           onClick={onContinuar}
           disabled={deshabilitado || ocupado}
         >

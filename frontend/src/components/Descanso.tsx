@@ -227,7 +227,7 @@ export function RelojCircular({ subtitulo }: { subtitulo: string }) {
           +15 s
         </Button>
       </div>
-      <Button size="lg" className="mt-3 h-12 w-full text-base" type="button" onClick={saltar}>
+      <Button size="xl" className="mt-3 w-full" type="button" onClick={saltar}>
         Saltar descanso
       </Button>
     </section>

@@ -224,8 +224,8 @@ export default function DiaView({
                 </div>
               ) : (
                 <Button
-                  size="lg"
-                  className="h-11 w-full text-base"
+                  size="xl"
+                  className="w-full"
                   type="button"
                   onClick={() => cambiarDia("complete")}
                   disabled={trabajando}

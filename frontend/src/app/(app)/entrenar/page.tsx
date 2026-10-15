@@ -89,8 +89,8 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
               {proximo.title} · ~{proximo.minutes} min · {proximo.exercise_count} ejercicios
             </p>
             <Button
-              size="lg"
-              className="h-11 w-full text-base"
+              size="xl"
+              className="w-full"
               nativeButton={false}
               render={<Link href={`/semanas/${semana.id}/dia/${proximo.day_index}/entrenar`} />}
             >

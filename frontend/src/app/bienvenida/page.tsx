@@ -35,17 +35,17 @@ export default function Bienvenida() {
         </ul>
         <div className="flex flex-col gap-3">
           <Button
-            size="lg"
-            className="h-12 bg-primary-foreground text-base text-primary hover:bg-primary-foreground/90"
+            size="xl"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
             nativeButton={false}
             render={<Link href="/login" />}
           >
             Iniciar sesión
           </Button>
           <Button
-            size="lg"
+            size="xl"
             variant="outline"
-            className="h-12 border-primary-foreground/40 bg-transparent text-base text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
             nativeButton={false}
             render={<Link href="/registro" />}
           >

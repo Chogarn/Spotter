@@ -300,14 +300,14 @@ export default function EntrenarView({
             <>
               <h1 className="mt-0 text-4xl">Terminaste los {total} ejercicios</h1>
               <p className="text-muted-foreground">Cerrá el día para que cuente como hecho.</p>
-              <Button size="lg" className="h-12 w-full text-base" type="button" onClick={completarDia} disabled={trabajando || yendoAInicio}>
+              <Button size="xl" className="w-full" type="button" onClick={completarDia} disabled={trabajando || yendoAInicio}>
                 Día completado
               </Button>
             </>
           ) : (
             <>
               <h1 className="mt-0 text-4xl">Día completado</h1>
-              <Button size="lg" className="h-12 w-full text-base" nativeButton={false} render={<Link href="/entrenar" />}>
+              <Button size="xl" className="w-full" nativeButton={false} render={<Link href="/entrenar" />}>
                 Ir a Entrenar
               </Button>
             </>
@@ -337,7 +337,7 @@ function EntradaEnCalor({
         <p className="m-0">{dia.mobility_notes}</p>
       </section>
       {registra && (
-        <Button size="lg" className="mt-4 h-12 w-full text-base" type="button" onClick={onEmpezar}>
+        <Button size="xl" className="mt-4 w-full" type="button" onClick={onEmpezar}>
           Listo, empezar
         </Button>
       )}
@@ -565,8 +565,8 @@ function SerieEnGrande({
             <BotonDescanso segundos={ejercicio.rest_seconds} clave={clave} href={href} nombre={ejercicio.name} />
           )}
           <Button
-            size="lg"
-            className="h-12 flex-1 text-base"
+            size="xl"
+            className="flex-1"
             type="button"
             onClick={() => {
               descanso.olvidarAviso();

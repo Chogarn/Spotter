@@ -70,8 +70,8 @@ export function CerrarSemana({
         <Button
           type="button"
           variant="outline"
-          size="lg"
-          className="h-11 w-full rounded-full border-2 border-disco-tinta text-base"
+          size="xl"
+          className="w-full border-2 border-disco-tinta"
           onClick={() => setConfirmando(true)}
         >
           <Lock data-icon="inline-start" />

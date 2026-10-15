@@ -189,7 +189,7 @@ export function GenerarRutina({
         (disparador ? (
           disparador(abrir)
         ) : (
-          <Button type="button" variant={variante} onClick={abrir}>
+          <Button type="button" size="xl" variant={variante} className="w-full" onClick={abrir}>
             {etiqueta}
           </Button>
         ))}

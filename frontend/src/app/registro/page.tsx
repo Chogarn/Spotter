@@ -78,7 +78,7 @@ export default function RegistroPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        <Button type="submit" size="lg" className="mt-2 h-12 w-full text-base" disabled={ocupado}>
+        <Button type="submit" size="xl" className="mt-2 w-full" disabled={ocupado}>
           {ocupado ? "Creando..." : "Crear cuenta"}
         </Button>
       </form>

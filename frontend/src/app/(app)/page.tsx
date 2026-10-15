@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarCheck, ChartLine, Lightbulb, ListChecks, Sparkles, type LucideIcon } from "lucide-react";
+import { CalendarCheck, ChartLine, Lightbulb, ListChecks, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -9,6 +9,7 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { Logo } from "@/components/Logo";
 import { NuevaRutina } from "@/components/NuevaRutina";
 import { OpcionesSiguiente, ResumenUltimaSemana, useUltimaSemana } from "@/components/SiguienteSemana";
+import { TarjetaAcceso } from "@/components/TarjetaAcceso";
 import { Button } from "@/components/ui/button";
 import { readError, apiFetch, type SessionUser, type WeekDetail } from "@/lib/api";
 import { CargandoDiscos } from "@/components/Cargando";
@@ -111,8 +112,8 @@ export default function Inicio() {
                   ~{proximo.minutes} min · {proximo.exercise_count} ejercicios
                 </p>
                 <Button
-                  size="lg"
-                  className="h-12 w-full text-base"
+                  size="xl"
+                  className="w-full"
                   nativeButton={false}
                   render={<Link href={`/semanas/${semana.id}/dia/${proximo.day_index}/entrenar`} />}
                 >
@@ -125,7 +126,7 @@ export default function Inicio() {
                 <p className="mt-0 mb-4 text-sm text-muted-foreground">
                   Cerrá la semana en Entrenar para que la IA arme la siguiente.
                 </p>
-                <Button size="lg" className="h-12 w-full text-base" nativeButton={false} render={<Link href="/entrenar" />}>
+                <Button size="xl" className="w-full" nativeButton={false} render={<Link href="/entrenar" />}>
                   Ir a Entrenar
                 </Button>
               </>
@@ -169,41 +170,19 @@ export default function Inicio() {
         <nav aria-label="Accesos rápidos">
           <h2 className="mt-0 mb-2 text-xl">Tus rutinas</h2>
           <div className="mb-5 grid grid-cols-2 gap-2.5">
-            <Acceso href="/rutinas" Icono={ListChecks} texto="Tus rutinas" />
+            <TarjetaAcceso href="/rutinas" Icono={ListChecks} texto="Tus rutinas" />
             {/* Abre directo el asistente de rutina nueva; con una semana en curso, avisa. */}
             <NuevaRutina hayActiva={semana !== null}>
-              {(abrir) => (
-                <button
-                  type="button"
-                  onClick={abrir}
-                  disabled={cargando}
-                  className="flex flex-col gap-2 rounded-2xl bg-card p-4 text-left font-medium hover:bg-muted disabled:opacity-60"
-                >
-                  <Sparkles className="size-6" aria-hidden="true" />
-                  Nueva rutina
-                </button>
-              )}
+              {(abrir) => <TarjetaAcceso onClick={abrir} disabled={cargando} Icono={Sparkles} texto="Nueva rutina" />}
             </NuevaRutina>
           </div>
           <h2 className="mt-0 mb-2 text-xl">Tu progreso</h2>
           <div className="grid grid-cols-2 gap-2.5">
-            <Acceso href="/progreso" Icono={CalendarCheck} texto="Resúmenes semanales" />
-            <Acceso href="/progreso/estadisticas" Icono={ChartLine} texto="Estadísticas por ejercicio" />
+            <TarjetaAcceso href="/progreso" Icono={CalendarCheck} texto="Resúmenes semanales" />
+            <TarjetaAcceso href="/progreso/estadisticas" Icono={ChartLine} texto="Estadísticas por ejercicio" />
           </div>
         </nav>
       </div>
     </main>
-  );
-}
-
-function Acceso({ href, Icono, texto }: { href: string; Icono: LucideIcon; texto: string }) {
-  return (
-    <Link
-      href={href}
-      className="flex flex-col gap-2 rounded-2xl bg-card p-4 font-medium no-underline hover:bg-muted"
-    >
-      <Icono className="size-6" aria-hidden="true" />
-      {texto}
-    </Link>
   );
 }
