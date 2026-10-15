@@ -38,7 +38,7 @@ El proyecto se construye por etapas. Hoy funciona, con registro e inicio de sesi
 - **Cuenta y sesión:** registro e inicio de sesión con cookie `httpOnly` (JWT de 7 días) y contraseñas con hash argon2; sin sesión, todas las pantallas llevan a `/login`.
 - **Interfaz** con shadcn/ui y Tailwind en versión básica (los estilos propios vienen más adelante).
 
-Descartado por ahora: el ajuste conversando durante la semana. Pospuestos por decisión del proyecto: la nota de cómo me sentí, el esfuerzo por serie y el semáforo de dolor. El catálogo de ejercicios para la IA (hoy un borrador de 84 en `backend/app/ai/exercises.json`, sin conectar) espera una consulta. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan, al armar la semana nueva. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
+Descartado por ahora: el ajuste conversando durante la semana. Pospuestos por decisión del proyecto: la nota de cómo me sentí, el esfuerzo por serie y el semáforo de dolor. La IA elige los ejercicios de un catálogo de 118 (`backend/app/ai/exercises.json`), que recupera con embeddings y pgvector; falta consultar al profesor si es lo que se espera de RAG. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan, al armar la semana nueva. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
 ## Funcionalidades
 

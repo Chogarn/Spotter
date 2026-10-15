@@ -105,6 +105,17 @@ La definición completa de cada una está en su issue de GitHub.
 
 **Decisiones pendientes del usuario:** consultar al profesor si el RAG con pgvector de #52 es lo que se espera. (Cerradas el 2026-10-14, decisiones 59 a 64: series por ejercicio, R5b, R20/R24/R25, R30 "no implementada", avisos y ejercicios repetidos. Resueltos antes: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
 
+## Hecho el 2026-10-14 y 15 (fuera de los issues, con su decisión)
+
+- [x] Catálogo con RAG: 118 ejercicios, pgvector, recuperación y validación (decisión 58, #52).
+- [x] Cambiar un ejercicio de la propuesta por otro del catálogo (decisión 65).
+- [x] Reabrir una semana cerrada, y dos opciones claras al terminar la semana, en Entrenar e Inicio (decisión 66).
+- [x] Una sola generación a la vez, pantalla de carga completa y pantalla de "aceptado" (decisión 67).
+- [x] Un ícono por objetivo de rutina (decisión 68).
+- [x] Evolución de cada ejercicio por fecha, acumulando todas las rutinas (decisión 69).
+- [x] Pantalla del día: pasar al día anterior o al siguiente con barritas y flechas.
+- [ ] Sin definir: cambiar un ejercicio ya aceptado en la semana activa (hoy solo en la propuesta).
+
 ## Ideas para después (fuera del MVP, sin definir)
 
 Ideas anotadas durante el diseño. No son tareas todavía: antes de convertirlas en issues hay que definirlas (qué ve el usuario, qué acciones tiene, criterios de aceptación).

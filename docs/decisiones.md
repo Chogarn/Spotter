@@ -348,12 +348,14 @@ Rutinas es el historial y Entrenar el lugar donde se registra. Llegando desde Ru
 - **Descartaste:** bloquear solo cerrar y reabrir el día (1B); el estilo del primer intento (texto "Desde Rutinas el día se ve en lectura" y enlace "Entrenar este día").
 
 ### 54. Rutinas "en pausa" y la rutina como línea de tiempo
+*Actualizada: la etiqueta "en pausa" pasó a **"lista para continuar"** (decisión 66).*
 En Rutinas, la rutina con semana activa lleva "en curso" (rojo) y las demás **"en pausa"** (gris), porque se pueden continuar al generar. La pantalla de una rutina tiene el título grande, etiquetas (objetivo, nivel, días por semana) y las semanas como **línea de tiempo**: cada semana es una tarjeta colgada de la línea, con borde oscuro la en curso, "Desde el 13/10 · N de M días" (solo los días completados) y los discos. Así no se confunde con la lista de rutinas.
 - **Origen:** tuya (2026-10-13): "parece la misma pantalla anterior y eso genera confusión"; aprobaste las maquetas.
 - **Por qué:** *(completar)*
 - **Descartaste:** "terminada" o "dejada" en lugar de "en pausa"; las semanas como texto suelto sobre la línea.
 
 ### 55. La semana con el mismo diseño que el día, sin barra de progreso
+*Actualizada: la semana cerrada **sí se puede reabrir** (decisión 66).*
 La pantalla de una semana tiene el título grande, etiquetas (En curso o Completada, la fecha y los días) y cada día como las tarjetas de ejercicio, con una flecha para entrar. Al final, con la semana cerrada, **"Semana completada"** como "Día completado" pero sin candado (la semana no se reabre); con la semana en curso, "La semana se cierra desde Entrenar" en gris y chico. Una semana cerrada se llama "completada" aunque tenga días sin hacer: los discos muestran cuáles faltaron.
 - **Origen:** tuya (2026-10-13): "el diseño está medio raro comparado con el anterior y el siguiente"; aprobaste la maqueta.
 - **Por qué:** *(completar)*

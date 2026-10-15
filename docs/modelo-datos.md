@@ -23,6 +23,8 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0013` rutinas | Crea `routines` (nombre, objetivo y nivel); agrega `week_plans.routine_id` (obligatoria) y quita `week_plans.goal` y `level`, que pasan a la rutina. Una rutina por cada objetivo y nivel que ya existían | Implementada |
 | `0014` comentario al cerrar la semana | Agrega `week_plans.closing_note` (texto opcional, hasta 1.000 caracteres) | Implementada |
 | `0015` sin camino B | Quita `week_plans.origin` y `week_plans.original_routine`, y el tipo `improve` de propuestas y llamadas a la IA (decisión 40) | Implementada |
+| `0016` días por semana en la rutina | Agrega `routines.days_per_week` (2 a 6): el usuario elige cuántos días entrena (decisión 52) | Implementada |
+| `0017` catálogo con vectores | Habilita la extensión `vector` de pgvector, crea `catalog_embeddings` (un vector de 768 dimensiones por ejercicio del catálogo) y suma el tipo `embed` a `ai_calls` (decisión 58) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
 ## Diagrama
@@ -334,6 +336,19 @@ Lo que propone la IA antes de aplicarse.
 
 ### ai_calls
 Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan contando estas filas.
+
+### catalog_embeddings
+El vector de cada ejercicio del catálogo (`backend/app/ai/exercises.json`), para recuperarlo por similitud (RAG, decisión 58). Es un dato **derivado**: se puede borrar y volver a generar con `python -m app.scripts.index_catalog`.
+
+| Campo | Detalle |
+|---|---|
+| catalog_id | **Clave.** El `id` del ejercicio en el catálogo (texto, no es un `exercises.id`) |
+| text_hash | Resumen del texto con el que se calculó el vector: detecta qué ejercicios hay que reindexar |
+| model | El modelo de embeddings (`gemini-embedding-001`) |
+| embedding | `vector(768)` de pgvector en PostgreSQL (una lista JSON en los tests con SQLite) |
+| created_at | Cuándo se calculó |
+
+En `ai_calls`, una llamada de embeddings ocupa **una fila por texto** (Google cuenta cada texto de un lote como un pedido), con `kind = embed`.
 
 ## Decisiones de diseño
 

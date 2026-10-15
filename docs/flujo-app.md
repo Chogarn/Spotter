@@ -186,6 +186,19 @@ Como el cierre es una acción del usuario, el gasto en IA es predecible: una lla
 
 **Cómo se arma la semana nueva (implementado, #27).** Al continuar una rutina desde "Generar rutina", la IA recibe la última semana cerrada de esa rutina: por cada ejercicio, lo planificado y lo realizado serie por serie, y una **señal** que calcula el código (superó, cumplió, no llegó o sin registrar). Con eso aplica R9, R10 y R28: si superó las repeticiones sube la carga de 2 % a 10 % partiendo del peso realmente levantado; si no llegó, mantiene; si hubo dolor, no sube. Mantiene los mismos ejercicios (no hay una regla de cada cuánto rotarlos; solo cambian por dolor o por pedido del usuario) y escribe un resumen de evolución que se muestra arriba de la vista previa. Un día no hecho viaja como información, sin castigo. Todavía no existen la semana liviana (R30), la nota de cómo me sentí ni el esfuerzo por serie.
 
+## Generar una semana con el catálogo (RAG, decisiones 58 y 67)
+
+1. **Una sola a la vez.** Si ya hay una generación en curso, el servidor responde 409 sin llamar a la IA (cubre otra pestaña o aparato). Mientras se genera, una **pantalla completa de carga** (un disco que gira) tapa todo, incluida la barra de abajo.
+2. **Se eligen los candidatos** (1 embedding de nivel y objetivo): el código descarta los ejercicios de un nivel más alto y el cardio donde no corresponde; pgvector ordena por similitud y se toman hasta 6 por grupo muscular. Las lesiones **no** entran en la consulta (un vector mide parecido, no "evitar"): las razona la IA con el perfil. Si el embedding falla, va todo lo permitido.
+3. **La IA arma la semana** con esa lista, y el código reemplaza nombre y etiquetas por las del catálogo y rechaza lo que no esté (con un reintento). Al continuar una rutina se permiten los ejercicios de la semana anterior.
+4. **La propuesta** se ve un día por vez. Cada ejercicio desplegado tiene **"Cambiar ejercicio"**: abre alternativas del catálogo (mismo músculo y tipo, de tu nivel, que no estén ya en la semana); al elegir una, se cambia en **todos** los días donde aparece, se copian series y repeticiones y el peso queda en blanco. Solo en la propuesta pendiente (decisión 65).
+5. **Aceptar** muestra "Tu semana N ya está lista" con **Comenzar entrenamiento** (directo al Día 1) y **Ver mi rutina**.
+
+## Después de cerrar la semana (decisión 66)
+
+- En **Entrenar** e **Inicio**, sin semana activa, aparece "Semana N completada" con sus discos y dos opciones: **Generar la semana siguiente** (continúa la rutina; solo confirma los días por semana) o **Empezar una rutina nueva**. En Rutinas, la rutina pasa a "lista para continuar".
+- **Reabrir semana:** desde la semana cerrada, con confirmación. Solo la última de su rutina, y no si hay otra semana en curso ni una propuesta sin revisar. Se borra el comentario de cierre; no se pierde lo registrado.
+
 ## Pantallas
 
 1. Registro e inicio de sesión (`/registro` y `/login`; sin sesión, cualquier otra pantalla redirige a `/login`)
