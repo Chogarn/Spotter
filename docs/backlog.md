@@ -153,7 +153,7 @@ Surgieron al probar los asistentes, la barra con tres botones y Inicio. Cada una
 
 ### Definidas el 2026-10-15 (listas para decidir y construir)
 
-- [ ] **Progreso: cuánto subió cada ejercicio** `backend` `frontend`
+- [x] **Progreso: lo hecho frente a lo que tocaba, por ejercicio** `backend` `frontend` — **hecho el 2026-10-15**, con la decisión del usuario de comparar **contra lo planificado** (no contra la semana pasada). `GET /weeks/{id}/summary` suma `sets` (lo planificado y lo real de cada serie) y la lista plegada de "Cómo te fue" muestra "Hiciste 1 × 12 · 42,5 kg / Tocaba 1 × 10 · 40 kg" cuando difiere. Comparar contra la semana pasada (`previous`) queda como mejora posible. Plan original:
   - **Para qué:** hoy "Cómo te fue" dice solo la palabra ("superaste", "como estaba", "no llegaste"). Falta el número: cuánto subió, o cuánto faltó.
   - **Cómo se accede:** Progreso, pestaña "Resúmenes semanales" (sin pantalla nueva).
   - **Qué ve el usuario:** en cada fila del ejercicio, además del disco y la palabra, el mejor valor de la semana ("62,5 kg") y la diferencia ("+2,5").

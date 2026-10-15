@@ -30,7 +30,9 @@ from app.schemas import (
     DaySetOut,
     DayStatusOut,
     ExerciseResultOut,
+    PlannedValuesOut,
     RealSetOut,
+    ResultSetOut,
     SetEntryIn,
     WeekDayItemOut,
     WeekDetailOut,
@@ -323,6 +325,27 @@ def get_week_summary(
                 name=names[exercise_id].exercise.name,
                 kind=names[exercise_id].exercise.kind.value,
                 signal=signal(pairs),
+                sets=[
+                    ResultSetOut(
+                        planned=PlannedValuesOut(
+                            reps=plan_set.reps,
+                            duration_minutes=plan_set.duration_minutes,
+                            duration_seconds=plan_set.duration_seconds,
+                            weight_kg=float(plan_set.target_weight_kg)
+                            if plan_set.target_weight_kg is not None
+                            else None,
+                        ),
+                        real=RealSetOut(
+                            reps=entry.reps,
+                            duration_minutes=entry.duration_minutes,
+                            duration_seconds=entry.duration_seconds,
+                            weight_kg=float(entry.weight_kg) if entry.weight_kg is not None else None,
+                        )
+                        if entry is not None
+                        else None,
+                    )
+                    for plan_set, entry in pairs
+                ],
             )
             for exercise_id, pairs in pairs_by_exercise.items()
         ],

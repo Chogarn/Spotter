@@ -196,7 +196,21 @@ export type WeekSummaryDetail = {
   sets_planned: number;
   kg_moved: number;
   cardio_minutes: number;
-  exercises: { name: string; kind: ExerciseItem["kind"]; signal: string }[];
+  exercises: {
+    name: string;
+    kind: ExerciseItem["kind"];
+    signal: string;
+    // Cada serie con lo que tocaba y lo que se hizo (nulo si no se registró).
+    sets: {
+      planned: {
+        reps: number | null;
+        duration_minutes: number | null;
+        duration_seconds: number | null;
+        weight_kg: number | null;
+      };
+      real: RealSet | null;
+    }[];
+  }[];
   ai_summary: string | null;
   closing_note: string | null;
 };

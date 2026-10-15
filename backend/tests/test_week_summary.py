@@ -106,3 +106,32 @@ def test_la_semana_de_otro_usuario_da_404(api):
 
     assert api.get(f"/weeks/{ajena}/summary").status_code == 404
     assert api.get("/weeks/999/summary").status_code == 404
+
+
+def series_de(cuerpo, nombre):
+    return next(e["sets"] for e in cuerpo["exercises"] if e["name"] == nombre)
+
+
+def test_cada_ejercicio_trae_lo_que_tocaba_frente_a_lo_hecho(api):
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    press = dia(api, semana, 1)["Press de banca con barra"]["sets"]
+    base = f"/weeks/{semana}/days/1/sets"
+    # Plan del press: 10 × 50 y 9 × 55. Se hizo 12 × 52,5 en la primera; la segunda queda sin registrar.
+    api.put(f"{base}/{press[0]['id']}", json={"reps": 12, "weight_kg": 52.5})
+
+    series = series_de(resumen(api, semana), "Press de banca con barra")
+
+    assert series[0]["planned"] == {"reps": 10, "duration_minutes": None, "duration_seconds": None, "weight_kg": 50.0}
+    assert series[0]["real"] == {"reps": 12, "duration_minutes": None, "duration_seconds": None, "weight_kg": 52.5}
+    assert series[1]["planned"]["reps"] == 9
+    assert series[1]["real"] is None
+
+
+def test_un_ejercicio_sin_registrar_trae_lo_planificado_y_nada_real(api):
+    semana = crear_semana(api, date(2026, 9, 1))
+
+    series = series_de(resumen(api, semana), "Plancha")
+
+    assert len(series) == 3
+    assert all(s["real"] is None for s in series)
+    assert series[0]["planned"]["duration_seconds"] == 45

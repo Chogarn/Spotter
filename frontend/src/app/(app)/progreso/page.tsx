@@ -13,12 +13,14 @@ import { Button } from "@/components/ui/button";
 import {
   readError,
   apiFetch,
+  type ExerciseItem,
   type Routine,
   type RoutineDetail,
+  type SetItem,
   type WeekSummary,
   type WeekSummaryDetail,
 } from "@/lib/api";
-import { shortDate } from "@/lib/format";
+import { realAsSet, shortDate, summarize } from "@/lib/format";
 import { cn } from "cn";
 import { CargandoDiscos } from "@/components/Cargando";
 
@@ -161,6 +163,24 @@ const SENALES: Record<string, { estado: EstadoDisco; texto: string }> = {
   "sin registrar": { estado: "pendiente", texto: "sin registrar" },
 };
 
+// Lo hecho frente a lo que tocaba, con el mismo texto que usa el día ("3 × 12 · 50 kg"). Solo cuenta
+// las series que se registraron; vacío si nada se registró o si lo hecho fue lo que tocaba.
+function hechoFrenteAlPlan(e: WeekSummaryDetail["exercises"][number]): { hecho: string; tocaba: string | null } | null {
+  const registradas = e.sets.filter((s) => s.real !== null);
+  if (registradas.length === 0) return null;
+  const texto = (sets: SetItem[]) => summarize({ kind: e.kind, sets } as ExerciseItem);
+  const hecho = texto(registradas.map((s) => realAsSet(s.real!)));
+  const tocaba = texto(
+    registradas.map((s) => ({
+      reps: s.planned.reps,
+      duration_minutes: s.planned.duration_minutes,
+      duration_seconds: s.planned.duration_seconds,
+      target_weight_kg: s.planned.weight_kg,
+    })),
+  );
+  return { hecho, tocaba: tocaba === hecho ? null : tocaba };
+}
+
 // El orden en que se cuentan en el resumen de una línea.
 const ORDEN = ["superó", "cumplió", "no llegó", "sin registrar"] as const;
 const PLURAL: Record<(typeof ORDEN)[number], string> = {
@@ -209,10 +229,19 @@ function ComoTeFue({ ejercicios }: { ejercicios: WeekSummaryDetail["exercises"] 
             <ul className="mx-0 mt-2 mb-0 list-none p-0">
               {ejercicios.map((e, k) => {
                 const senal = SENALES[e.signal] ?? SENALES["sin registrar"];
+                const hecho = hechoFrenteAlPlan(e);
                 return (
-                  <li key={k} className="flex items-center gap-3 border-t border-border py-2 first:border-t-0">
-                    <Disco estado={senal.estado} />
-                    <span className="min-w-0 flex-1 font-heading text-lg leading-tight font-semibold">{e.name}</span>
+                  <li key={k} className="flex items-start gap-3 border-t border-border py-2 first:border-t-0">
+                    <Disco estado={senal.estado} className="mt-0.5" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-heading text-lg leading-tight font-semibold">{e.name}</span>
+                      {hecho && (
+                        <span className="block text-sm text-muted-foreground">
+                          Hiciste {hecho.hecho}
+                          {hecho.tocaba && <span className="block">Tocaba {hecho.tocaba}</span>}
+                        </span>
+                      )}
+                    </span>
                     <span className="shrink-0 text-sm text-muted-foreground">{senal.texto}</span>
                   </li>
                 );

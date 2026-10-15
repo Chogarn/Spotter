@@ -255,12 +255,39 @@ class CloseWeekIn(BaseModel):
     note: str | None = Field(default=None, max_length=1000)
 
 
+class RealSetOut(BaseModel):
+    """Lo que el usuario realmente hizo en una serie."""
+
+    reps: int | None
+    duration_minutes: int | None
+    duration_seconds: int | None
+    weight_kg: float | None
+
+
+class PlannedValuesOut(BaseModel):
+    """Lo que tocaba en una serie."""
+
+    reps: int | None
+    duration_minutes: int | None
+    duration_seconds: int | None
+    weight_kg: float | None
+
+
+class ResultSetOut(BaseModel):
+    """Una serie del ejercicio: lo que tocaba y lo que se hizo (nulo si no se registró)."""
+
+    planned: PlannedValuesOut
+    real: RealSetOut | None
+
+
 class ExerciseResultOut(BaseModel):
-    """Cómo le fue en un ejercicio de la semana (la misma señal que recibe la IA)."""
+    """Cómo le fue en un ejercicio de la semana (la misma señal que recibe la IA), con las series
+    para mostrar lo que tocaba frente a lo que se hizo."""
 
     name: str
     kind: str
     signal: str  # "superó", "cumplió", "no llegó" o "sin registrar"
+    sets: list[ResultSetOut] = []
 
 
 class RoutineExerciseOut(BaseModel):
@@ -361,15 +388,6 @@ class WeekDetailOut(BaseModel):
     week_start: date
     closing_note: str | None = None
     days: list[WeekDayItemOut]
-
-
-class RealSetOut(BaseModel):
-    """Lo que el usuario realmente hizo en una serie."""
-
-    reps: int | None
-    duration_minutes: int | None
-    duration_seconds: int | None
-    weight_kg: float | None
 
 
 class DaySetOut(BaseModel):
