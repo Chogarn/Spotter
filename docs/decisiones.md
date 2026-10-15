@@ -440,6 +440,13 @@ Cada objetivo tiene su ícono sobre un disco oscuro: **masa** (brazo flexionado)
 - **Por qué:** *(completar)*
 - **Descartaste (por ahora):** dibujos por grupo muscular, por ejercicio y en las tarjetas; no estabas seguro.
 
+### 69. La evolución de un ejercicio es por fecha y junta todas las rutinas
+En Progreso, el gráfico de un ejercicio ya no depende de la rutina elegida arriba: acumula **todas** tus rutinas en una sola línea de tiempo, un punto por semana con lo mejor realizado (mayor peso; cardio en minutos e isométricos en segundos, cada uno en su unidad). **El fondo cambia de color con cada rutina** y una leyenda dice cuál es cuál; las semanas sin registros cortan la línea y no se inventan. Debajo, tres datos: récord, semanas con datos y cuánto subió desde la primera. El buscador elige primero el ejercicio que apareció en más semanas. Los puntos van parejos en el orden de las fechas (dos semanas del mismo día no se pisan).
+- **Origen:** tuya (2026-10-15): "debería ser un histórico de cada ejercicio, aislado de las rutinas, que se acumule todo"; aprobaste la maqueta con el fondo de color por rutina.
+- **Por qué:** *(completar)*
+- **Descartaste:** un gráfico por rutina (el anterior); mezclar unidades distintas en una misma línea.
+- **Ojo:** los ejercicios de antes del catálogo con otro nombre no se juntan con los del catálogo; desde que todo sale del catálogo, se unifican.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.

@@ -261,6 +261,43 @@ class ExerciseWeekPointOut(BaseModel):
     value: float | None
 
 
+class ExerciseOptionOut(BaseModel):
+    """Un ejercicio que aparece en alguna semana de la persona, en cualquier rutina."""
+
+    id: int
+    name: str
+    kind: str
+    weeks_count: int
+
+
+class TimelinePointOut(BaseModel):
+    """Lo mejor realizado en un ejercicio en una semana, con la rutina a la que pertenece."""
+
+    week_id: int
+    number: int  # número de la semana dentro de su rutina
+    status: str
+    week_start: date | None
+    routine_id: int
+    routine_name: str
+    goal: str
+    value: float | None
+
+
+class ExerciseTimelineOut(BaseModel):
+    """La evolución de un ejercicio por fecha, acumulando todas las rutinas."""
+
+    exercise_id: int
+    name: str
+    kind: str
+    unit: str  # "kg", "reps", "s" o "min" (cada tipo con su unidad: no se mezclan)
+    points: list[TimelinePointOut]  # de la semana más vieja a la más nueva
+    record: float | None
+    first_value: float | None
+    last_value: float | None
+    weeks_with_data: int
+    routines_count: int
+
+
 class ExerciseHistoryOut(BaseModel):
     """La evolución de un ejercicio a lo largo de las semanas de una rutina (#62)."""
 

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Flecha } from "@/components/Flecha";
-import { GraficoEjercicio } from "@/components/GraficoEjercicio";
+import { EvolucionEjercicio } from "@/components/EvolucionEjercicio";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
 import {
@@ -143,7 +143,8 @@ export default function Progreso() {
           )}
 
           {resumen && resumen.week_id === semanaId && <ResumenSemana resumen={resumen} />}
-          {rutinaId !== null && <GraficoEjercicio key={rutinaId} rutinaId={rutinaId} />}
+          {/* La evolución por ejercicio junta todas las rutinas: no depende de la elegida arriba. */}
+          <EvolucionEjercicio />
         </>
       )}
     </main>

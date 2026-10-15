@@ -127,6 +127,33 @@ export type DayState = "pending" | "partial" | "completed";
 // Progreso (#62): los ejercicios de una rutina y la evolución de uno a lo largo de las semanas.
 export type RoutineExercise = { id: number; name: string; kind: ExerciseItem["kind"] };
 
+// Progreso por ejercicio, acumulando todas las rutinas (decisión 69).
+export type ExerciseOption = { id: number; name: string; kind: ExerciseItem["kind"]; weeks_count: number };
+
+export type TimelinePoint = {
+  week_id: number;
+  number: number; // semana dentro de su rutina
+  status: string;
+  week_start: string | null;
+  routine_id: number;
+  routine_name: string;
+  goal: string;
+  value: number | null;
+};
+
+export type ExerciseTimeline = {
+  exercise_id: number;
+  name: string;
+  kind: ExerciseItem["kind"];
+  unit: "kg" | "reps" | "s" | "min";
+  points: TimelinePoint[]; // de la semana más vieja a la más nueva
+  record: number | null;
+  first_value: number | null;
+  last_value: number | null;
+  weeks_with_data: number;
+  routines_count: number;
+};
+
 export type ExerciseHistory = {
   exercise_id: number;
   name: string;
