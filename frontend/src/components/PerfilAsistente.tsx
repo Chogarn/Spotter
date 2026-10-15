@@ -1,8 +1,9 @@
 "use client";
 
+import { Mars, Venus, VenusAndMars, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 
-import { GrupoOpciones, OpcionAsistente, PasoAsistente, ReglaNumero } from "@/components/Asistente";
+import { GrupoOpciones, OpcionAsistente, PasoAsistente, ReglaNumero, RuedaNumero } from "@/components/Asistente";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,42 +20,68 @@ export type DatosPerfil = {
   accept_legal_notice: boolean;
 };
 
-const SEXOS = [
+export const SEXOS = [
   ["masculino", "Masculino"],
   ["femenino", "Femenino"],
   ["otro", "Otro"],
-  ["", "Prefiero no indicarlo"],
 ];
 
-const PASOS = ["nombre", "edad", "peso", "altura", "sexo", "limitaciones", "aviso"] as const;
+// Un dibujo por opción, sobre el mismo disco oscuro que el de los objetivos.
+const ICONOS_SEXO: Record<string, LucideIcon> = {
+  masculino: Mars,
+  femenino: Venus,
+  otro: VenusAndMars,
+};
 
-// Perfil de un usuario nuevo: una pregunta por pantalla. Editar el perfil después se sigue
-// haciendo con el lápiz de cada tarjeta. `enviar` guarda y devuelve si salió bien.
+export type PasoPerfil = "nombre" | "edad" | "peso" | "altura" | "sexo" | "limitaciones" | "aviso";
+export const TODOS_LOS_PASOS: PasoPerfil[] = ["nombre", "edad", "peso", "altura", "sexo", "limitaciones", "aviso"];
+
+const TITULOS: Record<PasoPerfil, string> = {
+  nombre: "¿Cómo te llamás?",
+  edad: "¿Cuántos años tenés?",
+  peso: "¿Cuánto pesás?",
+  altura: "¿Cuánto medís?",
+  sexo: "¿Cuál es tu sexo?",
+  limitaciones: "¿Tenés alguna lesión o limitación?",
+  aviso: "Antes de empezar",
+};
+
+// Una pregunta por pantalla. Sin `inicial` es el perfil de un usuario nuevo (todos los pasos, con
+// el aviso legal al final); con `inicial` y `pasos` es la edición de una tarjeta del perfil, con
+// el dato actual ya puesto, y `onCancelar` vuelve sin guardar. `enviar` guarda y devuelve si salió bien.
 export function PerfilAsistente({
   nombreInicial,
+  inicial,
+  pasos = TODOS_LOS_PASOS,
   enviar,
   guardando,
   error,
+  onCancelar,
 }: {
   nombreInicial: string;
+  inicial?: DatosPerfil;
+  pasos?: PasoPerfil[];
   enviar: (datos: DatosPerfil) => Promise<boolean>;
   guardando: boolean;
   error: string;
+  onCancelar?: () => void;
 }) {
+  const editando = inicial !== undefined;
   const [indice, setIndice] = useState(0);
-  // Lo que escribió la persona; mientras no escriba, vale el nombre de la cuenta (que llega tarde).
+  // Lo que escribió la persona; mientras no escriba, vale el nombre guardado o el de la cuenta
+  // (que llega tarde).
   const [escrito, setEscrito] = useState<string | null>(null);
-  const nombre = escrito ?? nombreInicial;
-  // Valores de partida de las reglas: hay que confirmarlos con "Continuar".
-  const [edad, setEdad] = useState(30);
-  const [peso, setPeso] = useState(70);
-  const [altura, setAltura] = useState(170);
-  const [sexo, setSexo] = useState("");
-  const [limitaciones, setLimitaciones] = useState("");
-  const [acepta, setAcepta] = useState(false);
+  const nombre = escrito ?? (inicial?.name || nombreInicial);
+  // Valores de partida de las reglas (los guardados al editar): hay que confirmarlos con "Continuar".
+  const [edad, setEdad] = useState(() => Number(inicial?.age) || 30);
+  const [peso, setPeso] = useState(() => Number(inicial?.weight_kg) || 70);
+  const [altura, setAltura] = useState(() => Number(inicial?.height_cm) || 170);
+  const [sexo, setSexo] = useState(inicial?.sex ?? "");
+  const [limitaciones, setLimitaciones] = useState(inicial?.limitations ?? "");
+  const [acepta, setAcepta] = useState(inicial?.accept_legal_notice ?? false);
 
-  const paso = PASOS[indice];
-  const ultimo = indice === PASOS.length - 1;
+  const paso = pasos[indice];
+  const ultimo = indice === pasos.length - 1;
   const nombreLimpio = nombre.trim();
 
   function siguiente() {
@@ -73,32 +100,29 @@ export function PerfilAsistente({
     });
   }
 
-  const titulos: Record<(typeof PASOS)[number], string> = {
-    nombre: "¿Cómo te llamás?",
-    edad: "¿Cuántos años tenés?",
-    peso: "¿Cuánto pesás?",
-    altura: "¿Cuánto medís?",
-    sexo: "¿Cuál es tu sexo?",
-    limitaciones: "¿Tenés alguna lesión o limitación?",
-    aviso: "Antes de empezar",
-  };
+  const etiquetaFinal = guardando ? "Guardando..." : editando ? "Guardar" : "Terminar";
 
   return (
     <PasoAsistente
       paso={indice + 1}
-      total={PASOS.length}
-      titulo={titulos[paso]}
+      total={pasos.length}
+      titulo={TITULOS[paso]}
       ayuda={
-        paso === "sexo"
-          ? "Es opcional."
-          : paso === "limitaciones"
+        paso === "limitaciones"
             ? "Es opcional. La IA lo tiene en cuenta al armar tu semana."
             : undefined
       }
-      onAtras={indice > 0 ? () => setIndice(indice - 1) : undefined}
+      onAtras={indice > 0 ? () => setIndice(indice - 1) : onCancelar}
+      etiquetaAtras={indice > 0 ? "Volver" : "Cancelar"}
       onContinuar={siguiente}
-      continuar={ultimo ? (guardando ? "Guardando..." : "Terminar") : paso === "limitaciones" && !limitaciones.trim() ? "Saltar" : "Continuar"}
-      deshabilitado={(paso === "nombre" && !nombreLimpio) || (paso === "aviso" && !acepta)}
+      continuar={
+        ultimo
+          ? etiquetaFinal
+          : paso === "limitaciones" && !limitaciones.trim()
+            ? "Saltar"
+            : "Continuar"
+      }
+      deshabilitado={(paso === "nombre" && !nombreLimpio) || (paso === "sexo" && !sexo) || (paso === "aviso" && !acepta)}
       ocupado={guardando}
       error={ultimo ? error : undefined}
       nota="Tus datos son privados y están protegidos."
@@ -116,8 +140,7 @@ export function PerfilAsistente({
         />
       )}
       {paso === "edad" && (
-        <ReglaNumero valor={edad} min={14} max={100} paso={1} unidad="años" etiqueta="la edad"
-          cadaCuantas={5} onChange={setEdad} />
+        <RuedaNumero valor={edad} min={14} max={100} unidad="años" etiqueta="la edad" onChange={setEdad} />
       )}
       {paso === "peso" && (
         <ReglaNumero valor={peso} min={30} max={300} paso={0.5} unidad="kg" etiqueta="el peso"
@@ -125,14 +148,29 @@ export function PerfilAsistente({
       )}
       {paso === "altura" && (
         <ReglaNumero valor={altura} min={100} max={250} paso={1} unidad="cm" etiqueta="la altura"
-          cadaCuantas={5} onChange={setAltura} />
+          cadaCuantas={5} vertical onChange={setAltura} />
       )}
       {paso === "sexo" && (
         <GrupoOpciones etiqueta="Sexo">
-          {SEXOS.map(([valor, texto]) => (
-            <OpcionAsistente key={valor} titulo={texto} seleccionada={sexo === valor}
-              onElegir={() => setSexo(valor)} />
-          ))}
+          {SEXOS.map(([valor, texto]) => {
+            const Icono = ICONOS_SEXO[valor];
+            return (
+              <OpcionAsistente
+                key={valor}
+                titulo={texto}
+                seleccionada={sexo === valor}
+                icono={
+                  <span
+                    aria-hidden="true"
+                    className="flex size-12 shrink-0 items-center justify-center rounded-full bg-disco-tinta text-white"
+                  >
+                    <Icono className="size-6" />
+                  </span>
+                }
+                onElegir={() => setSexo(valor)}
+              />
+            );
+          })}
         </GrupoOpciones>
       )}
       {paso === "limitaciones" && (

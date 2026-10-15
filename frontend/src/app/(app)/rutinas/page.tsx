@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { CargandoDiscos } from "@/components/Cargando";
 
 export default function MisRutinasPage() {
   const [rutinas, setRutinas] = useState<Routine[] | null>(null);
@@ -40,7 +41,7 @@ export default function MisRutinasPage() {
         {rutinas && <NuevaRutina hayActiva={rutinas.some((r) => r.has_active_week)} />}
       </div>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {!rutinas && !error && <p>Cargando...</p>}
+      {!rutinas && !error && <CargandoDiscos />}
       {rutinas && rutinas.length === 0 && (
         <p className="text-muted-foreground">
           Todavía no tenés rutinas. Creá la primera con «Nueva rutina»: la IA la arma según tu nivel y tu

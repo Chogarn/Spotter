@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { readError, type DayDetail, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
 import { differsFromPlan, estaHecho, realAsSet, setText, summarize } from "@/lib/format";
 import { cn } from "cn";
+import { Cargando } from "@/components/Cargando";
 
 // Dónde va el usuario: el ejercicio y la serie que se muestran en grande.
 type Posicion = { ej: number; serie: number };
@@ -100,7 +101,7 @@ export default function EntrenarView({
       </main>
     );
   }
-  if (!dia) return <main className="mx-auto max-w-xl px-4 pt-6">Cargando...</main>;
+  if (!dia) return <Cargando />;
 
   const actual = dia;
   // Solo se registra en la semana activa y con el día abierto; si no, el ejercicio se ve en lectura.

@@ -4,6 +4,7 @@ import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+import { Logo } from "@/components/Logo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "cn";
@@ -30,6 +31,7 @@ export function PantallaAcceso({
             className="inline-flex items-center gap-0.5 text-sm text-primary-foreground/70 no-underline hover:text-primary-foreground"
           >
             <ChevronLeft className="size-4" aria-hidden="true" />
+            <Logo className="mx-1 h-4" />
             Spotter
           </Link>
           <h1 className="mt-3 mb-1 text-5xl">{titulo}</h1>

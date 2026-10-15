@@ -15,6 +15,7 @@ import { Flecha } from "@/components/Flecha";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { cn } from "cn";
+import { Cargando } from "@/components/Cargando";
 
 export default function PropuestaView({
   params,
@@ -79,7 +80,7 @@ export default function PropuestaView({
 
   const contenedor = { maxWidth: 576, margin: "0 auto", padding: "1.5rem 1rem 0" };
 
-  if (cargando) return <main style={contenedor}>Cargando...</main>;
+  if (cargando) return <Cargando />;
 
   if (!propuesta) {
     return (

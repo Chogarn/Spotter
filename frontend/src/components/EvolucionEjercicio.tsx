@@ -64,7 +64,16 @@ export function EvolucionEjercicio() {
       .catch((e) => setError(e.message));
   }, [ejercicioId]);
 
-  if (ejercicios !== null && ejercicios.length === 0) return null;
+  if (ejercicios !== null && ejercicios.length === 0) {
+    return (
+      <section className="rounded-2xl bg-card p-6 text-center">
+        <p className="mt-0 mb-1 font-medium">Todavía no hay nada que mostrar</p>
+        <p className="m-0 text-sm text-muted-foreground">
+          Cuando registres tus primeras series, acá vas a ver cómo evoluciona cada ejercicio.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className="mt-4 mb-3 rounded-2xl bg-card p-4">
@@ -268,26 +277,30 @@ function Linea({ historial }: { historial: ExerciseTimeline }) {
         />
       </div>
 
-      {/* La misma información como tabla, para lectores de pantalla. */}
-      <table className="sr-only">
-        <caption>{historial.name}</caption>
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Rutina</th>
-            <th>{QUE_MIDE[historial.unit]}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {puntos.map((p) => (
-            <tr key={p.week_id}>
-              <td>{p.week_start ? shortDate(p.week_start) : `semana ${p.number}`}</td>
-              <td>{p.routine_name}</td>
-              <td>{p.value === null ? "sin registrar" : `${numero(p.value)} ${unidad}`}</td>
+      {/* La misma información como tabla, para lectores de pantalla. Va dentro de una caja de 1 px:
+          una tabla `sr-only` ignora el ancho de 1 px, mide lo que mide su texto (sin cortes de
+          línea) y ensancha toda la página en el celular, la barra de abajo incluida. */}
+      <div className="relative h-px w-px overflow-hidden">
+        <table className="sr-only">
+          <caption>{historial.name}</caption>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Rutina</th>
+              <th>{QUE_MIDE[historial.unit]}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {puntos.map((p) => (
+              <tr key={p.week_id}>
+                <td>{p.week_start ? shortDate(p.week_start) : `semana ${p.number}`}</td>
+                <td>{p.routine_name}</td>
+                <td>{p.value === null ? "sin registrar" : `${numero(p.value)} ${unidad}`}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

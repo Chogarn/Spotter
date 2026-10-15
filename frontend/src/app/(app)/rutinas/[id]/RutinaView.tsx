@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { DiscosSemana } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { cn } from "cn";
+import { CargandoDiscos } from "@/components/Cargando";
 
 export default function RutinaView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -55,7 +56,7 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
     <main className="mx-auto max-w-xl px-4 pt-6">
       <BackButton href="/rutinas">← Tus rutinas</BackButton>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {!rutina && !error && <p>Cargando...</p>}
+      {!rutina && !error && <CargandoDiscos />}
       {rutina && (
         <>
           {nombre === null ? (

@@ -9,6 +9,7 @@ import { OpcionesSiguiente, ResumenUltimaSemana, useUltimaSemana } from "@/compo
 import { readError, apiFetch, type WeekDetail } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { CargandoDiscos } from "@/components/Cargando";
 
 // Entrenar (`/entrenar`, decisiones 42 y 51): la semana en curso. Con una semana activa muestra el
 // día que toca y el progreso; sin semana activa, la propuesta pendiente y "Generar rutina".
@@ -51,7 +52,7 @@ export default function Entrenar() {
   return (
     <main className="mx-auto max-w-xl px-4 pt-8">
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {cargando && <p>Cargando...</p>}
+      {cargando && <CargandoDiscos />}
       {!cargando && semana && <SemanaActiva semana={semana} onCerrada={() => setRecarga((n) => n + 1)} />}
       {!cargando && !semana && (
         <SinSemana pendiente={pendiente} onConflict={() => setRecarga((n) => n + 1)} />
@@ -141,7 +142,7 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
 function SinSemana({ pendiente, onConflict }: { pendiente: number | null; onConflict: () => void }) {
   const ultima = useUltimaSemana();
 
-  if (ultima === undefined) return <p>Cargando...</p>;
+  if (ultima === undefined) return <CargandoDiscos />;
 
   return (
     <>

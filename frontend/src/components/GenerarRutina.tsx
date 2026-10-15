@@ -7,6 +7,7 @@ import { readError, type Routine, apiFetch } from "@/lib/api";
 import { GrupoOpciones, OpcionAsistente, PasoAsistente } from "@/components/Asistente";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { IconoNivel } from "@/components/IconoNivel";
 import { IconoObjetivo } from "@/components/IconoObjetivo";
 
 type Paso = "eleccion" | "objetivo" | "nivel" | "dias";
@@ -235,7 +236,7 @@ export function GenerarRutina({
             <GrupoOpciones etiqueta="Nivel">
               {NIVELES.map(([valor, etiqueta]) => (
                 <OpcionAsistente key={valor} titulo={etiqueta} seleccionada={nivel === valor}
-                  onElegir={() => cambiarNivel(valor)} />
+                  icono={<IconoNivel nivel={valor} />} onElegir={() => cambiarNivel(valor)} />
               ))}
             </GrupoOpciones>
           )}

@@ -1,18 +1,23 @@
 "use client";
 
-import { ChartLine, Dumbbell, House, ListChecks, UserRound } from "lucide-react";
+import { Dumbbell, House, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 
 import { cn } from "cn";
 
-// Barra fija abajo, siempre, también en la computadora (decisión 42). Cinco lugares, con Entrenar
-// en el centro como un botón redondo elevado (decisiones 47 y 51). Entrenar abarca lo que se abre
+// Barra fija abajo, siempre, también en la computadora (decisión 42). Tres lugares, con Entrenar
+// en el centro como un botón redondo elevado (decisiones 47 y 51). Rutinas y Progreso se abren
+// desde Inicio, y mientras se está en ellos Inicio queda marcado. Entrenar abarca lo que se abre
 // desde ahí: la semana, el día, el ejercicio y la propuesta.
 const SECCIONES = [
-  { href: "/", texto: "Inicio", Icono: House, activa: (p: string) => p === "/" },
-  { href: "/rutinas", texto: "Rutinas", Icono: ListChecks, activa: (p: string) => p.startsWith("/rutinas") },
+  {
+    href: "/",
+    texto: "Inicio",
+    Icono: House,
+    activa: (p: string) => p === "/" || p.startsWith("/rutinas") || p.startsWith("/progreso"),
+  },
   {
     href: "/entrenar",
     texto: "Entrenar",
@@ -20,7 +25,6 @@ const SECCIONES = [
     activa: (p: string) => p.startsWith("/entrenar") || p.startsWith("/semanas") || p.startsWith("/rutina/"),
     central: true,
   },
-  { href: "/progreso", texto: "Progreso", Icono: ChartLine, activa: (p: string) => p.startsWith("/progreso") },
   { href: "/perfil", texto: "Perfil", Icono: UserRound, activa: (p: string) => p.startsWith("/perfil") },
 ];
 

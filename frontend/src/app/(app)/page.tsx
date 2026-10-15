@@ -1,14 +1,16 @@
 "use client";
 
-import { ChartLine, Lightbulb, ListChecks, Sparkles, type LucideIcon } from "lucide-react";
+import { CalendarCheck, ChartLine, Lightbulb, ListChecks, Sparkles, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { Logo } from "@/components/Logo";
 import { OpcionesSiguiente, ResumenUltimaSemana, useUltimaSemana } from "@/components/SiguienteSemana";
 import { Button } from "@/components/ui/button";
 import { readError, apiFetch, type SessionUser, type WeekDetail } from "@/lib/api";
+import { CargandoDiscos } from "@/components/Cargando";
 
 // Inicio (#60, decisión 51): la portada para quien inició sesión. Saluda, muestra cómo va la
 // semana y qué toca hoy, y da accesos rápidos. La semana en curso con todos sus días vive en
@@ -70,6 +72,7 @@ export default function Inicio() {
       {/* Franja de saludo, como el carnet de un gimnasio, con el borde de un disco asomando. */}
       <section className="relative overflow-hidden bg-primary px-4 pt-8 pb-7 text-primary-foreground">
         <div className="mx-auto max-w-xl">
+          <Logo className="mb-3 h-6" />
           <p className="m-0 text-sm text-primary-foreground/70 first-letter:uppercase">{fecha || " "}</p>
           <h1 className="my-1 text-5xl">{nombre ? `Hola, ${nombre}` : "Hola"}</h1>
           {semana && (
@@ -96,7 +99,7 @@ export default function Inicio() {
 
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        {cargando && <p>Cargando...</p>}
+        {cargando && <CargandoDiscos />}
 
         {!cargando && semana && (
           <section className="mb-4 rounded-2xl border-2 border-disco-tinta bg-card p-5">
@@ -165,10 +168,17 @@ export default function Inicio() {
           </Link>
         )}
 
-        <nav aria-label="Accesos rápidos" className="grid grid-cols-2 gap-2.5">
-          <Acceso href="/rutinas" Icono={ListChecks} texto="Tus rutinas" />
-          <Acceso href="/rutinas" Icono={Sparkles} texto="Nueva rutina" />
-          <Acceso href="/progreso" Icono={ChartLine} texto="Progreso" />
+        <nav aria-label="Accesos rápidos">
+          <h2 className="mt-0 mb-2 text-xl">Tus rutinas</h2>
+          <div className="mb-5 grid grid-cols-2 gap-2.5">
+            <Acceso href="/rutinas" Icono={ListChecks} texto="Tus rutinas" />
+            <Acceso href="/rutinas" Icono={Sparkles} texto="Nueva rutina" />
+          </div>
+          <h2 className="mt-0 mb-2 text-xl">Tu progreso</h2>
+          <div className="grid grid-cols-2 gap-2.5">
+            <Acceso href="/progreso" Icono={CalendarCheck} texto="Resúmenes semanales" />
+            <Acceso href="/progreso/estadisticas" Icono={ChartLine} texto="Estadísticas por ejercicio" />
+          </div>
         </nav>
       </div>
     </main>

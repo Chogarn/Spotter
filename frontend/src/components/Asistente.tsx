@@ -133,11 +133,17 @@ export function GrupoOpciones({ etiqueta, children }: { etiqueta: string; childr
   );
 }
 
-// Ancho de cada marca de la regla, en píxeles.
+// Ancho (o alto, en la vertical) de cada marca de la regla, en píxeles.
 const MARCA = 14;
 
-// Número grande con una regla horizontal que se desliza (como la de Hevy). También se puede
-// ajustar con − y +, que sirven con mouse y teclado.
+function formatear(valor: number, paso: number): string {
+  const decimales = paso < 1 ? 1 : 0;
+  return valor.toLocaleString("es-AR", { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
+}
+
+// Número grande con una regla que se desliza (como la de Hevy). Horizontal por defecto (el peso);
+// `vertical` (la altura) la pone a la derecha, con las rayas hacia la izquierda y el número y los
+// botones − y + a su izquierda. También se ajusta con − y +, que sirven con mouse y teclado.
 export function ReglaNumero({
   valor,
   min,
@@ -146,6 +152,7 @@ export function ReglaNumero({
   unidad,
   etiqueta,
   cadaCuantas,
+  vertical = false,
   onChange,
 }: {
   valor: number;
@@ -156,6 +163,8 @@ export function ReglaNumero({
   etiqueta: string;
   // Cada cuántas marcas va una marca larga.
   cadaCuantas: number;
+  // Regla vertical: se desliza hacia arriba y abajo y el valor crece hacia arriba.
+  vertical?: boolean;
   onChange: (v: number) => void;
 }) {
   const regla = useRef<HTMLDivElement>(null);
@@ -164,20 +173,32 @@ export function ReglaNumero({
 
   // Al abrir, y cuando el valor cambia por los botones, la regla se mueve hasta la marca.
   const yaPuesta = useRef(false);
+  // En la vertical el valor crece hacia arriba (como una regla de altura): la marca 0 queda abajo.
+  const aMarca = (posicion: number) => {
+    const m = Math.round(posicion / MARCA);
+    return vertical ? marcas - m : m;
+  };
+  const aPosicion = (i: number) => (vertical ? marcas - i : i) * MARCA;
+
   useEffect(() => {
     const el = regla.current;
     if (!el) return;
-    if (Math.round(el.scrollLeft / MARCA) !== indice) {
+    if (aMarca(vertical ? el.scrollTop : el.scrollLeft) !== indice) {
       // La primera vez (al abrir el paso) va directo; después, con animación.
-      el.scrollTo({ left: indice * MARCA, behavior: yaPuesta.current ? "smooth" : "instant" });
+      const destino = aPosicion(indice);
+      el.scrollTo({
+        ...(vertical ? { top: destino } : { left: destino }),
+        behavior: yaPuesta.current ? "smooth" : "instant",
+      });
     }
     yaPuesta.current = true;
-  }, [indice]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [indice, vertical]);
 
   function alDeslizar() {
     const el = regla.current;
     if (!el) return;
-    const i = Math.min(marcas, Math.max(0, Math.round(el.scrollLeft / MARCA)));
+    const i = Math.min(marcas, Math.max(0, aMarca(vertical ? el.scrollTop : el.scrollLeft)));
     if (i !== indice) onChange(Number((min + i * paso).toFixed(2)));
   }
 
@@ -185,58 +206,190 @@ export function ReglaNumero({
     onChange(Number(Math.min(max, Math.max(min, valor + delta)).toFixed(2)));
   }
 
-  const decimales = paso < 1 ? 1 : 0;
-  const mostrado = valor.toLocaleString("es-AR", {
-    minimumFractionDigits: decimales,
-    maximumFractionDigits: decimales,
-  });
+  const mostrado = formatear(valor, paso);
+  const baja = (
+    <Button type="button" size="icon-lg" variant="outline" onClick={() => mover(-paso)}
+      disabled={valor <= min} aria-label={`Bajar ${etiqueta}`}>
+      <Minus />
+    </Button>
+  );
+  const sube = (
+    <Button type="button" size="icon-lg" variant="outline" onClick={() => mover(paso)}
+      disabled={valor >= max} aria-label={`Subir ${etiqueta}`}>
+      <Plus />
+    </Button>
+  );
+  const numero = (
+    <p
+      className="m-0 text-center font-heading text-8xl leading-none font-bold tabular-nums"
+      role="status"
+      aria-label={`${etiqueta}: ${mostrado} ${unidad}`}
+    >
+      {mostrado}
+      <span className="ml-1.5 text-2xl font-medium text-muted-foreground">{unidad}</span>
+    </p>
+  );
 
+  const marcasLargas = "var(--disco-tinta, #172033) 0 2px, transparent 2px";
+  const marcasCortas = "#9aa3ae 0 1px, transparent 1px";
+  const reglaTrama = vertical
+    ? {
+        height: marcas * MARCA + 2,
+        width: "100%",
+        backgroundImage: `linear-gradient(to bottom, ${marcasLargas}), linear-gradient(to bottom, ${marcasCortas})`,
+        backgroundSize: `70% ${MARCA * cadaCuantas}px, 40% ${MARCA}px`,
+        backgroundPosition: "right top",
+        backgroundRepeat: "repeat-y",
+      }
+    : {
+        width: marcas * MARCA + 2,
+        height: "100%",
+        backgroundImage: `linear-gradient(to right, ${marcasLargas}), linear-gradient(to right, ${marcasCortas})`,
+        backgroundSize: `${MARCA * cadaCuantas}px 70%, ${MARCA}px 40%`,
+        backgroundPosition: "left bottom",
+        backgroundRepeat: "repeat-x",
+      };
+
+  const cinta = (
+    <div className="relative">
+      <div
+        ref={regla}
+        onScroll={alDeslizar}
+        aria-hidden="true"
+        className={cn(
+          "flex overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          vertical ? "h-72 w-24 touch-pan-y flex-col" : "h-16 touch-pan-x",
+        )}
+      >
+        <div className={cn("shrink-0", vertical ? "h-1/2" : "w-1/2")} />
+        <div className="shrink-0" style={reglaTrama} />
+        <div className={cn("shrink-0", vertical ? "h-1/2" : "w-1/2")} />
+      </div>
+      <span
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute bg-disco-azul",
+          vertical
+            ? "top-1/2 -left-6 h-0.5 w-[calc(100%+1.5rem)] -translate-y-1/2"
+            : "top-0 left-1/2 h-full w-0.5 -translate-x-1/2",
+        )}
+      />
+    </div>
+  );
+
+  if (vertical) {
+    return (
+      <div className="flex items-center justify-center gap-6">
+        {/* Ancho fijo: si el número cambia de ancho (99 a 100), la regla y su línea azul no se mueven. */}
+        <div className="flex w-48 shrink-0 flex-col items-center gap-4">
+          {sube}
+          {numero}
+          {baja}
+        </div>
+        {cinta}
+      </div>
+    );
+  }
   return (
     <div>
       <div className="flex items-center justify-center gap-3">
-        <Button type="button" size="icon-lg" variant="outline" onClick={() => mover(-paso)}
-          disabled={valor <= min} aria-label={`Bajar ${etiqueta}`}>
-          <Minus />
-        </Button>
-        <p
-          className="m-0 min-w-40 text-center font-heading text-8xl leading-none font-bold"
-          role="status"
-          aria-label={`${etiqueta}: ${mostrado} ${unidad}`}
-        >
-          {mostrado}
-          <span className="ml-1.5 text-2xl font-medium text-muted-foreground">{unidad}</span>
-        </p>
-        <Button type="button" size="icon-lg" variant="outline" onClick={() => mover(paso)}
-          disabled={valor >= max} aria-label={`Subir ${etiqueta}`}>
-          <Plus />
-        </Button>
+        {baja}
+        {numero}
+        {sube}
       </div>
+      <div className="mt-10">{cinta}</div>
+    </div>
+  );
+}
 
-      <div className="relative mt-10">
-        <div
-          ref={regla}
-          onScroll={alDeslizar}
-          aria-hidden="true"
-          className="flex h-16 touch-pan-x overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <div className="w-1/2 shrink-0" />
+// Altura de cada fila de la rueda, en píxeles.
+const FILA = 56;
+
+// Rueda de números (como la de Hevy): una lista que se desliza hacia arriba y abajo, con el
+// número elegido en el centro, dentro de una banda. Sirve para la edad.
+export function RuedaNumero({
+  valor,
+  min,
+  max,
+  unidad,
+  etiqueta,
+  onChange,
+}: {
+  valor: number;
+  min: number;
+  max: number;
+  unidad: string;
+  etiqueta: string;
+  onChange: (v: number) => void;
+}) {
+  const rueda = useRef<HTMLDivElement>(null);
+  const yaPuesta = useRef(false);
+  const numeros = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+
+  // Al abrir, la rueda va directo al valor; si cambia desde afuera (teclado), con animación.
+  useEffect(() => {
+    const el = rueda.current;
+    if (!el) return;
+    if (Math.round(el.scrollTop / FILA) !== valor - min) {
+      el.scrollTo({ top: (valor - min) * FILA, behavior: yaPuesta.current ? "smooth" : "instant" });
+    }
+    yaPuesta.current = true;
+  }, [valor, min]);
+
+  function alDeslizar() {
+    const el = rueda.current;
+    if (!el) return;
+    const i = Math.min(max - min, Math.max(0, Math.round(el.scrollTop / FILA)));
+    if (min + i !== valor) onChange(min + i);
+  }
+
+  return (
+    <div className="relative mx-auto w-56">
+      {/* La banda del número elegido. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-2xl bg-muted"
+        style={{ height: FILA }}
+      />
+      <div
+        ref={rueda}
+        onScroll={alDeslizar}
+        role="spinbutton"
+        tabIndex={0}
+        aria-label={etiqueta}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={valor}
+        aria-valuetext={`${valor} ${unidad}`}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowUp") {
+            e.preventDefault();
+            onChange(Math.max(min, valor - 1));
+          } else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            onChange(Math.min(max, valor + 1));
+          }
+        }}
+        className="relative snap-y snap-mandatory overflow-y-auto outline-none [scrollbar-width:none] focus-visible:ring-3 focus-visible:ring-ring/50 [&::-webkit-scrollbar]:hidden"
+        style={{ height: FILA * 5 }}
+      >
+        <div style={{ height: FILA * 2 }} aria-hidden="true" />
+        {numeros.map((n) => (
           <div
-            className="h-full shrink-0"
-            style={{
-              width: marcas * MARCA + 2,
-              backgroundImage:
-                "linear-gradient(to right, var(--disco-tinta, #172033) 0 2px, transparent 2px), linear-gradient(to right, #9aa3ae 0 1px, transparent 1px)",
-              backgroundSize: `${MARCA * cadaCuantas}px 70%, ${MARCA}px 40%`,
-              backgroundPosition: "left bottom",
-              backgroundRepeat: "repeat-x",
-            }}
-          />
-          <div className="w-1/2 shrink-0" />
-        </div>
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute top-0 left-1/2 h-full w-0.5 -translate-x-1/2 bg-disco-azul"
-        />
+            key={n}
+            aria-hidden="true"
+            onClick={() => onChange(n)}
+            className={cn(
+              "flex snap-center items-center justify-center font-heading font-bold",
+              n === valor ? "text-5xl" : "text-3xl text-muted-foreground",
+            )}
+            style={{ height: FILA }}
+          >
+            {n}
+            {n === valor && <span className="ml-2 text-xl font-medium text-muted-foreground">{unidad}</span>}
+          </div>
+        ))}
+        <div style={{ height: FILA * 2 }} aria-hidden="true" />
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Flecha } from "@/components/Flecha";
-import { EvolucionEjercicio } from "@/components/EvolucionEjercicio";
+import { PestanasProgreso } from "@/components/PestanasProgreso";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import {
 } from "@/lib/api";
 import { shortDate } from "@/lib/format";
 import { cn } from "cn";
+import { CargandoDiscos } from "@/components/Cargando";
 
 // Progreso (#28): el resumen de cada semana de una rutina. Solo lectura.
 export default function Progreso() {
@@ -73,8 +74,9 @@ export default function Progreso() {
   return (
     <main className="mx-auto max-w-xl px-4 pt-8">
       <h1 className="mt-0 mb-3">Progreso</h1>
+      <PestanasProgreso actual="/progreso" />
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {!rutinas && !error && <p>Cargando...</p>}
+      {!rutinas && !error && <CargandoDiscos />}
 
       {rutinas && rutinas.length === 0 && (
         <section className="rounded-2xl bg-card p-6 text-center">
@@ -143,8 +145,6 @@ export default function Progreso() {
           )}
 
           {resumen && resumen.week_id === semanaId && <ResumenSemana resumen={resumen} />}
-          {/* La evolución por ejercicio junta todas las rutinas: no depende de la elegida arriba. */}
-          <EvolucionEjercicio />
         </>
       )}
     </main>

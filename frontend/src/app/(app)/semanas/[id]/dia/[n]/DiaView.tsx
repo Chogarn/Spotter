@@ -17,6 +17,7 @@ import { estaHecho, summarize } from "@/lib/format";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { CargandoDiscos } from "@/components/Cargando";
 
 export default function DiaView({
   params,
@@ -122,7 +123,7 @@ export default function DiaView({
         ← {dia ? `Semana ${dia.week_number}` : "Volver a la semana"}
       </BackButton>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {!dia && !error && <p>Cargando...</p>}
+      {!dia && !error && <CargandoDiscos />}
       {dia && dias.length > 1 && (
         <div className="mt-3 flex items-center gap-2" role="navigation" aria-label="Días de la semana">
           {(() => {

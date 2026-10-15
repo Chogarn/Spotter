@@ -221,3 +221,42 @@ html {
     padding: 0.25rem 0.5rem;
   }
 }
+
+/* Carga con discos (components/Cargando.tsx): cada tamaño de disco se pone en su momento. */
+.carga-disco {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: 2.4s ease-out infinite both;
+}
+.carga-disco-a {
+  animation-name: carga-a;
+}
+.carga-disco-b {
+  animation-name: carga-b;
+}
+.carga-disco-c {
+  animation-name: carga-c;
+}
+@keyframes carga-a {
+  0% { opacity: 0; transform: scale(0.4); }
+  12% { opacity: 1; transform: scale(1); }
+  85% { opacity: 1; }
+  95%, 100% { opacity: 0; }
+}
+@keyframes carga-b {
+  0%, 25% { opacity: 0; transform: scale(0.4); }
+  37% { opacity: 1; transform: scale(1); }
+  85% { opacity: 1; }
+  95%, 100% { opacity: 0; }
+}
+@keyframes carga-c {
+  0%, 50% { opacity: 0; transform: scale(0.4); }
+  62% { opacity: 1; transform: scale(1); }
+  85% { opacity: 1; }
+  95%, 100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carga-disco {
+    animation: none;
+  }
+}

@@ -21,6 +21,7 @@ import { dayStateText, shortDate, statusText } from "@/lib/format";
 import { cn } from "cn";
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { CargandoDiscos } from "@/components/Cargando";
 
 export default function SemanaView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -65,7 +66,7 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
         ← {semana ? semana.routine_name : "Tus rutinas"}
       </BackButton>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {!semana && !error && <p>Cargando...</p>}
+      {!semana && !error && <CargandoDiscos />}
       {semana && (
         <>
           {/* Título grande y etiquetas, como la pantalla de la rutina y la del día. */}
