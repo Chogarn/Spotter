@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare, Sparkles, TriangleAlert } from "lucide-react";
+import { Check, MessageSquare, Sparkles, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { use, useEffect, useState } from "react";
 import { readError, type Proposal, type ProposalChanges, apiFetch } from "@/lib/api";
 import { claveEjercicio, ListaCambios } from "@/components/Cambios";
 import { BackButton } from "@/components/BackButton";
+import { Disco, estadoDia } from "@/components/Disco";
 import { CambiarEjercicio } from "@/components/CambiarEjercicio";
 import { ExerciseRow } from "@/components/ExerciseRow";
 import { Flecha } from "@/components/Flecha";
@@ -90,11 +91,52 @@ export default function PropuestaView({
   }
 
   if (aceptada) {
+    // Qué quedó creado: la primera semana de una rutina nueva, o la semana siguiente de una existente.
+    const primera = propuesta.week_number === 1;
+    const total = propuesta.routine.days.length;
     return (
       <main style={contenedor}>
-        <p>Tu rutina quedó activa: {propuesta.routine.days.length} días.</p>
-        <Button variant="outline" nativeButton={false} render={<Link href="/rutinas" />}>Ver mis rutinas</Button>{" "}
-        <Button variant="outline" nativeButton={false} render={<Link href="/entrenar" />}>Ir a Entrenar</Button>
+        <section className="rounded-2xl border-2 border-disco-tinta bg-card p-5">
+          <p className="m-0 flex items-center gap-1.5 text-sm font-medium text-disco-verde-texto">
+            <Check className="size-5" aria-hidden="true" />
+            Aceptada
+          </p>
+          <h1 className="mt-1 mb-0 text-4xl">
+            {primera ? "Tu rutina ya está lista" : `Tu semana ${propuesta.week_number ?? ""} ya está lista`}
+          </h1>
+          {propuesta.routine_name && <p className="mt-1 mb-0 text-muted-foreground">{propuesta.routine_name}</p>}
+          <div className="mt-3 flex items-center gap-1.5">
+            {propuesta.routine.days.map((_, i) => (
+              <Disco key={i} estado={estadoDia.pending} />
+            ))}
+            <span className="ml-1.5 text-sm text-muted-foreground">
+              {total} {total === 1 ? "día" : "días"}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-2.5">
+            <Button
+              size="lg"
+              className="h-12 w-full text-base"
+              nativeButton={false}
+              render={
+                <Link
+                  href={propuesta.week_id ? `/semanas/${propuesta.week_id}/dia/1/entrenar` : "/entrenar"}
+                />
+              }
+            >
+              Comenzar entrenamiento
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-12 w-full text-base"
+              nativeButton={false}
+              render={<Link href={propuesta.routine_id ? `/rutinas/${propuesta.routine_id}` : "/rutinas"} />}
+            >
+              Ver mi rutina
+            </Button>
+          </div>
+        </section>
       </main>
     );
   }

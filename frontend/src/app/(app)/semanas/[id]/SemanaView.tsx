@@ -1,10 +1,21 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, LockOpen } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { readError, type WeekDetail, apiFetch } from "@/lib/api";
 import { dayStateText, shortDate, statusText } from "@/lib/format";
 import { cn } from "cn";
@@ -13,8 +24,31 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 
 export default function SemanaView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const [semana, setSemana] = useState<WeekDetail | null>(null);
   const [error, setError] = useState("");
+  // Reabrir una semana cerrada (decisión 66): recuadro de confirmación y su error, si hay.
+  const [reabriendo, setReabriendo] = useState(false);
+  const [trabajando, setTrabajando] = useState(false);
+  const [errorReabrir, setErrorReabrir] = useState("");
+
+  async function reabrir() {
+    setErrorReabrir("");
+    setTrabajando(true);
+    try {
+      const res = await apiFetch(`/weeks/${id}/reopen`, { method: "POST" });
+      if (!res.ok) {
+        setErrorReabrir(await readError(res));
+        setTrabajando(false);
+        return;
+      }
+      setTrabajando(false);
+      router.push("/entrenar");
+    } catch {
+      setErrorReabrir("No se pudo conectar con el servidor");
+      setTrabajando(false);
+    }
+  }
 
   useEffect(() => {
     apiFetch(`/weeks/${id}`)
@@ -81,15 +115,51 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
           )}
           {semana.status === "closed" && (
             <>
-              {/* Igual que "Día completado", pero sin candado: la semana cerrada no se reabre. */}
               <section className="mt-6">
                 <span className="font-heading text-2xl font-bold">Semana completada</span>
               </section>
+              {/* Reabrir (decisión 66): vuelve a estar en curso; el servidor avisa si no se puede. */}
+              <p className="mb-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => {
+                    setErrorReabrir("");
+                    setReabriendo(true);
+                  }}
+                >
+                  <LockOpen className="size-4" aria-hidden="true" />
+                  Reabrir semana
+                </Button>
+              </p>
               <p>
                 <small className="text-muted-foreground">
                   <Link href="/entrenar">Andá a Entrenar</Link> para generar la siguiente.
                 </small>
               </p>
+              <AlertDialog
+                open={reabriendo}
+                onOpenChange={(abierto) => !abierto && !trabajando && setReabriendo(false)}
+              >
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Reabrir la semana {semana.number}?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Vuelve a estar en curso para que registres lo que falta. Se borra el comentario de
+                      cierre y, al volver a cerrarla, escribís uno nuevo. No se pierde nada de lo
+                      registrado.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  {errorReabrir && <ErrorMessage>{errorReabrir}</ErrorMessage>}
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={trabajando}>Cancelar</AlertDialogCancel>
+                    <Button type="button" disabled={trabajando} onClick={reabrir}>
+                      {trabajando ? "Reabriendo…" : "Reabrir semana"}
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               {semana.closing_note && (
                 <>
                   <h2>Cómo te sentiste esta semana</h2>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { readError, type Routine, apiFetch } from "@/lib/api";
 import {
@@ -40,15 +40,20 @@ const OBJETIVOS = [
 // Botón que, antes de llamar a la IA, pregunta qué hacer (continuar una rutina o empezar una
 // nueva con su nivel y objetivo), con Cancelar. `onConflict` avisa a la pantalla si el servidor
 // dice que ya hay una semana activa. Con `soloNueva` (desde Rutinas) va directo a una rutina nueva:
-// sin la opción de continuar, que vive en Entrenar.
+// sin la opción de continuar. Con `continuar` (id de una rutina; Entrenar después de cerrar una
+// semana) va directo a la semana siguiente de esa rutina: solo confirma los días por semana.
 export function GenerarRutina({
   etiqueta,
   onConflict,
   soloNueva = false,
+  continuar,
+  variante = "default",
 }: {
   etiqueta: string;
   onConflict?: () => void;
   soloNueva?: boolean;
+  continuar?: number;
+  variante?: "default" | "outline";
 }) {
   const router = useRouter();
   const [preguntando, setPreguntando] = useState(false);
@@ -66,8 +71,18 @@ export function GenerarRutina({
   const [navegando, startTransition] = useTransition();
   const generando = pidiendo || navegando;
 
+  // Mientras la IA trabaja, el navegador avisa antes de recargar o cerrar la pestaña: se perdería
+  // la espera (y la generación ya gastó cuota de la IA).
+  useEffect(() => {
+    if (!generando) return;
+    const avisar = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", avisar);
+    return () => window.removeEventListener("beforeunload", avisar);
+  }, [generando]);
+
   // El nivel que manda en los días: el elegido (rutina nueva) o el de la rutina que se continúa.
   const rutinaElegida = rutinas?.find((r) => String(r.id) === eleccion);
+  const continuando = continuar !== undefined;
   const nivelActual = eleccion === "nueva" ? nivel : (rutinaElegida?.level ?? "");
   const listo =
     (eleccion === "nueva" ? Boolean(nivel && objetivo) : eleccion !== "") &&
@@ -102,7 +117,14 @@ export function GenerarRutina({
       if (!res.ok) throw new Error(await readError(res));
       const lista: Routine[] = await res.json();
       setRutinas(lista);
-      if (lista.length === 0) setEleccion("nueva"); // sin rutinas no hay nada que continuar
+      if (continuar !== undefined) {
+        const rutina = lista.find((r) => r.id === continuar);
+        if (!rutina) throw new Error("No se encontró la rutina para continuar");
+        setEleccion(String(rutina.id));
+        setDias(rutina.days_per_week ?? null);
+      } else if (lista.length === 0) {
+        setEleccion("nueva"); // sin rutinas no hay nada que continuar
+      }
     } catch (e) {
       setPreguntando(false);
       setError(e instanceof Error ? e.message : "No se pudo conectar con el servidor");
@@ -144,7 +166,7 @@ export function GenerarRutina({
   return (
     <>
       {!preguntando && !generando && (
-        <Button type="button" onClick={abrir}>
+        <Button type="button" variant={variante} onClick={abrir}>
           {etiqueta}
         </Button>
       )}
@@ -157,16 +179,23 @@ export function GenerarRutina({
       >
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>{soloNueva ? "Nueva rutina" : "Generar rutina"}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {soloNueva ? "Nueva rutina" : continuando ? "Generar la semana siguiente" : "Generar rutina"}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {soloNueva
                 ? "Elegí tu nivel y tu objetivo."
-                : "Elegí si querés continuar una rutina o empezar una nueva."}{" "}
+                : continuando
+                  ? "La IA mira lo que hiciste y propone la semana siguiente."
+                  : "Elegí si querés continuar una rutina o empezar una nueva."}{" "}
               La IA propone y vos decidís: nada se guarda hasta que aceptes.
             </AlertDialogDescription>
           </AlertDialogHeader>
           {rutinas === null && <p>Cargando...</p>}
-          {rutinas !== null && rutinas.length > 0 && (
+          {continuando && rutinaElegida && (
+            <p className="m-0 font-medium">Continuás «{rutinaElegida.name}»</p>
+          )}
+          {rutinas !== null && rutinas.length > 0 && !continuando && (
             <fieldset>
               <legend>¿Qué querés hacer?</legend>
               <RadioGroup value={eleccion} onValueChange={(v) => elegir(String(v))}>
@@ -234,12 +263,24 @@ export function GenerarRutina({
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Mientras se genera, una pantalla completa que tapa todo (también la barra de abajo): no
+          hay nada que tocar, así no se puede salir ni pedir otra generación (decisión 67). */}
       {generando && (
-        <p>
-          Tu rutina se está generando. Puede tardar hasta 2 minutos.
-          <br />
-          No cierres esta página.
-        </p>
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background px-6 text-center"
+        >
+          <div className="relative size-24" aria-hidden="true">
+            <div className="absolute inset-0 animate-[spin_1.1s_linear_infinite] rounded-full border-8 border-border border-t-disco-rojo motion-reduce:animate-none" />
+            <div className="absolute inset-[26px] rounded-full bg-disco-tinta" />
+            <div className="absolute inset-[42px] rounded-full bg-background" />
+          </div>
+          <h2 className="mt-6 mb-1.5 text-3xl">Armando tu semana</h2>
+          <p className="m-0 max-w-xs text-muted-foreground">
+            La IA está pensando tu rutina. Puede tardar hasta 2 minutos. No cierres esta página.
+          </p>
+        </div>
       )}
       {error && !preguntando && <ErrorMessage>{error}</ErrorMessage>}
     </>

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { CerrarSemana } from "@/components/CerrarSemana";
 import { Disco, estadoDia } from "@/components/Disco";
 import { GenerarRutina } from "@/components/GenerarRutina";
-import { readError, apiFetch, type WeekDetail } from "@/lib/api";
+import { readError, apiFetch, type Routine, type RoutineDetail, type WeekDetail, type WeekSummary } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 
@@ -139,9 +139,48 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
 }
 
 function SinSemana({ pendiente, onConflict }: { pendiente: number | null; onConflict: () => void }) {
+  // La rutina más nueva y su última semana: es la que se continúa. `undefined` = cargando;
+  // `null` = no hay ninguna (nunca se generó una rutina).
+  const [ultima, setUltima] = useState<{ rutina: Routine; semana: WeekSummary } | null | undefined>(undefined);
+
+  useEffect(() => {
+    async function cargar() {
+      const res = await apiFetch(`/routines`);
+      if (!res.ok) return setUltima(null);
+      const lista: Routine[] = await res.json();
+      const rutina = lista.find((r) => r.week_count > 0);
+      if (!rutina) return setUltima(null);
+      const det = await apiFetch(`/routines/${rutina.id}`);
+      if (!det.ok) return setUltima(null);
+      const detalle: RoutineDetail = await det.json();
+      const semana = detalle.weeks[0]; // la más nueva
+      setUltima(semana ? { rutina, semana } : null);
+    }
+    cargar().catch(() => setUltima(null));
+  }, []);
+
+  if (ultima === undefined) return <p>Cargando...</p>;
+
+  const hechos = ultima?.semana.day_states.filter((s) => s === "completed").length ?? 0;
+
   return (
     <>
-      <h1 className="mt-0">Armá tu próxima semana</h1>
+      {ultima ? (
+        <>
+          <p className="text-sm text-muted-foreground">{ultima.rutina.name}</p>
+          <h1 className="mt-0 mb-2">Semana {ultima.semana.number} completada</h1>
+          <div className="mb-4 flex items-center gap-1.5">
+            {ultima.semana.day_states.map((s, i) => (
+              <Disco key={i} estado={estadoDia[s]} />
+            ))}
+            <span className="ml-1.5 text-sm text-muted-foreground">
+              {hechos} de {ultima.semana.day_count} días
+            </span>
+          </div>
+        </>
+      ) : (
+        <h1 className="mt-0">Armá tu próxima semana</h1>
+      )}
       <p className="text-muted-foreground">
         La IA mira lo que hiciste y propone la semana siguiente. Nada se guarda hasta que la aceptes.
       </p>
@@ -156,9 +195,23 @@ function SinSemana({ pendiente, onConflict }: { pendiente: number | null; onConf
           </Button>
         </section>
       )}
-      <div className="mt-4">
-        <GenerarRutina etiqueta="Generar rutina" onConflict={onConflict} />
-      </div>
+      {ultima ? (
+        <div className="mt-4 grid gap-2.5">
+          <GenerarRutina
+            etiqueta="Generar la semana siguiente"
+            continuar={ultima.rutina.id}
+            onConflict={onConflict}
+          />
+          <GenerarRutina etiqueta="Empezar una rutina nueva" soloNueva variante="outline" onConflict={onConflict} />
+          <p className="mt-1 mb-0 text-sm">
+            <Link href={`/semanas/${ultima.semana.id}`}>Ver la semana o reabrirla</Link>
+          </p>
+        </div>
+      ) : (
+        <div className="mt-4">
+          <GenerarRutina etiqueta="Generar rutina" onConflict={onConflict} />
+        </div>
+      )}
     </>
   );
 }

@@ -9,6 +9,7 @@ from app.ai.generate import (
     ActiveWeekExists,
     AiUpstreamError,
     GenerationFailed,
+    GenerationInProgress,
     ProfileMissing,
     generate_proposal,
 )
@@ -90,6 +91,11 @@ def generate(
         raise HTTPException(status_code=409, detail="Completá tu perfil primero") from None
     except ActiveWeekExists:
         raise HTTPException(status_code=409, detail="Ya tenés una semana activa") from None
+    except GenerationInProgress:
+        raise HTTPException(
+            status_code=409,
+            detail="Ya se está generando una rutina. Esperá a que termine para pedir otra.",
+        ) from None
     except AiConfigError:
         raise HTTPException(status_code=503, detail="La IA no está configurada") from None
     except AiLimitError as error:
@@ -281,7 +287,13 @@ def accept(
     proposal.status = ProposalStatus.ACCEPTED
     proposal.resolved_at = datetime.now(timezone.utc)
     db.commit()  # una sola transacción: o se crea todo el plan o nada
-    return to_out(proposal)
+    out = to_out(proposal)
+    # Qué quedó creado, para la pantalla de "aceptado": la semana, su número y la rutina.
+    out.week_id = week.id
+    out.week_number = [w.id for w in routine_weeks(db, plan_routine.id)].index(week.id) + 1
+    out.routine_id = plan_routine.id
+    out.routine_name = plan_routine.name
+    return out
 
 
 @router.post("/{proposal_id}/discard", response_model=ProposalOut)

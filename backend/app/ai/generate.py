@@ -3,10 +3,11 @@
 Sin FastAPI: el endpoint solo traduce las excepciones de acá a códigos HTTP.
 """
 
-from datetime import datetime, timezone
+import threading
+from datetime import datetime, timedelta, timezone
 
 from pydantic import ValidationError
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.ai.gemini import AiConfigError, AiLimitError, generate_json
@@ -18,9 +19,37 @@ from app.ai.retrieve import retrieve_candidates
 from app.ai.routine import RoutineProposal
 from app.ai.rules import Issue, validate_routine
 from app.enums import AiCallKind, Goal, Level, ProposalKind, ProposalStatus
-from app.models import PlanProposal, User
+from app.models import AiCall, PlanProposal, User
 
 MAX_ATTEMPTS = 2  # la primera llamada y un reintento; cada intento cuenta en los topes
+
+
+# Una sola generación a la vez por persona. Cada una gasta cuota de la IA y la que termina última
+# pisaría a la otra. El cliente corta a los 120 s: pasado ese margen, una fila "en curso" que quedó
+# sin cerrar (la app se cayó) deja de bloquear sola.
+IN_PROGRESS_SECONDS = 150
+_running: set[int] = set()
+_running_lock = threading.Lock()
+
+
+class GenerationInProgress(Exception):
+    """Ya hay una generación en curso para este usuario."""
+
+
+def _in_progress_in_db(db: Session, user_id: int) -> bool:
+    """¿Hay una llamada de generación sin terminar de este usuario? (otra pestaña, otro proceso)."""
+    since = datetime.now(timezone.utc) - timedelta(seconds=IN_PROGRESS_SECONDS)
+    count = db.scalar(
+        select(func.count())
+        .select_from(AiCall)
+        .where(
+            AiCall.user_id == user_id,
+            AiCall.kind.in_((AiCallKind.GENERATE, AiCallKind.WEEK_CLOSE)),
+            AiCall.succeeded.is_(None),
+            AiCall.created_at >= since,
+        )
+    )
+    return bool(count)
 
 
 class ProfileMissing(Exception):
@@ -58,6 +87,28 @@ def _correction(problems: list[str]) -> str:
 
 
 def generate_proposal(
+    db: Session,
+    user: User,
+    goal: Goal,
+    level: Level,
+    routine_id: int | None = None,
+    days: int | None = None,
+) -> PlanProposal:
+    """Genera una propuesta, de a una por persona (`GenerationInProgress` si ya hay otra)."""
+    with _running_lock:
+        if user.id in _running:
+            raise GenerationInProgress
+        _running.add(user.id)
+    try:
+        if _in_progress_in_db(db, user.id):
+            raise GenerationInProgress
+        return _generate_proposal(db, user, goal, level, routine_id, days)
+    finally:
+        with _running_lock:
+            _running.discard(user.id)
+
+
+def _generate_proposal(
     db: Session,
     user: User,
     goal: Goal,

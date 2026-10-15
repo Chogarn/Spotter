@@ -11,11 +11,12 @@ from app.ai.plan_writer import active_week
 from app.ai.rules import estimate_day_minutes
 from app.db import get_db
 from app.deps import get_current_user
-from app.enums import ExerciseKind, PlanStatus
+from app.enums import ExerciseKind, PlanStatus, ProposalKind, ProposalStatus
 from app.models import (
     ExerciseCompletion,
     PlanDay,
     PlanExercise,
+    PlanProposal,
     PlanSet,
     SetEntry,
     User,
@@ -347,6 +348,56 @@ def close_week(
     week.closing_note = note or None
     week.status = PlanStatus.CLOSED
     week.closed_at = datetime.now(timezone.utc)
+    db.commit()
+    return WeekSummaryOut(
+        id=week.id,
+        number=number,
+        status=week.status.value,
+        week_start=week.week_start,
+        closed_at=week.closed_at,
+        day_count=len(week.days),
+        day_states=week_day_states(db, user, week),
+    )
+
+
+@router.post("/{week_id}/reopen", response_model=WeekSummaryOut)
+def reopen_week(
+    week_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> WeekSummaryOut:
+    """Reabrir una semana cerrada (decisión 66): vuelve a estar en curso, sin IA y sin borrar nada.
+
+    Solo la última semana de su rutina y solo si no hay otra en curso ni una propuesta sin
+    revisar (que se armó con lo que decía esta semana al cerrarla y quedaría desactualizada).
+    El comentario de cierre se borra: al volver a cerrarla se escribe uno nuevo.
+    """
+    week, number = get_own_week(db, user, week_id)
+    if week.status != PlanStatus.CLOSED:
+        raise HTTPException(status_code=409, detail="Esa semana ya está en curso")
+    if routine_weeks(db, week.routine_id)[-1].id != week.id:
+        raise HTTPException(
+            status_code=409, detail="Solo se puede reabrir la última semana de la rutina"
+        )
+    if active_week(db, user.id) is not None:
+        raise HTTPException(
+            status_code=409, detail="Ya tenés una semana en curso: cerrala antes de reabrir otra"
+        )
+    pending = db.scalar(
+        select(PlanProposal.id).where(
+            PlanProposal.user_id == user.id,
+            PlanProposal.kind.in_((ProposalKind.GENERATE, ProposalKind.WEEK_CLOSE)),
+            PlanProposal.status == ProposalStatus.PENDING,
+        )
+    )
+    if pending is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Tenés una propuesta sin revisar: aceptala o descartala antes de reabrir esta semana",
+        )
+    week.status = PlanStatus.ACTIVE
+    week.closed_at = None
+    week.closing_note = None
     db.commit()
     return WeekSummaryOut(
         id=week.id,

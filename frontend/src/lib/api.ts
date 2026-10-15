@@ -61,6 +61,11 @@ export type Proposal = {
   routine: { days: DayItem[]; notices: string[]; summary?: string | null };
   day_minutes: number[];
   warnings: { rule: string; message: string }[];
+  // Solo al aceptar: qué quedó creado (la semana, su número y la rutina).
+  week_id?: number | null;
+  week_number?: number | null;
+  routine_id?: number | null;
+  routine_name?: string | null;
 };
 
 // Antes y después de una propuesta de semana nueva (#49). `has_base` falso en la primera rutina.

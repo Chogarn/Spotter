@@ -161,6 +161,11 @@ class ProposalOut(BaseModel):
     # Duración estimada de cada día en minutos (R34), en el mismo orden que `routine.days`.
     day_minutes: list[int]
     warnings: list[WarningOut]
+    # Solo al aceptar: qué quedó creado (la semana, su número y la rutina).
+    week_id: int | None = None
+    week_number: int | None = None
+    routine_id: int | None = None
+    routine_name: str | None = None
 
 
 class WeekDayOut(BaseModel):
