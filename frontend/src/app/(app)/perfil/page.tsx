@@ -6,22 +6,13 @@ import { useEffect, useState } from "react";
 
 import { errorText, apiFetch, type SessionUser } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { type DatosPerfil, PerfilAsistente } from "@/components/PerfilAsistente";
 import { cn } from "cn";
 
-type Form = {
-  name: string;
-  age: string;
-  weight_kg: string;
-  height_cm: string;
-  sex: string;
-  limitations: string;
-  accept_legal_notice: boolean;
-};
+type Form = DatosPerfil;
 
 const VACIO: Form = {
   name: "",
@@ -150,21 +141,34 @@ export default function PerfilPage() {
 
   if (cargando) return <main className="mx-auto max-w-xl px-4 pt-8">Cargando...</main>;
 
-  // Sin perfil guardado, todo se completa de una vez.
-  const nuevo = guardado === null;
-  const edita = (t: Tarjeta) => nuevo || editando === t;
-  const nombre = form.name || usuario?.name || "";
-  const acciones = (t: Tarjeta) =>
-    nuevo ? null : (
-      <AccionesTarjeta
-        editando={editando === t}
-        ocupado={guardando || (editando !== null && editando !== t)}
-        etiqueta={t === "nombre" ? "el nombre" : t === "cuerpo" ? "tus datos del cuerpo" : "tus limitaciones"}
-        onEditar={() => setEditando(t)}
-        onGuardar={() => guardarTarjeta(t)}
-        onCancelar={cancelar}
+  // Sin perfil guardado (recién registrado), un asistente con una pregunta por pantalla.
+  if (guardado === null) {
+    return (
+      <PerfilAsistente
+        nombreInicial={usuario?.name ?? ""}
+        guardando={guardando}
+        error={error}
+        enviar={async (datos) => {
+          const ok = await enviar(datos);
+          if (ok) router.push("/");
+          return ok;
+        }}
       />
     );
+  }
+
+  const edita = (t: Tarjeta) => editando === t;
+  const nombre = form.name || usuario?.name || "";
+  const acciones = (t: Tarjeta) => (
+    <AccionesTarjeta
+      editando={editando === t}
+      ocupado={guardando || (editando !== null && editando !== t)}
+      etiqueta={t === "nombre" ? "el nombre" : t === "cuerpo" ? "tus datos del cuerpo" : "tus limitaciones"}
+      onEditar={() => setEditando(t)}
+      onGuardar={() => guardarTarjeta(t)}
+      onCancelar={cancelar}
+    />
+  );
 
   return (
     <main className="mx-auto max-w-xl px-4 pt-8">
@@ -181,7 +185,7 @@ export default function PerfilPage() {
             <Input
               id="name"
               aria-label="Nombre"
-              autoFocus={!nuevo}
+              autoFocus
               placeholder="Tu nombre"
               value={form.name}
               onChange={(e) => cambiar("name", e.target.value)}
@@ -194,12 +198,6 @@ export default function PerfilPage() {
         </div>
         {acciones("nombre")}
       </div>
-
-      {nuevo && (
-        <p className="mt-0 mb-4 rounded-2xl border-2 border-disco-amarillo bg-card p-4 text-sm">
-          Completá tus datos: la IA los usa para armar tu rutina.
-        </p>
-      )}
 
       <section className="mb-3 rounded-2xl bg-card p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
@@ -270,37 +268,9 @@ export default function PerfilPage() {
       </section>
 
       {/* El aviso médico: una vez aceptado no se puede desmarcar (lo exige el backend). */}
-      {nuevo || !form.accept_legal_notice ? (
-        <section className="mb-4 flex items-start gap-3 rounded-2xl bg-card p-4">
-          <Checkbox
-            id="accept_legal_notice"
-            checked={form.accept_legal_notice}
-            onCheckedChange={(marcado) => cambiar("accept_legal_notice", marcado)}
-            className="mt-0.5"
-          />
-          <Label htmlFor="accept_legal_notice" className="leading-snug font-normal">
-            Entiendo que la app no da consejo médico.
-          </Label>
-        </section>
-      ) : (
-        <p className="mb-4 flex items-center gap-2 px-1 text-sm text-muted-foreground">
-          <Check className="size-4" aria-hidden="true" /> Aceptaste que la app no da consejo médico.
-        </p>
-      )}
-
-      {nuevo && (
-        <Button
-          type="button"
-          size="lg"
-          className="h-12 w-full text-base"
-          disabled={guardando}
-          onClick={async () => {
-            if (await enviar(form)) setForm(form);
-          }}
-        >
-          {guardando ? "Guardando..." : "Guardar"}
-        </Button>
-      )}
+      <p className="mb-4 flex items-center gap-2 px-1 text-sm text-muted-foreground">
+        <Check className="size-4" aria-hidden="true" /> Aceptaste que la app no da consejo médico.
+      </p>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
       {/* Cerrar sesión vive en el Perfil (decisión 42), separado y en rojo para no tocarlo sin querer. */}

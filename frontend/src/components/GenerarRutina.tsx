@@ -4,20 +4,18 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
 import { readError, type Routine, apiFetch } from "@/lib/api";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { GrupoOpciones, OpcionAsistente, PasoAsistente } from "@/components/Asistente";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { IconoObjetivo } from "@/components/IconoObjetivo";
+
+type Paso = "eleccion" | "objetivo" | "nivel" | "dias";
+const TITULOS: Record<Paso, string> = {
+  eleccion: "¿Qué querés hacer?",
+  objetivo: "¿Cuál es tu objetivo?",
+  nivel: "¿Cuál es tu nivel?",
+  dias: "¿Cuántos días por semana?",
+};
 
 const NIVELES = [
   ["principiante", "principiante"],
@@ -65,6 +63,7 @@ export function GenerarRutina({
   const [objetivo, setObjetivo] = useState("");
   // Cuántos días por semana: obligatorio. Al continuar, viene la cantidad actual de la rutina.
   const [dias, setDias] = useState<number | null>(null);
+  const [paso, setPaso] = useState<Paso>("eleccion");
   const [error, setError] = useState("");
   // `pidiendo`: esperando a la IA. `navegando`: abriendo la propuesta; se apaga solo cuando la
   // nueva página está lista (así esta pantalla no queda "generando" al volver a ella).
@@ -85,10 +84,25 @@ export function GenerarRutina({
   const rutinaElegida = rutinas?.find((r) => String(r.id) === eleccion);
   const continuando = continuar !== undefined;
   const nivelActual = eleccion === "nueva" ? nivel : (rutinaElegida?.level ?? "");
-  const listo =
-    (eleccion === "nueva" ? Boolean(nivel && objetivo) : eleccion !== "") &&
-    dias !== null &&
-    Boolean(nivelActual);
+  // Los pasos del asistente dependen de lo elegido: si hay rutinas, primero se elige cuál; una
+  // rutina nueva suma objetivo y nivel; los días van al final porque dependen del nivel.
+  const hayEleccion = !soloNueva && !continuando && rutinas !== null && rutinas.length > 0;
+  const pasos: Paso[] = [
+    ...(hayEleccion ? (["eleccion"] as const) : []),
+    ...(eleccion === "nueva" ? (["objetivo", "nivel"] as const) : []),
+    "dias",
+  ];
+  const actual = pasos.includes(paso) ? paso : pasos[0];
+  const indice = pasos.indexOf(actual);
+  const ultimo = actual === "dias";
+  const pasoListo =
+    actual === "eleccion"
+      ? eleccion !== ""
+      : actual === "objetivo"
+        ? objetivo !== ""
+        : actual === "nivel"
+          ? nivel !== ""
+          : dias !== null && Boolean(nivelActual);
 
   function elegir(valor: string) {
     setEleccion(valor);
@@ -105,6 +119,7 @@ export function GenerarRutina({
   async function abrir() {
     setError("");
     setPreguntando(true);
+    setPaso("eleccion");
     setEleccion("");
     setDias(null);
     setRutinas(null);
@@ -172,98 +187,83 @@ export function GenerarRutina({
         </Button>
       )}
 
-      <AlertDialog
-        open={preguntando && !generando}
-        onOpenChange={(abierto) => {
-          if (!abierto) cancelar();
-        }}
-      >
-        <AlertDialogContent className="sm:max-w-lg">
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {soloNueva ? "Nueva rutina" : continuando ? "Generar la semana siguiente" : "Generar rutina"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {soloNueva
-                ? "Elegí tu nivel y tu objetivo."
-                : continuando
-                  ? "La IA mira lo que hiciste y propone la semana siguiente."
-                  : "Elegí si querés continuar una rutina o empezar una nueva."}{" "}
-              La IA propone y vos decidís: nada se guarda hasta que aceptes.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          {rutinas === null && <p>Cargando...</p>}
-          {continuando && rutinaElegida && (
-            <p className="m-0 font-medium">Continuás «{rutinaElegida.name}»</p>
+      {/* Un asistente: una pregunta por pantalla. Los pasos dependen de lo que se eligió. */}
+      {preguntando && !generando && rutinas === null && (
+        <div role="status" className="fixed inset-0 z-[90] flex items-center justify-center bg-background">
+          Cargando...
+        </div>
+      )}
+      {preguntando && !generando && rutinas !== null && (
+        <PasoAsistente
+          paso={indice + 1}
+          total={pasos.length}
+          titulo={TITULOS[actual]}
+          ayuda={
+            actual === "dias" && nivelActual === "principiante"
+              ? "Para empezar, 2 o 3 días."
+              : actual === "dias" && continuando && rutinaElegida
+                ? `Continuás «${rutinaElegida.name}».`
+                : undefined
+          }
+          onAtras={indice > 0 ? () => setPaso(pasos[indice - 1]) : cancelar}
+          etiquetaAtras={indice > 0 ? "Volver" : "Cancelar"}
+          onContinuar={ultimo ? generar : () => setPaso(pasos[indice + 1])}
+          continuar={ultimo ? "Generar rutina" : "Continuar"}
+          deshabilitado={!pasoListo}
+          error={error}
+          nota={ultimo ? "La IA propone y vos decidís: nada se guarda hasta que aceptes." : undefined}
+        >
+          {actual === "eleccion" && (
+            <GrupoOpciones etiqueta="¿Qué querés hacer?">
+              {rutinas.map((r) => (
+                <OpcionAsistente key={r.id} titulo={`Continuar «${r.name}»`}
+                  seleccionada={eleccion === String(r.id)} onElegir={() => elegir(String(r.id))} />
+              ))}
+              <OpcionAsistente titulo="Empezar una rutina nueva" seleccionada={eleccion === "nueva"}
+                onElegir={() => elegir("nueva")} />
+            </GrupoOpciones>
           )}
-          {rutinas !== null && rutinas.length > 0 && !continuando && (
-            <fieldset>
-              <legend>¿Qué querés hacer?</legend>
-              <RadioGroup value={eleccion} onValueChange={(v) => elegir(String(v))}>
-                {rutinas.map((r) => (
-                  <Label key={r.id} className="gap-2">
-                    <RadioGroupItem value={String(r.id)} />
-                    Continuar «{r.name}»
-                  </Label>
-                ))}
-                <Label className="gap-2">
-                  <RadioGroupItem value="nueva" />
-                  Empezar una rutina nueva
-                </Label>
-              </RadioGroup>
-            </fieldset>
+          {actual === "objetivo" && (
+            <GrupoOpciones etiqueta="Objetivo">
+              {OBJETIVOS.map(([valor, etiqueta]) => (
+                <OpcionAsistente key={valor} titulo={etiqueta} seleccionada={objetivo === valor}
+                  icono={<IconoObjetivo objetivo={valor} tamano="md" />} onElegir={() => setObjetivo(valor)} />
+              ))}
+            </GrupoOpciones>
           )}
-          {eleccion === "nueva" && (
-            <>
-              <Opciones titulo="Nivel" nombre="nivel" valor={nivel} opciones={NIVELES} onChange={cambiarNivel} />
-              <Opciones
-                titulo="Objetivo"
-                nombre="objetivo"
-                valor={objetivo}
-                opciones={OBJETIVOS}
-                onChange={setObjetivo}
-                conIcono
-              />
-            </>
+          {actual === "nivel" && (
+            <GrupoOpciones etiqueta="Nivel">
+              {NIVELES.map(([valor, etiqueta]) => (
+                <OpcionAsistente key={valor} titulo={etiqueta} seleccionada={nivel === valor}
+                  onElegir={() => cambiarNivel(valor)} />
+              ))}
+            </GrupoOpciones>
           )}
-          {nivelActual && (
-            <fieldset className="border-0 p-0">
-              <legend className="mb-1.5 text-sm font-medium">¿Cuántos días por semana querés entrenar?</legend>
-              <div className="flex gap-2">
-                {diasPermitidos(nivelActual).map((d) => (
-                  <label
+          {actual === "dias" && (
+            <div role="radiogroup" aria-label="Días por semana" className="grid grid-cols-3 gap-3">
+              {[2, 3, 4, 5, 6].map((d) => {
+                const permitido = diasPermitidos(nivelActual).includes(d);
+                return (
+                  <button
                     key={d}
+                    type="button"
+                    role="radio"
+                    aria-checked={dias === d}
+                    disabled={!permitido}
+                    onClick={() => setDias(d)}
                     className={
-                      "flex size-11 cursor-pointer items-center justify-center rounded-full border-2 font-heading text-xl font-bold has-focus-visible:ring-3 has-focus-visible:ring-ring/50 " +
-                      (dias === d ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card")
+                      "rounded-2xl border-2 py-5 font-heading text-4xl font-bold outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-35 " +
+                      (dias === d ? "border-disco-azul bg-disco-azul text-white" : "border-transparent bg-card")
                     }
                   >
-                    <input
-                      type="radio"
-                      name="dias"
-                      value={d}
-                      checked={dias === d}
-                      onChange={() => setDias(d)}
-                      className="sr-only"
-                    />
                     {d}
-                  </label>
-                ))}
-              </div>
-              {nivelActual === "principiante" && (
-                <p className="mt-1.5 mb-0 text-xs text-muted-foreground">Para empezar, 2 o 3 días.</p>
-              )}
-            </fieldset>
+                  </button>
+                );
+              })}
+            </div>
           )}
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <Button type="button" onClick={generar} disabled={!listo}>
-              Generar
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        </PasoAsistente>
+      )}
 
       {/* Mientras se genera, una pantalla completa que tapa todo (también la barra de abajo): no
           hay nada que tocar, así no se puede salir ni pedir otra generación (decisión 67). */}
@@ -286,37 +286,5 @@ export function GenerarRutina({
       )}
       {error && !preguntando && <ErrorMessage>{error}</ErrorMessage>}
     </>
-  );
-}
-
-function Opciones({
-  titulo,
-  nombre,
-  valor,
-  opciones,
-  onChange,
-  conIcono = false,
-}: {
-  titulo: string;
-  nombre: string;
-  valor: string;
-  opciones: string[][];
-  onChange: (v: string) => void;
-  // Un dibujo al lado de cada opción (solo el objetivo).
-  conIcono?: boolean;
-}) {
-  return (
-    <fieldset>
-      <legend>{titulo}</legend>
-      <RadioGroup name={nombre} value={valor} onValueChange={(v) => onChange(String(v))}>
-        {opciones.map(([v, etiqueta]) => (
-          <Label key={v} className="gap-2">
-            <RadioGroupItem value={v} />
-            {conIcono && <IconoObjetivo objetivo={v} tamano="xs" />}
-            {etiqueta}
-          </Label>
-        ))}
-      </RadioGroup>
-    </fieldset>
   );
 }
