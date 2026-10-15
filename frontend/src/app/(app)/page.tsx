@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
-import { GenerarRutina } from "@/components/GenerarRutina";
+import { OpcionesSiguiente, ResumenUltimaSemana, useUltimaSemana } from "@/components/SiguienteSemana";
 import { Button } from "@/components/ui/button";
 import { readError, apiFetch, type SessionUser, type WeekDetail } from "@/lib/api";
 
@@ -14,6 +14,8 @@ import { readError, apiFetch, type SessionUser, type WeekDetail } from "@/lib/ap
 // semana y qué toca hoy, y da accesos rápidos. La semana en curso con todos sus días vive en
 // Entrenar (`/entrenar`).
 export default function Inicio() {
+  // La última semana cerrada y su rutina: para ofrecer la semana siguiente o una rutina nueva.
+  const ultima = useUltimaSemana();
   const [cargando, setCargando] = useState(true);
   const [usuario, setUsuario] = useState<SessionUser | null>(null);
   // La fecha se arma en el navegador (no al prerenderizar la página).
@@ -132,11 +134,23 @@ export default function Inicio() {
 
         {!cargando && !semana && (
           <section className="mb-4 rounded-2xl border-2 border-disco-tinta bg-card p-5">
-            <h2 className="mt-0 mb-1 text-4xl">Armá tu próxima semana</h2>
+            {ultima ? (
+              <>
+                <p className="m-0 text-sm text-muted-foreground">{ultima.rutina.name}</p>
+                <h2 className="mt-0 mb-2 text-4xl">Semana {ultima.semana.number} completada</h2>
+                <div className="mb-3">
+                  <ResumenUltimaSemana ultima={ultima} />
+                </div>
+              </>
+            ) : (
+              <h2 className="mt-0 mb-1 text-4xl">Armá tu próxima semana</h2>
+            )}
             <p className="mt-0 mb-4 text-sm text-muted-foreground">
               La IA mira lo que hiciste y propone la semana siguiente. Nada se guarda hasta que la aceptes.
             </p>
-            <GenerarRutina etiqueta="Generar rutina" onConflict={() => setRecarga((n) => n + 1)} />
+            {ultima !== undefined && (
+              <OpcionesSiguiente ultima={ultima} onConflict={() => setRecarga((n) => n + 1)} />
+            )}
           </section>
         )}
 
