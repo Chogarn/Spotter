@@ -31,6 +31,8 @@ export default function PerfilPage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [usuario, setUsuario] = useState<SessionUser | null>(null);
+  // El borrador del asistente va por usuario: hay que saber quién es antes de mostrarlo.
+  const [usuarioListo, setUsuarioListo] = useState(false);
   const [editando, setEditando] = useState<Tarjeta | null>(null);
   const [guardando, setGuardando] = useState(false);
 
@@ -39,7 +41,8 @@ export default function PerfilPage() {
       .then(async (res) => {
         if (res.ok) setUsuario(await res.json());
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setUsuarioListo(true));
   }, []);
 
   async function cerrarSesion() {
@@ -101,13 +104,14 @@ export default function PerfilPage() {
     }
   }
 
-  if (cargando) return <Cargando />;
+  if (cargando || !usuarioListo) return <Cargando />;
 
   // Sin perfil guardado (recién registrado), un asistente con una pregunta por pantalla.
   if (guardado === null) {
     return (
       <PerfilAsistente
         nombreInicial={usuario?.name ?? ""}
+        claveBorrador={usuario ? `spotter:perfil-borrador:${usuario.id}` : undefined}
         guardando={guardando}
         error={error}
         enviar={async (datos) => {

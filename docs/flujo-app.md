@@ -70,7 +70,7 @@ Se completa una sola vez, justo después de registrarse, y se edita después. El
 | 7 | Aviso legal | "Entiendo que la app no da consejo médico": hay que tildarlo |
 
 - Cada paso tiene un botón **Continuar**, una flecha para volver y una barrita de avance.
-- **Nada se guarda hasta el último paso** ("Terminar"). Si se corta a la mitad, hay que empezar de nuevo (idea para después: guardar el avance).
+- **El perfil se guarda en el servidor recién en el último paso** ("Terminar"). Mientras tanto, el avance queda como **borrador en el navegador** (por usuario, hasta 7 días): si se cierra la pestaña o se corta la conexión, se retoma en el mismo paso con lo que ya se había puesto. No guarda el tilde del aviso legal (se acepta de nuevo al final) y se borra al terminar. Es por dispositivo: en otro aparato se empieza de cero.
 - Al terminar, lleva a Inicio.
 
 ### Ver y editar
@@ -220,7 +220,6 @@ Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no s
 ## Puntos abiertos
 
 - **Comparar contra la semana pasada** en Progreso: hoy el resumen compara contra lo planificado (decisión del 2026-10-15); contra la semana anterior queda como mejora posible.
-- **Guardar el avance del asistente del perfil** si se corta a la mitad.
 - **Recuperar y restablecer la contraseña.**
 - **Encabezado de Inicio:** dónde van la fecha y el logo (el logo es provisorio).
 

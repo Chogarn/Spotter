@@ -1,7 +1,7 @@
 "use client";
 
 import { Mars, Venus, VenusAndMars, type LucideIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { GrupoOpciones, OpcionAsistente, PasoAsistente, ReglaNumero, RuedaNumero } from "@/components/Asistente";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -74,6 +74,50 @@ function fechaInicial(inicial?: DatosPerfil): { dia: number; mes: number; anio: 
   return { anio: anioHoy - edad, mes: 6, dia: 15 };
 }
 
+// El borrador del asistente del perfil nuevo: se guarda en el navegador a medida que se avanza,
+// para retomar si se cierra la pestaña o se corta la conexión. Se borra al terminar. No guarda el
+// tilde del aviso legal: se acepta de nuevo al final.
+type Borrador = {
+  v: 1;
+  t: number;
+  indice: number;
+  escrito: string | null;
+  fecha: { dia: number; mes: number; anio: number };
+  peso: number;
+  altura: number;
+  sexo: string;
+  limitaciones: string;
+};
+const VIGENCIA_BORRADOR_MS = 7 * 24 * 60 * 60 * 1000;
+
+function leerBorrador(clave: string | undefined, total: number): Borrador | null {
+  if (!clave) return null;
+  try {
+    const crudo = window.localStorage.getItem(clave);
+    if (!crudo) return null;
+    const b = JSON.parse(crudo) as Partial<Borrador>;
+    const numero = (x: unknown) => typeof x === "number" && Number.isFinite(x);
+    const valido =
+      b.v === 1 &&
+      numero(b.t) &&
+      Date.now() - (b.t as number) < VIGENCIA_BORRADOR_MS &&
+      numero(b.indice) &&
+      (b.indice as number) >= 0 &&
+      (b.indice as number) < total &&
+      (b.escrito === null || typeof b.escrito === "string") &&
+      numero(b.fecha?.dia) &&
+      numero(b.fecha?.mes) &&
+      numero(b.fecha?.anio) &&
+      numero(b.peso) &&
+      numero(b.altura) &&
+      typeof b.sexo === "string" &&
+      typeof b.limitaciones === "string";
+    return valido ? (b as Borrador) : null;
+  } catch {
+    return null; // sin acceso al almacenamiento o contenido dañado: se empieza de cero
+  }
+}
+
 const TITULOS: Record<PasoPerfil, string> = {
   nombre: "¿Cómo te llamás?",
   edad: "¿Cuándo naciste?",
@@ -95,6 +139,7 @@ export function PerfilAsistente({
   guardando,
   error,
   onCancelar,
+  claveBorrador,
 }: {
   nombreInicial: string;
   inicial?: DatosPerfil;
@@ -103,19 +148,22 @@ export function PerfilAsistente({
   guardando: boolean;
   error: string;
   onCancelar?: () => void;
+  // Con una clave, el avance se guarda en el navegador y se retoma (solo para el perfil nuevo).
+  claveBorrador?: string;
 }) {
   const editando = inicial !== undefined;
-  const [indice, setIndice] = useState(0);
+  const [borrador] = useState(() => (editando ? null : leerBorrador(claveBorrador, pasos.length)));
+  const [indice, setIndice] = useState(borrador?.indice ?? 0);
   // Lo que escribió la persona; mientras no escriba, vale el nombre guardado o el de la cuenta
   // (que llega tarde).
-  const [escrito, setEscrito] = useState<string | null>(null);
+  const [escrito, setEscrito] = useState<string | null>(borrador?.escrito ?? null);
   const nombre = escrito ?? (inicial?.name || nombreInicial);
   // Valores de partida de las reglas (los guardados al editar): hay que confirmarlos con "Continuar".
-  const [fecha, setFecha] = useState(() => fechaInicial(inicial));
-  const [peso, setPeso] = useState(() => Number(inicial?.weight_kg) || 70);
-  const [altura, setAltura] = useState(() => Number(inicial?.height_cm) || 170);
-  const [sexo, setSexo] = useState(inicial?.sex ?? "");
-  const [limitaciones, setLimitaciones] = useState(inicial?.limitations ?? "");
+  const [fecha, setFecha] = useState(() => borrador?.fecha ?? fechaInicial(inicial));
+  const [peso, setPeso] = useState(() => borrador?.peso ?? (Number(inicial?.weight_kg) || 70));
+  const [altura, setAltura] = useState(() => borrador?.altura ?? (Number(inicial?.height_cm) || 170));
+  const [sexo, setSexo] = useState(borrador?.sexo ?? inicial?.sex ?? "");
+  const [limitaciones, setLimitaciones] = useState(borrador?.limitaciones ?? inicial?.limitations ?? "");
   const [acepta, setAcepta] = useState(inicial?.accept_legal_notice ?? false);
 
   // Si el mes elegido tiene menos días (31 de enero y se pasa a febrero), el día se ajusta.
@@ -142,8 +190,29 @@ export function PerfilAsistente({
       sex: sexo,
       limitations: limitaciones.trim(),
       accept_legal_notice: acepta,
+    }).then((ok) => {
+      // Guardado: el borrador ya no hace falta.
+      if (ok && claveBorrador) {
+        try {
+          window.localStorage.removeItem(claveBorrador);
+        } catch {
+          /* sin acceso al almacenamiento: no pasa nada */
+        }
+      }
     });
   }
+
+  // El avance se guarda a medida que se completa; no se guarda antes de tocar nada.
+  useEffect(() => {
+    if (!claveBorrador || editando) return;
+    if (indice === 0 && escrito === null) return;
+    const dato: Borrador = { v: 1, t: Date.now(), indice, escrito, fecha, peso, altura, sexo, limitaciones };
+    try {
+      window.localStorage.setItem(claveBorrador, JSON.stringify(dato));
+    } catch {
+      /* sin acceso al almacenamiento: el asistente sigue andando sin borrador */
+    }
+  }, [claveBorrador, editando, indice, escrito, fecha, peso, altura, sexo, limitaciones]);
 
   const etiquetaFinal = guardando ? "Guardando..." : editando ? "Guardar" : "Terminar";
 

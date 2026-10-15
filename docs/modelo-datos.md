@@ -25,6 +25,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0015` sin camino B | Quita `week_plans.origin` y `week_plans.original_routine`, y el tipo `improve` de propuestas y llamadas a la IA (decisión 40) | Implementada |
 | `0016` días por semana en la rutina | Agrega `routines.days_per_week` (2 a 6): el usuario elige cuántos días entrena (decisión 52) | Implementada |
 | `0017` catálogo con vectores | Habilita la extensión `vector` de pgvector, crea `catalog_embeddings` (un vector de 768 dimensiones por ejercicio del catálogo) y suma el tipo `embed` a `ai_calls` (decisión 58) | Implementada |
+| `0018` fecha de nacimiento | Suma `profiles.birth_date` (nula); la edad pasa a calcularse desde ella y `age` se conserva para perfiles viejos | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
 ## Diagrama
@@ -62,6 +63,7 @@ erDiagram
     PROFILES {
         int user_id PK
         int age
+        date birth_date
         decimal weight_kg
         int height_cm
         string sex
@@ -200,7 +202,9 @@ Datos personales del usuario. Una fila por usuario. **No tiene nivel, objetivo n
 | Campo | Detalle |
 |---|---|
 | user_id | Clave primaria y foránea a `users` |
-| age, weight_kg, height_cm | Edad, peso corporal y altura |
+| age | Edad al guardar el perfil. Se conserva para los perfiles viejos y como respaldo; si hay `birth_date`, la edad que se usa y se muestra es la calculada a hoy (`Profile.current_age`) |
+| birth_date | Fecha de nacimiento (nula en un perfil viejo que solo tiene la edad). La API la valida entre 14 y 100 años y calcula `age`. **Migración 0018** |
+| weight_kg, height_cm | Peso corporal y altura |
 | sex | Opcional; solo para ajustar cargas iniciales |
 | *(sin días ni duración)* | **El perfil no tiene "días por semana" ni "duración de la sesión"**: los determina la IA. La cantidad de días se calcula con `plan_days` |
 | limitations | Lesiones o limitaciones (texto opcional) |
