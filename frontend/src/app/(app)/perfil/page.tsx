@@ -56,6 +56,7 @@ export default function PerfilPage() {
         const leido: Form = {
           name: p.name,
           age: String(p.age),
+          birth_date: p.birth_date ?? "",
           weight_kg: String(Number(p.weight_kg)),
           height_cm: String(p.height_cm),
           sex: p.sex ?? "",
@@ -78,6 +79,7 @@ export default function PerfilPage() {
         body: JSON.stringify({
           name: datos.name,
           age: datos.age === "" ? null : Number(datos.age),
+          birth_date: datos.birth_date || null,
           weight_kg: datos.weight_kg === "" ? null : datos.weight_kg,
           height_cm: datos.height_cm === "" ? null : Number(datos.height_cm),
           sex: datos.sex || null,

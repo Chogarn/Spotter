@@ -125,7 +125,10 @@ class Profile(Base):
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
     )
+    # La edad se guarda al cargar el perfil; si hay fecha de nacimiento, la edad que se usa y
+    # se muestra es la que se calcula a hoy (`current_age`). Los perfiles viejos solo tienen `age`.
     age: Mapped[int] = mapped_column(Integer)
+    birth_date: Mapped[date | None] = mapped_column(Date)
     weight_kg: Mapped[Decimal] = mapped_column(Numeric(5, 2))
     height_cm: Mapped[int] = mapped_column(Integer)
     sex: Mapped[str | None] = mapped_column(String(20))
@@ -137,6 +140,19 @@ class Profile(Base):
     )
 
     user: Mapped[User] = relationship(back_populates="profile")
+
+    @property
+    def current_age(self) -> int:
+        """La edad de hoy: calculada desde la fecha de nacimiento, o la guardada si no hay."""
+        if self.birth_date is None:
+            return self.age
+        return age_on(self.birth_date, date.today())
+
+
+def age_on(birth_date: date, today: date) -> int:
+    """Años cumplidos en `today`."""
+    before_birthday = (today.month, today.day) < (birth_date.month, birth_date.day)
+    return today.year - birth_date.year - (1 if before_birthday else 0)
 
 
 class Exercise(Base):

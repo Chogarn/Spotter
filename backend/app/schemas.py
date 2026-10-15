@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from app.ai.routine import RoutineProposal
 from app.enums import Goal, Level
+from app.models import age_on
 
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -54,7 +55,10 @@ class UserOut(BaseModel):
 
 class ProfileIn(BaseModel):
     name: str = Field(min_length=1, max_length=100)
-    age: int = Field(ge=14, le=100)
+    # La edad sale de la fecha de nacimiento. Se acepta solo `age` para guardar cambios de un
+    # perfil viejo que todavía no tiene fecha (el nombre, las limitaciones).
+    birth_date: date | None = None
+    age: int | None = Field(default=None, ge=14, le=100)
     weight_kg: Decimal = Field(ge=30, le=300, max_digits=5, decimal_places=2)
     height_cm: int = Field(ge=100, le=250)
     sex: Literal["masculino", "femenino", "otro"] | None = None
@@ -62,12 +66,27 @@ class ProfileIn(BaseModel):
     # Sin el tilde del aviso legal no se guarda nada.
     accept_legal_notice: Literal[True]
 
+    @model_validator(mode="after")
+    def age_from_birth_date(self):
+        if self.birth_date is None:
+            if self.age is None:
+                raise ValueError("Falta la fecha de nacimiento")
+            return self
+        age = age_on(self.birth_date, date.today())
+        if age < 14:
+            raise ValueError("Tenés que tener al menos 14 años")
+        if age > 100:
+            raise ValueError("La fecha de nacimiento no es válida")
+        self.age = age
+        return self
+
 
 class ProfileOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     name: str
     age: int
+    birth_date: date | None = None
     weight_kg: Decimal
     height_cm: int
     sex: str | None

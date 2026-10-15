@@ -14,7 +14,8 @@ router = APIRouter(prefix="/profile", tags=["profile"])
 def to_out(user: User, profile: Profile) -> ProfileOut:
     return ProfileOut(
         name=user.name,
-        age=profile.age,
+        age=profile.current_age,
+        birth_date=profile.birth_date,
         weight_kg=profile.weight_kg,
         height_cm=profile.height_cm,
         sex=profile.sex,
@@ -38,6 +39,9 @@ def put_profile(
 ) -> ProfileOut:
     """Crea el perfil la primera vez y lo actualiza las siguientes."""
     fields = data.model_dump(exclude={"name", "accept_legal_notice"})
+    if fields["birth_date"] is None:
+        # Un guardado sin fecha (perfil viejo) no borra la fecha que ya hubiera.
+        del fields["birth_date"]
     if user.profile is None:
         user.profile = Profile(**fields)
     else:

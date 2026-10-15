@@ -306,13 +306,18 @@ export function ReglaNumero({
 const FILA = 56;
 
 // Rueda de números (como la de Hevy): una lista que se desliza hacia arriba y abajo, con el
-// número elegido en el centro, dentro de una banda. Sirve para la edad.
+// número elegido en el centro, dentro de una banda. Sirve para la fecha de nacimiento (una
+// rueda por día, mes y año): `compacta` la hace angosta, y `formato` cambia lo que se escribe
+// (por ejemplo, el nombre del mes).
 export function RuedaNumero({
   valor,
   min,
   max,
   unidad,
   etiqueta,
+  formato,
+  compacta = false,
+  className,
   onChange,
 }: {
   valor: number;
@@ -320,6 +325,9 @@ export function RuedaNumero({
   max: number;
   unidad: string;
   etiqueta: string;
+  formato?: (n: number) => string;
+  compacta?: boolean;
+  className?: string;
   onChange: (v: number) => void;
 }) {
   const rueda = useRef<HTMLDivElement>(null);
@@ -344,7 +352,7 @@ export function RuedaNumero({
   }
 
   return (
-    <div className="relative mx-auto w-56">
+    <div className={cn("relative mx-auto", compacta ? "w-full" : "w-56", className)}>
       {/* La banda del número elegido. */}
       <span
         aria-hidden="true"
@@ -381,12 +389,12 @@ export function RuedaNumero({
             onClick={() => onChange(n)}
             className={cn(
               "flex snap-center items-center justify-center font-heading font-bold",
-              n === valor ? "text-5xl" : "text-3xl text-muted-foreground",
+              n === valor ? (compacta ? "text-3xl" : "text-5xl") : compacta ? "text-xl text-muted-foreground" : "text-3xl text-muted-foreground",
             )}
             style={{ height: FILA }}
           >
-            {n}
-            {n === valor && <span className="ml-2 text-xl font-medium text-muted-foreground">{unidad}</span>}
+            {formato ? formato(n) : n}
+            {n === valor && unidad && <span className="ml-2 text-xl font-medium text-muted-foreground">{unidad}</span>}
           </div>
         ))}
         <div style={{ height: FILA * 2 }} aria-hidden="true" />

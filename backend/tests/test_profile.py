@@ -77,3 +77,65 @@ def test_valores_invalidos_devuelven_422(client, cambio):
 def test_faltan_campos_obligatorios_devuelve_422(client):
     sin_edad = {k: v for k, v in PERFIL.items() if k != "age"}
     assert client.put("/profile", json=sin_edad).status_code == 422
+
+
+# --- fecha de nacimiento: la edad se calcula ---------------------------------------------
+
+
+def _fecha(anios_atras: int, dias_extra: int = 0):
+    from datetime import date, timedelta
+
+    hoy = date.today()
+    try:
+        base = hoy.replace(year=hoy.year - anios_atras)
+    except ValueError:  # 29 de febrero
+        base = hoy.replace(year=hoy.year - anios_atras, day=28)
+    return base - timedelta(days=dias_extra)
+
+
+def _con_fecha(fecha):
+    sin_edad = {k: v for k, v in PERFIL.items() if k != "age"}
+    return {**sin_edad, "birth_date": fecha.isoformat()}
+
+
+def test_la_edad_se_calcula_desde_la_fecha(client):
+    # Cumplió 30 hace una semana.
+    response = client.put("/profile", json=_con_fecha(_fecha(30, dias_extra=7)))
+
+    assert response.status_code == 200
+    assert response.json()["age"] == 30
+    leido = client.get("/profile").json()
+    assert leido["age"] == 30
+    assert leido["birth_date"] == _fecha(30, dias_extra=7).isoformat()
+
+
+def test_la_edad_no_sube_hasta_el_cumpleanos(client):
+    # Cumple 31 dentro de una semana: todavía tiene 30.
+    from datetime import timedelta
+
+    fecha = _fecha(31) + timedelta(days=7)
+    client.put("/profile", json=_con_fecha(fecha))
+
+    assert client.get("/profile").json()["age"] == 30
+
+
+@pytest.mark.parametrize("anios", [5, 13, 101, 120])
+def test_la_fecha_fuera_de_rango_devuelve_422(client, anios):
+    assert client.put("/profile", json=_con_fecha(_fecha(anios))).status_code == 422
+
+
+def test_una_fecha_futura_devuelve_422(client):
+    from datetime import date, timedelta
+
+    futura = date.today() + timedelta(days=30)
+    assert client.put("/profile", json=_con_fecha(futura)).status_code == 422
+
+
+def test_guardar_solo_con_edad_no_borra_la_fecha(client):
+    # Un perfil con fecha, que después guarda otro dato sin mandarla, la conserva.
+    client.put("/profile", json=_con_fecha(_fecha(30, dias_extra=7)))
+    client.put("/profile", json={**PERFIL, "name": "Bruno B", "age": 30})
+
+    leido = client.get("/profile").json()
+    assert leido["name"] == "Bruno B"
+    assert leido["birth_date"] == _fecha(30, dias_extra=7).isoformat()

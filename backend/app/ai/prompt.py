@@ -37,7 +37,7 @@ def _as_data(text: str) -> str:
 def profile_block(profile: Profile, goal: Goal, level: Level) -> str:
     # No se envía nombre ni email a Gemini: no hacen falta para armar la rutina.
     lines = [
-        f"- Edad: {profile.age} años",
+        f"- Edad: {profile.current_age} años",
         f"- Peso: {profile.weight_kg:g} kg",
         f"- Altura: {profile.height_cm} cm",
     ]
