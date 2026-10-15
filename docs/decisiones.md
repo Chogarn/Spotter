@@ -449,6 +449,13 @@ En Progreso, el gráfico de un ejercicio ya no depende de la rutina elegida arri
 - **Descartaste:** un gráfico por rutina (el anterior); mezclar unidades distintas en una misma línea.
 - **Ojo:** los ejercicios de antes del catálogo con otro nombre no se juntan con los del catálogo; desde que todo sale del catálogo, se unifican.
 
+### 70. No se puede pausar una rutina ni dejar otra en espera
+Se descartó la idea de **pausar la rutina activa y ver otra** (o dejar una segunda rutina "en espera" para activarla al cerrar la actual). Sigue habiendo **una sola semana activa a la vez**. Para cambiar de rutina se **cierra la semana** (manual, aunque falten días, y se puede reabrir) y se empieza otra; la anterior queda **"lista para continuar"** y se retoma con la semana siguiente.
+- **Origen:** tuya (2026-10-15): propusiste poder tener otra rutina con una sola activa y después, al revisarlo, "vamos a descartar la idea, es innecesaria".
+- **Por qué:** *(completar)*
+- **Descartaste:** (2) crear la nueva rutina "en espera" y activarla al cerrar la actual; (3) pausar la semana en curso sin cerrarla y alternar entre rutinas. Ambas pedían un estado nuevo de semana, una migración y cambios en Rutinas, Inicio y Entrenar.
+- **Ojo:** reabrir la idea solo si aparece un caso real de uso. Hoy "Nueva rutina" con una semana en curso avisa que primero hay que cerrarla (409 en el servidor).
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.

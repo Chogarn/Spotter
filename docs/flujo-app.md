@@ -93,7 +93,7 @@ Se abre con **Generar rutina** (Inicio o Entrenar, sin semana activa) o con **Nu
 4. **Días por semana**: principiante **2 o 3** (R12) y el resto **de 2 a 6** (R11); las opciones que no corresponden aparecen apagadas. Va al final porque depende del nivel. Al continuar una rutina viene marcado el valor anterior y se puede cambiar (decisión 52).
 5. **Generar**: la IA arma la semana. Continuar una rutina solo pide el paso de días.
 
-**Si ya hay una semana en curso**, "Nueva rutina" no abre el asistente: avisa "Tenés una semana en curso. Para empezar una rutina nueva, primero cerrá la semana en curso desde Entrenar", con **Ir a Entrenar**. Hoy no se puede tener otra rutina en espera (idea anotada en el backlog).
+**Si ya hay una semana en curso**, "Nueva rutina" no abre el asistente: avisa "Tenés una semana en curso. Para empezar una rutina nueva, primero cerrá la semana en curso desde Entrenar", con **Ir a Entrenar**. No se puede tener otra rutina en espera ni pausar la semana: se descartó (decisión del 2026-10-15). Para cambiar de rutina se cierra la semana, que se puede reabrir, y se empieza otra.
 
 ### Mientras la IA trabaja
 La llamada a Gemini puede tardar de 10 a 90 segundos. Una **pantalla completa de carga** ("Armando tu semana") tapa todo, incluida la barra de abajo, y **no tiene botón de salir** (decisión 67): una sola generación a la vez por persona. Si pasa de 2 minutos, la app corta la espera y muestra un error. Cada llamada cuenta en el tope diario.
@@ -212,13 +212,13 @@ Una llamada a la IA por cierre: el gasto es predecible.
 Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no si hay otra semana en curso ni una propuesta sin revisar. Se borra el comentario de cierre; no se pierde lo registrado. Después de cerrar, Entrenar e Inicio ofrecen **Generar la semana siguiente** o **Empezar una rutina nueva**.
 
 ### Descartado por ahora
+- **Pausar la rutina activa o dejar otra en espera** (2026-10-15): innecesario. Se cierra la semana y se empieza otra; la anterior queda "lista para continuar".
 - **Ajuste conversando durante la semana** (decisión 45, #29): el plan no cambia durante la semana y lo que no anda se cuenta al cerrarla.
 - **Avisos al usuario** (decisión 63) y **ajuste de ejercicios repetidos** (decisión 64).
 - **"Cómo me sentí" por día** (#46), esfuerzo por serie (#48) y semáforo de dolor (#51): pospuestos por decisión 37. Sin ellos, R10 por esfuerzo y la semana liviana (R30) no tienen disparador.
 
 ## Puntos abiertos
 
-- **Más de una rutina con una sola activa** (pausar la activa y ver otra, desde Rutinas): en estudio; las opciones están en `docs/backlog.md`.
 - **Comparar contra la semana pasada** en Progreso: hoy el resumen compara contra lo planificado (decisión del 2026-10-15); contra la semana anterior queda como mejora posible.
 - **Guardar el avance del asistente del perfil** si se corta a la mitad.
 - **Recuperar y restablecer la contraseña.**

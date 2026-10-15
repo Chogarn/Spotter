@@ -126,7 +126,7 @@ Surgieron al probar los asistentes, la barra con tres botones y Inicio. Cada una
   - **A definir:** forma y jerarquía de los botones (principal, secundario, de acceso), qué ícono o disco lleva cada acceso y cuántos van por fila.
   - **Criterios:** maqueta aprobada por el usuario antes de tocar el código; mismos colores y fuentes que el resto; sin perder las etiquetas accesibles.
 
-- [ ] **Pausar la rutina activa y ver otra, desde Rutinas** `frontend` `backend`
+- [x] ~~**Pausar la rutina activa y ver otra, desde Rutinas**~~ **No se hace** (decisión del usuario, 2026-10-15): se consideró innecesaria. Hoy se cubre cerrando la semana (cierre manual, que se puede reabrir) y empezando otra rutina; la anterior queda "lista para continuar". Se reabre solo si aparece un caso real. Detalle de lo que se evaluó, como referencia: `frontend` `backend`
   - **Para qué:** poder tener otra rutina a mano sin cerrar la semana en curso, con **una sola activa a la vez**.
   - **Cómo se accede:** botón en Rutinas (en la tarjeta de la rutina o en su detalle).
   - **Depende de una decisión del usuario, todavía abierta:** hoy no se puede generar ni empezar otra rutina con una semana en curso (409). Opciones planteadas: (1) dejarlo como está; (2) crear la nueva **en espera** y activarla al cerrar la actual; (3) **pausar** la semana en curso y alternar. Recomendación de la IA: la 2, porque respeta que cerrar sea manual y que la IA analice la semana. Falta también si puede haber más de una en espera.
