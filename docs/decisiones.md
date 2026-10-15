@@ -456,6 +456,13 @@ Se descartó la idea de **pausar la rutina activa y ver otra** (o dejar una segu
 - **Descartaste:** (2) crear la nueva rutina "en espera" y activarla al cerrar la actual; (3) pausar la semana en curso sin cerrarla y alternar entre rutinas. Ambas pedían un estado nuevo de semana, una migración y cambios en Rutinas, Inicio y Entrenar.
 - **Ojo:** reabrir la idea solo si aparece un caso real de uso. Hoy "Nueva rutina" con una semana en curso avisa que primero hay que cerrarla (409 en el servidor).
 
+### 71. Cómo se sintió el entrenamiento y el dolor se cuentan en el comentario al cerrar la semana
+No se construyen por ahora la nota de **"cómo me sentí"** por día (#46) ni el **semáforo de dolor** con zona y gravedad (#51). Lo que cubre las dos cosas es el **comentario escrito opcional al cerrar la semana** (decisión 36, tarea #50): texto libre, fijo, que la IA lee como dato del usuario al armar la semana siguiente. El **esfuerzo por serie** (#48) queda pospuesto como estaba (decisión 37).
+- **Origen:** tuya (2026-10-16), después de revisar cómo lo hacen otras apps (Hevy, RP Hypertrophy, Garmin, Strava, Apple y apps de fisioterapia): "vamos a dejar eso a nuestra fusión del comentario, creo que es lo más lógico, además está construido".
+- **Por qué:** *(completar)*
+- **Descartaste (por ahora):** (B) una pregunta de 1 a 5 y un tilde de dolor al cerrar la semana; (C) un botón "me dolió" por ejercicio, con zona y gravedad, que alimente el semáforo R31 (lo más cercano a RP Hypertrophy, y lo más grande: toca el día, el resumen y el prompt).
+- **Ojo:** R31 sigue aprobada como criterio, pero sin un campo propio que la dispare; el dolor llega solo si la persona lo escribe. Si más adelante se quiere que la IA reaccione con más precisión, se retoma #51 (y el esfuerzo por serie, #48). Las decisiones 37 y 62 siguen valiendo.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.

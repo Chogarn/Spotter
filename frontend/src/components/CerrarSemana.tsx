@@ -91,11 +91,12 @@ export function CerrarSemana({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div>
-            <Label htmlFor="comentario">¿Cómo te sentiste esta semana? (opcional)</Label>
+            <Label htmlFor="comentario">¿Cómo te sentiste esta semana? ¿Algún dolor o molestia? (opcional)</Label>
             <Textarea
               id="comentario"
               rows={4}
               maxLength={1000}
+              placeholder="Por ejemplo: me costó el press militar y me molestó la rodilla derecha en la sentadilla"
               value={comentario}
               disabled={cerrando}
               onChange={(e) => setComentario(e.target.value)}

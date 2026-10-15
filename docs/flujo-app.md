@@ -215,7 +215,7 @@ Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no s
 - **Pausar la rutina activa o dejar otra en espera** (2026-10-15): innecesario. Se cierra la semana y se empieza otra; la anterior queda "lista para continuar".
 - **Ajuste conversando durante la semana** (decisión 45, #29): el plan no cambia durante la semana y lo que no anda se cuenta al cerrarla.
 - **Avisos al usuario** (decisión 63) y **ajuste de ejercicios repetidos** (decisión 64).
-- **"Cómo me sentí" por día** (#46), esfuerzo por serie (#48) y semáforo de dolor (#51): pospuestos por decisión 37. Sin ellos, R10 por esfuerzo y la semana liviana (R30) no tienen disparador.
+- **"Cómo me sentí" por día** (#46) y **semáforo de dolor** (#51): no se hacen por ahora (decisión 71). Cómo se sintió el entrenamiento y el dolor se cuentan en el **comentario al cerrar la semana**, que la IA lee. El **esfuerzo por serie** (#48) sigue pospuesto (decisión 37); sin él, R10 por esfuerzo y la semana liviana (R30) no tienen disparador.
 
 ## Puntos abiertos
 
