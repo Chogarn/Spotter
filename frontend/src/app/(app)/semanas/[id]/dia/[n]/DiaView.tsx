@@ -2,15 +2,17 @@
 
 import { Check, ChevronDown, LockOpen } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
 import { Disco } from "@/components/Disco";
 import { DoneControl } from "@/components/DoneControl";
+import { Flecha } from "@/components/Flecha";
 import { Resumen } from "@/components/ExerciseRow";
 import { SemanaPasada } from "@/components/SemanaPasada";
 import { SetRow } from "@/components/SetRow";
-import { readError, type DayDetail, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
+import { readError, type DayDetail, type ExerciseItem, type SetItem, type WeekDetail, apiFetch } from "@/lib/api";
 import { estaHecho, summarize } from "@/lib/format";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
@@ -31,8 +33,15 @@ export default function DiaView({
   const [trabajando, setTrabajando] = useState(false);
   // La tarjeta desplegada (una por vez), o null si están todas cerradas.
   const [abierta, setAbierta] = useState<number | null>(null);
+  const router = useRouter();
+  // Los días de la semana (para pasar al anterior o al siguiente sin volver a la lista).
+  const [dias, setDias] = useState<WeekDetail["days"]>([]);
 
   useEffect(() => {
+    // Al cambiar de día se vacía lo anterior: no queda a la vista el día que se dejó.
+    setDia(null);
+    setAbierta(null);
+    setError("");
     apiFetch(`/weeks/${id}/days/${n}`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await readError(res));
@@ -40,6 +49,19 @@ export default function DiaView({
       })
       .catch((e) => setError(e.message));
   }, [id, n]);
+
+  useEffect(() => {
+    apiFetch(`/weeks/${id}`)
+      .then(async (res) => {
+        if (res.ok) setDias(((await res.json()) as WeekDetail).days);
+      })
+      .catch(() => {});
+  }, [id]);
+
+  // Ir a otro día de la misma semana, manteniendo "solo para mirar" si se llegó desde Rutinas.
+  function irAlDia(numero: number) {
+    router.push(`/semanas/${id}/dia/${numero}${desdeRutinas ? "?desde=rutinas" : ""}`);
+  }
 
   // Al guardar una serie, el backend devuelve esa serie actualizada: se reemplaza en pantalla.
   function serieGuardada(updated: SetItem) {
@@ -101,6 +123,38 @@ export default function DiaView({
       </BackButton>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!dia && !error && <p>Cargando...</p>}
+      {dia && dias.length > 1 && (
+        <div className="mt-3 flex items-center gap-2" role="navigation" aria-label="Días de la semana">
+          {(() => {
+            const actual = dias.findIndex((d) => d.day_index === dia.day_index);
+            return (
+              <>
+                <Flecha
+                  direccion="anterior"
+                  que="Día"
+                  visible={actual > 0}
+                  nombre={dias[actual - 1]?.title}
+                  onClick={() => irAlDia(dias[actual - 1].day_index)}
+                />
+                {dias.map((d, i) => (
+                  <span
+                    key={d.day_index}
+                    aria-hidden="true"
+                    className={cn("h-1.5 flex-1 rounded-full", i === actual ? "bg-disco-tinta" : "bg-border")}
+                  />
+                ))}
+                <Flecha
+                  direccion="siguiente"
+                  que="Día"
+                  visible={actual >= 0 && actual < dias.length - 1}
+                  nombre={dias[actual + 1]?.title}
+                  onClick={() => irAlDia(dias[actual + 1].day_index)}
+                />
+              </>
+            );
+          })()}
+        </div>
+      )}
       {dia && (
         <>
           <h1 className="mb-0 text-6xl">Día {dia.day_index}</h1>
