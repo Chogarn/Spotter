@@ -2,7 +2,8 @@
 
 import { Pencil, X } from "lucide-react";
 import Link from "next/link";
-import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState, useTransition } from "react";
 
 import { BotonDescanso, RelojCircular, useDescanso } from "@/components/Descanso";
 import { Disco } from "@/components/Disco";
@@ -75,6 +76,9 @@ export default function EntrenarView({
   const [pos, setPos] = useState<Posicion | null>(null);
   const [error, setError] = useState("");
   const [trabajando, setTrabajando] = useState(false);
+  const router = useRouter();
+  // Al cerrar el día se va a Inicio; con la transición la pantalla no queda "trabajando" al volver.
+  const [yendoAInicio, startTransition] = useTransition();
   const [corrigiendo, setCorrigiendo] = useState(false);
 
   useEffect(() => {
@@ -172,7 +176,11 @@ export default function EntrenarView({
     setTrabajando(true);
     try {
       const estado = await llamar<{ finished_at: string | null }>(`/complete`);
-      if (estado) setDia({ ...actual, finished_at: estado.finished_at });
+      if (estado) {
+        setDia({ ...actual, finished_at: estado.finished_at });
+        // Día cerrado: se vuelve a Inicio, donde aparece lo que toca después.
+        startTransition(() => router.push("/"));
+      }
     } catch {
       setError("No se pudo conectar con el servidor");
     } finally {
@@ -292,7 +300,7 @@ export default function EntrenarView({
             <>
               <h1 className="mt-0 text-4xl">Terminaste los {total} ejercicios</h1>
               <p className="text-muted-foreground">Cerrá el día para que cuente como hecho.</p>
-              <Button size="lg" className="h-12 w-full text-base" type="button" onClick={completarDia} disabled={trabajando}>
+              <Button size="lg" className="h-12 w-full text-base" type="button" onClick={completarDia} disabled={trabajando || yendoAInicio}>
                 Día completado
               </Button>
             </>
