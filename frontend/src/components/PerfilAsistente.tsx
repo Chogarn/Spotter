@@ -205,8 +205,8 @@ export function PerfilAsistente({
         </div>
       )}
       {paso === "peso" && (
-        <ReglaNumero valor={peso} min={30} max={300} paso={0.5} unidad="kg" etiqueta="el peso"
-          cadaCuantas={2} onChange={setPeso} />
+        <ReglaNumero valor={peso} min={30} max={300} paso={0.1} unidad="kg" etiqueta="el peso"
+          cadaCuantas={10} onChange={setPeso} />
       )}
       {paso === "altura" && (
         <ReglaNumero valor={altura} min={100} max={250} paso={1} unidad="cm" etiqueta="la altura"

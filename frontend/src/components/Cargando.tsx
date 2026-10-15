@@ -8,7 +8,7 @@ export function CargandoDiscos({ etiqueta = "Cargando", className }: { etiqueta?
     <div
       role="status"
       aria-live="polite"
-      className={cn("flex flex-col items-center justify-center gap-2 py-10 text-muted-foreground", className)}
+      className={cn("flex min-h-[calc(100svh-16rem)] flex-col items-center justify-center gap-2 text-muted-foreground", className)}
     >
       <svg viewBox="0 0 96 48" aria-hidden="true" className="h-12 w-auto text-foreground">
         <rect x="4" y="22" width="88" height="4" rx="2" fill="currentColor" />
@@ -29,7 +29,7 @@ export function CargandoDiscos({ etiqueta = "Cargando", className }: { etiqueta?
 // mientras llegan los datos de una pantalla entera.
 export function Cargando() {
   return (
-    <main className="mx-auto max-w-xl px-4 pt-8">
+    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center px-4">
       <CargandoDiscos />
     </main>
   );
