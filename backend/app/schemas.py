@@ -422,3 +422,26 @@ class DayDetailOut(BaseModel):
 
 class DayStatusOut(BaseModel):
     finished_at: datetime | None
+
+
+class CalendarSessionOut(BaseModel):
+    """Un día de entrenamiento completado, para el calendario."""
+
+    local_date: date  # el día del calendario de la persona (según la diferencia horaria que mandó)
+    finished_at: datetime
+    week_id: int
+    week_number: int  # dentro de su rutina
+    day_index: int
+    title: str
+    routine_name: str
+
+
+class CalendarOut(BaseModel):
+    """Calendario de entrenamientos (histórico, de todas las rutinas)."""
+
+    month: str  # AAAA-MM
+    # El mes del primer entrenamiento (hasta dónde se puede retroceder); nulo si nunca entrenó.
+    first_month: str | None
+    total_days: int  # días entrenados en total
+    month_days: int  # días entrenados en el mes pedido
+    sessions: list[CalendarSessionOut]

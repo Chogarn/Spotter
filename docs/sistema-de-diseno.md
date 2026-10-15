@@ -37,6 +37,7 @@ texto en Barlow.
 | Día a medias | borde rojo, sin relleno | semana, Rutinas |
 | Pendiente | borde punteado gris | semana, Rutinas |
 | Hoy (el próximo día) | aro **azul** sólido | Inicio y Entrenar |
+| Día entrenado (calendario) | disco **verde** con el número del día; hoy con aro azul | Progreso, Calendario |
 | No llegaste | borde **amarillo** (aviso, no error) | Progreso |
 
 ### Tipografía

@@ -163,6 +163,24 @@ export type ExerciseHistory = {
   record: number | null;
 };
 
+// El calendario de entrenamientos (`GET /calendar`): histórico, de todas las rutinas.
+export type CalendarSession = {
+  local_date: string; // AAAA-MM-DD, el día de la persona
+  finished_at: string;
+  week_id: number;
+  week_number: number;
+  day_index: number;
+  title: string;
+  routine_name: string;
+};
+export type CalendarMonth = {
+  month: string; // AAAA-MM
+  first_month: string | null;
+  total_days: number;
+  month_days: number;
+  sessions: CalendarSession[];
+};
+
 // El resumen de una semana para Progreso (#28): se calcula en el backend, no se guarda.
 export type WeekSummaryDetail = {
   week_id: number;

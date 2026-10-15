@@ -2,14 +2,16 @@ import Link from "next/link";
 
 import { cn } from "cn";
 
-// Las dos pantallas de Progreso: los resúmenes de cada semana y la evolución por ejercicio. Se
-// llega a cada una desde Inicio; estas pestañas sirven para pasar de una a la otra.
+// Las pantallas de Progreso: los resúmenes de cada semana, la evolución por ejercicio y el
+// calendario de entrenamientos. Se llega a cada una desde Inicio; estas pestañas sirven para pasar
+// de una a otra.
 const PESTANAS = [
-  { href: "/progreso", texto: "Resúmenes semanales" },
+  { href: "/progreso", texto: "Resúmenes" },
   { href: "/progreso/estadisticas", texto: "Estadísticas" },
-];
+  { href: "/progreso/calendario", texto: "Calendario" },
+] as const;
 
-export function PestanasProgreso({ actual }: { actual: "/progreso" | "/progreso/estadisticas" }) {
+export function PestanasProgreso({ actual }: { actual: (typeof PESTANAS)[number]["href"] }) {
   return (
     <nav aria-label="Progreso" className="mb-4 flex rounded-full bg-muted p-1">
       {PESTANAS.map(({ href, texto }) => (

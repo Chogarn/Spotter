@@ -1,10 +1,10 @@
 "use client";
 
-import { MessageSquare, Sparkles } from "lucide-react";
+import { ChevronDown, MessageSquare, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Disco, type EstadoDisco, estadoDia } from "@/components/Disco";
+import { Disco, type EstadoDisco } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Flecha } from "@/components/Flecha";
 import { PestanasProgreso } from "@/components/PestanasProgreso";
@@ -161,15 +161,21 @@ const SENALES: Record<string, { estado: EstadoDisco; texto: string }> = {
   "sin registrar": { estado: "pendiente", texto: "sin registrar" },
 };
 
-const LEYENDA: { estado: EstadoDisco; texto: string }[] = [
-  { estado: "completo", texto: "superaste" },
-  { estado: "hecho", texto: "cumpliste" },
-  { estado: "aviso", texto: "no llegaste" },
-  { estado: "pendiente", texto: "sin registrar" },
-];
+// El orden en que se cuentan en el resumen de una línea.
+const ORDEN = ["superó", "cumplió", "no llegó", "sin registrar"] as const;
+const PLURAL: Record<(typeof ORDEN)[number], string> = {
+  "superó": "superaste",
+  "cumplió": "cumpliste",
+  "no llegó": "no llegaste",
+  "sin registrar": "sin registrar",
+};
 
+// El resumen en una línea (cuántos ejercicios en cada estado, con su disco) y, plegada, la lista
+// ejercicio por ejercicio: con muchos ejercicios la lista entera hacía la pantalla muy larga.
 function ComoTeFue({ ejercicios }: { ejercicios: WeekSummaryDetail["exercises"] }) {
+  const [abierta, setAbierta] = useState(false);
   const nada = ejercicios.every((e) => e.signal === "sin registrar");
+  const cuenta = (senal: string) => ejercicios.filter((e) => e.signal === senal).length;
 
   return (
     <section className="mb-3 rounded-2xl bg-card p-4">
@@ -178,27 +184,41 @@ function ComoTeFue({ ejercicios }: { ejercicios: WeekSummaryDetail["exercises"] 
         <p className="m-0 text-muted-foreground">Esta semana no registraste series.</p>
       ) : (
         <>
-          <ul className="m-0 list-none p-0">
-            {ejercicios.map((e, i) => {
-              const senal = SENALES[e.signal] ?? SENALES["sin registrar"];
-              return (
-                <li key={i} className="flex items-center gap-3 border-t border-border py-2 first:border-t-0">
-                  <Disco estado={senal.estado} />
-                  <span className="min-w-0 flex-1 font-heading text-lg leading-tight font-semibold">{e.name}</span>
-                  <span className="shrink-0 text-sm text-muted-foreground">{senal.texto}</span>
-                </li>
-              );
-            })}
-          </ul>
-          {/* La leyenda: qué significa cada disco. */}
-          <ul className="mx-0 mt-3 mb-0 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-xs text-muted-foreground">
-            {LEYENDA.map((l) => (
-              <li key={l.texto} className="flex items-center gap-1.5">
-                <Disco estado={l.estado} className="size-3.5 border-2" />
-                {l.texto}
+          <ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-2 p-0">
+            {ORDEN.filter((senal) => cuenta(senal) > 0).map((senal) => (
+              <li key={senal} className="flex items-center gap-2">
+                <Disco estado={SENALES[senal].estado} />
+                <span>
+                  <b className="font-heading text-2xl leading-none">{cuenta(senal)}</b>{" "}
+                  <span className="text-sm text-muted-foreground">{PLURAL[senal]}</span>
+                </span>
               </li>
             ))}
           </ul>
+
+          <button
+            type="button"
+            onClick={() => setAbierta((a) => !a)}
+            aria-expanded={abierta}
+            className="mt-3 flex w-full items-center justify-between rounded-xl bg-muted px-3 py-2 text-left text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            {abierta ? "Ocultar el detalle" : `Ver ejercicio por ejercicio (${ejercicios.length})`}
+            <ChevronDown className={cn("size-4 transition-transform", abierta && "rotate-180")} aria-hidden="true" />
+          </button>
+          {abierta && (
+            <ul className="mx-0 mt-2 mb-0 list-none p-0">
+              {ejercicios.map((e, k) => {
+                const senal = SENALES[e.signal] ?? SENALES["sin registrar"];
+                return (
+                  <li key={k} className="flex items-center gap-3 border-t border-border py-2 first:border-t-0">
+                    <Disco estado={senal.estado} />
+                    <span className="min-w-0 flex-1 font-heading text-lg leading-tight font-semibold">{e.name}</span>
+                    <span className="shrink-0 text-sm text-muted-foreground">{senal.texto}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </>
       )}
     </section>
@@ -217,12 +237,6 @@ function ResumenSemana({ resumen }: { resumen: WeekSummaryDetail }) {
             ? `Cerrada el ${shortDate(resumen.closed_at.slice(0, 10))}`
             : "Cerrada"}
       </p>
-      <div className="mb-4 flex gap-1.5">
-        {resumen.day_states.map((e, i) => (
-          <Disco key={i} estado={estadoDia[e]} />
-        ))}
-      </div>
-
       <div className={cn("mb-4 grid gap-2", resumen.cardio_minutes > 0 ? "grid-cols-2" : "grid-cols-3")}>
         <Numero valor={`${resumen.days_completed}/${resumen.day_states.length}`} texto="días entrenados" />
         <Numero valor={`${resumen.sets_done}/${resumen.sets_planned}`} texto="series hechas" />
