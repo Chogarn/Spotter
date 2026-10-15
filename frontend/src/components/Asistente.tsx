@@ -16,6 +16,7 @@ export function PasoAsistente({
   ayuda,
   onAtras,
   etiquetaAtras = "Volver",
+  onCancelar,
   onContinuar,
   continuar = "Continuar",
   deshabilitado = false,
@@ -30,6 +31,8 @@ export function PasoAsistente({
   ayuda?: string;
   onAtras?: () => void;
   etiquetaAtras?: string;
+  // "Cancelar" arriba a la derecha, en todos los pasos: sale del asistente sin guardar nada.
+  onCancelar?: () => void;
   onContinuar: () => void;
   continuar?: string;
   deshabilitado?: boolean;
@@ -66,7 +69,17 @@ export function PasoAsistente({
               />
             ))}
           </div>
-          <span className="size-10 shrink-0" aria-hidden="true" />
+          {onCancelar ? (
+            <button
+              type="button"
+              onClick={onCancelar}
+              className="h-10 shrink-0 rounded-full px-3 text-sm font-medium text-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              Cancelar
+            </button>
+          ) : (
+            <span className="size-10 shrink-0" aria-hidden="true" />
+          )}
         </div>
 
         <h1 className="mt-8 mb-1 text-4xl leading-tight">{titulo}</h1>

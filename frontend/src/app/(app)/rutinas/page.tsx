@@ -7,17 +7,8 @@ import { readError, type Routine, apiFetch } from "@/lib/api";
 import { goalText, nombreDiceElObjetivo } from "@/lib/format";
 import { DiscosSemana } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
-import { GenerarRutina } from "@/components/GenerarRutina";
 import { IconoObjetivo } from "@/components/IconoObjetivo";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { NuevaRutina } from "@/components/NuevaRutina";
 import { Button } from "@/components/ui/button";
 import { CargandoDiscos } from "@/components/Cargando";
 
@@ -38,7 +29,15 @@ export default function MisRutinasPage() {
     <main className="mx-auto max-w-xl px-4 pt-8">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="my-0">Tus rutinas</h1>
-        {rutinas && <NuevaRutina hayActiva={rutinas.some((r) => r.has_active_week)} />}
+        {rutinas && (
+          <NuevaRutina hayActiva={rutinas.some((r) => r.has_active_week)}>
+            {(abrir) => (
+              <Button type="button" onClick={abrir}>
+                Nueva rutina
+              </Button>
+            )}
+          </NuevaRutina>
+        )}
       </div>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!rutinas && !error && <CargandoDiscos />}
@@ -94,41 +93,5 @@ export default function MisRutinasPage() {
         </ul>
       )}
     </main>
-  );
-}
-
-// "Nueva rutina" (decisión 50): la IA arma una rutina nueva (nivel y objetivo). Con una semana
-// activa no se puede generar: el botón se ve igual y explica que primero hay que cerrarla.
-function NuevaRutina({ hayActiva }: { hayActiva: boolean }) {
-  const [avisando, setAvisando] = useState(false);
-  if (!hayActiva) {
-    return (
-      <div className="flex flex-col items-end">
-        <GenerarRutina etiqueta="Nueva rutina" soloNueva />
-      </div>
-    );
-  }
-  return (
-    <>
-      <Button type="button" onClick={() => setAvisando(true)}>
-        Nueva rutina
-      </Button>
-      <AlertDialog open={avisando} onOpenChange={setAvisando}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tenés una semana en curso</AlertDialogTitle>
-            <AlertDialogDescription>
-              Para empezar una rutina nueva, primero cerrá la semana en curso desde Entrenar.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <Button nativeButton={false} render={<Link href="/entrenar" />}>
-              Ir a Entrenar
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   );
 }

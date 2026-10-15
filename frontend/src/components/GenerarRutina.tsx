@@ -48,12 +48,15 @@ export function GenerarRutina({
   soloNueva = false,
   continuar,
   variante = "default",
+  disparador,
 }: {
   etiqueta: string;
   onConflict?: () => void;
   soloNueva?: boolean;
   continuar?: number;
   variante?: "default" | "outline";
+  // Dibuja otro disparador (una tarjeta, por ejemplo) en lugar del botón; recibe la función que abre.
+  disparador?: (abrir: () => void) => React.ReactNode;
 }) {
   const router = useRouter();
   const [preguntando, setPreguntando] = useState(false);
@@ -182,11 +185,14 @@ export function GenerarRutina({
 
   return (
     <>
-      {!preguntando && !generando && (
-        <Button type="button" variant={variante} onClick={abrir}>
-          {etiqueta}
-        </Button>
-      )}
+      {!preguntando && !generando &&
+        (disparador ? (
+          disparador(abrir)
+        ) : (
+          <Button type="button" variant={variante} onClick={abrir}>
+            {etiqueta}
+          </Button>
+        ))}
 
       {/* Un asistente: una pregunta por pantalla. Los pasos dependen de lo que se eligió. */}
       {preguntando && !generando && rutinas === null && (
@@ -208,6 +214,7 @@ export function GenerarRutina({
           }
           onAtras={indice > 0 ? () => setPaso(pasos[indice - 1]) : cancelar}
           etiquetaAtras={indice > 0 ? "Volver" : "Cancelar"}
+          onCancelar={cancelar}
           onContinuar={ultimo ? generar : () => setPaso(pasos[indice + 1])}
           continuar={ultimo ? "Generar rutina" : "Continuar"}
           deshabilitado={!pasoListo}

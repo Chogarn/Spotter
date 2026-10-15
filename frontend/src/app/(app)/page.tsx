@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Logo } from "@/components/Logo";
+import { NuevaRutina } from "@/components/NuevaRutina";
 import { OpcionesSiguiente, ResumenUltimaSemana, useUltimaSemana } from "@/components/SiguienteSemana";
 import { Button } from "@/components/ui/button";
 import { readError, apiFetch, type SessionUser, type WeekDetail } from "@/lib/api";
@@ -69,27 +70,12 @@ export default function Inicio() {
 
   return (
     <main className="flex flex-1 flex-col">
-      {/* Franja de saludo, como el carnet de un gimnasio, con el borde de un disco asomando. */}
+      {/* Franja de saludo liviana, con el borde de un disco asomando. La semana va en la tarjeta. */}
       <section className="relative overflow-hidden bg-primary px-4 pt-8 pb-7 text-primary-foreground">
         <div className="mx-auto max-w-xl">
           <Logo className="mb-3 h-6" />
           <p className="m-0 text-sm text-primary-foreground/70 first-letter:uppercase">{fecha || " "}</p>
           <h1 className="my-1 text-5xl">{nombre ? `Hola, ${nombre}` : "Hola"}</h1>
-          {semana && (
-            <>
-              <p className="m-0 text-primary-foreground/80">
-                {semana.routine_name} · semana {semana.number}
-              </p>
-              <div className="mt-3 flex items-center gap-1.5">
-                {semana.days.map((d) => (
-                  <Disco key={d.day_index} estado={estadoDia[d.state]} className="border-primary-foreground" />
-                ))}
-                <span className="ml-1.5 text-sm text-primary-foreground/70">
-                  {hechos} de {semana.days.length} días
-                </span>
-              </div>
-            </>
-          )}
         </div>
         <span
           aria-hidden="true"
@@ -103,6 +89,18 @@ export default function Inicio() {
 
         {!cargando && semana && (
           <section className="mb-4 rounded-2xl border-2 border-disco-tinta bg-card p-5">
+            {/* La semana en curso: la rutina, su número y los discos de los días. */}
+            <p className="m-0 text-sm text-muted-foreground">
+              {semana.routine_name} · semana {semana.number}
+            </p>
+            <div className="mt-2 mb-4 flex items-center gap-1.5">
+              {semana.days.map((d) => (
+                <Disco key={d.day_index} estado={estadoDia[d.state]} />
+              ))}
+              <span className="ml-1.5 text-sm text-muted-foreground">
+                {hechos} de {semana.days.length} días
+              </span>
+            </div>
             {proximo ? (
               <>
                 <p className="m-0 text-sm text-muted-foreground">Hoy te toca</p>
@@ -172,7 +170,20 @@ export default function Inicio() {
           <h2 className="mt-0 mb-2 text-xl">Tus rutinas</h2>
           <div className="mb-5 grid grid-cols-2 gap-2.5">
             <Acceso href="/rutinas" Icono={ListChecks} texto="Tus rutinas" />
-            <Acceso href="/rutinas" Icono={Sparkles} texto="Nueva rutina" />
+            {/* Abre directo el asistente de rutina nueva; con una semana en curso, avisa. */}
+            <NuevaRutina hayActiva={semana !== null}>
+              {(abrir) => (
+                <button
+                  type="button"
+                  onClick={abrir}
+                  disabled={cargando}
+                  className="flex flex-col gap-2 rounded-2xl bg-card p-4 text-left font-medium hover:bg-muted disabled:opacity-60"
+                >
+                  <Sparkles className="size-6" aria-hidden="true" />
+                  Nueva rutina
+                </button>
+              )}
+            </NuevaRutina>
           </div>
           <h2 className="mt-0 mb-2 text-xl">Tu progreso</h2>
           <div className="grid grid-cols-2 gap-2.5">

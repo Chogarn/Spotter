@@ -159,6 +159,7 @@ export function PerfilAsistente({
       }
       onAtras={indice > 0 ? () => setIndice(indice - 1) : onCancelar}
       etiquetaAtras={indice > 0 ? "Volver" : "Cancelar"}
+      onCancelar={onCancelar}
       onContinuar={siguiente}
       continuar={
         ultimo
