@@ -151,6 +151,36 @@ Surgieron al probar los asistentes, la barra con tres botones y Inicio. Cada una
   - **A definir:** posición de la fecha, posición y tamaño del logo, y si el logo se repite en otras pantallas. El logo es **provisorio**: falta elegir el definitivo y revisar el amarillo sobre fondo claro.
   - **Criterios:** maqueta aprobada por el usuario; el encabezado no repite información de "Hoy te toca".
 
+### Definidas el 2026-10-15 (listas para decidir y construir)
+
+- [ ] **Progreso: cuánto subió cada ejercicio** `backend` `frontend`
+  - **Para qué:** hoy "Cómo te fue" dice solo la palabra ("superaste", "como estaba", "no llegaste"). Falta el número: cuánto subió, o cuánto faltó.
+  - **Cómo se accede:** Progreso, pestaña "Resúmenes semanales" (sin pantalla nueva).
+  - **Qué ve el usuario:** en cada fila del ejercicio, además del disco y la palabra, el mejor valor de la semana ("62,5 kg") y la diferencia ("+2,5").
+  - **El dato que falta, con precisión:** `GET /weeks/{id}/summary` devuelve por ejercicio solo `name`, `kind` y `signal` (`ExerciseResultOut`). Para mostrar el número hay que sumar, por ejercicio:
+    - `unit`: `"kg"`, `"reps"`, `"s"` o `"min"` (la misma que ya usa `GET /exercises/{id}/history`, según el tipo de ejercicio).
+    - `best`: el mejor valor realizado esa semana (el mayor peso en un ejercicio de fuerza, repeticiones, segundos o minutos).
+    - `previous`: el mejor valor de la **semana cerrada anterior** de la misma rutina (nulo si no hay).
+    - Opcional, `planned`: el valor planificado (el mismo cálculo que ya usa `signal`).
+  - **Qué ya existe:** el mejor valor por semana y por ejercicio se calcula en `GET /exercises/{id}/history` (decisión 69) y lo planificado frente a lo real, en `ai/history.py`. No hace falta tabla ni migración: es leer y devolver lo que ya se calcula.
+  - **Decisión pendiente del usuario:** la diferencia, ¿contra **la semana pasada** (progreso real) o contra **lo planificado** (coincide con la señal)? Recomendación: contra la semana pasada, y la palabra ("superaste") sigue diciendo lo de lo planificado.
+  - **Criterios de aceptación:** el endpoint devuelve `unit`, `best` y `previous`; un ejercicio sin semana anterior no muestra diferencia; un ejercicio "sin registrar" no muestra número; las unidades se leen bien (kg, reps, s, min); tests del cálculo con y sin semana anterior.
+
+- [ ] **Calendario de entrenamientos** `backend` `frontend`
+  - **Para qué:** ver de un vistazo en qué días de la semana y del mes se entrenó, con los días entrenados marcados.
+  - **Cómo se accede:** Progreso, como tercera pestaña ("Resúmenes semanales", "Estadísticas" y **"Calendario"**), en `/progreso/calendario`; y un acceso más en la sección "Tu progreso" de Inicio.
+  - **Qué ve el usuario:** un mes en cuadrícula de 7 columnas (lunes primero), con un **disco verde** en cada día en que completó un día de entrenamiento, el día de hoy con **aro azul**, y el nombre del mes con flechas para pasar al anterior o al siguiente.
+  - **Acciones:** pasar de mes; tocar un día marcado para ver debajo qué se hizo ese día ("Día 2 · Cuerpo completo B", la rutina y la semana), con enlace al día. Solo lectura.
+  - **Vista y componentes:** una página `progreso/calendario/page.tsx`, un componente `Calendario.tsx` (la cuadrícula) y se reutiliza `Disco` y `Flecha`; las pestañas se agregan en `PestanasProgreso.tsx`.
+  - **Datos:** ya existen. `workout_sessions.finished_at` es cuándo tocó "Día completado"; el día del plan, la semana y la rutina salen de `plan_days`, `week_plans` y `routines`. Falta un endpoint de lectura, por ejemplo `GET /calendar?month=2026-10`, que devuelve las sesiones terminadas del mes (fecha y hora, `week_id`, `day_index`, título, nombre de la rutina). Sin migración.
+  - **Cuidado con la zona horaria:** `finished_at` se guarda con zona horaria y el perfil no guarda la del usuario. Una sesión terminada a las 22:00 en Argentina cae en el día siguiente en UTC. Propuesta: el endpoint devuelve el instante tal cual y **el navegador agrupa por día local**.
+  - **Decidido por el usuario (2026-10-15):**
+    - **Qué cuenta como "entrenó":** el día en que tocó **"Día completado"** (`finished_at`), no la primera serie.
+    - **Dos días completados el mismo día del calendario:** se ve **un solo marcado**; son los días en que fue al gimnasio.
+    - **El calendario no depende del plan:** el "Día 1" de una rutina puede ser cualquier día de la semana, no necesariamente el lunes. Por eso el calendario muestra fechas reales y no intenta ubicar "Día 1, Día 2" en lunes, martes, etc.
+  - **Todavía a decidir:** si un día reabierto deja de marcarse (propuesta: sí, porque `finished_at` vuelve a quedar vacío).
+  - **Criterios de aceptación:** un día completado aparece marcado en su fecha local; dos días completados el mismo día se marcan una sola vez; un día reabierto no aparece; las sesiones de otro usuario no aparecen; el cambio de mes funciona y no pide más de un mes por vez; el día de hoy se distingue; tests del endpoint (mes con y sin sesiones, borde de mes y zona horaria).
+
 ## Ideas para después (fuera del MVP, sin definir)
 
 Ideas anotadas durante el diseño. No son tareas todavía: antes de convertirlas en issues hay que definirlas (qué ve el usuario, qué acciones tiene, criterios de aceptación).
@@ -159,7 +189,7 @@ Ideas anotadas durante el diseño. No son tareas todavía: antes de convertirlas
   - A definir: qué cuenta como día cumplido, como semana cumplida y como mes cumplido; qué rompe una racha; dónde se muestra.
   - Punto a decidir: la racha diaria debería contar los **días planificados**, no los días del calendario, para que un día de descanso no la rompa.
   - Se podría calcular con datos que ya existen (sesiones terminadas y series reales), sin tablas nuevas.
-- **Calendario de entrenamientos** (idea del usuario, 2026-10-15). Un calendario donde se ven marcados los días en que se entrenó, para ver de un vistazo qué días de la semana (y del mes) se cumplió.
+- **Calendario de entrenamientos** (idea del usuario, 2026-10-15; **ya definida como tarea**, ver "Definidas el 2026-10-15"). Un calendario donde se ven marcados los días en que se entrenó, para ver de un vistazo qué días de la semana (y del mes) se cumplió.
   - Los días del plan se llaman "Día 1, Día 2" y no son del calendario (decisión de producto); el calendario mostraría las **fechas reales** en que se completó cada día (`workout_sessions.finished_at`, que ya se guarda), sin cambiar ese criterio.
   - A definir: dónde vive (una tercera pestaña de Progreso, o en Inicio), si es vista de semana, de mes o las dos, cómo se marca un día entrenado (con el disco verde de "completado", igual que en el resto) y qué muestra al tocar un día (qué día del plan fue y cuánto duró).
   - Punto a decidir: qué hacer con un día completado que se reabrió después, y con dos días completados el mismo día del calendario.

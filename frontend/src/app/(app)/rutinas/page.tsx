@@ -1,5 +1,6 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -27,18 +28,7 @@ export default function MisRutinasPage() {
 
   return (
     <main className="mx-auto max-w-xl px-4 pt-8">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="my-0">Tus rutinas</h1>
-        {rutinas && (
-          <NuevaRutina hayActiva={rutinas.some((r) => r.has_active_week)}>
-            {(abrir) => (
-              <Button type="button" onClick={abrir}>
-                Nueva rutina
-              </Button>
-            )}
-          </NuevaRutina>
-        )}
-      </div>
+      <h1 className="mt-0 mb-4">Tus rutinas</h1>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!rutinas && !error && <CargandoDiscos />}
       {rutinas && rutinas.length === 0 && (
@@ -91,6 +81,24 @@ export default function MisRutinasPage() {
             </li>
           ))}
         </ul>
+      )}
+
+      {/* "Nueva rutina" fijo abajo, apoyado sobre la barra de navegación (su alto más su borde): a mano
+          del pulgar y siempre a la vista, aunque la lista sea larga. */}
+      {rutinas && (
+        <div className="fixed inset-x-0 bottom-[calc(var(--alto-barra)+1px+env(safe-area-inset-bottom))] z-30 border-t border-border bg-card">
+          {/* Abajo queda aire: el botón redondo de Entrenar sobresale de la barra de navegación. */}
+          <div className="mx-auto max-w-xl px-4 pt-3 pb-10">
+            <NuevaRutina hayActiva={rutinas.some((r) => r.has_active_week)}>
+              {(abrir) => (
+                <Button type="button" size="xl" className="w-full" onClick={abrir}>
+                  <Plus aria-hidden="true" />
+                  Nueva rutina
+                </Button>
+              )}
+            </NuevaRutina>
+          </div>
+        </div>
       )}
     </main>
   );
