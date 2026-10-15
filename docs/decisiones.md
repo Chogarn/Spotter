@@ -434,6 +434,12 @@ Mientras la IA arma una semana se muestra una **pantalla completa** (un disco de
 - **Descartaste:** dejar navegar mientras se genera con un aviso fijo (queda como mejora futura); la variante A de la animación; el cartel "Tu rutina quedó activa" con "Ver mis rutinas" e "Ir a Entrenar".
 - **Ojo:** el candado en memoria vale por proceso del servidor; entre varios procesos lo cubre la comprobación de las llamadas sin terminar.
 
+### 68. Un dibujo por objetivo de rutina
+Cada objetivo tiene su ícono sobre un disco oscuro: **masa** (brazo flexionado), **fuerza** (mancuerna), **perder grasa** (llama), **condición general** (corazón con pulso) y **mantenerme activo** (huellas). Aparece al elegir el objetivo de una rutina nueva, en la lista de Rutinas y en el encabezado de cada rutina (`IconoObjetivo.tsx`). Son decorativos: el nombre del objetivo siempre va al lado.
+- **Origen:** tuya (2026-10-15): "para el tipo de rutina me gustaría un dibujo así"; aprobaste los cinco dibujos de la maqueta.
+- **Por qué:** *(completar)*
+- **Descartaste (por ahora):** dibujos por grupo muscular, por ejercicio y en las tarjetas; no estabas seguro.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.

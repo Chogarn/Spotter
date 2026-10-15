@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { IconoObjetivo } from "@/components/IconoObjetivo";
 
 const NIVELES = [
   ["principiante", "principiante"],
@@ -221,6 +222,7 @@ export function GenerarRutina({
                 valor={objetivo}
                 opciones={OBJETIVOS}
                 onChange={setObjetivo}
+                conIcono
               />
             </>
           )}
@@ -293,12 +295,15 @@ function Opciones({
   valor,
   opciones,
   onChange,
+  conIcono = false,
 }: {
   titulo: string;
   nombre: string;
   valor: string;
   opciones: string[][];
   onChange: (v: string) => void;
+  // Un dibujo al lado de cada opción (solo el objetivo).
+  conIcono?: boolean;
 }) {
   return (
     <fieldset>
@@ -307,6 +312,7 @@ function Opciones({
         {opciones.map(([v, etiqueta]) => (
           <Label key={v} className="gap-2">
             <RadioGroupItem value={v} />
+            {conIcono && <IconoObjetivo objetivo={v} tamano="xs" />}
             {etiqueta}
           </Label>
         ))}

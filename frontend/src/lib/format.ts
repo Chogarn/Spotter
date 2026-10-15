@@ -95,6 +95,13 @@ export const goalText: Record<string, string> = {
   mantenerme_activo: "mantenerme activo",
 };
 
+// ¿El nombre de la rutina ya dice el objetivo ("Fuerza · desde el 15/10")? Entonces no se repite al
+// lado. Si el usuario le puso otro nombre, el objetivo sí se muestra.
+export function nombreDiceElObjetivo(nombre: string, goal: string): boolean {
+  const objetivo = goalText[goal];
+  return Boolean(objetivo) && nombre.toLowerCase().includes(objetivo.toLowerCase());
+}
+
 export const statusText = { active: "activa", closed: "cerrada", draft: "borrador" } as const;
 
 // "2026-10-08" -> "8/10/2026" (sin pasar por Date, para no correr el día por la zona horaria).

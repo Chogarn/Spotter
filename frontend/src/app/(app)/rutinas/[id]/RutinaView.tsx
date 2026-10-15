@@ -6,7 +6,8 @@ import { use, useEffect, useState } from "react";
 
 import { BackButton } from "@/components/BackButton";
 import { readError, type RoutineDetail, apiFetch } from "@/lib/api";
-import { goalText, shortDate, statusText } from "@/lib/format";
+import { goalText, nombreDiceElObjetivo, shortDate, statusText } from "@/lib/format";
+import { IconoObjetivo } from "@/components/IconoObjetivo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DiscosSemana } from "@/components/Disco";
@@ -58,7 +59,8 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
       {rutina && (
         <>
           {nombre === null ? (
-            <div className="flex items-start gap-2">
+            <div className="flex items-start gap-3">
+              <IconoObjetivo objetivo={rutina.goal} tamano="md" className="mt-1" />
               <h1 className="mt-2 mb-0 flex-1 text-5xl leading-none">{rutina.name}</h1>
               <Button
                 size="icon-lg"
@@ -103,7 +105,7 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
           {/* Los datos de la rutina como etiquetas, para que no se confunda con la lista de rutinas. */}
           <div className="mt-3 flex flex-wrap gap-1.5">
             {[
-              goalText[rutina.goal],
+              !nombreDiceElObjetivo(rutina.name, rutina.goal) && goalText[rutina.goal],
               rutina.level.charAt(0).toUpperCase() + rutina.level.slice(1),
               rutina.days_per_week !== null && `${rutina.days_per_week} días por semana`,
             ]

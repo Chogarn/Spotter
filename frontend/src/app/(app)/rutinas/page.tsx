@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { readError, type Routine, apiFetch } from "@/lib/api";
-import { goalText } from "@/lib/format";
+import { goalText, nombreDiceElObjetivo } from "@/lib/format";
 import { DiscosSemana } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { GenerarRutina } from "@/components/GenerarRutina";
+import { IconoObjetivo } from "@/components/IconoObjetivo";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -55,7 +56,10 @@ export default function MisRutinasPage() {
                 className="block rounded-2xl bg-card p-4 no-underline hover:bg-muted"
               >
                 <span className="flex items-center justify-between gap-2">
-                  <span className="font-heading text-2xl font-bold">{r.name}</span>
+                  <span className="flex min-w-0 items-center gap-3">
+                    <IconoObjetivo objetivo={r.goal} />
+                    <span className="font-heading text-2xl font-bold">{r.name}</span>
+                  </span>
                   {/* Sin semana activa, la rutina queda "lista para continuar": se puede seguir al generar. */}
                   {r.has_active_week ? (
                     <span className="shrink-0 rounded-full bg-disco-rojo px-2.5 py-0.5 text-xs font-medium text-white">
@@ -68,11 +72,18 @@ export default function MisRutinasPage() {
                   )}
                 </span>
                 <span className="block text-sm text-muted-foreground">
-                  {goalText[r.goal]} · {r.level} · {r.week_count} {r.week_count === 1 ? "semana" : "semanas"}
+                  {[
+                    !nombreDiceElObjetivo(r.name, r.goal) && goalText[r.goal],
+                    r.level,
+                    `${r.week_count} ${r.week_count === 1 ? "semana" : "semanas"}`,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </span>
                 {r.last_week_day_states.length > 0 && (
                   <span className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                    Última semana
+                    {/* Los discos son los de la semana más nueva: la que está en curso, o la última cerrada. */}
+                    {r.has_active_week ? "Semana en curso" : "Última semana"}
                     <DiscosSemana estados={r.last_week_day_states} />
                   </span>
                 )}
