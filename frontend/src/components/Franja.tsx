@@ -8,7 +8,8 @@ import { cn } from "cn";
 export type Volver = { href: string };
 
 // El color de los aros decorativos de cada sección (decisión 77): Inicio lleva rojo y azul como la
-// bienvenida; Rutinas rojo, Progreso azul, la propuesta de la IA amarillo y el Perfil verde. Son
+// bienvenida; Rutinas rojo, Progreso azul, Entrenar, el día que se entrena y la propuesta de la IA
+// amarillo, y el Perfil verde. Son
 // solo adorno (no significan un estado), por eso van ocultos para los lectores de pantalla.
 export type Aros = "inicio" | "rojo" | "azul" | "amarillo" | "verde";
 
@@ -19,8 +20,8 @@ const COLOR: Record<Exclude<Aros, "inicio">, string> = {
   verde: "border-disco-verde",
 };
 
-// La franja oscura de arriba de casi todas las pantallas (todas menos Entrenar, el día que se
-// registra y el modo entrenar, que van sin adornos para no distraer). Un solo lugar para el tamaño,
+// La franja oscura de arriba de casi todas las pantallas (todas menos el modo entrenar, que va sin
+// adornos para no distraer; decisiones 78 y 79). Un solo lugar para el tamaño,
 // los aros y el botón "Volver".
 export function Franja({
   titulo,

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
-import { BackButton } from "@/components/BackButton";
 import { Disco } from "@/components/Disco";
 import { DoneControl } from "@/components/DoneControl";
 import { Flecha } from "@/components/Flecha";
@@ -38,8 +37,6 @@ export default function DiaView({
   const router = useRouter();
   // Los días de la semana (para pasar al anterior o al siguiente sin volver a la lista).
   const [dias, setDias] = useState<WeekDetail["days"]>([]);
-  // La semana (con su rutina): para las migas de pan cuando se llega desde Rutinas.
-  const [semana, setSemana] = useState<WeekDetail | null>(null);
 
   useEffect(() => {
     // Al cambiar de día se vacía lo anterior: no queda a la vista el día que se dejó.
@@ -57,10 +54,7 @@ export default function DiaView({
   useEffect(() => {
     apiFetch(`/weeks/${id}`)
       .then(async (res) => {
-        if (!res.ok) return;
-        const detalle = (await res.json()) as WeekDetail;
-        setSemana(detalle);
-        setDias(detalle.days);
+        if (res.ok) setDias(((await res.json()) as WeekDetail).days);
       })
       .catch(() => {});
   }, [id]);
@@ -119,7 +113,6 @@ export default function DiaView({
   const completado = dia?.finished_at != null;
   // Se registra y se cierra solo en la semana activa y llegando desde Entrenar.
   const editable = activa && !desdeRutinas;
-  const hechos = dia ? dia.exercises.filter(estaHecho).length : 0;
   // El ejercicio en curso (el primero sin hacer) lleva un borde, solo mientras se puede registrar.
   const enCurso = dia && editable && !completado ? dia.exercises.findIndex((e) => !estaHecho(e)) : -1;
 
@@ -161,34 +154,6 @@ export default function DiaView({
       )}
       {dia && (
         <>
-          {!desdeRutinas && (
-            <>
-              <h1 className="mb-0 text-6xl">Día {dia.day_index}</h1>
-              <p className="mt-1 text-muted-foreground">
-                {dia.title} · ~{dia.minutes} min
-              </p>
-            </>
-          )}
-          {activa && (
-            <div className="mb-4">
-              <p className="mb-1 text-sm text-muted-foreground">
-                {hechos} de {dia.exercises.length} ejercicios hechos
-              </p>
-              <div
-                role="progressbar"
-                aria-label="Ejercicios hechos"
-                aria-valuemin={0}
-                aria-valuemax={dia.exercises.length}
-                aria-valuenow={hechos}
-                className="h-2 overflow-hidden rounded-full bg-border"
-              >
-                <div
-                  className="h-full rounded-full bg-disco-rojo transition-[width] motion-reduce:transition-none"
-                  style={{ width: `${(hechos / Math.max(dia.exercises.length, 1)) * 100}%` }}
-                />
-              </div>
-            </div>
-          )}
           {/* grid-cols-1 limita la columna al ancho de la pantalla: sin eso, el texto cortado de la
               entrada en calor (en una sola línea) la estira y las tarjetas se desbordan. */}
           <ol className="m-0 mt-4 grid list-none grid-cols-1 gap-2.5 p-0">
@@ -265,29 +230,19 @@ export default function DiaView({
     </>
   );
 
-  // Desde Rutinas (para mirar) lleva la franja con el botón Volver; desde Entrenar, sin adornos para no
-  // distraer de lo que se está haciendo (decisión 77).
-  if (desdeRutinas) {
-    return (
-      <main className="flex flex-1 flex-col">
-        <Franja
-          compacta
-          aros="rojo"
-          volver={{ href: `/semanas/${id}` }}
-          titulo={`Día ${n}`}
-          subtitulo={dia ? `${dia.title} · ~${dia.minutes} min` : undefined}
-        />
-        <div className="mx-auto w-full max-w-xl px-4 pt-5">{cuerpo}</div>
-      </main>
-    );
-  }
-
+  // Siempre lleva la franja con el botón Volver (decisión 79): amarilla si se llega desde Entrenar
+  // (vuelve a Entrenar) y roja si es desde Rutinas, para mirar (vuelve a la semana). Solo el modo
+  // entrenar, que se abre con "Empezar día", va sin franja.
   return (
-    <main className="mx-auto max-w-xl px-4 pt-6">
-      <BackButton href={`/semanas/${id}`}>
-        ← {dia ? `Semana ${dia.week_number}` : "Volver a la semana"}
-      </BackButton>
-      {cuerpo}
+    <main className="flex flex-1 flex-col">
+      <Franja
+        compacta
+        aros={desdeRutinas ? "rojo" : "amarillo"}
+        volver={{ href: desdeRutinas ? `/semanas/${id}` : "/entrenar" }}
+        titulo={`Día ${n}`}
+        subtitulo={dia ? `${dia.title} · ~${dia.minutes} min` : undefined}
+      />
+      <div className="mx-auto w-full max-w-xl px-4 pt-5">{cuerpo}</div>
     </main>
   );
 }

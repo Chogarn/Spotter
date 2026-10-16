@@ -9,6 +9,7 @@ import { OpcionesSiguiente, ResumenUltimaSemana, useUltimaSemana } from "@/compo
 import { readError, apiFetch, type WeekDetail } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { Franja } from "@/components/Franja";
 import { CargandoDiscos } from "@/components/Cargando";
 
 // Entrenar (`/entrenar`, decisiones 42 y 51): la semana en curso. Con una semana activa muestra el
@@ -50,41 +51,36 @@ export default function Entrenar() {
   }, [recarga]);
 
   return (
-    <main className="mx-auto max-w-xl px-4 pt-8">
-      {error && <ErrorMessage>{error}</ErrorMessage>}
-      {cargando && <CargandoDiscos />}
-      {!cargando && semana && <SemanaActiva semana={semana} onCerrada={() => setRecarga((n) => n + 1)} />}
-      {!cargando && !semana && (
-        <SinSemana pendiente={pendiente} onConflict={() => setRecarga((n) => n + 1)} />
-      )}
+    <main className="flex flex-1 flex-col">
+      {/* La franja amarilla acompaña hasta que se empieza el día: el modo entrenar va sin adornos (decisión 79). */}
+      <Franja
+        titulo="Entrenar"
+        aros="amarillo"
+        subtitulo={semana ? `${semana.routine_name} · semana ${semana.number}` : undefined}
+      />
+      <div className="mx-auto w-full max-w-xl px-4 pt-5">
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+        {cargando && <CargandoDiscos />}
+        {!cargando && semana && <SemanaActiva semana={semana} onCerrada={() => setRecarga((n) => n + 1)} />}
+        {!cargando && !semana && (
+          <SinSemana pendiente={pendiente} onConflict={() => setRecarga((n) => n + 1)} />
+        )}
+      </div>
     </main>
   );
 }
 
 function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: () => void }) {
-  const hechos = semana.days.filter((d) => d.state === "completed").length;
   const pendientes = semana.days.filter((d) => d.state !== "completed");
   const proximo = pendientes[0];
 
   return (
     <>
-      <p className="text-sm text-muted-foreground">
-        {semana.routine_name} · semana {semana.number}
-      </p>
-      <div className="mt-2 mb-5 flex items-center gap-1.5">
-        {semana.days.map((d) => (
-          <Disco key={d.day_index} estado={estadoDia[d.state]} hoy={d.day_index === proximo?.day_index} />
-        ))}
-        <span className="ml-1.5 text-sm text-muted-foreground">
-          {hechos} de {semana.days.length} días
-        </span>
-      </div>
-
       <section className="rounded-2xl bg-card p-5">
         {proximo ? (
           <>
             <p className="m-0 text-sm text-muted-foreground">Te toca</p>
-            <h1 className="m-0 text-6xl">Día {proximo.day_index}</h1>
+            <h2 className="m-0 text-6xl">Día {proximo.day_index}</h2>
             <p className="mt-1 mb-4 text-muted-foreground">
               {proximo.title} · ~{proximo.minutes} min · {proximo.exercise_count} ejercicios
             </p>
@@ -99,7 +95,7 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
           </>
         ) : (
           <>
-            <h1 className="m-0 text-4xl">Completaste los {semana.days.length} días</h1>
+            <h2 className="m-0 text-4xl">Completaste los {semana.days.length} días</h2>
             <p className="mt-1 mb-4 text-muted-foreground">
               Cerrá la semana para que la IA arme la siguiente con lo que hiciste.
             </p>
@@ -149,13 +145,13 @@ function SinSemana({ pendiente, onConflict }: { pendiente: number | null; onConf
       {ultima ? (
         <>
           <p className="text-sm text-muted-foreground">{ultima.rutina.name}</p>
-          <h1 className="mt-0 mb-2">Semana {ultima.semana.number} completada</h1>
+          <h2 className="mt-0 mb-2 text-4xl">Semana {ultima.semana.number} completada</h2>
           <div className="mb-4">
             <ResumenUltimaSemana ultima={ultima} />
           </div>
         </>
       ) : (
-        <h1 className="mt-0">Armá tu próxima semana</h1>
+        <h2 className="mt-0 text-4xl">Armá tu próxima semana</h2>
       )}
       <p className="text-muted-foreground">
         La IA mira lo que hiciste y propone la semana siguiente. Nada se guarda hasta que la aceptes.

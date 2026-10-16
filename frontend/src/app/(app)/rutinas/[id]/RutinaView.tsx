@@ -114,7 +114,6 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
             {[
               !nombreDiceElObjetivo(rutina.name, rutina.goal) && goalText[rutina.goal],
               rutina.level.charAt(0).toUpperCase() + rutina.level.slice(1),
-              rutina.days_per_week !== null && `${rutina.days_per_week} días por semana`,
             ]
               .filter(Boolean)
               .map((t) => (
@@ -161,8 +160,7 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
                       )}
                     </span>
                     <span className="block font-heading text-lg leading-tight font-semibold text-muted-foreground">
-                      Desde el {shortDate(s.week_start)} ·{" "}
-                      {s.day_states.filter((e) => e === "completed").length} de {s.day_states.length} días
+                      Desde el {shortDate(s.week_start)}
                     </span>
                     <span className="mt-1.5 block">
                       <DiscosSemana estados={s.day_states} />

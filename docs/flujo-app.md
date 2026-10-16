@@ -127,7 +127,7 @@ Los días se nombran por orden y no por día de la semana (no hay "lunes" ni "ma
 Fija, siempre, también en la computadora. Tiene **tres lugares**: **Inicio**, **Entrenar** (al centro, redondo y elevado) y **Perfil**. Rutinas y Progreso se abren desde Inicio, y mientras se está en ellos Inicio queda marcado.
 
 ### Inicio (`/`)
-- **Franja oscura** (decisión 78: todas las pantallas la llevan, menos Entrenar, el día que se registra y el modo entrenar) con el logo, "Hola, nombre" y dos aros asomando (el rojo grande y uno azul, como en la bienvenida; decisión 77). Sin fecha: no aportaba, porque los días del plan son "Día 1, Día 2" (a pedido del usuario, 2026-10-16).
+- **Franja oscura** (decisiones 78 y 79: todas las pantallas la llevan, menos el modo entrenar; Entrenar y el día llevan aro amarillo) con el logo, "Hola, nombre" y dos aros asomando (el rojo grande y uno azul, como en la bienvenida; decisión 77). Sin fecha: no aportaba, porque los días del plan son "Día 1, Día 2" (a pedido del usuario, 2026-10-16).
 - **"Hoy te toca":** la tarjeta principal. Con semana activa muestra la rutina, el número de semana, los discos de los días (el que toca hoy con aro azul), "N de M días", el próximo día con su duración y **Empezar día N**. Con todos los días completados invita a cerrar la semana. Sin semana activa muestra las opciones de Generar.
 - **Aviso** de propuesta de la IA pendiente.
 - **Tus rutinas:** "Tus rutinas" y "Nueva rutina" (abre el asistente o avisa).
