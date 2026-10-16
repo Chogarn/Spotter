@@ -34,6 +34,16 @@ services:
       GEMINI_EMBEDDING_MODEL: ${GEMINI_EMBEDDING_MODEL:-}
       GEMINI_EMBEDDING_RPM_LIMIT: ${GEMINI_EMBEDDING_RPM_LIMIT:-}
       GEMINI_EMBEDDING_DAILY_LIMIT: ${GEMINI_EMBEDDING_DAILY_LIMIT:-}
+      # Correos (decisión 81). En desarrollo salen a Mailpit (un buzón falso, ver abajo): no hace falta
+      # configurar nada. Para probar con Gmail de verdad, poner las variables SMTP_* en el .env.
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_SECURITY: ${SMTP_SECURITY:-none}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-Spotter <spotter@spotter.local>}
+      APP_URL: ${APP_URL:-http://localhost:3001}
+      EMAIL_DAILY_LIMIT: ${EMAIL_DAILY_LIMIT:-50}
       WATCHFILES_FORCE_POLLING: "true"
     ports:
       - "127.0.0.1:8000:8000"
@@ -42,6 +52,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  # Buzón falso solo para desarrollo (decisión 81): recibe los correos de la app y los muestra en
+  # http://localhost:8025. No manda nada a Internet.
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "127.0.0.1:8025:8025"
 
   frontend:
     build: ./frontend

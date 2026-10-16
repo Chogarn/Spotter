@@ -1,22 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 
 import { CampoAcceso, CampoContrasena, PantallaAcceso } from "@/components/Acceso";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Button } from "@/components/ui/button";
-import { API, errorText } from "@/lib/api";
+import { API, errorText, readError } from "@/lib/api";
 
 export default function RegistroPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
-  const [navegando, startTransition] = useTransition();
+  // Después de pedir el registro: la cuenta todavía no existe, falta confirmar el correo (decisión 81).
+  const [pendiente, setPendiente] = useState(false);
+  const [aviso, setAviso] = useState("");
 
   async function registrar(e: React.FormEvent) {
     e.preventDefault();
@@ -30,8 +30,7 @@ export default function RegistroPage() {
         body: JSON.stringify({ name, email, password }),
       });
       if (res.ok) {
-        // Cuenta nueva: lo primero es completar los datos personales.
-        startTransition(() => router.push("/perfil"));
+        setPendiente(true);
       } else {
         setError(errorText((await res.json()).detail));
       }
@@ -41,7 +40,45 @@ export default function RegistroPage() {
     setEnviando(false);
   }
 
-  const ocupado = enviando || navegando;
+  const ocupado = enviando;
+
+  async function reenviar() {
+    setAviso("");
+    setError("");
+    setEnviando(true);
+    try {
+      const res = await fetch(`${API}/auth/resend-verification`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) setAviso("Listo, te lo mandamos de nuevo.");
+      else setError(await readError(res));
+    } catch {
+      setError("No se pudo conectar con el servidor");
+    }
+    setEnviando(false);
+  }
+
+  if (pendiente) {
+    return (
+      <PantallaAcceso titulo="Revisá tu correo" bajada="Falta confirmar tu correo para crear la cuenta." disco="azul">
+        <p role="status" className="rounded-xl bg-disco-verde/15 px-4 py-3">
+          Te mandamos un enlace a <b>{email}</b>. Tocalo para crear tu cuenta: vale 24 horas. Mirá también en
+          la carpeta de spam.
+        </p>
+        {aviso && <p role="status" className="mt-3 mb-0 text-sm">{aviso}</p>}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+        <Button type="button" variant="outline" size="xl" className="mt-4 w-full" onClick={reenviar} disabled={ocupado}>
+          {ocupado ? "Enviando..." : "Reenviar el enlace"}
+        </Button>
+        <p className="mt-5 text-center text-muted-foreground">
+          ¿Ya confirmaste? <Link href="/login" className="font-medium text-foreground">Entrá</Link>
+        </p>
+      </PantallaAcceso>
+    );
+  }
 
   return (
     <PantallaAcceso titulo="Empezá hoy" bajada="Tres datos y la IA arma tu primera semana." disco="azul">

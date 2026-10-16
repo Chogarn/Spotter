@@ -45,6 +45,26 @@ class LoginIn(BaseModel):
     _email = field_validator("email")(_clean_email)
 
 
+class EmailIn(BaseModel):
+    email: str
+
+    _email = field_validator("email")(_clean_email)
+
+
+class TokenIn(BaseModel):
+    """El código que viaja en el enlace del correo."""
+
+    token: str = Field(min_length=20, max_length=200)
+
+
+class ResetPasswordIn(TokenIn):
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class MessageOut(BaseModel):
+    message: str
+
+
 class ChangePasswordIn(BaseModel):
     """Cambiar la contraseña estando con la sesión iniciada: pide la actual y fija la nueva."""
 

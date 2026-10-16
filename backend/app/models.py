@@ -78,6 +78,9 @@ class User(Base):
     # Cuándo cambió la contraseña por última vez (decisión 80). Las sesiones iniciadas antes de ese
     # momento dejan de valer: así un cambio de contraseña cierra las sesiones de otros aparatos.
     password_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Cuándo se verificó el correo (decisión 81). Una cuenta nueva solo existe después de verificarlo;
+    # las anteriores a ese cambio se marcaron como verificadas en la migración 0021.
+    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     profile: Mapped["Profile | None"] = relationship(
         back_populates="user", cascade="all, delete-orphan", uselist=False
@@ -403,6 +406,56 @@ class PlanProposal(Base):
         DateTime(timezone=True), server_default=func.now()
     )
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class PendingRegistration(Base):
+    """Un registro que espera que se verifique el correo (decisión 81).
+
+    El usuario todavía NO existe: se crea al tocar el enlace. Se guarda solo el hash del código.
+    Volver a registrarse con el mismo correo reemplaza la fila.
+    """
+
+    __tablename__ = "pending_registrations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True)
+    name: Mapped[str] = mapped_column(String(100))
+    password_hash: Mapped[str] = mapped_column(String(255))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class PasswordReset(Base):
+    """Un enlace para elegir una contraseña nueva (decisión 81): de un solo uso y con vencimiento."""
+
+    __tablename__ = "password_resets"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class EmailLog(Base):
+    """Una fila por cada correo que la app manda. Se escribe ANTES de enviar y los topes diario y
+    por dirección se calculan contándolas (como `ai_calls` con Gemini)."""
+
+    __tablename__ = "email_log"
+    __table_args__ = (Index("ix_email_log_created_at", "created_at"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    kind: Mapped[str] = mapped_column(String(32))
+    to_email: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
 
 class AiCall(Base):

@@ -27,6 +27,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0017` catálogo con vectores | Habilita la extensión `vector` de pgvector, crea `catalog_embeddings` (un vector de 768 dimensiones por ejercicio del catálogo) y suma el tipo `embed` a `ai_calls` (decisión 58) | Implementada |
 | `0018` fecha de nacimiento | Suma `profiles.birth_date` (nula); la edad pasa a calcularse desde ella y `age` se conserva para perfiles viejos | Implementada |
 | `0019` carga y dolor por ejercicio | Suma `exercise_completions.load_feel` y `pain` (nulas): lo que la persona marca al terminar un ejercicio (decisión 74) | Implementada |
+| `0021` correo verificado y recuperación | Suma `users.email_verified_at` y crea `pending_registrations` (registros que esperan verificar el correo), `password_resets` (enlaces de recuperación de un solo uso) y `email_log` (cada correo enviado, para los topes); marca como verificadas las cuentas existentes (decisión 81) | Implementada |
 | `0020` cambio de contraseña | Suma `users.password_changed_at` (nula): al cambiar la contraseña se cierran las sesiones de los demás aparatos (decisión 80) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
@@ -197,7 +198,37 @@ Cuenta del usuario.
 | password_hash | Hash argon2 de la contraseña, nunca en texto plano (la cuenta de desarrollo anterior al login tenía un texto de relleno, `sin-login`, que no permite iniciar sesión) |
 | name | Nombre |
 | created_at | Fecha de alta |
+| email_verified_at | Cuándo se verificó el correo. La cuenta solo se crea al verificarlo; las que existían antes de la migración 0021 se marcaron como verificadas (decisión 81) |
 | password_changed_at | Cuándo cambió la contraseña por última vez (nula = nunca). Una sesión emitida antes de ese momento no vale: así cambiar la contraseña cierra las sesiones de otros aparatos (decisión 80) |
+
+### pending_registrations
+Un registro que espera que se verifique el correo (decisión 81). **El usuario todavía no existe.** Volver a registrarse con el mismo correo reemplaza la fila.
+
+| Campo | Detalle |
+|---|---|
+| email | Único |
+| name, password_hash | Lo que escribió; la contraseña ya como hash argon2 |
+| token_hash | Hash (SHA-256) del código del enlace; el código nunca se guarda. Único |
+| expires_at | A las 24 horas |
+
+### password_resets
+Un enlace para elegir una contraseña nueva. De un solo uso: `used_at` se llena al usarlo, y pedir otro anula los anteriores sin usar.
+
+| Campo | Detalle |
+|---|---|
+| user_id | Dueño del enlace (se borra con el usuario) |
+| token_hash | Hash (SHA-256) del código; el código nunca se guarda. Único |
+| expires_at | A la hora |
+| used_at | Cuándo se usó (nulo = sin usar) |
+
+### email_log
+Una fila por cada correo que la app manda, escrita **antes** de enviarlo (como `ai_calls`). De ahí salen los topes: `EMAIL_DAILY_LIMIT` por día en total y un correo por minuto por dirección.
+
+| Campo | Detalle |
+|---|---|
+| kind | `verify` o `reset` |
+| to_email | A quién |
+| created_at | Cuándo |
 
 ### profiles
 Datos personales del usuario. Una fila por usuario. **No tiene nivel, objetivo ni equipamiento**: el nivel y el objetivo se eligen al empezar cada rutina (viven en `routines`) y el equipamiento es siempre el de un gimnasio.

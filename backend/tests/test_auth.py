@@ -1,5 +1,6 @@
 """Autenticación: registro, login, logout, sesión y aislamiento entre usuarios."""
 
+import re
 from datetime import datetime, timedelta, timezone
 
 import jwt
@@ -9,7 +10,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app import models  # noqa: F401
+from app import mailer, models  # noqa: F401
 from app.db import Base, get_db
 from app.deps import get_current_user
 from app.enums import Goal, Level
@@ -22,10 +23,21 @@ ANA = {"email": "ana@example.com", "password": "una-clave-larga", "name": "Ana"}
 BETO = {"email": "beto@example.com", "password": "otra-clave-larga", "name": "Beto"}
 
 
+# Los correos que la app "mandó" en el test: nunca se envía uno de verdad.
+OUTBOX: list[tuple[str, str, str]] = []
+
+
 @pytest.fixture
 def cliente(monkeypatch):
     """Cliente con sesión real: sin el usuario inyectado de los demás tests."""
     monkeypatch.setenv("JWT_SECRET", SECRETO)
+    monkeypatch.setenv("SMTP_HOST", "smtp.prueba.local")
+    monkeypatch.setenv("SMTP_PORT", "587")
+    monkeypatch.setenv("SMTP_FROM", "Spotter <spotter@prueba.local>")
+    monkeypatch.setenv("APP_URL", "http://localhost:3001")
+    monkeypatch.setenv("EMAIL_DAILY_LIMIT", "100")
+    OUTBOX.clear()
+    monkeypatch.setattr(mailer, "deliver", lambda to, subject, body: OUTBOX.append((to, subject, body)))
     app.dependency_overrides.pop(get_current_user, None)
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -44,9 +56,17 @@ def cliente(monkeypatch):
     app.dependency_overrides.pop(get_db, None)
 
 
+def token_del_ultimo_correo() -> str:
+    """El código del enlace del último correo que "salió"."""
+    return re.search(r"token=([\w-]+)", OUTBOX[-1][2]).group(1)
+
+
 def registrar(cliente, datos=ANA):
-    respuesta = cliente.post("/auth/register", json=datos)
-    assert respuesta.status_code == 201, respuesta.text
+    """Crea la cuenta como en la vida real: pide el registro y toca el enlace del correo."""
+    pedido = cliente.post("/auth/register", json=datos)
+    assert pedido.status_code == 202, pedido.text
+    respuesta = cliente.post("/auth/verify", json={"token": token_del_ultimo_correo()})
+    assert respuesta.status_code == 200, respuesta.text
     return respuesta
 
 
@@ -207,7 +227,9 @@ def test_un_token_de_un_usuario_que_ya_no_existe_no_sirve(cliente):
 def test_sin_jwt_secret_no_hay_sesion(cliente, monkeypatch):
     monkeypatch.delenv("JWT_SECRET")
 
-    assert cliente.post("/auth/register", json=ANA).status_code == 503
+    # El pedido de registro no necesita sesión; la cuenta recién se crea al verificar.
+    assert cliente.post("/auth/register", json=ANA).status_code == 202
+    assert cliente.post("/auth/verify", json={"token": token_del_ultimo_correo()}).status_code == 503
     with cliente.session() as db:
         assert db.scalar(select(User)) is None  # no quedó una cuenta a medias
 
@@ -226,7 +248,7 @@ def test_un_usuario_no_ve_ni_toca_los_datos_de_otro(cliente):
     assert cliente.get(f"/routines/{ruta_id}").status_code == 200
 
     beto = TestClient(app)
-    assert beto.post("/auth/register", json=BETO).status_code == 201
+    registrar(beto, BETO)
 
     assert beto.get("/routines").json() == []
     assert beto.get(f"/routines/{ruta_id}").status_code == 404
@@ -243,7 +265,7 @@ def test_cada_usuario_tiene_su_propio_perfil(cliente):
     assert cliente.put("/profile", json=perfil).status_code == 200
 
     beto = TestClient(app)
-    beto.post("/auth/register", json=BETO)
+    registrar(beto, BETO)
 
     assert beto.get("/profile").status_code == 404
     assert cliente.get("/profile").status_code == 200

@@ -43,6 +43,16 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el archivo .env}
       # true cuando se sirve por HTTPS: la cookie de sesión viaja solo cifrada.
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      # Correos (decisión 81). Sin valores por defecto: si falta alguno, la app no manda correos y
+      # las pantallas de registro y recuperación avisan que el envío no está configurado.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_SECURITY: ${SMTP_SECURITY:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      APP_URL: ${APP_URL:-}
+      EMAIL_DAILY_LIMIT: ${EMAIL_DAILY_LIMIT:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-}
       GEMINI_DAILY_LIMIT: ${GEMINI_DAILY_LIMIT:-}

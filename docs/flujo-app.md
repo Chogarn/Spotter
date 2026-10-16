@@ -6,7 +6,7 @@ Este documento describe cómo se usa la aplicación de principio a fin. Es la ba
 
 ## Resumen en pasos
 
-1. La persona se **registra** y entra directo al asistente del perfil.
+1. La persona se **registra** con su nombre, correo y contraseña; la app le manda un enlace por correo y, **al tocarlo, se crea la cuenta** y entra directo al asistente del perfil (decisión 81). Si olvida la contraseña, "¿Olvidaste tu contraseña?" le manda otro enlace a su correo verificado para elegir una nueva.
 2. Completa su **perfil** en un asistente de una pregunta por pantalla (nombre, fecha de nacimiento, peso, altura, sexo, limitaciones y aviso legal).
 3. Toca **"Generar rutina"**: en otro asistente elige, **cada vez que empieza una rutina nueva**, su objetivo, su nivel y cuántos días por semana (todo obligatorio), y la IA le arma la primera semana. No hay un camino para cargar una rutina propia (decisión 40).
 4. Revisa la propuesta (un día por vez) y la **acepta o la descarta**. Al aceptar, la semana queda activa.
@@ -80,7 +80,7 @@ El perfil muestra una **franja oscura** con el nombre y el correo, y tarjetas co
 - "Tu cuerpo" → fecha de nacimiento, peso, altura y sexo.
 - "Lesiones o limitaciones" → un paso.
 
-**Aviso legal:** la app no da consejo médico y hay que aceptarlo una vez. No se piden datos de salud más allá de lesiones o limitaciones. El Perfil tiene dos pestañas (decisión 75): **Perfil** (nombre, cuerpo, limitaciones) y **Cuenta** (correo, **Cambiar correo**, **Cambiar contraseña**, **Borrar cuenta** y **Cerrar sesión**). **Cambiar contraseña** ya funciona (decisión 80): se abre en la misma tarjeta, pide la actual y la nueva dos veces, y al guardar cierra las sesiones de los otros aparatos. **Cambiar correo**, **Borrar cuenta** y el **¿Olvidaste tu contraseña?** del login ya están, pero todavía no hacen nada: avisan "no está disponible" y llevan la etiqueta "Próximamente".
+**Aviso legal:** la app no da consejo médico y hay que aceptarlo una vez. No se piden datos de salud más allá de lesiones o limitaciones. El Perfil tiene dos pestañas (decisión 75): **Perfil** (nombre, cuerpo, limitaciones) y **Cuenta** (correo, **Cambiar correo**, **Cambiar contraseña**, **Borrar cuenta** y **Cerrar sesión**). **Cambiar contraseña** ya funciona (decisión 80; si se olvidó, la recuperación por correo está en el login, decisión 81): se abre en la misma tarjeta, pide la actual y la nueva dos veces, y al guardar cierra las sesiones de los otros aparatos. **Cambiar correo** y **Borrar cuenta** ya están, pero todavía no hacen nada: avisan "no está disponible" y llevan la etiqueta "Próximamente".
 
 ## Generar rutina
 
