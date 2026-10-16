@@ -2,7 +2,7 @@
 
 Para copiar a GitHub Projects: un milestone por semana (S1 a S6) y un issue por cada línea.
 Etiquetas sugeridas: `backend`, `frontend`, `ia`, `docker`, `docs`, `complementaria`.
-Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su definición completa (para qué sirve, cómo se accede, qué ve el usuario, acciones, datos y criterios de aceptación); acá va la lista y un resumen.
+Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quitó el 2026-10-16). Cada issue tiene su definición completa (para qué sirve, cómo se accede, qué ve el usuario, acciones, datos y criterios de aceptación); acá va la lista y un resumen.
 
 ## S1: Planificación y setup
 - [x] Definir idea y alcance del proyecto `docs`
