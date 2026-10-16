@@ -53,13 +53,16 @@ export function ResumenUltimaSemana({ ultima }: { ultima: UltimaSemana }) {
   );
 }
 
-// Los botones. Sin ninguna rutina todavía, queda el "Generar rutina" de siempre.
+// Los botones. Sin ninguna rutina todavía, queda el "Generar rutina" de siempre. En Inicio no va
+// "Empezar una rutina nueva" (`conRutinaNueva={false}`): ahí ya está la tarjeta "Nueva rutina".
 export function OpcionesSiguiente({
   ultima,
   onConflict,
+  conRutinaNueva = true,
 }: {
   ultima: UltimaSemana | null;
   onConflict: () => void;
+  conRutinaNueva?: boolean;
 }) {
   if (!ultima) {
     return <GenerarRutina etiqueta="Generar rutina" onConflict={onConflict} />;
@@ -67,7 +70,9 @@ export function OpcionesSiguiente({
   return (
     <div className="grid gap-2.5">
       <GenerarRutina etiqueta="Generar la semana siguiente" continuar={ultima.rutina.id} onConflict={onConflict} />
-      <GenerarRutina etiqueta="Empezar una rutina nueva" soloNueva variante="outline" onConflict={onConflict} />
+      {conRutinaNueva && (
+        <GenerarRutina etiqueta="Empezar una rutina nueva" soloNueva variante="outline" onConflict={onConflict} />
+      )}
       <p className="mt-1 mb-0 text-sm">
         <Link href={`/semanas/${ultima.semana.id}`}>Ver la semana o reabrirla</Link>
       </p>

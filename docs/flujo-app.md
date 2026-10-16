@@ -137,7 +137,7 @@ Fija, siempre, también en la computadora. Tiene **tres lugares**: **Inicio**, *
 La semana en curso: "Te toca Día N" con su botón, la lista de días con su estado y, al final, **Cerrar semana**. Sin semana activa ofrece generar o empezar una rutina nueva.
 
 ### Rutinas (`/rutinas`)
-La lista de rutinas, de la más nueva a la más vieja (ícono, nombre, nivel, semanas, "en curso" o "lista para continuar" y los discos de la última semana). El botón **Nueva rutina** es ancho y queda fijo abajo, sobre la barra. De cada rutina se baja a sus semanas (línea de tiempo), a sus días y a los ejercicios.
+La lista de rutinas, de la más nueva a la más vieja (ícono, nombre, nivel, semanas, "en curso" o "lista para continuar" y los discos de la última semana). **Nueva rutina** es un botón redondo "+" flotante abajo a la derecha, sobre la barra de navegación (antes era una barra fija ancha; cambiado el 2026-10-16). De cada rutina se baja a sus semanas (línea de tiempo), a sus días y a los ejercicios.
 
 **Desde Rutinas el día es solo para mirar** (decisión 53): no se registra, ni se cierra ni se reabre; se registra desde Entrenar o Inicio.
 
@@ -209,7 +209,7 @@ El cierre es siempre **manual**, con un botón. Nunca se genera la semana siguie
 Una llamada a la IA por cierre: el gasto es predecible.
 
 ### Reabrir una semana (decisión 66)
-Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no si hay otra semana en curso ni una propuesta sin revisar. Se borra el comentario de cierre; no se pierde lo registrado. Después de cerrar, Entrenar e Inicio ofrecen **Generar la semana siguiente** o **Empezar una rutina nueva**.
+Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no si hay otra semana en curso ni una propuesta sin revisar. Se borra el comentario de cierre; no se pierde lo registrado. Después de cerrar, **Entrenar** ofrece **Generar la semana siguiente** o **Empezar una rutina nueva**; **Inicio** ofrece solo **Generar la semana siguiente** (para una rutina nueva está la tarjeta "Nueva rutina" de más abajo).
 
 ### Descartado por ahora
 - **Pausar la rutina activa o dejar otra en espera** (2026-10-15): innecesario. Se cierra la semana y se empieza otra; la anterior queda "lista para continuar".

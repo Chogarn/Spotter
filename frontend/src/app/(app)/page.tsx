@@ -151,7 +151,7 @@ export default function Inicio() {
               La IA mira lo que hiciste y propone la semana siguiente. Nada se guarda hasta que la aceptes.
             </p>
             {ultima !== undefined && (
-              <OpcionesSiguiente ultima={ultima} onConflict={() => setRecarga((n) => n + 1)} />
+              <OpcionesSiguiente ultima={ultima} onConflict={() => setRecarga((n) => n + 1)} conRutinaNueva={false} />
             )}
           </section>
         )}
