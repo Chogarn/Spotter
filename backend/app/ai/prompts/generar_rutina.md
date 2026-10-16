@@ -99,7 +99,7 @@ Si el volumen que pide el objetivo no entra en la duración de referencia, resol
 
 Si hay una semana anterior, la **señal** de cada ejercicio la calculó el código comparando lo planificado con lo que el usuario realmente hizo (los números por serie están al lado). Usala así, sin inventar otras reglas:
 
-- **superó**: pasó las repeticiones objetivo. Subí la carga entre **2 % y 10 %**, o el salto mínimo de peso. Partí del **peso que realmente levantó**, no del planificado.
+- **superó**: pasó las repeticiones objetivo. Subí la carga entre **2 % y 10 %**, redondeada al salto de peso del equipo del ejercicio, y nunca menos de un salto. Partí del **peso que realmente levantó**, no del planificado. Saltos: **barra** 2,5 kg (discos de 1,25 por lado); **mancuernas** 2,5 kg; **pesas rusas** 4 kg; **máquinas y poleas**: el salto que ya muestre el peso anterior. El excedente de esta semana no define cuánto subir: el aumento sale del porcentaje, no de cuánto superó.
 - **cumplió**: mantené la carga y las repeticiones; no hace falta cambiar nada.
 - **no llegó**: **mantené** la carga y no la subas. No inventes una bajada de carga si no hay dolor.
 - **sin registrar** (o un día no hecho): es información, no un error. No lo castigues ni lo rellenes; mencionalo en el resumen.
