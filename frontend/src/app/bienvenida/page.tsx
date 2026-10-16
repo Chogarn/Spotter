@@ -19,6 +19,7 @@ export default function Bienvenida() {
         <span className="absolute -top-20 -right-24 size-80 rounded-full border-[36px] border-disco-rojo" />
         <span className="absolute top-36 right-10 size-52 rounded-full border-[28px] border-disco-azul" />
         <span className="absolute top-12 right-44 size-32 rounded-full border-[20px] border-disco-amarillo" />
+        <span className="absolute top-52 left-4 size-24 rounded-full border-[16px] border-disco-verde" />
       </div>
 
       <div className="relative mx-auto mt-auto w-full max-w-md px-5 pt-[45vh] pb-10">

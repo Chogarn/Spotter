@@ -523,7 +523,7 @@ Cambia en parte la decisión 78. La pestaña **Entrenar** (la lista de días de 
 - **Origen:** tuya (2026-10-16): "en Entrenar le podemos poner el encabezado hasta que entremos al día y le damos entrenar", y que "la propuesta también puede quedar en amarillo".
 - **Por qué:** *(completar)*
 - **Descartaste:** dejar Entrenar y el día sin franja (decisión 78); poner la franja también en el modo entrenar.
-- **Ojo:** la pestaña Entrenar ya no tiene el título grande "Día N" como encabezado de la página: el título de la franja es "Entrenar" con la rutina y la semana debajo, y el "Día N" que toca pasó a la tarjeta. También se sacó la fila de discos de arriba de la tarjeta de Entrenar ("0 de 5 días"), porque la lista "Días de la semana" ya muestra el estado de cada día, y la barra "1 de 6 ejercicios hechos" de la pantalla del día, porque las tarjetas de los ejercicios ya muestran cuáles están hechos. El día lleva rojo si se llega desde Rutinas (para mirar) y amarillo si es desde Entrenar.
+- **Ojo:** la pestaña Entrenar ya no tiene el título grande "Día N" como encabezado de la página: el título de la franja es "Entrenar" con la rutina y la semana debajo, y el "Día N" que toca pasó a la tarjeta. También se sacó la fila de discos de arriba de la tarjeta de Entrenar ("0 de 5 días"), porque la lista "Días de la semana" ya muestra el estado de cada día, y la barra "1 de 6 ejercicios hechos" de la pantalla del día, porque las tarjetas de los ejercicios ya muestran cuáles están hechos. El día lleva rojo si se llega desde Rutinas (para mirar) y amarillo si es desde Entrenar. La pantalla de bienvenida lleva ahora cuatro aros (rojo, azul, amarillo y verde), uno por cada color de sección (a pedido tuyo, 2026-10-16).
 
 ## Decisiones abiertas
 
