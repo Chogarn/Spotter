@@ -38,7 +38,7 @@ El proyecto se construye por etapas. Hoy funciona, con registro e inicio de sesi
 - **Cuenta y sesión:** registro e inicio de sesión con cookie `httpOnly` (JWT de 7 días) y contraseñas con hash argon2; sin sesión, todas las pantallas llevan a `/login`.
 - **Interfaz** con shadcn/ui y Tailwind en versión básica (los estilos propios vienen más adelante).
 
-Descartado por ahora: el ajuste conversando durante la semana. Pospuestos por decisión del proyecto: la nota de cómo me sentí, el esfuerzo por serie y el semáforo de dolor. La IA elige los ejercicios de un catálogo de 118 (`backend/app/ai/exercises.json`), que recupera con embeddings y pgvector; falta consultar al profesor si es lo que se espera de RAG. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan, al armar la semana nueva. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
+Descartado por ahora: el ajuste conversando durante la semana. No se hacen: la nota de cómo me sentí por día, el esfuerzo por serie y el semáforo de dolor con escala; en su lugar, la IA deduce el esfuerzo de la carga y las repeticiones, lee el comentario de cierre y, próximamente, una marca opcional de carga y dolor por ejercicio. La IA elige los ejercicios de un catálogo de 118 (`backend/app/ai/exercises.json`), que recupera con embeddings y pgvector; falta consultar al profesor si es lo que se espera de RAG. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan, al armar la semana nueva. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
 ## Funcionalidades
 
@@ -52,7 +52,7 @@ Descartado por ahora: el ajuste conversando durante la semana. Pospuestos por de
 La IA trabaja sobre los datos del usuario y siempre **propone**: el usuario ve una vista previa de los cambios y los acepta o los descarta. No es un chat genérico. (La 3 se descartó por ahora: decisión 45.)
 
 1. **Primera rutina**, según el nivel y el objetivo.
-2. **Cierre de semana:** analiza lo planificado frente a lo real de la semana anterior y propone la siguiente con un resumen de evolución. *(Hoy sube la carga o la mantiene según lo que hiciste; detectar fatiga necesita el esfuerzo por serie, que está pospuesto.)*
+2. **Cierre de semana:** analiza lo planificado frente a lo real de la semana anterior y propone la siguiente con un resumen de evolución. *(Sube la carga si superaste lo planificado, la mantiene si no llegaste y, si el comentario cuenta fatiga o cargas altas, baja un escalón del equipo.)*
 3. **Ajuste conversando:** "no tengo esa máquina", "me molesta el hombro". La IA propone una versión modificada de la semana.
 4. **Explicación por ejercicio:** botón "¿por qué esto?" con la razón basada en los números del usuario.
 5. **Sustitución:** el usuario rechaza un ejercicio y elige entre 2 alternativas propuestas por la IA.

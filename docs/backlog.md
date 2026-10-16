@@ -45,11 +45,11 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Topes de uso de Gemini (diario y por minuto) `ia` `backend` (#30)
 - [x] Propuestas de la IA: ver la pendiente desde la portada (`GET /proposals/pending`) y vista previa con aceptar o descartar para "Generar rutina" `ia` `backend` `frontend` (#45). El antes y después pasó a #49
 - [x] Antes y después en las propuestas de semana nueva: qué cambia, con el valor anterior y el nuevo. Depende de #27 (hecha); el ajuste (#29) se descartó por ahora `ia` `backend` `frontend` (#49)
-- [x] ~~Nota de cómo me sentí al terminar la sesión (botones y texto)~~ **No se hace por ahora** (decisión 71, 2026-10-16): cómo se sintió el entrenamiento y el dolor se cuentan en el **comentario al cerrar la semana** (#50), que ya está construido `backend` `frontend` (#46)
+- [x] ~~Nota de cómo me sentí al terminar la sesión (botones y texto)~~ **No se hace** (decisiones 71 y 74): cómo se sintió el entrenamiento y el dolor se cuentan en el **comentario al cerrar la semana** (#50) y en la marca opcional por ejercicio (#63) `backend` `frontend` (#46)
 - [x] Comentario escrito del usuario al cerrar la semana (cómo se sintió), que la IA lee al armar la semana siguiente `backend` `ia` `frontend` (#50)
-- [ ] Esfuerzo por serie (1 a 10) al editar lo realizado. **Pospuesto**: decisión 37 `backend` `frontend` (#48)
+- [x] ~~Esfuerzo por serie (1 a 10) al editar lo realizado~~ **No se hace** (decisión 74): lo reemplaza la marca de carga por ejercicio (#63) y la señal que compara peso y repeticiones `backend` `frontend` (#48)
 - [x] Catálogo de ejercicios para la IA (RAG): la IA arma la semana solo con ejercicios de `backend/app/ai/exercises.json` (118, aprobado el 2026-10-14). Embeddings de Gemini en PostgreSQL con pgvector, recuperación por nivel y similitud, y el código rechaza lo que no esté en el catálogo. Decisión 58. Pendiente: consultar al profesor si es lo que se espera de RAG `backend` `ia` (#52)
-- [x] ~~Semáforo de dolor (R31): zona y gravedad de 0 a 10 en la nota del día~~ **No se hace por ahora** (decisión 71, 2026-10-16): el dolor llega a la IA por el comentario al cerrar la semana. R31 queda aprobada como criterio, sin disparador propio `backend` `frontend` `ia` (#51)
+- [x] ~~Semáforo de dolor (R31): zona y gravedad de 0 a 10 en la nota del día~~ **No se hace** (decisiones 71 y 74): el dolor llega a la IA por el comentario al cerrar la semana y por la marca opcional por ejercicio (#63). R31 se aplica con eso `backend` `frontend` `ia` (#51)
 - ~~Elegir camino A o B al empezar (#43) y formulario de rutina actual, camino B (#44)~~ **No se hacen**: se descartó el camino B (decisión 40); el nivel y el objetivo se eligen al generar
 - [x] Refactor y mejoras de UX: shadcn/ui y Tailwind en versión básica (sin estilos propios todavía), con componentes compartidos para el error y el recuadro de confirmación. Decisión 38; probado en una copia temporal `frontend` (#31)
 - [x] Diseño "Disco" (tema): colores de los discos, fuentes Barlow y Barlow Condensed, variables de shadcn en `globals.css` y modo oscuro. Decisión 41 `frontend` (#53)
@@ -96,9 +96,9 @@ La definición completa de cada una está en su issue de GitHub.
 |---|---|---|
 | ~~Cerrar semana (#47)~~ | Hecho: botón en la pantalla de la semana activa, con aviso de los días sin completar | — |
 | ~~Generar semana nueva (#27)~~ | Hecho: al continuar una rutina desde "Generar rutina", la IA lee lo real de la última semana cerrada. Probada con Gemini real | — |
-| Nota de cómo me sentí (#46), **no se hace por ahora** (decisión 71) | Al tocar "Día completado" en la vista del día | Nada |
-| Esfuerzo por serie (#48), pospuesto | Campo opcional al tocar "Editar" en una serie | Nada |
-| Semáforo de dolor (#51), **no se hace por ahora** (decisión 71) | Zona y gravedad en la nota del día, al elegir "con dolor" | #46 |
+| Nota de cómo me sentí (#46), **no se hace** (decisión 71) | Al tocar "Día completado" en la vista del día | Nada |
+| Esfuerzo por serie (#48), **no se hace** (decisión 74) | Campo opcional al tocar "Editar" en una serie | Nada |
+| Semáforo de dolor (#51), **no se hace** (decisión 71) | Zona y gravedad en la nota del día, al elegir "con dolor" | #46 |
 | Catálogo de ejercicios / RAG (#52), hecho | Cambia cómo se arma la propuesta al tocar "Generar rutina"; no es una pantalla | Consulta al profesor y revisión de una persona de educación física |
 | Antes y después en las propuestas (#49) | En la vista previa de la propuesta (`/rutina/propuesta/{id}`) cuando es una semana nueva | Semana nueva (#27, hecha) |
 | ~~Diseño "Disco", tema (#53)~~ | Hecho: toda la app: cambian colores, fuentes y formas sin cambiar qué hace cada pantalla | Nada |

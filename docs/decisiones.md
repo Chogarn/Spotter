@@ -236,7 +236,7 @@ Al cerrar la semana el usuario puede escribir un comentario libre y opcional sob
 - **Descartaste:** impedir el cierre con días sin completar (dejaría trabajado al usuario que no entrenó un día) y sumar botones rápidos o un estado "Salteado" (el día ya tiene sus botones en la nota de cómo me sentí, #46).
 - **Ojo:** es una columna nueva (`week_plans.closing_note`, migración 0014). Sigue vigente la decisión 7 de `modelo-datos.md` (la semana se cierra con días sin hacer).
 
-### 37. El esfuerzo por serie y el semáforo de dolor se posponen
+### 37. El esfuerzo por serie y el semáforo de dolor se posponen *(parcialmente reemplazada por la 73 y la 74)*
 El esfuerzo del ejercicio (de 1 a 10 por serie, #48), la nota de cómo me sentí del día (#46) y el semáforo de dolor con zona y gravedad (R31, #51) quedan **definidos pero sin construir**, para implementarlos más adelante. Por ahora la IA se apoya en lo que se hizo y lo que no, los cambios de peso y el comentario escrito al cerrar la semana (decisión 36).
 - **Origen:** tuya.
 - **Por qué:** "con lo de cerrar la semana, con lo que se hizo, no se hizo y los cambios de peso y eso ya es suficiente". *(completar el resto)*
@@ -456,7 +456,7 @@ Se descartó la idea de **pausar la rutina activa y ver otra** (o dejar una segu
 - **Descartaste:** (2) crear la nueva rutina "en espera" y activarla al cerrar la actual; (3) pausar la semana en curso sin cerrarla y alternar entre rutinas. Ambas pedían un estado nuevo de semana, una migración y cambios en Rutinas, Inicio y Entrenar.
 - **Ojo:** reabrir la idea solo si aparece un caso real de uso. Hoy "Nueva rutina" con una semana en curso avisa que primero hay que cerrarla (409 en el servidor).
 
-### 71. Cómo se sintió el entrenamiento y el dolor se cuentan en el comentario al cerrar la semana
+### 71. Cómo se sintió el entrenamiento y el dolor se cuentan en el comentario al cerrar la semana *(parcialmente reemplazada por la 74)*
 No se construyen por ahora la nota de **"cómo me sentí"** por día (#46) ni el **semáforo de dolor** con zona y gravedad (#51). Lo que cubre las dos cosas es el **comentario escrito opcional al cerrar la semana** (decisión 36, tarea #50): texto libre, fijo, que la IA lee como dato del usuario al armar la semana siguiente. El **esfuerzo por serie** (#48) queda pospuesto como estaba (decisión 37).
 - **Origen:** tuya (2026-10-16), después de revisar cómo lo hacen otras apps (Hevy, RP Hypertrophy, Garmin, Strava, Apple y apps de fisioterapia): "vamos a dejar eso a nuestra fusión del comentario, creo que es lo más lógico, además está construido".
 - **Por qué:** *(completar)*
