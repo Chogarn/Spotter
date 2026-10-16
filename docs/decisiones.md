@@ -397,7 +397,7 @@ Las tres reglas comparan las series semanales por grupo grande contando las **in
 - **Por qué:** *(completar)* Una sola forma de contar para todos los objetivos; las fuentes de esas reglas son una síntesis de baja certeza.
 - **Descartaste:** comparar contra series directas solas.
 
-### 62. R30 (semana liviana): no implementada
+### 62. R30 (semana liviana): no implementada *(reemplazada por la 72: descartada)*
 La regla queda en la tabla, marcada **"no implementada"**. No tiene disparador: depende del esfuerzo por serie (#48), que está pospuesto (decisión 37). **No se define cuánto reducir** el volumen hasta que exista esa señal: no hay evidencia que respalde una cifra (Bell 2023 sin acuerdo; Coleman 2024, una descarga programada no mejoró nada). Si #48 se hace, se vuelve a mirar: la IA propondría mantener la carga y bajar series, y el usuario decide.
 - **Origen:** tuya (2026-10-14): "ponele no implementada".
 - **Por qué:** *(completar)*
@@ -462,6 +462,13 @@ No se construyen por ahora la nota de **"cómo me sentí"** por día (#46) ni el
 - **Por qué:** *(completar)*
 - **Descartaste (por ahora):** (B) una pregunta de 1 a 5 y un tilde de dolor al cerrar la semana; (C) un botón "me dolió" por ejercicio, con zona y gravedad, que alimente el semáforo R31 (lo más cercano a RP Hypertrophy, y lo más grande: toca el día, el resumen y el prompt).
 - **Ojo:** R31 sigue aprobada como criterio, pero sin un campo propio que la dispare; el dolor llega solo si la persona lo escribe. Si más adelante se quiere que la IA reaccione con más precisión, se retoma #51 (y el esfuerzo por serie, #48). Las decisiones 37 y 62 siguen valiendo.
+
+### 72. R30 (semana liviana) queda descartada
+La regla se **anula**: la semana liviana aislada no se aplica. Queda su fila en la tabla de `docs/criterios-entrenamiento.md`, marcada **"descartada"**, para que la numeración no se corra. Reemplaza a la decisión 62 ("no implementada"). El cansancio y las cargas demasiado altas llegan a la IA por el comentario al cerrar la semana (decisión 71).
+- **Origen:** tuya (2026-10-16): para vos R30 era un disparador que bajaba las cargas para recalcularlas porque eran muy altas, y no una semana liviana aparte.
+- **Por qué:** *(completar)* Lo que respalda la decisión: la evidencia no muestra que una descarga sea necesaria (Coleman 2024: la programada no mejoró nada; Bell 2023: depende de la persona y no hay acuerdo en cuánto durar ni reducir), y sus señales dependían del esfuerzo por serie (#48), que está pospuesto.
+- **Descartaste:** la semana liviana (misma carga, menos series) como regla propia.
+- **Ojo:** bajar las cargas cuando el comentario dice que eran muy altas **no está definido** y no es R30: sería una regla nueva (la propuesta R36), que necesita tu aprobación. Mientras tanto el prompt dice "mantener". R10, R29 y R31 también hay que reformularlas para que la IA las lea del comentario.
 
 ## Decisiones abiertas
 
