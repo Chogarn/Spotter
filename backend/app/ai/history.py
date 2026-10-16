@@ -19,8 +19,16 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.ai.routine import RoutineProposal
-from app.enums import ExerciseKind, PlanStatus
-from app.models import PlanDay, PlanExercise, PlanSet, SetEntry, WeekPlan, WorkoutSession
+from app.enums import ExerciseKind, LoadFeel, PainLevel, PlanStatus
+from app.models import (
+    ExerciseCompletion,
+    PlanDay,
+    PlanExercise,
+    PlanSet,
+    SetEntry,
+    WeekPlan,
+    WorkoutSession,
+)
 
 # R9 y R28: la subida de carga va de 2 % a 10 %; por encima se avisa.
 MAX_LOAD_JUMP = Decimal("1.10")
@@ -117,6 +125,16 @@ def build_previous_week(db: Session, routine_id: int) -> PreviousWeek | None:
             .where(PlanDay.week_plan_id == week.id, SetEntry.plan_set_id.is_not(None))
         )
     }
+    # Lo que la persona marcó al terminar cada ejercicio (decisión 74), por ejercicio planificado.
+    completions = {
+        c.plan_exercise_id: c
+        for c in db.scalars(
+            select(ExerciseCompletion)
+            .join(WorkoutSession, ExerciseCompletion.session_id == WorkoutSession.id)
+            .join(PlanDay, WorkoutSession.plan_day_id == PlanDay.id)
+            .where(PlanDay.week_plan_id == week.id)
+        )
+    }
     sessions = {
         s.plan_day_id: s
         for s in db.scalars(
@@ -143,7 +161,7 @@ def build_previous_week(db: Session, routine_id: int) -> PreviousWeek | None:
             state = "no hecho (nada registrado)"
         lines.append(f"Día {day.day_index} · {_clean(day.title)} — {state}")
         for exercise in day.exercises:
-            lines += _exercise_lines(exercise, entries, last_weights)
+            lines += _exercise_lines(exercise, entries, last_weights, completions.get(exercise.id))
             has_data = has_data or any(s.id in entries for s in exercise.sets)
 
     closed = f" (cerrada el {week.closed_at:%d/%m})" if week.closed_at else ""
@@ -162,13 +180,37 @@ def build_previous_week(db: Session, routine_id: int) -> PreviousWeek | None:
     return PreviousWeek("\n".join([header, *lines]), has_data, last_weights, names)
 
 
+LOAD_LABEL = {
+    LoadFeel.LIGHT: "liviana",
+    LoadFeel.GOOD: "bien",
+    LoadFeel.HEAVY: "pesada",
+    LoadFeel.VERY_HEAVY: "muy pesada",
+}
+PAIN_LABEL = {PainLevel.MILD: "leve", PainLevel.MODERATE: "moderado", PainLevel.STRONG: "fuerte"}
+
+
+def feel_text(completion: ExerciseCompletion | None) -> str:
+    """Lo que marcó la persona, solo si marcó algo: sin dato no se escribe nada (nunca "sin dolor")."""
+    if completion is None:
+        return ""
+    parts = []
+    if completion.load_feel is not None:
+        parts.append(f"carga: {LOAD_LABEL[completion.load_feel]}")
+    if completion.pain is not None:
+        parts.append(f"dolor: {PAIN_LABEL[completion.pain]}")
+    return "".join(f" · {part}" for part in parts)
+
+
 def _exercise_lines(
-    exercise: PlanExercise, entries: dict[int, SetEntry], last_weights: dict[str, Decimal]
+    exercise: PlanExercise,
+    entries: dict[int, SetEntry],
+    last_weights: dict[str, Decimal],
+    completion: ExerciseCompletion | None = None,
 ) -> list[str]:
     pairs = [(s, entries.get(s.id)) for s in exercise.sets]
     name = _clean(exercise.exercise.name)
     kind = KIND_LABEL[exercise.exercise.kind]
-    lines = [f"- {name} [{kind}] — señal: {signal(pairs)}"]
+    lines = [f"- {name} [{kind}] — señal: {signal(pairs)}{feel_text(completion)}"]
     for plan, entry in pairs:
         planned, unit = _measure(plan)
         text = f"  Serie {plan.set_number}: plan {planned} {unit}{_kg(plan.target_weight_kg)}"

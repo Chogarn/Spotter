@@ -11,7 +11,7 @@ from app.ai.plan_writer import active_week
 from app.ai.rules import estimate_day_minutes
 from app.db import get_db
 from app.deps import get_current_user
-from app.enums import ExerciseKind, PlanStatus, ProposalKind, ProposalStatus
+from app.enums import ExerciseKind, LoadFeel, PainLevel, PlanStatus, ProposalKind, ProposalStatus
 from app.models import (
     ExerciseCompletion,
     PlanDay,
@@ -29,6 +29,7 @@ from app.schemas import (
     DayExerciseOut,
     DaySetOut,
     DayStatusOut,
+    ExerciseFeelIn,
     ExerciseResultOut,
     PlannedValuesOut,
     RealSetOut,
@@ -130,15 +131,20 @@ def day_entries(db: Session, day: PlanDay) -> dict[int, SetEntry]:
     return {e.plan_set_id: e for e in entries}
 
 
+def day_completions(db: Session, day: PlanDay) -> dict[int, ExerciseCompletion]:
+    """Los ejercicios del día que el usuario cerró con "Marcar como hecho", por id planificado,
+    con lo que marcó de carga y dolor."""
+    rows = db.scalars(
+        select(ExerciseCompletion)
+        .join(WorkoutSession, ExerciseCompletion.session_id == WorkoutSession.id)
+        .where(WorkoutSession.plan_day_id == day.id)
+    )
+    return {c.plan_exercise_id: c for c in rows}
+
+
 def completed_ids(db: Session, day: PlanDay) -> set[int]:
     """Ids de los ejercicios planificados del día que el usuario cerró con "Marcar como hecho"."""
-    return set(
-        db.scalars(
-            select(ExerciseCompletion.plan_exercise_id)
-            .join(WorkoutSession, ExerciseCompletion.session_id == WorkoutSession.id)
-            .where(WorkoutSession.plan_day_id == day.id)
-        )
-    )
+    return set(day_completions(db, day))
 
 
 def require_unlocked(db: Session, day: PlanDay, plan_exercise: PlanExercise) -> None:
@@ -158,6 +164,32 @@ def day_state(entries: dict[int, SetEntry], session: WorkoutSession | None) -> s
 def week_day_states(db: Session, user: User, week: WeekPlan) -> list[str]:
     """El estado de cada día de la semana, en orden (lo que muestran los discos)."""
     return [day_state(day_entries(db, d), day_session(db, user, d)) for d in week.days]
+
+
+LOAD_ORDER = [LoadFeel.LIGHT, LoadFeel.GOOD, LoadFeel.HEAVY, LoadFeel.VERY_HEAVY]
+PAIN_ORDER = [PainLevel.MILD, PainLevel.MODERATE, PainLevel.STRONG]
+
+
+def _stronger(order: list, a, b):
+    """El más fuerte de dos marcas (alguna puede faltar)."""
+    if a is None or b is None:
+        return a if b is None else b
+    return a if order.index(a) >= order.index(b) else b
+
+
+def strongest_feel(
+    current: tuple[LoadFeel | None, PainLevel | None] | None, completion: ExerciseCompletion
+) -> tuple[LoadFeel | None, PainLevel | None]:
+    """Un ejercicio repetido en la semana se resume con su marca más fuerte."""
+    load, pain = current or (None, None)
+    return (
+        _stronger(LOAD_ORDER, load, completion.load_feel),
+        _stronger(PAIN_ORDER, pain, completion.pain),
+    )
+
+
+def _value(member) -> str | None:
+    return None if member is None else member.value
 
 
 def set_out(plan_set: PlanSet, entry: SetEntry | None) -> DaySetOut:
@@ -218,12 +250,14 @@ def previous_for(
 def exercise_out(
     exercise: PlanExercise,
     entries: dict[int, SetEntry],
-    completed: bool,
+    completion: ExerciseCompletion | None,
     previous: list[RealSetOut | None] | None = None,
 ) -> DayExerciseOut:
     return DayExerciseOut(
         id=exercise.id,
-        completed=completed,
+        completed=completion is not None,
+        load_feel=None if completion is None else completion.load_feel,
+        pain=None if completion is None else completion.pain,
         name=exercise.exercise.name,
         kind=exercise.exercise.kind.value,
         rest_seconds=exercise.rest_seconds,
@@ -288,9 +322,16 @@ def get_week_summary(
     # Un ejercicio repetido en la semana junta sus series y tiene una sola señal.
     pairs_by_exercise: dict[int, list[tuple[PlanSet, SetEntry | None]]] = {}
     names: dict[int, PlanExercise] = {}
+    feel_by_exercise: dict[int, tuple[LoadFeel | None, PainLevel | None]] = {}
     for day in week.days:
         entries = day_entries(db, day)
+        completions = day_completions(db, day)
         for exercise in day.exercises:
+            completion = completions.get(exercise.id)
+            if completion is not None:
+                feel_by_exercise[exercise.exercise_id] = strongest_feel(
+                    feel_by_exercise.get(exercise.exercise_id), completion
+                )
             names.setdefault(exercise.exercise_id, exercise)
             pairs = pairs_by_exercise.setdefault(exercise.exercise_id, [])
             for plan_set in exercise.sets:
@@ -325,6 +366,8 @@ def get_week_summary(
                 name=names[exercise_id].exercise.name,
                 kind=names[exercise_id].exercise.kind.value,
                 signal=signal(pairs),
+                load_feel=_value(feel_by_exercise.get(exercise_id, (None, None))[0]),
+                pain=_value(feel_by_exercise.get(exercise_id, (None, None))[1]),
                 sets=[
                     ResultSetOut(
                         planned=PlannedValuesOut(
@@ -444,7 +487,7 @@ def get_day(
     day = find_day(week, day_index)
     entries = day_entries(db, day)
     session = day_session(db, user, day)
-    done = completed_ids(db, day)
+    done = day_completions(db, day)
     previous = previous_by_exercise(db, week)
     return DayDetailOut(
         week_id=week.id,
@@ -456,7 +499,7 @@ def get_day(
         minutes=day_minutes(day),
         finished_at=None if session is None else session.finished_at,
         exercises=[
-            exercise_out(e, entries, e.id in done, previous.get(e.exercise_id))
+            exercise_out(e, entries, done.get(e.id), previous.get(e.exercise_id))
             for e in day.exercises
         ],
     )
@@ -637,7 +680,10 @@ def mark_exercise_done(
         db.add(ExerciseCompletion(session_id=session.id, plan_exercise_id=plan_exercise.id))
     db.commit()
     return exercise_out(
-        plan_exercise, day_entries(db, day), True, previous_for(db, week, plan_exercise)
+        plan_exercise,
+        day_entries(db, day),
+        day_completions(db, day).get(plan_exercise.id),
+        previous_for(db, week, plan_exercise),
     )
 
 
@@ -678,7 +724,7 @@ def undo_exercise_done(
         )
         db.commit()
     return exercise_out(
-        plan_exercise, day_entries(db, day), False, previous_for(db, week, plan_exercise)
+        plan_exercise, day_entries(db, day), None, previous_for(db, week, plan_exercise)
     )
 
 
@@ -713,7 +759,48 @@ def reopen_exercise(
         )
         db.commit()
     return exercise_out(
-        plan_exercise, day_entries(db, day), False, previous_for(db, week, plan_exercise)
+        plan_exercise, day_entries(db, day), None, previous_for(db, week, plan_exercise)
+    )
+
+
+@router.put(
+    "/{week_id}/days/{day_index}/exercises/{plan_exercise_id}/feel",
+    response_model=DayExerciseOut,
+)
+def save_exercise_feel(
+    week_id: int,
+    day_index: int,
+    plan_exercise_id: int,
+    data: ExerciseFeelIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> DayExerciseOut:
+    """Marca opcional de cómo se sintió la carga y si hubo dolor (decisión 74).
+
+    Solo con el ejercicio hecho y el día sin completar. Cada campo es independiente: el que no
+    viene se deja como está y el que viene en `null` se borra.
+    """
+    week, _ = get_own_week(db, user, week_id)
+    day = find_day(week, day_index)
+    plan_exercise = find_exercise(day, plan_exercise_id)
+    require_active(week)
+    session = day_session(db, user, day)
+    if session is not None and session.finished_at is not None:
+        raise HTTPException(
+            status_code=409, detail="El día está completado: reabrilo para corregir"
+        )
+    completion = day_completions(db, day).get(plan_exercise.id)
+    if completion is None:
+        raise HTTPException(
+            status_code=409, detail="Marcá el ejercicio como hecho antes de contar cómo te fue"
+        )
+    if "load_feel" in data.model_fields_set:
+        completion.load_feel = data.load_feel
+    if "pain" in data.model_fields_set:
+        completion.pain = data.pain
+    db.commit()
+    return exercise_out(
+        plan_exercise, day_entries(db, day), completion, previous_for(db, week, plan_exercise)
     )
 
 

@@ -77,6 +77,23 @@ class Feeling(str, enum.Enum):
     PAIN = "pain"
 
 
+class LoadFeel(str, enum.Enum):
+    """Cómo sintió la carga de un ejercicio (decisión 74). Sin marcar es sin dato."""
+
+    LIGHT = "light"
+    GOOD = "good"
+    HEAVY = "heavy"
+    VERY_HEAVY = "very_heavy"
+
+
+class PainLevel(str, enum.Enum):
+    """Dolor marcado en un ejercicio, con el semáforo de R31 (decisión 74). Sin marcar es sin dato."""
+
+    MILD = "mild"
+    MODERATE = "moderate"
+    STRONG = "strong"
+
+
 class ProposalKind(str, enum.Enum):
     GENERATE = "generate"  # la primera rutina
     ADJUST = "adjust"

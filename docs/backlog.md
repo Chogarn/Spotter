@@ -61,7 +61,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Reloj de descanso circular: botón redondo junto a "Serie hecha", el círculo ocupa el lugar de la serie, −15 s, +15 s y Saltar; vibra al terminar y una franja lo muestra en otras pantallas. Decisión 48. Depende de #58 `frontend` (#59)
 - [x] Inicio, la página principal con sesión iniciada: saludo, "Hoy te toca", avisos y accesos rápidos; Entrenar pasa a `/entrenar` y la barra tiene cinco lugares (Progreso reservado para #28). Decisión 51 `frontend` (#60)
 - [x] Revisar cómo se decide la cantidad de días por semana: **opción A**, el usuario la elige al generar (principiante 2 o 3, el resto de 2 a 6), se guarda en la rutina y se puede cambiar al continuar. Decisión 52 `ia` `backend` `frontend` (#61)
-- [ ] Marca opcional de carga y dolor por ejercicio, en el modo entrenar (decisión 74) `backend` `frontend` `ia` (#63)
+- [x] Marca opcional de carga y dolor por ejercicio, en el modo entrenar (decisión 74), hecha el 2026-10-16 `backend` `frontend` `ia` (#63)
   - **Para qué:** darle a la IA la carga y el dolor como dato, no solo por inferencia o por el comentario de cierre.
   - **Cómo se accede:** modo entrenar (`/semanas/{id}/dia/{n}/entrenar`), al terminar un ejercicio; y, de lectura, el resumen semanal de Progreso.
   - **Qué ve el usuario:** línea plegada "¿Cómo te fue? (opcional)" con dos filas independientes: carga (Liviana, Bien, Pesada, Muy pesada) y dolor (Leve, Moderado, Fuerte). Sin opción "No". Con "Fuerte", el aviso de parar y consultar a un profesional.

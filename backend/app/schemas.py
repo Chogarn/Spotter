@@ -8,7 +8,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.ai.routine import RoutineProposal
-from app.enums import Goal, Level
+from app.enums import Goal, Level, LoadFeel, PainLevel
 from app.models import age_on
 
 
@@ -288,6 +288,9 @@ class ExerciseResultOut(BaseModel):
     kind: str
     signal: str  # "superó", "cumplió", "no llegó" o "sin registrar"
     sets: list[ResultSetOut] = []
+    # Lo que la persona marcó al terminarlo (decisión 74); si se repite en la semana, lo más fuerte.
+    load_feel: str | None = None
+    pain: str | None = None
 
 
 class RoutineExerciseOut(BaseModel):
@@ -423,6 +426,17 @@ class DayExerciseOut(BaseModel):
     # serie por serie (vacía la que no se registró). None si no hay semana anterior o el ejercicio
     # no estaba en ella.
     previous: list[RealSetOut | None] | None = None
+    # "¿Cómo te fue?" (decisión 74): marcas opcionales; None = sin dato.
+    load_feel: LoadFeel | None = None
+    pain: PainLevel | None = None
+
+
+class ExerciseFeelIn(BaseModel):
+    """Marca de carga y dolor de un ejercicio hecho. Solo se toca lo que viene en el cuerpo:
+    un campo ausente se deja como está y uno en `null` se borra."""
+
+    load_feel: LoadFeel | None = None
+    pain: PainLevel | None = None
 
 
 class DayDetailOut(BaseModel):

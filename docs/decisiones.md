@@ -486,7 +486,8 @@ Al terminar un ejercicio en el modo entrenar aparece una línea plegada "¿Cómo
 - **Origen:** tuya (2026-10-16): "una casilla opcional de esfuerzo y otra de dolor, que se despliegue si el usuario quiere". La escala de carga la elegiste vos (opción B) entre tres propuestas.
 - **Por qué:** *(completar)*
 - **Descartaste:** el esfuerzo por serie de 1 a 10 (#48); la escala por repeticiones que sobran (opción A, apoyada en R29); una opción "No me dolió"; ponerla también en la lista del día.
-- **Ojo:** guarda en `exercise_completions` (dos columnas nulas, migración 0019), así que solo se puede marcar con el ejercicio hecho; `set_entries.effort` sigue sin usarse. R10 y R31 vuelven a tener disparador, y R36 pasa a dispararse también con "Muy pesada" además del comentario. La carga y el dolor no marcados llegan a la IA como ausentes, nunca como "bien" ni "sin dolor".
+- **Hecho el 2026-10-16** (#63): migración 0019, `PUT .../exercises/{id}/feel`, `ComoTeFue.tsx` en el modo entrenar y la marca en el resumen de Progreso; `history.py` la manda a la IA y el prompt aplica R10, R31 y R36. Sin cambios en la lista del día. **Cambio de flujo que decidió la IA:** al terminar un ejercicio el modo entrenar ya no pasa solo al siguiente, se queda en él (con las marcas y el botón "Siguiente ejercicio"), porque el ejercicio solo se puede marcar una vez hecho.
+- **Ojo:** guarda en `exercise_completions` (dos columnas nulas, migración 0019), así que solo se puede marcar con el ejercicio hecho; reabrir o deshacer el ejercicio borra las marcas; `set_entries.effort` sigue sin usarse. R10 y R31 vuelven a tener disparador, y R36 pasa a dispararse también con "Muy pesada" además del comentario. La carga y el dolor no marcados llegan a la IA como ausentes, nunca como "bien" ni "sin dolor".
 
 ## Decisiones abiertas
 

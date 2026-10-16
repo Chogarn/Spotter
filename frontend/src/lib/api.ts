@@ -34,9 +34,16 @@ export type SetItem = {
   real?: RealSet | null; // vacío si todavía no se registró nada en esta serie
 };
 
+// "¿Cómo te fue?" (decisión 74): marcas opcionales e independientes al terminar un ejercicio.
+// Vacío = sin dato (nunca se lee como "bien" ni como "sin dolor").
+export type LoadFeel = "light" | "good" | "heavy" | "very_heavy";
+export type PainLevel = "mild" | "moderate" | "strong";
+
 export type ExerciseItem = {
   id?: number; // solo en el plan activo: con él se marca como hecho
   completed?: boolean; // cerrado con "Marcar como hecho": bloqueado hasta reabrirlo
+  load_feel?: LoadFeel | null;
+  pain?: PainLevel | null;
   name: string;
   kind: "strength" | "cardio" | "isometric";
   rest_seconds: number | null;
@@ -200,6 +207,8 @@ export type WeekSummaryDetail = {
     name: string;
     kind: ExerciseItem["kind"];
     signal: string;
+    load_feel: LoadFeel | null;
+    pain: PainLevel | null;
     // Cada serie con lo que tocaba y lo que se hizo (nulo si no se registró).
     sets: {
       planned: {

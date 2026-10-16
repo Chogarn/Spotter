@@ -26,6 +26,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0016` días por semana en la rutina | Agrega `routines.days_per_week` (2 a 6): el usuario elige cuántos días entrena (decisión 52) | Implementada |
 | `0017` catálogo con vectores | Habilita la extensión `vector` de pgvector, crea `catalog_embeddings` (un vector de 768 dimensiones por ejercicio del catálogo) y suma el tipo `embed` a `ai_calls` (decisión 58) | Implementada |
 | `0018` fecha de nacimiento | Suma `profiles.birth_date` (nula); la edad pasa a calcularse desde ella y `age` se conserva para perfiles viejos | Implementada |
+| `0019` carga y dolor por ejercicio | Suma `exercise_completions.load_feel` y `pain` (nulas): lo que la persona marca al terminar un ejercicio (decisión 74) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
 ## Diagrama
@@ -324,6 +325,10 @@ Un ejercicio que el usuario **cerró** con "Marcar como hecho" en una sesión. M
 | session_id | Sesión del día (se borra en cascada) |
 | plan_exercise_id | Ejercicio planificado que se cerró (se borra en cascada) |
 | completed_at | Cuándo se cerró |
+| load_feel | Cómo sintió la carga al terminarlo (opcional): `light`, `good`, `heavy` o `very_heavy`. Nula = sin dato (decisión 74) |
+| pain | Dolor marcado (opcional): `mild`, `moderate` o `strong`. Nula = sin dato; no existe "sin dolor" (decisión 74) |
+
+Las dos marcas son independientes. **Reabrir ejercicio** y **Deshacer** borran la fila y, con ella, las marcas.
 
 Es **única** por sesión y ejercicio. Marcar todas las series a mano **no** crea esta fila: el ejercicio solo se cierra con el botón del ejercicio.
 

@@ -215,7 +215,7 @@ Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no s
 - **Pausar la rutina activa o dejar otra en espera** (2026-10-15): innecesario. Se cierra la semana y se empieza otra; la anterior queda "lista para continuar".
 - **Ajuste conversando durante la semana** (decisión 45, #29): el plan no cambia durante la semana y lo que no anda se cuenta al cerrarla.
 - **Avisos al usuario** (decisión 63) y **ajuste de ejercicios repetidos** (decisión 64).
-- **"Cómo me sentí" por día** (#46) y **semáforo de dolor** (#51): no se hacen por ahora (decisión 71). Cómo se sintió el entrenamiento y el dolor se cuentan en el **comentario al cerrar la semana**, que la IA lee. El **esfuerzo por serie** (#48) no se hace (decisión 74). El esfuerzo se deduce de comparar peso y repeticiones (decisión 73), y la **marca opcional de carga y dolor por ejercicio** en el modo entrenar (#63, decisión 74) está definida pero sin construir. La semana liviana (R30) está descartada (decisión 72).
+- **"Cómo me sentí" por día** (#46) y **semáforo de dolor** (#51): no se hacen por ahora (decisión 71). Cómo se sintió el entrenamiento y el dolor se cuentan en el **comentario al cerrar la semana**, que la IA lee. El **esfuerzo por serie** (#48) no se hace (decisión 74). El esfuerzo se deduce de comparar peso y repeticiones (decisión 73), y la **marca opcional de carga y dolor por ejercicio** (#63, decisión 74) está hecha: al terminar un ejercicio en el modo entrenar aparece "¿Cómo te fue?" (carga: Liviana, Bien, Pesada, Muy pesada; dolor: Leve, Moderado, Fuerte; las dos opcionales e independientes) y el botón "Siguiente ejercicio"; el resumen de Progreso la muestra. La semana liviana (R30) está descartada (decisión 72).
 
 ## Puntos abiertos
 

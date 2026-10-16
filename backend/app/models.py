@@ -35,6 +35,8 @@ from app.enums import (
     ExerciseRegion,
     Feeling,
     Goal,
+    LoadFeel,
+    PainLevel,
     Level,
     Muscle,
     PlanStatus,
@@ -472,3 +474,6 @@ class ExerciseCompletion(Base):
     completed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    # "¿Cómo te fue?" (decisión 74): marcas opcionales e independientes. Nulas = sin dato.
+    load_feel: Mapped[LoadFeel | None] = mapped_column(enum_column(LoadFeel), nullable=True)
+    pain: Mapped[PainLevel | None] = mapped_column(enum_column(PainLevel), nullable=True)

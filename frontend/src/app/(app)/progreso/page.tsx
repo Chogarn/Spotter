@@ -4,6 +4,7 @@ import { ChevronDown, MessageSquare, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { textoDeCarga, textoDeDolor } from "@/components/ComoTeFue";
 import { Disco, type EstadoDisco } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Flecha } from "@/components/Flecha";
@@ -239,6 +240,16 @@ function ComoTeFue({ ejercicios }: { ejercicios: WeekSummaryDetail["exercises"] 
                         <span className="block text-sm text-muted-foreground">
                           Hiciste {hecho.hecho}
                           {hecho.tocaba && <span className="block">Tocaba {hecho.tocaba}</span>}
+                        </span>
+                      )}
+                      {(e.load_feel || e.pain) && (
+                        <span className="block text-sm text-muted-foreground">
+                          {[
+                            e.load_feel && `Carga ${textoDeCarga(e.load_feel).toLowerCase()}`,
+                            e.pain && `Dolor ${textoDeDolor(e.pain).toLowerCase()}`,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
                         </span>
                       )}
                     </span>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState, useTransition } from "react";
 
+import { ComoTeFue } from "@/components/ComoTeFue";
 import { BotonDescanso, RelojCircular, useDescanso } from "@/components/Descanso";
 import { Disco } from "@/components/Disco";
 import { Flecha } from "@/components/Flecha";
@@ -137,14 +138,20 @@ export default function EntrenarView({
     return res.json();
   }
 
-  // Cierra el ejercicio y pasa al siguiente sin hacer (o al final, si no queda ninguno).
+  // Cierra el ejercicio y se queda en él: ahí aparece "¿Cómo te fue?" (decisión 74) y el botón para
+  // pasar al siguiente sin hacer (o al final, si no queda ninguno).
   async function terminarEjercicio(d: DayDetail, ej: number) {
     const ejercicio = await llamar<ExerciseItem>(`/exercises/${d.exercises[ej].id}/done`);
     if (!ejercicio) return;
     const nuevo = conEjercicio(d, ejercicio);
     setDia(nuevo);
-    const siguiente = proximoEjercicio(nuevo, ej);
-    setPos(siguiente === null ? null : { ej: siguiente, serie: serieInicial(nuevo.exercises[siguiente]) });
+    setPos({ ej, serie: serieInicial(nuevo.exercises[ej]) });
+  }
+
+  function irAlSiguiente(desde: number) {
+    const siguiente = proximoEjercicio(actual, desde);
+    setCorrigiendo(false);
+    setPos(siguiente === null ? null : { ej: siguiente, serie: serieInicial(actual.exercises[siguiente]) });
   }
 
   // El botón grande: marca la serie, pasa a la siguiente o cierra el ejercicio, según toque.
@@ -293,6 +300,7 @@ export default function EntrenarView({
             setPos({ ej: pos.ej, serie: serieInicial(nuevo.exercises[pos.ej]) });
           }}
           onAvanzar={avanzar}
+          onSiguiente={() => irAlSiguiente(pos.ej)}
         />
       ) : (
         <section className="rounded-2xl bg-card p-5">
@@ -363,6 +371,7 @@ function Ejercicio({
   onSerieGuardada,
   onEjercicioCambiado,
   onAvanzar,
+  onSiguiente,
 }: {
   dia: DayDetail;
   pos: Posicion;
@@ -375,6 +384,7 @@ function Ejercicio({
   onSerieGuardada: (s: SetItem) => void;
   onEjercicioCambiado: (e: ExerciseItem) => void;
   onAvanzar: () => void;
+  onSiguiente: () => void;
 }) {
   const ejercicio = dia.exercises[pos.ej];
   const hecho = estaHecho(ejercicio);
@@ -410,6 +420,22 @@ function Ejercicio({
           </ul>
           <SemanaPasada ejercicio={ejercicio} />
         </section>
+      )}
+
+      {/* "¿Cómo te fue?" (decisión 74): opcional, al terminar el ejercicio. Con el día completado
+          o la semana cerrada solo muestra lo que se marcó. */}
+      {hecho && (
+        <div className="mt-3">
+          <ComoTeFue
+            exercise={ejercicio}
+            edit={registra ? { weekId: dia.week_id, dayIndex: dia.day_index, onChanged: onEjercicioCambiado } : undefined}
+          />
+        </div>
+      )}
+      {hecho && registra && (
+        <Button size="xl" className="mt-4 w-full" type="button" onClick={onSiguiente}>
+          {siguiente !== null && siguiente !== pos.ej ? "Siguiente ejercicio" : "Terminar el día"}
+        </Button>
       )}
 
       {/* El detalle que antes estaba en la lista del día (decisión 47), plegado. */}
