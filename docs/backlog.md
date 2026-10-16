@@ -74,7 +74,7 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 > **Para la Semana 4 (idea, sin definir):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
 
 ## S5: Calidad y despliegue
-- [ ] Explicación por ejercicio ("¿por qué esto?") `ia` `complementaria`
+- [x] Explicación por ejercicio ("¿por qué esto?"): cubierta con el campo `reason` que trae cada ejercicio y se muestra plegado en el modo entrenar; sin botón que llame a la IA `ia` `complementaria` (#42)
 - [x] Sustitución de ejercicios en la propuesta: botón "Cambiar ejercicio" con las alternativas del catálogo, en todos los días donde aparece y sin IA (decisión 65, 2026-10-15) `backend` `frontend`. Pendiente aparte, sin definir: cambiar un ejercicio ya aceptado en la semana activa.
 - [ ] Animación de carga mientras se genera la rutina (hoy aparece solo un texto) `frontend`
 - [ ] Aviso legal visible en la app `frontend`
