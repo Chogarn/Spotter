@@ -7,11 +7,11 @@ import { use, useEffect, useState } from "react";
 
 import { readError, type Proposal, type ProposalChanges, apiFetch } from "@/lib/api";
 import { claveEjercicio, ListaCambios } from "@/components/Cambios";
-import { BackButton } from "@/components/BackButton";
 import { Disco, estadoDia } from "@/components/Disco";
 import { CambiarEjercicio } from "@/components/CambiarEjercicio";
 import { ExerciseRow } from "@/components/ExerciseRow";
 import { Flecha } from "@/components/Flecha";
+import { Franja } from "@/components/Franja";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { cn } from "cn";
@@ -168,13 +168,15 @@ export default function PropuestaView({
   }
 
   return (
-    <main style={contenedor}>
-      <BackButton href="/">← Volver</BackButton>
-      <p className="mb-0 text-sm text-muted-foreground">Propuesta de la IA</p>
-      <h1 className="mt-0 mb-1">
-        {days.length} días · ~{Math.round(propuesta.day_minutes.reduce((a, b) => a + b, 0) / days.length)} min
-      </h1>
-      <p className="mt-0 text-sm text-muted-foreground">La IA propone, vos decidís: nada se guarda hasta que aceptes.</p>
+    <main className="flex flex-1 flex-col">
+      {/* Franja amarilla: el color de "pendiente", porque la propuesta espera tu decisión (decisión 77). */}
+      <Franja
+        aros="amarillo"
+        migas={[{ texto: "Inicio", href: "/" }, { texto: "Propuesta de la IA" }]}
+        titulo={`${days.length} días · ~${Math.round(propuesta.day_minutes.reduce((a, b) => a + b, 0) / days.length)} min`}
+        subtitulo="La IA propone, vos decidís: nada se guarda hasta que aceptes."
+      />
+      <div style={{ ...contenedor, width: "100%", paddingTop: "1.25rem" }}>
 
       {/* Dos pestañas: la semana día por día y los avisos (resumen, avisos del código y notas). */}
       <div role="tablist" aria-label="Propuesta" className="my-3 flex rounded-full bg-muted p-1">
@@ -314,6 +316,7 @@ export default function PropuestaView({
             Aceptar
           </Button>
         </div>
+      </div>
       </div>
     </main>
   );

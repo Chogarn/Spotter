@@ -511,6 +511,13 @@ En **Inicio**, la franja tiene ahora un aro rojo más grande y uno azul, como la
 - **Descartaste:** dejar la franja de Inicio como estaba o solo agrandar el aro rojo; dejar la tarjeta con la etiqueta "en curso".
 - **Ojo:** la variante "Rutinas B" que viste incluía la tarjeta simple; así lo implementé. El estado ahora lo dice el color del aro y se lee en voz alta como "en curso" (texto oculto); "lista para continuar" va escrito en la línea de datos. `IconoObjetivo` suma la opción `aro`.
 
+### 78. La franja oscura va en casi todas las pantallas, con un color de aro por sección y migas de pan en Rutinas
+Todas las pantallas llevan la **franja oscura** de arriba, salvo **Entrenar, el día que se registra y el modo entrenar**, que quedan sin adornos para que te concentres en entrenar. Cada sección tiene el color de sus aros: **Inicio** rojo y azul, **Rutinas** rojo, **Progreso** azul, **la propuesta de la IA** amarillo (el color de "pendiente") y **Perfil** verde. En el camino de **Rutinas** (la rutina, la semana y el día cuando se llega desde Rutinas) la franja muestra **migas de pan**: "Rutinas › Fuerza › Semana 2 › Día 1", cada tramo es un enlace y reemplaza a la flecha de volver. Todo sale de un solo componente, `Franja.tsx`.
+- **Origen:** tuya (2026-10-16): "todas las pantallas, menos la de entrenar, deberían tener el encabezado arriba y quizás cada sección con un disco de colores diferentes", y "en la navegación de las rutinas, una instancia de cada carpeta".
+- **Por qué:** *(completar)*
+- **Descartaste:** poner la franja también en Entrenar; dejar todos los aros del mismo color.
+- **Ojo:** los colores de los aros son solo adorno (van ocultos para los lectores de pantalla) y no cambian el significado de los colores de estados; el verde del Perfil es lo más discutible porque en la app verde es "cumplido". El día que se abre desde Entrenar no tiene franja ni migas. En el detalle de una rutina, el ícono del objetivo ya no está junto al nombre. La propuesta lleva "Inicio › Propuesta de la IA" para poder volver.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
-import { BackButton } from "@/components/BackButton";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -21,6 +20,7 @@ import { dayStateText, shortDate, statusText } from "@/lib/format";
 import { cn } from "cn";
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { Franja } from "@/components/Franja";
 import { CargandoDiscos } from "@/components/Cargando";
 
 export default function SemanaView({ params }: { params: Promise<{ id: string }> }) {
@@ -61,16 +61,23 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
   }, [id]);
 
   return (
-    <main className="mx-auto max-w-xl px-4 pt-6">
-      <BackButton href={semana ? `/rutinas/${semana.routine_id}` : "/rutinas"}>
-        ← {semana ? semana.routine_name : "Tus rutinas"}
-      </BackButton>
+    <main className="flex flex-1 flex-col">
+      {/* Franja con el camino (Rutinas › la rutina › esta semana), decisión 77. */}
+      <Franja
+        compacta
+        aros="rojo"
+        migas={[
+          { texto: "Rutinas", href: "/rutinas" },
+          ...(semana ? [{ texto: semana.routine_name, href: `/rutinas/${semana.routine_id}` }] : []),
+          { texto: semana ? `Semana ${semana.number}` : "Semana" },
+        ]}
+        titulo={semana ? `Semana ${semana.number}` : "Semana"}
+      />
+      <div className="mx-auto w-full max-w-xl px-4 pt-5">
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!semana && !error && <CargandoDiscos />}
       {semana && (
         <>
-          {/* Título grande y etiquetas, como la pantalla de la rutina y la del día. */}
-          <h1 className="mt-2 mb-0 text-6xl">Semana {semana.number}</h1>
           <div className="mt-3 flex flex-wrap gap-1.5">
             <span
               className={cn(
@@ -171,6 +178,7 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
           )}
         </>
       )}
+      </div>
     </main>
   );
 }

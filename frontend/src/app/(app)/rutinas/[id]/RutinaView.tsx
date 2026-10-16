@@ -4,14 +4,13 @@ import { Check, ChevronRight, Pencil, X } from "lucide-react";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
-import { BackButton } from "@/components/BackButton";
 import { readError, type RoutineDetail, apiFetch } from "@/lib/api";
 import { goalText, nombreDiceElObjetivo, shortDate, statusText } from "@/lib/format";
-import { IconoObjetivo } from "@/components/IconoObjetivo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DiscosSemana } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { Franja } from "@/components/Franja";
 import { cn } from "cn";
 import { CargandoDiscos } from "@/components/Cargando";
 
@@ -53,28 +52,35 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <main className="mx-auto max-w-xl px-4 pt-6">
-      <BackButton href="/rutinas">← Tus rutinas</BackButton>
+    <main className="flex flex-1 flex-col">
+      {/* Franja con el camino (Rutinas › esta rutina) y el nombre; el lápiz lo cambia (decisión 77). */}
+      <Franja
+        compacta
+        aros="rojo"
+        migas={[{ texto: "Rutinas", href: "/rutinas" }, { texto: rutina?.name ?? "Rutina" }]}
+        titulo={rutina?.name ?? "Rutina"}
+        acciones={
+          rutina && nombre === null ? (
+            <Button
+              size="icon-lg"
+              variant="outline"
+              type="button"
+              onClick={() => setNombre(rutina.name)}
+              aria-label="Cambiar el nombre de la rutina"
+              className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            >
+              <Pencil />
+            </Button>
+          ) : undefined
+        }
+      />
+      <div className="mx-auto w-full max-w-xl px-4 pt-5">
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!rutina && !error && <CargandoDiscos />}
       {rutina && (
         <>
-          {nombre === null ? (
-            <div className="flex items-start gap-3">
-              <IconoObjetivo objetivo={rutina.goal} tamano="md" className="mt-1" />
-              <h1 className="mt-2 mb-0 flex-1 text-5xl leading-none">{rutina.name}</h1>
-              <Button
-                size="icon-lg"
-                variant="outline"
-                type="button"
-                onClick={() => setNombre(rutina.name)}
-                aria-label="Cambiar el nombre de la rutina"
-              >
-                <Pencil />
-              </Button>
-            </div>
-          ) : (
-            <div className="my-3 flex items-center gap-1.5">
+          {nombre !== null && (
+            <div className="mb-3 flex items-center gap-1.5">
               <Input
                 value={nombre}
                 maxLength={100}
@@ -169,6 +175,7 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
           </ol>
         </>
       )}
+      </div>
     </main>
   );
 }

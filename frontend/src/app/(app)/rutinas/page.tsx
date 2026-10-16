@@ -8,6 +8,7 @@ import { readError, type Routine, apiFetch } from "@/lib/api";
 import { goalText, nombreDiceElObjetivo } from "@/lib/format";
 import { DiscosSemana } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { Franja } from "@/components/Franja";
 import { IconoObjetivo } from "@/components/IconoObjetivo";
 import { NuevaRutina } from "@/components/NuevaRutina";
 import { Button } from "@/components/ui/button";
@@ -28,16 +29,7 @@ export default function MisRutinasPage() {
 
   return (
     <main className="flex flex-1 flex-col pb-24">
-      {/* Franja oscura como la de Inicio y Perfil, con los aros asomando (decisión 77). */}
-      <section className="relative overflow-hidden bg-primary px-4 pt-8 pb-7 text-primary-foreground">
-        <div className="relative z-10 mx-auto max-w-xl">
-          <h1 className="my-0 text-5xl">Tus rutinas</h1>
-        </div>
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-10 -right-10 size-36 rounded-full border-[18px] border-disco-rojo"
-        />
-      </section>
+      <Franja titulo="Tus rutinas" aros="rojo" />
 
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
       {error && <ErrorMessage>{error}</ErrorMessage>}

@@ -17,6 +17,7 @@ import { estaHecho, summarize } from "@/lib/format";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { Franja } from "@/components/Franja";
 import { CargandoDiscos } from "@/components/Cargando";
 
 export default function DiaView({
@@ -37,6 +38,8 @@ export default function DiaView({
   const router = useRouter();
   // Los días de la semana (para pasar al anterior o al siguiente sin volver a la lista).
   const [dias, setDias] = useState<WeekDetail["days"]>([]);
+  // La semana (con su rutina): para las migas de pan cuando se llega desde Rutinas.
+  const [semana, setSemana] = useState<WeekDetail | null>(null);
 
   useEffect(() => {
     // Al cambiar de día se vacía lo anterior: no queda a la vista el día que se dejó.
@@ -54,7 +57,10 @@ export default function DiaView({
   useEffect(() => {
     apiFetch(`/weeks/${id}`)
       .then(async (res) => {
-        if (res.ok) setDias(((await res.json()) as WeekDetail).days);
+        if (!res.ok) return;
+        const detalle = (await res.json()) as WeekDetail;
+        setSemana(detalle);
+        setDias(detalle.days);
       })
       .catch(() => {});
   }, [id]);
@@ -117,11 +123,8 @@ export default function DiaView({
   // El ejercicio en curso (el primero sin hacer) lleva un borde, solo mientras se puede registrar.
   const enCurso = dia && editable && !completado ? dia.exercises.findIndex((e) => !estaHecho(e)) : -1;
 
-  return (
-    <main className="mx-auto max-w-xl px-4 pt-6">
-      <BackButton href={`/semanas/${id}`}>
-        ← {dia ? `Semana ${dia.week_number}` : "Volver a la semana"}
-      </BackButton>
+  const cuerpo = (
+    <>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!dia && !error && <CargandoDiscos />}
       {dia && dias.length > 1 && (
@@ -158,10 +161,14 @@ export default function DiaView({
       )}
       {dia && (
         <>
-          <h1 className="mb-0 text-6xl">Día {dia.day_index}</h1>
-          <p className="mt-1 text-muted-foreground">
-            {dia.title} · ~{dia.minutes} min
-          </p>
+          {!desdeRutinas && (
+            <>
+              <h1 className="mb-0 text-6xl">Día {dia.day_index}</h1>
+              <p className="mt-1 text-muted-foreground">
+                {dia.title} · ~{dia.minutes} min
+              </p>
+            </>
+          )}
           {activa && (
             <div className="mb-4">
               <p className="mb-1 text-sm text-muted-foreground">
@@ -255,6 +262,37 @@ export default function DiaView({
           </p>
         </>
       )}
+    </>
+  );
+
+  // Desde Rutinas (para mirar) lleva la franja con el camino; desde Entrenar, sin adornos para no
+  // distraer de lo que se está haciendo (decisión 77).
+  if (desdeRutinas) {
+    return (
+      <main className="flex flex-1 flex-col">
+        <Franja
+          compacta
+          aros="rojo"
+          migas={[
+            { texto: "Rutinas", href: "/rutinas" },
+            ...(semana ? [{ texto: semana.routine_name, href: `/rutinas/${semana.routine_id}` }] : []),
+            { texto: dia ? `Semana ${dia.week_number}` : "Semana", href: `/semanas/${id}` },
+            { texto: `Día ${n}` },
+          ]}
+          titulo={`Día ${n}`}
+          subtitulo={dia ? `${dia.title} · ~${dia.minutes} min` : undefined}
+        />
+        <div className="mx-auto w-full max-w-xl px-4 pt-5">{cuerpo}</div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="mx-auto max-w-xl px-4 pt-6">
+      <BackButton href={`/semanas/${id}`}>
+        ← {dia ? `Semana ${dia.week_number}` : "Volver a la semana"}
+      </BackButton>
+      {cuerpo}
     </main>
   );
 }

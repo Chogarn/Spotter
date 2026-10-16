@@ -8,6 +8,7 @@ import { textoDeCarga, textoDeDolor } from "@/components/ComoTeFue";
 import { Disco, type EstadoDisco } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Flecha } from "@/components/Flecha";
+import { Franja } from "@/components/Franja";
 import { PestanasProgreso } from "@/components/PestanasProgreso";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
@@ -75,8 +76,9 @@ export default function Progreso() {
   const indice = semanas && semanaId !== null ? semanas.findIndex((s) => s.id === semanaId) : -1;
 
   return (
-    <main className="mx-auto max-w-xl px-4 pt-8">
-      <h1 className="mt-0 mb-3">Progreso</h1>
+    <main className="flex flex-1 flex-col">
+      <Franja titulo="Progreso" aros="azul" />
+      <div className="mx-auto w-full max-w-xl px-4 pt-5">
       <PestanasProgreso actual="/progreso" />
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!rutinas && !error && <CargandoDiscos />}
@@ -150,6 +152,7 @@ export default function Progreso() {
           {resumen && resumen.week_id === semanaId && <ResumenSemana resumen={resumen} />}
         </>
       )}
+      </div>
     </main>
   );
 }

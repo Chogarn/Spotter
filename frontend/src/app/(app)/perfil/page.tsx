@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { errorText, apiFetch, type SessionUser } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { Franja } from "@/components/Franja";
 import { type DatosPerfil, type PasoPerfil, PerfilAsistente, SEXOS } from "@/components/PerfilAsistente";
 import { FilaProximamente } from "@/components/Proximamente";
 import { cn } from "cn";
@@ -159,26 +160,17 @@ export default function PerfilPage() {
 
   return (
     <main className="flex flex-1 flex-col">
-      {/* Franja oscura como la de Inicio, con el borde de un disco asomando: el nombre grande, el
-          correo y el lápiz para cambiarlo. */}
-      <section className="relative overflow-hidden bg-primary px-4 pt-8 pb-7 text-primary-foreground">
-        <div className="mx-auto max-w-xl">
-          <div className="flex items-center gap-3">
-            <h1 className="my-0 min-w-0 truncate text-5xl">{nombre || "Tu nombre"}</h1>
-            <div className="relative z-10 shrink-0">{lapiz(
-                "nombre",
-                "el nombre",
-                // Sobre la franja oscura: transparente con borde claro, como los botones de la bienvenida.
-                "border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground",
-              )}
-            </div>
-          </div>
-        </div>
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-10 -right-10 size-36 rounded-full border-[18px] border-disco-rojo"
-        />
-      </section>
+      {/* Franja con el nombre grande y el lápiz para cambiarlo (decisión 77: aros verdes). */}
+      <Franja
+        aros="verde"
+        titulo={nombre || "Tu nombre"}
+        acciones={lapiz(
+          "nombre",
+          "el nombre",
+          // Sobre la franja oscura: transparente con borde claro, como los botones de la bienvenida.
+          "border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground",
+        )}
+      />
 
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
       {/* Dos partes (decisión 75): el perfil de entrenamiento y la cuenta (correo, contraseña y sesión). */}
