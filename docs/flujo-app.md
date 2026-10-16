@@ -127,7 +127,7 @@ Los días se nombran por orden y no por día de la semana (no hay "lunes" ni "ma
 Fija, siempre, también en la computadora. Tiene **tres lugares**: **Inicio**, **Entrenar** (al centro, redondo y elevado) y **Perfil**. Rutinas y Progreso se abren desde Inicio, y mientras se está en ellos Inicio queda marcado.
 
 ### Inicio (`/`)
-- **Franja oscura** con el logo, la fecha y "Hola, nombre".
+- **Franja oscura** con el logo y "Hola, nombre". Sin fecha: no aportaba, porque los días del plan son "Día 1, Día 2" (a pedido del usuario, 2026-10-16).
 - **"Hoy te toca":** la tarjeta principal. Con semana activa muestra la rutina, el número de semana, los discos de los días (el que toca hoy con aro azul), "N de M días", el próximo día con su duración y **Empezar día N**. Con todos los días completados invita a cerrar la semana. Sin semana activa muestra las opciones de Generar.
 - **Aviso** de propuesta de la IA pendiente.
 - **Tus rutinas:** "Tus rutinas" y "Nueva rutina" (abre el asistente o avisa).
@@ -221,7 +221,7 @@ Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no s
 
 - **Comparar contra la semana pasada** en Progreso: hoy el resumen compara contra lo planificado (decisión del 2026-10-15); contra la semana anterior queda como mejora posible.
 - **Recuperar y restablecer la contraseña.**
-- **Encabezado de Inicio:** dónde van la fecha y el logo (el logo ya es el definitivo, decisión 76).
+- **Encabezado de Inicio:** la fecha se sacó; queda por decidir si el logo se queda en la franja o se achica (el logo ya es el definitivo, decisión 76).
 
 ## Efectos sobre el modelo de datos
 

@@ -22,8 +22,6 @@ export default function Inicio() {
   const ultima = useUltimaSemana();
   const [cargando, setCargando] = useState(true);
   const [usuario, setUsuario] = useState<SessionUser | null>(null);
-  // La fecha se arma en el navegador (no al prerenderizar la página).
-  const [fecha, setFecha] = useState("");
   const [semana, setSemana] = useState<WeekDetail | null>(null);
   const [pendiente, setPendiente] = useState<number | null>(null);
   const [error, setError] = useState("");
@@ -33,9 +31,6 @@ export default function Inicio() {
   useEffect(() => {
     apiFetch(`/auth/me`)
       .then(async (res) => {
-        setFecha(
-          new Intl.DateTimeFormat("es-AR", { weekday: "long", day: "numeric", month: "long" }).format(new Date()),
-        );
         if (res.ok) setUsuario(await res.json());
       })
       .catch(() => {});
@@ -75,7 +70,6 @@ export default function Inicio() {
       <section className="relative overflow-hidden bg-primary px-4 pt-8 pb-7 text-primary-foreground">
         <div className="mx-auto max-w-xl">
           <Logo className="mb-3 text-2xl" />
-          <p className="m-0 text-sm text-primary-foreground/70 first-letter:uppercase">{fecha || " "}</p>
           <h1 className="my-1 text-5xl">{nombre ? `Hola, ${nombre}` : "Hola"}</h1>
         </div>
         <span

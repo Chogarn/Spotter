@@ -153,10 +153,10 @@ Surgieron al probar los asistentes, la barra con tres botones y Inicio. Cada una
   - **Datos:** un token de un solo uso con vencimiento, guardado hasheado. La contraseña se sigue guardando con argon2.
   - **Criterios:** el enlace funciona una sola vez y vence; la respuesta es igual exista o no el correo (no revela cuentas); tests.
 
-- [ ] **Encabezado de Inicio: dónde va la fecha y el logo** `frontend` `docs`
+- [ ] **Encabezado de Inicio: el logo** `frontend` `docs` — *la fecha se sacó el 2026-10-16 (a pedido del usuario: "la fecha ahí no me gusta")*
   - **Para qué:** ordenar lo de arriba de Inicio ("Hola, nombre"): el usuario no sabe si la **fecha** va ahí, un poco más abajo o en otro lado, y si el **logo** va arriba del nombre, a la izquierda, o solo en Inicio.
   - **Primer paso: investigación de diseño** (referencias de apps y sitios similares, jerarquía del encabezado, uso del logo) y recién después propuesta con maquetas.
-  - **A definir:** posición de la fecha, posición y tamaño del logo, y si el logo se repite en otras pantallas. El logo ya no es provisorio (decisión 76, 2026-10-16: SPOTTER con la O hecha un disco rojo). Queda abierto lo del amarillo sobre fondo claro.
+  - **A definir:** posición y tamaño del logo, y si el logo se repite en otras pantallas. El logo ya no es provisorio (decisión 76, 2026-10-16: SPOTTER con la O hecha un disco rojo). Queda abierto lo del amarillo sobre fondo claro.
   - **Criterios:** maqueta aprobada por el usuario; el encabezado no repite información de "Hoy te toca".
 
 ### Definidas el 2026-10-15 (listas para decidir y construir)
