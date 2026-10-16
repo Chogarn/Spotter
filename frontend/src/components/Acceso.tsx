@@ -31,8 +31,7 @@ export function PantallaAcceso({
             className="inline-flex items-center gap-0.5 text-sm text-primary-foreground/70 no-underline hover:text-primary-foreground"
           >
             <ChevronLeft className="size-4" aria-hidden="true" />
-            <Logo className="mx-1 h-4" />
-            Spotter
+            <Logo className="mx-1 text-base" />
           </Link>
           <h1 className="mt-3 mb-1 text-5xl">{titulo}</h1>
           <p className="m-0 text-primary-foreground/80">{bajada}</p>

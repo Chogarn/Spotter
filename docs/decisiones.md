@@ -497,6 +497,13 @@ La pantalla `/perfil` pasa a tener dos pestañas. **Perfil**: los datos de entre
 - **Descartaste:** implementar ahora el cambio de correo y de contraseña y la recuperación de cuenta; deshabilitar los botones (se prefirió un aviso al tocarlos, que explica por qué no funcionan).
 - **Ojo:** no hay endpoints nuevos ni migración. **Borrar cuenta** lo sumó la IA sin que lo pidieras, para dejar el lugar listo para el aviso legal (#34, en espera). Para que los botones hagan algo faltan: cambiar contraseña (pide la actual), cambiar correo, recuperar contraseña (necesita enviar correos: verificar un servicio gratuito en su fuente oficial) y borrar la cuenta (que tiene que respetar que `ai_calls` no se borra nunca).
 
+### 76. El logo es la palabra SPOTTER con la O hecha un disco rojo
+El logo provisorio (una barra con discos de perfil en rojo, azul y amarillo) se reemplaza por la palabra **SPOTTER** en Barlow Condensed, con la **O** dibujada como un disco rojo de frente (un aro). Es texto con un ícono adentro (`Logo.tsx`): el tamaño se da con el tamaño de letra y las letras toman el color del texto, así sirve sobre fondo claro y oscuro. En la bienvenida el logo es el título; en el acceso y en Inicio acompaña el saludo.
+- **Origen:** tuya (2026-10-16): elegiste la opción 5 de cinco propuestas ("me gusta la última").
+- **Por qué:** *(completar)*
+- **Descartaste:** la barra con tres colores (el amarillo casi no se ve sobre fondo claro y con tres colores se ensucia en chico), una barra con un solo par de discos, el disco de frente solo y el disco con la S.
+- **Ojo:** usa solo el rojo del disco, para no competir con los estados de la app. Queda abierto un ícono chico para la pestaña del navegador (una sugerencia fue el disco de frente) y, si algún día se hace, el ícono de la PWA.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.

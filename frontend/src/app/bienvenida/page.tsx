@@ -22,8 +22,10 @@ export default function Bienvenida() {
       </div>
 
       <div className="relative mx-auto mt-auto w-full max-w-md px-5 pt-[45vh] pb-10">
-        <Logo className="mb-4 h-12" />
-        <h1 className="m-0 text-7xl leading-[0.9]">Spotter</h1>
+        {/* El logo es el título: la palabra y el disco, grandes. */}
+        <h1 className="m-0 text-7xl leading-[0.9]">
+          <Logo className="text-[5.5rem]" />
+        </h1>
         <p className="mt-3 mb-5 text-lg text-primary-foreground/80">Tu entrenador de gimnasio con IA.</p>
         <ul className="m-0 mb-7 grid list-none gap-2.5 p-0">
           {PUNTOS.map((punto) => (

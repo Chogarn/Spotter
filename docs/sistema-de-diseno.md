@@ -169,4 +169,4 @@ señal, no la diferencia. Lo que sigue es lo que falta:
 ## 4. Lo que no pude comprobar
 - Cómo se ve en tu celular real: solo en el navegador del panel y en el emulador.
 - Si los lectores de pantalla anuncian bien las ruedas y la regla del asistente.
-- Si el logo (provisorio) y el amarillo sobre fondo claro cumplen lo que querés; es decisión tuya.
+- Si el amarillo sobre fondo claro cumple lo que querés; es decisión tuya. El logo es definitivo desde el 2026-10-16 (decisión 76): SPOTTER con la O hecha un disco rojo, sin amarillo ni azul.

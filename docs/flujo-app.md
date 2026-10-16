@@ -221,7 +221,7 @@ Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no s
 
 - **Comparar contra la semana pasada** en Progreso: hoy el resumen compara contra lo planificado (decisión del 2026-10-15); contra la semana anterior queda como mejora posible.
 - **Recuperar y restablecer la contraseña.**
-- **Encabezado de Inicio:** dónde van la fecha y el logo (el logo es provisorio).
+- **Encabezado de Inicio:** dónde van la fecha y el logo (el logo ya es el definitivo, decisión 76).
 
 ## Efectos sobre el modelo de datos
 

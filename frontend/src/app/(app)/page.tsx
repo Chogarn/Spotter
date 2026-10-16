@@ -74,7 +74,7 @@ export default function Inicio() {
       {/* Franja de saludo liviana, con el borde de un disco asomando. La semana va en la tarjeta. */}
       <section className="relative overflow-hidden bg-primary px-4 pt-8 pb-7 text-primary-foreground">
         <div className="mx-auto max-w-xl">
-          <Logo className="mb-3 h-6" />
+          <Logo className="mb-3 text-2xl" />
           <p className="m-0 text-sm text-primary-foreground/70 first-letter:uppercase">{fecha || " "}</p>
           <h1 className="my-1 text-5xl">{nombre ? `Hola, ${nombre}` : "Hola"}</h1>
         </div>
