@@ -481,6 +481,13 @@ Sin esfuerzo por serie (decisión 37) ni dolor con escala (decisión 71), la IA 
 - **Descartaste:** una marca opcional por ejercicio ("me dolió" o "me costó mucho"), por ahora; se retoma si la IA queda corta.
 - **Hecho el 2026-10-16:** `signal()` y sus tests (`tests/test_signal.py`), el prompt y las reglas R10, R31 y R36 en `docs/criterios-entrenamiento.md`. Complementa la decisión 72.
 
+### 74. Marca opcional de carga y dolor por ejercicio, al entrenar
+Al terminar un ejercicio en el modo entrenar aparece una línea plegada "¿Cómo te fue? (opcional)" con dos filas **independientes**: la **carga** (Liviana, Bien, Pesada, Muy pesada) y el **dolor** (Leve, Moderado, Fuerte). No hay opción "No me dolió": sin marcar es sin dato. Se puede marcar solo una, las dos o ninguna, y volver a tocar una opción la desmarca. Con "Fuerte" se muestra el aviso de parar y consultar a un profesional. Se ve, solo de lectura, en el resumen semanal de Progreso. Reemplaza en parte a la decisión 37 (esfuerzo por serie, #48) y a la 71 (el dolor solo por el comentario): el comentario de cierre sigue valiendo.
+- **Origen:** tuya (2026-10-16): "una casilla opcional de esfuerzo y otra de dolor, que se despliegue si el usuario quiere". La escala de carga la elegiste vos (opción B) entre tres propuestas.
+- **Por qué:** *(completar)*
+- **Descartaste:** el esfuerzo por serie de 1 a 10 (#48); la escala por repeticiones que sobran (opción A, apoyada en R29); una opción "No me dolió"; ponerla también en la lista del día.
+- **Ojo:** guarda en `exercise_completions` (dos columnas nulas, migración 0019), así que solo se puede marcar con el ejercicio hecho; `set_entries.effort` sigue sin usarse. R10 y R31 vuelven a tener disparador, y R36 pasa a dispararse también con "Muy pesada" además del comentario. La carga y el dolor no marcados llegan a la IA como ausentes, nunca como "bien" ni "sin dolor".
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.

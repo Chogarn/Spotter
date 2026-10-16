@@ -61,6 +61,14 @@ Columnas del tablero: Todo, Esta semana, In Progress y Done. Cada issue tiene su
 - [x] Reloj de descanso circular: botón redondo junto a "Serie hecha", el círculo ocupa el lugar de la serie, −15 s, +15 s y Saltar; vibra al terminar y una franja lo muestra en otras pantallas. Decisión 48. Depende de #58 `frontend` (#59)
 - [x] Inicio, la página principal con sesión iniciada: saludo, "Hoy te toca", avisos y accesos rápidos; Entrenar pasa a `/entrenar` y la barra tiene cinco lugares (Progreso reservado para #28). Decisión 51 `frontend` (#60)
 - [x] Revisar cómo se decide la cantidad de días por semana: **opción A**, el usuario la elige al generar (principiante 2 o 3, el resto de 2 a 6), se guarda en la rutina y se puede cambiar al continuar. Decisión 52 `ia` `backend` `frontend` (#61)
+- [ ] Marca opcional de carga y dolor por ejercicio, en el modo entrenar (decisión 74) `backend` `frontend` `ia` (#63)
+  - **Para qué:** darle a la IA la carga y el dolor como dato, no solo por inferencia o por el comentario de cierre.
+  - **Cómo se accede:** modo entrenar (`/semanas/{id}/dia/{n}/entrenar`), al terminar un ejercicio; y, de lectura, el resumen semanal de Progreso.
+  - **Qué ve el usuario:** línea plegada "¿Cómo te fue? (opcional)" con dos filas independientes: carga (Liviana, Bien, Pesada, Muy pesada) y dolor (Leve, Moderado, Fuerte). Sin opción "No". Con "Fuerte", el aviso de parar y consultar a un profesional.
+  - **Acciones:** elegir una, las dos o ninguna; volver a tocar para desmarcar; plegar. Con la semana cerrada o el día completado, solo lectura.
+  - **Vista y componentes:** componente nuevo `ComoTeFue.tsx` en el modo entrenar; el resumen de Progreso muestra lo marcado. Sin pantalla nueva.
+  - **Datos:** dos columnas nulas en `exercise_completions` (carga y dolor, migración 0019); un endpoint que guarda solo el campo que se manda; `ai/history.py` las manda a la IA; el prompt aplica R10, R31 y R36.
+  - **Criterios:** (1) el ejercicio hecho muestra la sección plegada y cerrada no cambia el flujo; (2) elegir y desmarcar guarda y borra, y sobrevive a recargar; (3) dolor fuerte muestra el aviso; (4) sin marcar llega a la IA sin dato; (5) con semana cerrada o día completado es de lectura; (6) marcar solo la carga deja el dolor vacío y al revés; (7) el prompt aplica las reglas con esos valores; (8) tests de migración, endpoint y `history.py`.
 - [x] Publicación LinkedIn 3: cómo la IA arma tu semana, publicada el 2026-10-16 como "Segundo avance de Spotter" `docs` (#32)
 
 > **Para la Semana 4 (idea, sin definir):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
