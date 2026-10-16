@@ -53,11 +53,11 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
 
   return (
     <main className="flex flex-1 flex-col">
-      {/* Franja con el camino (Rutinas › esta rutina) y el nombre; el lápiz lo cambia (decisión 77). */}
+      {/* Franja con el botón Volver y el nombre; el lápiz lo cambia (decisión 77). */}
       <Franja
         compacta
         aros="rojo"
-        migas={[{ texto: "Rutinas", href: "/rutinas" }, { texto: rutina?.name ?? "Rutina" }]}
+        volver={{ href: "/rutinas" }}
         titulo={rutina?.name ?? "Rutina"}
         acciones={
           rutina && nombre === null ? (

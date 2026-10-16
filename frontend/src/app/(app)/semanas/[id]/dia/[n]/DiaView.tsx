@@ -265,7 +265,7 @@ export default function DiaView({
     </>
   );
 
-  // Desde Rutinas (para mirar) lleva la franja con el camino; desde Entrenar, sin adornos para no
+  // Desde Rutinas (para mirar) lleva la franja con el botón Volver; desde Entrenar, sin adornos para no
   // distraer de lo que se está haciendo (decisión 77).
   if (desdeRutinas) {
     return (
@@ -273,12 +273,7 @@ export default function DiaView({
         <Franja
           compacta
           aros="rojo"
-          migas={[
-            { texto: "Rutinas", href: "/rutinas" },
-            ...(semana ? [{ texto: semana.routine_name, href: `/rutinas/${semana.routine_id}` }] : []),
-            { texto: dia ? `Semana ${dia.week_number}` : "Semana", href: `/semanas/${id}` },
-            { texto: `Día ${n}` },
-          ]}
+          volver={{ href: `/semanas/${id}` }}
           titulo={`Día ${n}`}
           subtitulo={dia ? `${dia.title} · ~${dia.minutes} min` : undefined}
         />

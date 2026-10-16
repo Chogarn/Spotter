@@ -62,15 +62,11 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
 
   return (
     <main className="flex flex-1 flex-col">
-      {/* Franja con el camino (Rutinas › la rutina › esta semana), decisión 77. */}
+      {/* Franja con el botón Volver (a la rutina), decisión 78. */}
       <Franja
         compacta
         aros="rojo"
-        migas={[
-          { texto: "Rutinas", href: "/rutinas" },
-          ...(semana ? [{ texto: semana.routine_name, href: `/rutinas/${semana.routine_id}` }] : []),
-          { texto: semana ? `Semana ${semana.number}` : "Semana" },
-        ]}
+        volver={{ href: semana ? `/rutinas/${semana.routine_id}` : "/rutinas" }}
         titulo={semana ? `Semana ${semana.number}` : "Semana"}
       />
       <div className="mx-auto w-full max-w-xl px-4 pt-5">

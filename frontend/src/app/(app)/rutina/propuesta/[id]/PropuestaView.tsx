@@ -172,7 +172,8 @@ export default function PropuestaView({
       {/* Franja amarilla: el color de "pendiente", porque la propuesta espera tu decisión (decisión 77). */}
       <Franja
         aros="amarillo"
-        migas={[{ texto: "Inicio", href: "/" }, { texto: "Propuesta de la IA" }]}
+        volver={{ href: "/" }}
+        arriba={<p className="m-0 mb-1 text-sm text-primary-foreground/70">Propuesta de la IA</p>}
         titulo={`${days.length} días · ~${Math.round(propuesta.day_minutes.reduce((a, b) => a + b, 0) / days.length)} min`}
         subtitulo="La IA propone, vos decidís: nada se guarda hasta que aceptes."
       />

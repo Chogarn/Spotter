@@ -41,9 +41,9 @@ export default function MisRutinasPage() {
         </p>
       )}
       {rutinas && rutinas.length > 0 && (
-        <ul className="m-0 grid list-none gap-3 p-0">
+        <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0">
           {rutinas.map((r) => (
-            <li key={r.id}>
+            <li key={r.id} className="min-w-0">
               <Link
                 href={`/rutinas/${r.id}`}
                 className="flex items-center gap-3 rounded-2xl bg-card p-3 no-underline hover:bg-muted"
@@ -51,7 +51,7 @@ export default function MisRutinasPage() {
                 {/* El aro del ícono dice el estado: rojo = en curso, gris = lista para continuar (decisión 77). */}
                 <IconoObjetivo objetivo={r.goal} tamano="md" aro={r.has_active_week ? "rojo" : "gris"} />
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate font-heading text-2xl leading-tight font-bold">{r.name}</span>
+                  <span className="line-clamp-2 font-heading text-2xl leading-tight font-bold break-words">{r.name}</span>
                   <span className="truncate text-sm text-muted-foreground">
                     {[
                       !nombreDiceElObjetivo(r.name, r.goal) && goalText[r.goal],
@@ -63,9 +63,14 @@ export default function MisRutinasPage() {
                       .join(" · ")}
                   </span>
                   {r.has_active_week && <span className="sr-only">en curso</span>}
+                  {/* Los discos son los de la semana más nueva: la que está en curso, o la última cerrada.
+                      Van debajo del texto: con seis días no entran al lado del nombre. */}
+                  {r.last_week_day_states.length > 0 && (
+                    <span className="mt-1.5 block">
+                      <DiscosSemana estados={r.last_week_day_states} />
+                    </span>
+                  )}
                 </span>
-                {/* Los discos son los de la semana más nueva: la que está en curso, o la última cerrada. */}
-                {r.last_week_day_states.length > 0 && <DiscosSemana estados={r.last_week_day_states} />}
                 <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
               </Link>
             </li>

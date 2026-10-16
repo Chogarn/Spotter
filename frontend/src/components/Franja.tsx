@@ -1,10 +1,11 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "cn";
 
-// Un tramo del camino ("Rutinas › Fuerza › Semana 2"): con `href` es un enlace; el último no lo lleva.
-export type Miga = { texto: string; href?: string };
+// Adónde lleva el botón "Volver" de la franja (el nivel de arriba: de una semana a su rutina, de un
+// día a su semana). Es solo un enlace con la flecha; sin texto largo para que no se desborde.
+export type Volver = { href: string };
 
 // El color de los aros decorativos de cada sección (decisión 77): Inicio lleva rojo y azul como la
 // bienvenida; Rutinas rojo, Progreso azul, la propuesta de la IA amarillo y el Perfil verde. Son
@@ -20,11 +21,11 @@ const COLOR: Record<Exclude<Aros, "inicio">, string> = {
 
 // La franja oscura de arriba de casi todas las pantallas (todas menos Entrenar, el día que se
 // registra y el modo entrenar, que van sin adornos para no distraer). Un solo lugar para el tamaño,
-// los aros y las migas de pan.
+// los aros y el botón "Volver".
 export function Franja({
   titulo,
   aros = "rojo",
-  migas,
+  volver,
   arriba,
   acciones,
   subtitulo,
@@ -32,7 +33,7 @@ export function Franja({
 }: {
   titulo: React.ReactNode;
   aros?: Aros;
-  migas?: Miga[];
+  volver?: Volver;
   // Algo encima del título (el logo, en Inicio).
   arriba?: React.ReactNode;
   // Botones a la derecha del título (el lápiz de cambiar el nombre).
@@ -49,35 +50,18 @@ export function Franja({
       )}
     >
       <div className="relative z-10 mx-auto max-w-xl">
-        {migas && migas.length > 0 && (
-          <nav aria-label="Ruta de navegación" className="mb-2 text-sm text-primary-foreground/70">
-            <ol className="m-0 flex list-none items-center gap-1 p-0">
-              {migas.map((m, i) => {
-                const ultima = i === migas.length - 1;
-                return (
-                  <li key={i} className={cn("flex min-w-0 items-center gap-1", ultima ? "flex-1" : "shrink")}>
-                    {i > 0 && <ChevronRight className="size-3.5 shrink-0" aria-hidden="true" />}
-                    {m.href && !ultima ? (
-                      <Link
-                        href={m.href}
-                        className="max-w-[9rem] truncate text-primary-foreground/90 underline underline-offset-2 hover:text-primary-foreground"
-                      >
-                        {m.texto}
-                      </Link>
-                    ) : (
-                      <span aria-current={ultima ? "page" : undefined} className="truncate font-medium text-primary-foreground">
-                        {m.texto}
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
-            </ol>
-          </nav>
+        {volver && (
+          <Link
+            href={volver.href}
+            className="mb-2 inline-flex items-center gap-0.5 text-sm text-primary-foreground/80 no-underline hover:text-primary-foreground"
+          >
+            <ChevronLeft className="size-4" aria-hidden="true" />
+            Volver
+          </Link>
         )}
         {arriba}
         <div className="flex items-center gap-3">
-          <h1 className={cn("my-0 min-w-0 flex-1 leading-none", compacta ? "text-4xl" : "truncate text-5xl")}>{titulo}</h1>
+          <h1 className={cn("my-0 min-w-0 flex-1 leading-none", compacta ? "text-4xl break-words" : "truncate text-5xl")}>{titulo}</h1>
           {acciones && <div className="shrink-0">{acciones}</div>}
         </div>
         {subtitulo && <div className="mt-2 text-sm text-primary-foreground/70">{subtitulo}</div>}
