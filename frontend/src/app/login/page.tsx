@@ -6,6 +6,7 @@ import { useEffect, useState, useTransition } from "react";
 
 import { CampoAcceso, CampoContrasena, PantallaAcceso } from "@/components/Acceso";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { EnlaceProximamente } from "@/components/Proximamente";
 import { Button } from "@/components/ui/button";
 import { API, readError } from "@/lib/api";
 
@@ -78,6 +79,7 @@ export default function LoginPage() {
           {ocupado ? "Entrando..." : "Entrar"}
         </Button>
       </form>
+      <EnlaceProximamente texto="¿Olvidaste tu contraseña?" mensaje="Recuperar la cuenta todavía no está disponible." />
       <p className="mt-5 text-center text-muted-foreground">
         ¿No tenés cuenta? <Link href="/registro" className="font-medium text-foreground">Creala</Link>
       </p>

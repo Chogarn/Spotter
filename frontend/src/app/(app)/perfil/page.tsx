@@ -8,6 +8,7 @@ import { errorText, apiFetch, type SessionUser } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { type DatosPerfil, type PasoPerfil, PerfilAsistente, SEXOS } from "@/components/PerfilAsistente";
+import { FilaProximamente } from "@/components/Proximamente";
 import { cn } from "cn";
 import { Cargando } from "@/components/Cargando";
 
@@ -35,6 +36,7 @@ export default function PerfilPage() {
   const [usuarioListo, setUsuarioListo] = useState(false);
   const [editando, setEditando] = useState<Tarjeta | null>(null);
   const [guardando, setGuardando] = useState(false);
+  const [pestana, setPestana] = useState<"perfil" | "cuenta">("perfil");
 
   useEffect(() => {
     apiFetch(`/auth/me`)
@@ -161,8 +163,7 @@ export default function PerfilPage() {
           correo y el lápiz para cambiarlo. */}
       <section className="relative overflow-hidden bg-primary px-4 pt-8 pb-7 text-primary-foreground">
         <div className="mx-auto max-w-xl">
-          {usuario && <p className="m-0 truncate text-sm text-primary-foreground/70">{usuario.email}</p>}
-          <div className="mt-1 flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <h1 className="my-0 min-w-0 truncate text-5xl">{nombre || "Tu nombre"}</h1>
             <div className="relative z-10 shrink-0">{lapiz(
                 "nombre",
@@ -180,6 +181,29 @@ export default function PerfilPage() {
       </section>
 
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
+      {/* Dos partes (decisión 75): el perfil de entrenamiento y la cuenta (correo, contraseña y sesión). */}
+      <div role="tablist" aria-label="Perfil y cuenta" className="mb-4 flex rounded-full bg-muted p-1">
+        {(["perfil", "cuenta"] as const).map((p) => (
+          <button
+            key={p}
+            type="button"
+            role="tab"
+            id={`tab-${p}`}
+            aria-selected={pestana === p}
+            aria-controls={`panel-${p}`}
+            onClick={() => setPestana(p)}
+            className={cn(
+              "flex-1 rounded-full py-2 text-center text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+              pestana === p ? "bg-primary text-primary-foreground" : "text-foreground",
+            )}
+          >
+            {p === "perfil" ? "Perfil" : "Cuenta"}
+          </button>
+        ))}
+      </div>
+
+      {pestana === "perfil" ? (
+      <div role="tabpanel" id="panel-perfil" aria-labelledby="tab-perfil">
       <section className="mb-3 rounded-2xl bg-card p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="my-0 text-xl">Tu cuerpo</h2>
@@ -212,14 +236,31 @@ export default function PerfilPage() {
         <Check className="size-4" aria-hidden="true" /> Aceptaste que la app no da consejo médico.
       </p>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-
-      {/* Cerrar sesión vive en el Perfil (decisión 42), separado y en rojo para no tocarlo sin querer. */}
-      <div className="mt-6 flex justify-center">
-        <Button variant="ghost" type="button" onClick={cerrarSesion} className="text-destructive hover:text-destructive">
-          <LogOut aria-hidden="true" />
-          Cerrar sesión
-        </Button>
       </div>
+      ) : (
+      <div role="tabpanel" id="panel-cuenta" aria-labelledby="tab-cuenta">
+        <section className="mb-3 rounded-2xl bg-card p-4">
+          <h2 className="mt-0 mb-2 text-xl">Tu cuenta</h2>
+          <p className="m-0 text-sm text-muted-foreground">Correo</p>
+          <p className="m-0 break-all">{usuario?.email ?? "—"}</p>
+        </section>
+
+        {/* Todavía sin hacer (decisión 75): los botones están en su lugar y avisan al tocarlos. */}
+        <section className="mb-3 rounded-2xl bg-card px-4 py-1">
+          <FilaProximamente texto="Cambiar correo" mensaje="Cambiar el correo todavía no está disponible." />
+          <FilaProximamente texto="Cambiar contraseña" mensaje="Cambiar la contraseña todavía no está disponible." />
+          <FilaProximamente texto="Borrar cuenta" mensaje="Borrar la cuenta todavía no está disponible." peligro />
+        </section>
+
+        {/* Cerrar sesión vive en la Cuenta (decisiones 42 y 75), separado y en rojo para no tocarlo sin querer. */}
+        <div className="mt-6 flex justify-center">
+          <Button variant="ghost" type="button" onClick={cerrarSesion} className="text-destructive hover:text-destructive">
+            <LogOut aria-hidden="true" />
+            Cerrar sesión
+          </Button>
+        </div>
+      </div>
+      )}
       </div>
     </main>
   );
