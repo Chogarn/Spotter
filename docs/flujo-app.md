@@ -2,7 +2,7 @@
 
 Este documento describe cómo se usa la aplicación de principio a fin. Es la base para definir las pantallas, la API y el modelo de datos. Las decisiones de producto reflejadas acá las tomó el usuario; lo que se descartó figura marcado y los puntos abiertos están al final.
 
-**Última revisión: 2026-10-15** (asistentes de una pregunta por pantalla, navegación con tres botones, Inicio con "Hoy te toca", Progreso con calendario, fecha de nacimiento).
+**Última revisión: 2026-10-16** (franja oscura en casi todas las pantallas, Perfil con pestaña Cuenta, marca de carga y dolor por ejercicio, logo nuevo, Entrenar con franja amarilla; antes: asistentes de una pregunta por pantalla, navegación con tres botones, Inicio con "Hoy te toca", Progreso con calendario, fecha de nacimiento).
 
 ## Resumen en pasos
 
