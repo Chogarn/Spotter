@@ -75,6 +75,9 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    # Cuándo cambió la contraseña por última vez (decisión 80). Las sesiones iniciadas antes de ese
+    # momento dejan de valer: así un cambio de contraseña cierra las sesiones de otros aparatos.
+    password_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     profile: Mapped["Profile | None"] = relationship(
         back_populates="user", cascade="all, delete-orphan", uselist=False

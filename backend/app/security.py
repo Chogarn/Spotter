@@ -64,6 +64,15 @@ def read_token(token: str) -> int | None:
         return None
 
 
+def read_session(token: str) -> tuple[int, int] | None:
+    """(id del usuario, cuándo se emitió el token en segundos), o None si no es válido."""
+    try:
+        claims = jwt.decode(token, jwt_secret(), algorithms=[ALGORITHM])
+        return int(claims["sub"]), int(claims["iat"])
+    except (jwt.PyJWTError, KeyError, ValueError):
+        return None
+
+
 def cookie_secure() -> bool:
     """En producción con HTTPS la cookie va con Secure (COOKIE_SECURE=true)."""
     return os.environ.get("COOKIE_SECURE", "false").lower() == "true"

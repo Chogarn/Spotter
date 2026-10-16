@@ -77,6 +77,7 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 - [x] Explicación por ejercicio ("¿por qué esto?"): cubierta con el campo `reason` que trae cada ejercicio y se muestra plegado en el modo entrenar; sin botón que llame a la IA `ia` `complementaria` (#42)
 - [x] Sustitución de ejercicios en la propuesta: botón "Cambiar ejercicio" con las alternativas del catálogo, en todos los días donde aparece y sin IA (decisión 65, 2026-10-15) `backend` `frontend`. Pendiente aparte, sin definir: cambiar un ejercicio ya aceptado en la semana activa.
 - [ ] Animación de carga mientras se genera la rutina (hoy aparece solo un texto) `frontend`
+- [x] Cambiar la contraseña desde la pestaña Cuenta: pide la actual y cierra las sesiones de los demás aparatos (decisión 80, 2026-10-16) `backend` `frontend` (#64)
 - [ ] Aviso legal visible en la app `frontend`
 - [ ] Más tests y revisión de errores `backend`
 - [ ] Deploy en producción `docker`
@@ -146,7 +147,7 @@ Surgieron al probar los asistentes, la barra con tres botones y Inicio. Cada una
   - **A definir:** cómo se ven "hecho / no hecho / llegó / no llegó" con los discos y la paleta Disco (rojo hecho, verde cumplido, amarillo aviso), sin que el rojo signifique error.
   - **Criterios:** maqueta aprobada; los estados se entienden sin leer el texto.
 
-- [ ] **Recuperar y restablecer la contraseña** `backend` `frontend` — *los botones ya existen sin función (decisión 75, 2026-10-16): "¿Olvidaste tu contraseña?" en el login y "Cambiar correo", "Cambiar contraseña" y "Borrar cuenta" en la pestaña Cuenta del Perfil; falta implementarlos*
+- [ ] **Recuperar y restablecer la contraseña** `backend` `frontend` — *"Cambiar contraseña" ya funciona (decisión 80, 2026-10-16). Los botones "¿Olvidaste tu contraseña?" en el login y "Cambiar correo" y "Borrar cuenta" en la pestaña Cuenta del Perfil existen sin función (decisión 75); falta implementarlos y la revisión de cuentas: verificar que el correo sea real*
   - **Para qué:** hoy, si alguien olvida la contraseña, no tiene cómo volver a entrar.
   - **Cómo se accede:** enlace "Olvidé mi contraseña" en el inicio de sesión.
   - **A definir:** cómo llega el enlace (correo) y con qué servicio; **verificar en la fuente oficial** si el plan gratuito del servicio alcanza antes de elegirlo; vencimiento del enlace; si cierra las sesiones abiertas.

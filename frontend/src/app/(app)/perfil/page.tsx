@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Franja } from "@/components/Franja";
 import { type DatosPerfil, type PasoPerfil, PerfilAsistente, SEXOS } from "@/components/PerfilAsistente";
+import { CambiarContrasena } from "@/components/CambiarContrasena";
 import { FilaProximamente } from "@/components/Proximamente";
 import { cn } from "cn";
 import { Cargando } from "@/components/Cargando";
@@ -240,7 +241,7 @@ export default function PerfilPage() {
         {/* Todavía sin hacer (decisión 75): los botones están en su lugar y avisan al tocarlos. */}
         <section className="mb-3 rounded-2xl bg-card px-4 py-1">
           <FilaProximamente texto="Cambiar correo" mensaje="Cambiar el correo todavía no está disponible." />
-          <FilaProximamente texto="Cambiar contraseña" mensaje="Cambiar la contraseña todavía no está disponible." />
+          <CambiarContrasena />
           <FilaProximamente texto="Borrar cuenta" mensaje="Borrar la cuenta todavía no está disponible." peligro />
         </section>
 

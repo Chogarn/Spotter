@@ -27,6 +27,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0017` catálogo con vectores | Habilita la extensión `vector` de pgvector, crea `catalog_embeddings` (un vector de 768 dimensiones por ejercicio del catálogo) y suma el tipo `embed` a `ai_calls` (decisión 58) | Implementada |
 | `0018` fecha de nacimiento | Suma `profiles.birth_date` (nula); la edad pasa a calcularse desde ella y `age` se conserva para perfiles viejos | Implementada |
 | `0019` carga y dolor por ejercicio | Suma `exercise_completions.load_feel` y `pain` (nulas): lo que la persona marca al terminar un ejercicio (decisión 74) | Implementada |
+| `0020` cambio de contraseña | Suma `users.password_changed_at` (nula): al cambiar la contraseña se cierran las sesiones de los demás aparatos (decisión 80) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
 ## Diagrama
@@ -196,6 +197,7 @@ Cuenta del usuario.
 | password_hash | Hash argon2 de la contraseña, nunca en texto plano (la cuenta de desarrollo anterior al login tenía un texto de relleno, `sin-login`, que no permite iniciar sesión) |
 | name | Nombre |
 | created_at | Fecha de alta |
+| password_changed_at | Cuándo cambió la contraseña por última vez (nula = nunca). Una sesión emitida antes de ese momento no vale: así cambiar la contraseña cierra las sesiones de otros aparatos (decisión 80) |
 
 ### profiles
 Datos personales del usuario. Una fila por usuario. **No tiene nivel, objetivo ni equipamiento**: el nivel y el objetivo se eligen al empezar cada rutina (viven en `routines`) y el equipamiento es siempre el de un gimnasio.

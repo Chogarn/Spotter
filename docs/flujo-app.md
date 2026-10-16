@@ -80,7 +80,7 @@ El perfil muestra una **franja oscura** con el nombre y el correo, y tarjetas co
 - "Tu cuerpo" → fecha de nacimiento, peso, altura y sexo.
 - "Lesiones o limitaciones" → un paso.
 
-**Aviso legal:** la app no da consejo médico y hay que aceptarlo una vez. No se piden datos de salud más allá de lesiones o limitaciones. El Perfil tiene dos pestañas (decisión 75): **Perfil** (nombre, cuerpo, limitaciones) y **Cuenta** (correo, **Cambiar correo**, **Cambiar contraseña**, **Borrar cuenta** y **Cerrar sesión**). Esos tres botones y el **¿Olvidaste tu contraseña?** del login ya están, pero todavía no hacen nada: avisan "no está disponible" y llevan la etiqueta "Próximamente".
+**Aviso legal:** la app no da consejo médico y hay que aceptarlo una vez. No se piden datos de salud más allá de lesiones o limitaciones. El Perfil tiene dos pestañas (decisión 75): **Perfil** (nombre, cuerpo, limitaciones) y **Cuenta** (correo, **Cambiar correo**, **Cambiar contraseña**, **Borrar cuenta** y **Cerrar sesión**). **Cambiar contraseña** ya funciona (decisión 80): se abre en la misma tarjeta, pide la actual y la nueva dos veces, y al guardar cierra las sesiones de los otros aparatos. **Cambiar correo**, **Borrar cuenta** y el **¿Olvidaste tu contraseña?** del login ya están, pero todavía no hacen nada: avisan "no está disponible" y llevan la etiqueta "Próximamente".
 
 ## Generar rutina
 

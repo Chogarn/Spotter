@@ -45,6 +45,13 @@ class LoginIn(BaseModel):
     _email = field_validator("email")(_clean_email)
 
 
+class ChangePasswordIn(BaseModel):
+    """Cambiar la contraseña estando con la sesión iniciada: pide la actual y fija la nueva."""
+
+    current_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

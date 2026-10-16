@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -5,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.deps import get_current_user
 from app.models import User
-from app.schemas import LoginIn, RegisterIn, UserOut
+from app.schemas import ChangePasswordIn, LoginIn, RegisterIn, UserOut
 from app.security import (
     COOKIE_NAME,
     SESSION_DAYS,
@@ -61,6 +63,32 @@ def login(data: LoginIn, response: Response, db: Session = Depends(get_db)) -> U
         raise HTTPException(status_code=401, detail=BAD_LOGIN)
     start_session(response, user)
     return user
+
+
+@router.put("/password", status_code=204)
+def change_password(
+    data: ChangePasswordIn,
+    response: Response,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> None:
+    """Cambia la contraseña (decisión 80). Pide la actual; la nueva sigue las reglas del registro.
+
+    Cierra las sesiones de los demás aparatos (`password_changed_at`) y deja abierta esta con una
+    cookie nueva. Responde 400 y no 401 si la actual está mal: un 401 cerraría la sesión en pantalla.
+    """
+    if not verify_password(data.current_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="La contraseña actual no es correcta")
+    if data.new_password == data.current_password:
+        raise HTTPException(
+            status_code=400, detail="La contraseña nueva tiene que ser distinta de la actual"
+        )
+    user.password_hash = hash_password(data.new_password)
+    # Un segundo de margen hacia atrás no hace falta: la cookie nueva se emite en este mismo segundo
+    # o después, y solo valen las emitidas desde ese segundo.
+    user.password_changed_at = datetime.now(timezone.utc)
+    start_session(response, user)
+    db.commit()
 
 
 @router.post("/logout", status_code=204)
