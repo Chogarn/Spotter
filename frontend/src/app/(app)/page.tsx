@@ -178,8 +178,8 @@ export default function Inicio() {
           </div>
           <h2 className="mt-0 mb-2 text-xl">Tu progreso</h2>
           <div className="grid grid-cols-2 gap-2.5">
-            <TarjetaAcceso href="/progreso" Icono={CalendarCheck} texto="Resúmenes semanales" />
-            <TarjetaAcceso href="/progreso/estadisticas" Icono={ChartLine} texto="Estadísticas por ejercicio" />
+            <TarjetaAcceso href="/progreso" Icono={CalendarCheck} texto="Resúmenes" />
+            <TarjetaAcceso href="/progreso/estadisticas" Icono={ChartLine} texto="Estadísticas" />
             <TarjetaAcceso href="/progreso/calendario" Icono={CalendarDays} texto="Calendario" />
           </div>
         </nav>

@@ -131,7 +131,7 @@ Fija, siempre, también en la computadora. Tiene **tres lugares**: **Inicio**, *
 - **"Hoy te toca":** la tarjeta principal. Con semana activa muestra la rutina, el número de semana, los discos de los días (el que toca hoy con aro azul), "N de M días", el próximo día con su duración y **Empezar día N**. Con todos los días completados invita a cerrar la semana. Sin semana activa muestra las opciones de Generar.
 - **Aviso** de propuesta de la IA pendiente.
 - **Tus rutinas:** "Tus rutinas" y "Nueva rutina" (abre el asistente o avisa).
-- **Tu progreso:** "Resúmenes semanales", "Estadísticas por ejercicio" y "Calendario".
+- **Tu progreso:** "Resúmenes", "Estadísticas" y "Calendario". Las cinco tarjetas de acceso llevan el ícono y un texto corto en una sola línea.
 
 ### Entrenar (`/entrenar`)
 La semana en curso: "Te toca Día N" con su botón, la lista de días con su estado y, al final, **Cerrar semana**. Sin semana activa ofrece generar o empezar una rutina nueva.
