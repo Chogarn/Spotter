@@ -1,6 +1,7 @@
 """Lo planificado frente a lo real de la semana anterior, listo para la IA.
 
 Las señales las calcula el CÓDIGO (no Gemini), para que no cuente mal:
+Cada serie se compara primero por peso y, si el peso es igual (o no hay), por repeticiones, segundos o minutos (decisión 73).
 - `superó`: más de la mitad de las series registradas pasó lo planificado y ninguna quedó corta.
 - `no llegó`: más de la mitad de las series registradas quedó por debajo de lo planificado.
 - `cumplió`: el resto.
@@ -79,6 +80,15 @@ def signal(pairs: list[tuple[PlanSet, SetEntry | None]]) -> str:
         return "sin registrar"
     under = over = 0
     for plan, entry in registered:
+        # Decisión 73: primero el peso (más peso es progresión aunque bajen las repeticiones,
+        # menos peso es una pista de esfuerzo) y, si es igual o no hay peso planificado, la medida.
+        if plan.target_weight_kg is not None and entry.weight_kg is not None:
+            if entry.weight_kg > plan.target_weight_kg:
+                over += 1
+                continue
+            if entry.weight_kg < plan.target_weight_kg:
+                under += 1
+                continue
         planned, _ = _measure(plan)
         real, _ = _measure(entry)
         if planned is None or real is None:

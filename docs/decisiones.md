@@ -477,9 +477,9 @@ Sin esfuerzo por serie (decisión 37) ni dolor con escala (decisión 71), la IA 
 - **Cómo se lee:** más peso con menos repeticiones es progresión, no cansancio. Las pistas de esfuerzo son: mismo peso con menos repeticiones, menos peso con las mismas repeticiones, y menos peso con menos repeticiones. Vale igual en los cinco objetivos.
 - **Cualquier aumento real cuenta como "más"**, sin umbral: el salto mínimo (un disco de 1,25) ya es notable. Pero **el excedente no define cuánto subir la semana siguiente**: el aumento sale del 2 % al 10 % (R9 y R28), redondeado al salto del equipo y nunca menos de un salto.
 - **Saltos mínimos** (ya en el prompt): barra 2,5 kg (discos de 1,25 por lado), mancuernas 2,5 kg, pesas rusas 4 kg; máquinas y poleas, el salto del peso anterior (sin dato). Fuentes: Wikipedia (discos), minoristas y Ruster Fitness (mancuernas y pesas rusas); no se verificaron marcas de máquinas ni gimnasios de Argentina.
-- **Reglas que se apoyan en esto:** R10 (no subir si bajó la carga o las repeticiones del ejercicio, o si el comentario habla de cansancio o dolor), R31 (el dolor se lee del comentario, sin escala) y R36 (propuesta: si no llega y el comentario muestra fatiga, bajar la carga; **todavía sin cifra y sin aprobar**).
+- **Reglas que se apoyan en esto:** R10 (no subir si bajó la carga o las repeticiones del ejercicio, o si el comentario habla de cansancio o dolor), R31 (el dolor se lee del comentario, sin escala) y R36 (**aprobada el 2026-10-16**: si el ejercicio quedó en "no llegó" y el comentario muestra fatiga o cargas demasiado altas, bajar **un escalón** del equipo; sin ese comentario, mantener. Sin porcentaje, para no inventar una cifra).
 - **Descartaste:** una marca opcional por ejercicio ("me dolió" o "me costó mucho"), por ahora; se retoma si la IA queda corta.
-- **Pendiente de hacer:** cambiar `signal()` y sus tests, y reformular R10, R31 y R36 en `docs/criterios-entrenamiento.md` y en el prompt (hoy sigue nombrando "esfuerzo de 9 a 10"). Complementa la decisión 72.
+- **Hecho el 2026-10-16:** `signal()` y sus tests (`tests/test_signal.py`), el prompt y las reglas R10, R31 y R36 en `docs/criterios-entrenamiento.md`. Complementa la decisión 72.
 
 ## Decisiones abiertas
 
