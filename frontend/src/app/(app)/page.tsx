@@ -68,13 +68,18 @@ export default function Inicio() {
     <main className="flex flex-1 flex-col">
       {/* Franja de saludo liviana, con el borde de un disco asomando. La semana va en la tarjeta. */}
       <section className="relative overflow-hidden bg-primary px-4 pt-8 pb-7 text-primary-foreground">
-        <div className="mx-auto max-w-xl">
+        <div className="relative z-10 mx-auto max-w-xl">
           <Logo className="mb-3 text-2xl" />
           <h1 className="my-1 text-5xl">{nombre ? `Hola, ${nombre}` : "Hola"}</h1>
         </div>
+        {/* Dos aros asomando, como en la bienvenida: el rojo grande y uno azul más chico (decisión 77). */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -top-10 -right-10 size-36 rounded-full border-[18px] border-disco-rojo"
+          className="pointer-events-none absolute -top-12 -right-12 size-40 rounded-full border-[22px] border-disco-rojo"
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute top-16 -right-6 size-20 rounded-full border-[14px] border-disco-azul"
         />
       </section>
 

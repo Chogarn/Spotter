@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -27,8 +27,19 @@ export default function MisRutinasPage() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-xl px-4 pt-8 pb-24">
-      <h1 className="mt-0 mb-4">Tus rutinas</h1>
+    <main className="flex flex-1 flex-col pb-24">
+      {/* Franja oscura como la de Inicio y Perfil, con los aros asomando (decisión 77). */}
+      <section className="relative overflow-hidden bg-primary px-4 pt-8 pb-7 text-primary-foreground">
+        <div className="relative z-10 mx-auto max-w-xl">
+          <h1 className="my-0 text-5xl">Tus rutinas</h1>
+        </div>
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-10 -right-10 size-36 rounded-full border-[18px] border-disco-rojo"
+        />
+      </section>
+
+      <div className="mx-auto w-full max-w-xl px-4 pt-5">
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!rutinas && !error && <CargandoDiscos />}
       {rutinas && rutinas.length === 0 && (
@@ -43,40 +54,27 @@ export default function MisRutinasPage() {
             <li key={r.id}>
               <Link
                 href={`/rutinas/${r.id}`}
-                className="block rounded-2xl bg-card p-4 no-underline hover:bg-muted"
+                className="flex items-center gap-3 rounded-2xl bg-card p-3 no-underline hover:bg-muted"
               >
-                <span className="flex items-center justify-between gap-2">
-                  <span className="flex min-w-0 items-center gap-3">
-                    <IconoObjetivo objetivo={r.goal} />
-                    <span className="font-heading text-2xl font-bold">{r.name}</span>
+                {/* El aro del ícono dice el estado: rojo = en curso, gris = lista para continuar (decisión 77). */}
+                <IconoObjetivo objetivo={r.goal} tamano="md" aro={r.has_active_week ? "rojo" : "gris"} />
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate font-heading text-2xl leading-tight font-bold">{r.name}</span>
+                  <span className="truncate text-sm text-muted-foreground">
+                    {[
+                      !nombreDiceElObjetivo(r.name, r.goal) && goalText[r.goal],
+                      r.level,
+                      `${r.week_count} ${r.week_count === 1 ? "semana" : "semanas"}`,
+                      !r.has_active_week && "lista para continuar",
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </span>
-                  {/* Sin semana activa, la rutina queda "lista para continuar": se puede seguir al generar. */}
-                  {r.has_active_week ? (
-                    <span className="shrink-0 rounded-full bg-disco-rojo px-2.5 py-0.5 text-xs font-medium text-white">
-                      en curso
-                    </span>
-                  ) : (
-                    <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                      lista para continuar
-                    </span>
-                  )}
+                  {r.has_active_week && <span className="sr-only">en curso</span>}
                 </span>
-                <span className="block text-sm text-muted-foreground">
-                  {[
-                    !nombreDiceElObjetivo(r.name, r.goal) && goalText[r.goal],
-                    r.level,
-                    `${r.week_count} ${r.week_count === 1 ? "semana" : "semanas"}`,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </span>
-                {r.last_week_day_states.length > 0 && (
-                  <span className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                    {/* Los discos son los de la semana más nueva: la que está en curso, o la última cerrada. */}
-                    {r.has_active_week ? "Semana en curso" : "Última semana"}
-                    <DiscosSemana estados={r.last_week_day_states} />
-                  </span>
-                )}
+                {/* Los discos son los de la semana más nueva: la que está en curso, o la última cerrada. */}
+                {r.last_week_day_states.length > 0 && <DiscosSemana estados={r.last_week_day_states} />}
+                <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
               </Link>
             </li>
           ))}
@@ -100,6 +98,7 @@ export default function MisRutinasPage() {
           )}
         </NuevaRutina>
       )}
+      </div>
     </main>
   );
 }

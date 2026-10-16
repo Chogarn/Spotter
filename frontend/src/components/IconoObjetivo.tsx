@@ -18,13 +18,17 @@ const TAMANOS = {
   md: { disco: "size-12", icono: "size-6" },
 } as const;
 
+// Con `aro` el disco va blanco con un aro de color: rojo = rutina en curso (el rojo de la semana en
+// curso) y gris = lista para continuar. Sin `aro`, el disco oscuro de siempre.
 export function IconoObjetivo({
   objetivo,
   tamano = "sm",
+  aro,
   className,
 }: {
   objetivo: string;
   tamano?: keyof typeof TAMANOS;
+  aro?: "rojo" | "gris";
   className?: string;
 }) {
   const Icono = ICONOS[objetivo];
@@ -33,7 +37,14 @@ export function IconoObjetivo({
   return (
     <span
       aria-hidden="true"
-      className={cn("flex shrink-0 items-center justify-center rounded-full bg-disco-tinta text-white", t.disco, className)}
+      className={cn(
+        "flex shrink-0 items-center justify-center rounded-full",
+        aro ? "border-4 bg-card text-disco-tinta" : "bg-disco-tinta text-white",
+        aro === "rojo" && "border-disco-rojo",
+        aro === "gris" && "border-border",
+        t.disco,
+        className,
+      )}
     >
       <Icono className={t.icono} />
     </span>

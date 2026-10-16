@@ -127,7 +127,7 @@ Los días se nombran por orden y no por día de la semana (no hay "lunes" ni "ma
 Fija, siempre, también en la computadora. Tiene **tres lugares**: **Inicio**, **Entrenar** (al centro, redondo y elevado) y **Perfil**. Rutinas y Progreso se abren desde Inicio, y mientras se está en ellos Inicio queda marcado.
 
 ### Inicio (`/`)
-- **Franja oscura** con el logo y "Hola, nombre". Sin fecha: no aportaba, porque los días del plan son "Día 1, Día 2" (a pedido del usuario, 2026-10-16).
+- **Franja oscura** con el logo, "Hola, nombre" y dos aros asomando (el rojo grande y uno azul, como en la bienvenida; decisión 77). Sin fecha: no aportaba, porque los días del plan son "Día 1, Día 2" (a pedido del usuario, 2026-10-16).
 - **"Hoy te toca":** la tarjeta principal. Con semana activa muestra la rutina, el número de semana, los discos de los días (el que toca hoy con aro azul), "N de M días", el próximo día con su duración y **Empezar día N**. Con todos los días completados invita a cerrar la semana. Sin semana activa muestra las opciones de Generar.
 - **Aviso** de propuesta de la IA pendiente.
 - **Tus rutinas:** "Tus rutinas" y "Nueva rutina" (abre el asistente o avisa).
@@ -137,7 +137,7 @@ Fija, siempre, también en la computadora. Tiene **tres lugares**: **Inicio**, *
 La semana en curso: "Te toca Día N" con su botón, la lista de días con su estado y, al final, **Cerrar semana**. Sin semana activa ofrece generar o empezar una rutina nueva.
 
 ### Rutinas (`/rutinas`)
-La lista de rutinas, de la más nueva a la más vieja (ícono, nombre, nivel, semanas, "en curso" o "lista para continuar" y los discos de la última semana). **Nueva rutina** es un botón redondo "+" flotante abajo a la derecha, sobre la barra de navegación (antes era una barra fija ancha; cambiado el 2026-10-16). De cada rutina se baja a sus semanas (línea de tiempo), a sus días y a los ejercicios.
+Una franja oscura con el título y, debajo, la lista de rutinas de la más nueva a la más vieja (decisión 77). Cada tarjeta: el ícono del objetivo con un **aro** (rojo = en curso, gris = lista para continuar), el nombre, una línea con el nivel y las semanas, los discos de la última semana y una flecha. **Nueva rutina** es un botón redondo "+" flotante abajo a la derecha, sobre la barra de navegación (antes era una barra fija ancha; cambiado el 2026-10-16). De cada rutina se baja a sus semanas (línea de tiempo), a sus días y a los ejercicios.
 
 **Desde Rutinas el día es solo para mirar** (decisión 53): no se registra, ni se cierra ni se reabre; se registra desde Entrenar o Inicio.
 

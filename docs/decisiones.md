@@ -504,6 +504,13 @@ El logo provisorio (una barra con discos de perfil en rojo, azul y amarillo) se 
 - **Descartaste:** la barra con tres colores (el amarillo casi no se ve sobre fondo claro y con tres colores se ensucia en chico), una barra con un solo par de discos, el disco de frente solo y el disco con la S.
 - **Ojo:** usa solo el rojo del disco, para no competir con los estados de la app. Queda abierto un ícono chico para la pestaña del navegador (una sugerencia fue el disco de frente) y, si algún día se hace, el ícono de la PWA.
 
+### 77. Inicio con dos aros y Rutinas con franja oscura y tarjeta simple
+En **Inicio**, la franja tiene ahora un aro rojo más grande y uno azul, como la bienvenida (antes asomaba un solo aro rojo). En **Rutinas**, la pantalla gana una **franja oscura** con el título, igual que Inicio y Perfil, y la tarjeta de cada rutina se simplifica: el ícono del objetivo lleva un **aro** que dice el estado (rojo = en curso, gris = lista para continuar), desaparece la etiqueta "en curso" y la línea "Semana en curso", y se suman la flecha y los discos a la derecha.
+- **Origen:** tuya (2026-10-16): "Inicio B, Rutinas B", después de decir que en Inicio asomaba un solo aro y que la tarjeta de Rutinas no terminaba de gustarte.
+- **Por qué:** *(completar)*
+- **Descartaste:** dejar la franja de Inicio como estaba o solo agrandar el aro rojo; dejar la tarjeta con la etiqueta "en curso".
+- **Ojo:** la variante "Rutinas B" que viste incluía la tarjeta simple; así lo implementé. El estado ahora lo dice el color del aro y se lee en voz alta como "en curso" (texto oculto); "lista para continuar" va escrito en la línea de datos. `IconoObjetivo` suma la opción `aro`.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.
