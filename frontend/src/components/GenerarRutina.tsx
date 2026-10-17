@@ -4,17 +4,18 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
 import { readError, type Routine, apiFetch } from "@/lib/api";
-import { GrupoOpciones, OpcionAsistente, PasoAsistente } from "@/components/Asistente";
+import { GrupoOpciones, OpcionAsistente, PasoAsistente, RuedaNumero } from "@/components/Asistente";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { IconoNivel } from "@/components/IconoNivel";
 import { IconoObjetivo } from "@/components/IconoObjetivo";
 
-type Paso = "eleccion" | "objetivo" | "nivel" | "dias";
+type Paso = "eleccion" | "objetivo" | "nivel" | "tiempo" | "dias";
 const TITULOS: Record<Paso, string> = {
   eleccion: "¿Qué querés hacer?",
   objetivo: "¿Cuál es tu objetivo?",
   nivel: "¿Cuál es tu nivel?",
+  tiempo: "¿Cuánto querés que dure cada sesión?",
   dias: "¿Cuántos días por semana?",
 };
 
@@ -27,6 +28,14 @@ const NIVELES = [
 // para el resto (2 a 6). El backend vuelve a comprobarlo.
 function diasPermitidos(nivel: string): number[] {
   return nivel === "principiante" ? [2, 3] : [2, 3, 4, 5, 6];
+}
+
+// Los minutos por sesión (decisión 82), de 5 en 5: hasta 60 para un principiante (R18), 90 para un
+// intermedio y 120 para un avanzado. El backend vuelve a comprobarlo.
+const MINUTOS_MIN = 30;
+const MINUTOS_HABITUAL = 60;
+function minutosMaximo(nivel: string): number {
+  return nivel === "principiante" ? 60 : nivel === "intermedio" ? 90 : 120;
 }
 
 const OBJETIVOS = [
@@ -67,6 +76,8 @@ export function GenerarRutina({
   const [objetivo, setObjetivo] = useState("");
   // Cuántos días por semana: obligatorio. Al continuar, viene la cantidad actual de la rutina.
   const [dias, setDias] = useState<number | null>(null);
+  // Cuánto dura cada sesión: arranca en lo habitual (60) y al continuar viene el de la rutina.
+  const [minutos, setMinutos] = useState(MINUTOS_HABITUAL);
   const [paso, setPaso] = useState<Paso>("eleccion");
   const [error, setError] = useState("");
   // `pidiendo`: esperando a la IA. `navegando`: abriendo la propuesta; se apaga solo cuando la
@@ -94,6 +105,7 @@ export function GenerarRutina({
   const pasos: Paso[] = [
     ...(hayEleccion ? (["eleccion"] as const) : []),
     ...(eleccion === "nueva" ? (["objetivo", "nivel"] as const) : []),
+    "tiempo",
     "dias",
   ];
   const actual = pasos.includes(paso) ? paso : pasos[0];
@@ -106,16 +118,21 @@ export function GenerarRutina({
         ? objetivo !== ""
         : actual === "nivel"
           ? nivel !== ""
-          : dias !== null && Boolean(nivelActual);
+          : actual === "tiempo"
+            ? Boolean(nivelActual)
+            : dias !== null && Boolean(nivelActual);
 
   function elegir(valor: string) {
     setEleccion(valor);
     const rutina = rutinas?.find((r) => String(r.id) === valor);
     setDias(rutina?.days_per_week ?? null);
+    setMinutos(rutina?.session_minutes ?? MINUTOS_HABITUAL);
   }
 
   function cambiarNivel(valor: string) {
     setNivel(valor);
+    // Lo mismo con el tiempo: un principiante no pasa de 60.
+    if (minutos > minutosMaximo(valor)) setMinutos(minutosMaximo(valor));
     // Si los días elegidos no entran en el nivel nuevo (por ejemplo 4 para un principiante), se borran.
     if (dias !== null && !diasPermitidos(valor).includes(dias)) setDias(null);
   }
@@ -126,6 +143,7 @@ export function GenerarRutina({
     setPaso("eleccion");
     setEleccion("");
     setDias(null);
+    setMinutos(MINUTOS_HABITUAL);
     setRutinas(null);
     if (soloNueva) {
       setRutinas([]);
@@ -142,6 +160,7 @@ export function GenerarRutina({
         if (!rutina) throw new Error("No se encontró la rutina para continuar");
         setEleccion(String(rutina.id));
         setDias(rutina.days_per_week ?? null);
+        setMinutos(rutina.session_minutes ?? MINUTOS_HABITUAL);
       } else if (lista.length === 0) {
         setEleccion("nueva"); // sin rutinas no hay nada que continuar
       }
@@ -160,8 +179,8 @@ export function GenerarRutina({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           eleccion === "nueva"
-            ? { goal: objetivo, level: nivel, days: dias }
-            : { routine_id: Number(eleccion), days: dias },
+            ? { goal: objetivo, level: nivel, days: dias, minutes: minutos }
+            : { routine_id: Number(eleccion), days: dias, minutes: minutos },
         ),
       });
       if (res.ok) {
@@ -206,9 +225,13 @@ export function GenerarRutina({
           total={pasos.length}
           titulo={TITULOS[actual]}
           ayuda={
-            actual === "dias" && nivelActual === "principiante"
-              ? "Para empezar, 2 o 3 días."
-              : actual === "dias" && continuando && rutinaElegida
+            actual === "tiempo"
+              ? nivelActual === "principiante"
+                ? "Para empezar, hasta 60 minutos. Es el tiempo total, con descansos."
+                : "Lo habitual son 60 minutos. Es el tiempo total, con descansos."
+              : actual === "dias" && nivelActual === "principiante"
+                ? "Para empezar, 2 o 3 días."
+                : actual === "dias" && continuando && rutinaElegida
                 ? `Continuás «${rutinaElegida.name}».`
                 : undefined
           }
@@ -246,6 +269,11 @@ export function GenerarRutina({
                   icono={<IconoNivel nivel={valor} />} onElegir={() => cambiarNivel(valor)} />
               ))}
             </GrupoOpciones>
+          )}
+          {actual === "tiempo" && nivelActual && (
+            <RuedaNumero valor={Math.min(minutos, minutosMaximo(nivelActual))} min={MINUTOS_MIN}
+              max={minutosMaximo(nivelActual)} paso={5} unidad="min" etiqueta="los minutos de cada sesión"
+              onChange={setMinutos} />
           )}
           {actual === "dias" && (
             <div role="radiogroup" aria-label="Días por semana" className="grid grid-cols-3 gap-3">

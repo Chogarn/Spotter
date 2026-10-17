@@ -326,6 +326,7 @@ export function RuedaNumero({
   valor,
   min,
   max,
+  paso = 1,
   unidad,
   etiqueta,
   formato,
@@ -336,6 +337,8 @@ export function RuedaNumero({
   valor: number;
   min: number;
   max: number;
+  // De cuánto en cuánto va la rueda (los minutos de una sesión, de 5 en 5).
+  paso?: number;
   unidad: string;
   etiqueta: string;
   formato?: (n: number) => string;
@@ -345,23 +348,25 @@ export function RuedaNumero({
 }) {
   const rueda = useRef<HTMLDivElement>(null);
   const yaPuesta = useRef(false);
-  const numeros = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+  const cantidad = Math.floor((max - min) / paso) + 1;
+  const numeros = Array.from({ length: cantidad }, (_, i) => min + i * paso);
 
   // Al abrir, la rueda va directo al valor; si cambia desde afuera (teclado), con animación.
   useEffect(() => {
     const el = rueda.current;
     if (!el) return;
-    if (Math.round(el.scrollTop / FILA) !== valor - min) {
-      el.scrollTo({ top: (valor - min) * FILA, behavior: yaPuesta.current ? "smooth" : "instant" });
+    const lugar = (valor - min) / paso;
+    if (Math.round(el.scrollTop / FILA) !== lugar) {
+      el.scrollTo({ top: lugar * FILA, behavior: yaPuesta.current ? "smooth" : "instant" });
     }
     yaPuesta.current = true;
-  }, [valor, min]);
+  }, [valor, min, paso]);
 
   function alDeslizar() {
     const el = rueda.current;
     if (!el) return;
-    const i = Math.min(max - min, Math.max(0, Math.round(el.scrollTop / FILA)));
-    if (min + i !== valor) onChange(min + i);
+    const i = Math.min(cantidad - 1, Math.max(0, Math.round(el.scrollTop / FILA)));
+    if (min + i * paso !== valor) onChange(min + i * paso);
   }
 
   return (
@@ -385,10 +390,10 @@ export function RuedaNumero({
         onKeyDown={(e) => {
           if (e.key === "ArrowUp") {
             e.preventDefault();
-            onChange(Math.max(min, valor - 1));
+            onChange(Math.max(min, valor - paso));
           } else if (e.key === "ArrowDown") {
             e.preventDefault();
-            onChange(Math.min(max, valor + 1));
+            onChange(Math.min(max, valor + paso));
           }
         }}
         className="relative snap-y snap-mandatory overflow-y-auto outline-none [scrollbar-width:none] focus-visible:ring-3 focus-visible:ring-ring/50 [&::-webkit-scrollbar]:hidden"

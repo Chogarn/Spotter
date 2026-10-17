@@ -102,6 +102,7 @@ class Routine(Base):
     __tablename__ = "routines"
     __table_args__ = (
         CheckConstraint("days_per_week BETWEEN 2 AND 6", name="ck_routines_days_per_week"),
+        CheckConstraint("session_minutes BETWEEN 30 AND 120", name="ck_routines_session_minutes"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -114,6 +115,9 @@ class Routine(Base):
     # Cuántos días por semana entrena (decisión 52). Lo elige el usuario al generar y lo puede
     # cambiar al continuar. Vacío solo en rutinas sin semanas (no debería pasar).
     days_per_week: Mapped[int | None] = mapped_column(SmallInteger)
+    # Cuánto dura cada sesión, en minutos (decisión 82). Lo elige el usuario; manda sobre el
+    # volumen semanal.
+    session_minutes: Mapped[int | None] = mapped_column(SmallInteger)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -332,6 +336,9 @@ class WorkoutSession(Base):
     # Cuándo el usuario tocó "Día completado". Vacío mientras la sesión está en curso;
     # volver a dejarlo vacío reabre la sesión.
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Cuándo tocó "Empezar día" (decisión 82). Reabrir el día lo vacía; solo sirve para medir
+    # cuánto tardó.
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     feeling: Mapped[Feeling | None] = mapped_column(enum_column(Feeling))
     notes: Mapped[str | None] = mapped_column(Text)
 

@@ -73,25 +73,22 @@ Contá las series por semana así: una serie **directa** (músculo principal) va
 
 # Duración de cada sesión
 
-La duración la decidís vos, con una **referencia según el perfil** que es una guía y **no un tope**:
+{{TIEMPO}}
 
-- principiante: cerca de **60 minutos**; mantenerme_activo: cerca de **60**; condicion_general: **60**.
-- intermedio con masa o fuerza: **60 a 90** minutos.
-- perder_grasa: **60 minutos de fuerza, más el cardio**.
-- **No armes sesiones de 90 minutos** para un principiante ni para quien quiere mantenerse activo.
+**El tiempo manda sobre el volumen semanal.** No alargues una sesión para que entren más series. Si la persona no eligió un tiempo, la referencia según el perfil es una guía y no un tope: principiante, mantenerme_activo y condicion_general cerca de **60 minutos**; intermedio con masa o fuerza, **60 a 90**; perder_grasa, **60 minutos de fuerza, más el cardio**.
 
-Calculá la duración de cada día antes de responder así: tiempo de las series (cada repetición cuenta unos **3 segundos**; en un isométrico, sus segundos) **+** descanso (**series menos una, por `rest_seconds`**) **+** unos **1,5 minutos** de cambio entre ejercicios **+** los minutos de cardio **+** unos 7 minutos de movilidad en los días que la tengan. Si un día queda mucho más corto que la referencia, agregá ejercicios o series; si queda mucho más largo, revisá si hace falta.
+Calculá la duración de cada día antes de responder así: tiempo de las series (cada repetición cuenta unos **3 segundos**; en un isométrico, sus segundos) **+** descanso (**series menos una, por `rest_seconds`**) **+** unos **3,5 minutos** de cambio entre ejercicios (incluye esperar la máquina y acomodar el peso) **+** los minutos de cardio **+** unos 7 minutos de movilidad en los días que la tengan. Si un día queda mucho más corto que el tiempo, agregá ejercicios o series; si queda más largo, sacá.
 
-Ejemplo resuelto: un ejercicio de **4 series de 10 repeticiones con 120 s de descanso** dura 40 repeticiones × 3 s = 2 min, más 3 descansos × 2 min = 6 min, más 1,5 min de cambio: **unos 9,5 minutos**. Para llegar a 60 minutos de fuerza hacen falta **unos 6 ejercicios de ese tipo**, no 4 o 5. Con ejercicios de 3 series y descansos de 90 s cada uno dura unos 6 minutos (1,5 de series + 3 de descanso + 1,5 de cambio), o sea que harían falta unos 10. **Hacé esta cuenta para cada día antes de responder y seguí agregando ejercicios o series hasta quedar cerca de la referencia.**
+Ejemplo resuelto: un ejercicio de **4 series de 10 repeticiones con 120 s de descanso** dura 40 repeticiones x 3 s = 2 min, más 3 descansos x 2 min = 6 min, más 3,5 min de cambio: **unos 11,5 minutos**. Para llegar a 60 minutos hacen falta **unos 5 ejercicios de ese tipo**. Con ejercicios de 3 series y descansos de 90 s cada uno dura unos 8 minutos (1,5 de series + 3 de descanso + 3,5 de cambio), o sea que harían falta unos 7 u 8. **Hacé esta cuenta para cada día antes de responder.**
 
 # Si el volumen no entra
 
-Si el volumen que pide el objetivo no entra en la duración de referencia, resolvelo **en este orden**:
+Si el volumen que pide el objetivo no entra en el tiempo elegido, resolvelo **así**:
 
-**No sumes días**: la cantidad la eligió la persona.
+**No sumes días y no alargues la sesión**: la cantidad de días y el tiempo los eligió la persona.
 
-1. Dejá la sesión **más larga que la referencia** y **avisalo en `notices`**.
-2. **Solo como último recurso**, recortá series de **menor prioridad** y avisalo en `notices`. Menor prioridad son los ejercicios accesorios (monoarticulares) y los músculos chicos (bíceps, tríceps, gemelos y core). Los multiarticulares principales no se recortan primero.
+1. Recortá series de **menor prioridad**: primero los ejercicios accesorios (monoarticulares) y los músculos chicos (bíceps, tríceps, gemelos y core). Los multiarticulares principales no se recortan primero.
+2. **Avisalo en `notices`**: decí qué recortaste y que el volumen semanal quedó por debajo de lo recomendado por el tiempo elegido.
 
 # Semana anterior y progresión
 

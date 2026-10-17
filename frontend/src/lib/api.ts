@@ -107,6 +107,7 @@ export type Routine = {
   week_count: number;
   has_active_week: boolean;
   days_per_week: number | null; // cuántos días por semana entrena (decisión 52)
+  session_minutes: number | null; // cuánto dura cada sesión (decisión 82)
   last_week_day_states: DayState[]; // los días de la semana más nueva, en orden
 };
 
@@ -174,6 +175,7 @@ export type ExerciseHistory = {
 export type CalendarSession = {
   local_date: string; // AAAA-MM-DD, el día de la persona
   finished_at: string;
+  duration_minutes: number | null; // lo que tardó (decisión 82)
   week_id: number;
   week_number: number;
   day_index: number;
@@ -203,6 +205,8 @@ export type WeekSummaryDetail = {
   sets_planned: number;
   kg_moved: number;
   cardio_minutes: number;
+  duration_minutes: number | null; // lo que tardó (decisión 82); nulo si no se midió
+  day_durations: (number | null)[]; // por día, en el orden de day_states
   exercises: {
     name: string;
     kind: ExerciseItem["kind"];
@@ -250,6 +254,7 @@ export type DayDetail = {
   mobility_notes: string | null;
   minutes: number;
   finished_at: string | null; // cuándo se tocó "Día completado"; vacío si el día sigue abierto
+  started_at: string | null; // cuándo se tocó "Empezar día" (decisión 82)
   exercises: ExerciseItem[];
 };
 

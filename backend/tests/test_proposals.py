@@ -19,7 +19,7 @@ PERFIL = {
     "limitations": None,
     "accept_legal_notice": True,
 }
-ELECCION = {"goal": "masa", "level": "principiante", "days": 2}
+ELECCION = {"goal": "masa", "level": "principiante", "days": 2, "minutes": 60}
 GRANDES = [
     ("Press de banca con barra", "chest", "upper", "push"),
     ("Remo con barra", "back", "upper", "pull"),
@@ -250,7 +250,7 @@ def test_generar_sin_objetivo_o_sin_nivel_da_422_y_no_llama_a_la_ia(api, entorno
     assert api.post("/proposals/generate").status_code == 422
     assert api.post("/proposals/generate", json={"goal": "masa"}).status_code == 422
     assert api.post("/proposals/generate", json={"level": "avanzado"}).status_code == 422
-    assert api.post("/proposals/generate", json={"goal": "volar", "level": "avanzado", "days": 2}).status_code == 422
+    assert api.post("/proposals/generate", json={"goal": "volar", "level": "avanzado", "days": 2, "minutes": 60}).status_code == 422
     assert falso.llamadas == 0
     assert contar(api, AiCall) == 0
 
@@ -260,7 +260,7 @@ def test_el_prompt_lleva_lo_elegido_y_la_semana_lo_guarda_al_aceptar(api, entorn
     falso = usar_gemini(monkeypatch, rutina())
 
     propuesta = api.post(
-        "/proposals/generate", json={"goal": "fuerza", "level": "avanzado", "days": 2}
+        "/proposals/generate", json={"goal": "fuerza", "level": "avanzado", "days": 2, "minutes": 60}
     ).json()
 
     assert "Nivel: avanzado" in falso.prompts[0]
@@ -409,9 +409,9 @@ def test_la_propuesta_trae_la_duracion_estimada_de_cada_dia(api, entorno, monkey
     usar_gemini(monkeypatch, rutina())
     cuerpo = api.post("/proposals/generate", json=ELECCION).json()
 
-    # 6 ejercicios de 5 series x 10 reps con 120 s de descanso y 5 cambios de 1,5 min.
-    assert cuerpo["day_minutes"] == [70, 70]
-    assert api.get(f"/proposals/{cuerpo['id']}").json()["day_minutes"] == [70, 70]
+    # 6 ejercicios de 5 series x 10 reps con 120 s de descanso y 5 cambios de 3,5 min.
+    assert cuerpo["day_minutes"] == [80, 80]
+    assert api.get(f"/proposals/{cuerpo['id']}").json()["day_minutes"] == [80, 80]
 
 
 def test_sin_semana_activa_el_endpoint_da_404(api):

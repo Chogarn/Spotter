@@ -29,7 +29,8 @@ def auto_name(goal: Goal, start: date, taken: set[str]) -> str:
 
 
 def create_routine(
-    db: Session, user_id: int, goal: Goal, level: Level, days: int | None = None
+    db: Session, user_id: int, goal: Goal, level: Level, days: int | None = None,
+    minutes: int | None = None,
 ) -> Routine:
     """Crea la rutina con nombre automático. No hace commit."""
     taken = set(db.scalars(select(Routine.name).where(Routine.user_id == user_id)))
@@ -38,6 +39,7 @@ def create_routine(
         goal=goal,
         level=level,
         days_per_week=days,
+        session_minutes=minutes,
         name=auto_name(goal, date.today(), taken),
     )
     db.add(routine)

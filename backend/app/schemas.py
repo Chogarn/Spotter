@@ -130,6 +130,9 @@ class GenerateIn(BaseModel):
     # Cuántos días por semana entrena (decisión 52): obligatorio, también al continuar.
     # Que entre en lo que permite el nivel (2 o 3 para principiantes) lo comprueba el endpoint.
     days: int = Field(ge=2, le=6)
+    # Cuántos minutos dura cada sesión (decisión 82): obligatorio. Que entre en lo que permite el
+    # nivel (hasta 60 para principiantes) lo comprueba el endpoint.
+    minutes: int = Field(ge=30, le=120)
 
     @model_validator(mode="after")
     def one_way_or_the_other(self):
@@ -235,6 +238,7 @@ class RoutineSummaryOut(BaseModel):
     week_count: int
     has_active_week: bool
     days_per_week: int | None
+    session_minutes: int | None = None
     # Estado de cada día de la semana más nueva ("completed", "partial" o "pending"), en orden;
     # la lista "Tus rutinas" lo muestra como discos. Vacía si la rutina no tiene semanas.
     last_week_day_states: list[str] = []
@@ -273,6 +277,7 @@ class RoutineDetailOut(BaseModel):
     goal: Goal
     level: Level
     days_per_week: int | None
+    session_minutes: int | None = None
     weeks: list[WeekSummaryOut]  # de la más nueva a la más vieja
 
 
@@ -403,6 +408,10 @@ class WeekSummaryDetailOut(BaseModel):
     sets_planned: int
     kg_moved: float  # repeticiones × kilos de lo realizado
     cardio_minutes: int
+    # Lo que tardó en entrenar (decisión 82): de "Empezar día" a "Día completado". Nulo si no se
+    # midió. `day_durations` va en el orden de `day_states`.
+    duration_minutes: int | None
+    day_durations: list[int | None]
     exercises: list[ExerciseResultOut]
     # El resumen que escribió la IA al armar la semana siguiente de la rutina (si ya existe).
     ai_summary: str | None
@@ -476,11 +485,14 @@ class DayDetailOut(BaseModel):
     minutes: int
     # Cuándo se tocó "Día completado". Vacío mientras el día está abierto.
     finished_at: datetime | None
+    # Cuándo se tocó "Empezar día" (decisión 82): el contador del modo entrenar cuenta desde acá.
+    started_at: datetime | None
     exercises: list[DayExerciseOut]
 
 
 class DayStatusOut(BaseModel):
     finished_at: datetime | None
+    started_at: datetime | None = None
 
 
 class CalendarSessionOut(BaseModel):
@@ -488,6 +500,7 @@ class CalendarSessionOut(BaseModel):
 
     local_date: date  # el día del calendario de la persona (según la diferencia horaria que mandó)
     finished_at: datetime
+    duration_minutes: int | None = None  # lo que tardó (decisión 82); nulo si no se midió
     week_id: int
     week_number: int  # dentro de su rutina
     day_index: int

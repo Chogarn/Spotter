@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.deps import get_current_user
 from app.models import PlanDay, User, WorkoutSession
-from app.routers.weeks import routine_weeks
+from app.routers.weeks import measured_minutes, routine_weeks
 from app.schemas import CalendarOut, CalendarSessionOut
 
 router = APIRouter(prefix="/calendar", tags=["calendar"])
@@ -60,6 +60,7 @@ def get_calendar(
             CalendarSessionOut(
                 local_date=local,
                 finished_at=session.finished_at,
+                duration_minutes=measured_minutes(session),
                 week_id=week.id,
                 week_number=number_cache[week.routine_id][week.id],
                 day_index=day.day_index,

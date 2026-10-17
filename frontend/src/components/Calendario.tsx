@@ -187,6 +187,7 @@ function CalendarioMes({ hoy }: { hoy: string }) {
                       </span>
                       <span className="block text-sm text-muted-foreground">
                         {s.routine_name} · semana {s.week_number}
+                        {s.duration_minutes !== null && ` · ${s.duration_minutes} min`}
                       </span>
                     </Link>
                   </li>

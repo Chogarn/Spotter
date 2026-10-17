@@ -33,10 +33,12 @@ BIG_GROUPS = (
 
 # R34: estimación de la duración de una sesión.
 SECONDS_PER_REP = 3
-TRANSITION_MINUTES = 1.5  # cambio entre ejercicios: 1 a 2 minutos
+TRANSITION_MINUTES = 3.5  # cambio entre ejercicios, con espera de máquina (decisión 82: 3 a 4 min)
 MOBILITY_MINUTES = 7.5  # 5 a 10 minutos en los días que la tienen
 # Elección de diseño (R18 no define "se aleja mucho"): margen de aviso, en minutos.
 DURATION_TOLERANCE_MINUTES = 15
+# Decisión 82: con el tiempo que eligió la persona, pasarse molesta más que quedarse corto.
+OVER_TOLERANCE_MINUTES = 10
 
 
 @dataclass(frozen=True)
@@ -118,6 +120,13 @@ def reference_minutes(goal: Goal, level: Level) -> tuple[int, int] | None:
     return None  # avanzado con masa o fuerza: R18 no lo define
 
 
+def allowed_minutes(level: Level) -> tuple[int, ...]:
+    """Los minutos por sesión que puede elegir el usuario (decisión 82), de 5 en 5: hasta 60
+    para un principiante (R18), 90 para un intermedio y 120 para un avanzado."""
+    top = {Level.PRINCIPIANTE: 60, Level.INTERMEDIO: 90, Level.AVANZADO: 120}[level]
+    return tuple(range(30, top + 1, 5))
+
+
 def allowed_days(level: Level) -> tuple[int, ...]:
     """Los días por semana que puede elegir el usuario (decisión 52): R12 para principiantes
     (2 o 3) y R11 para el resto (2 a 6)."""
@@ -162,6 +171,7 @@ def validate_routine(
     level: Level,
     days: int | None = None,
     catalog_extra_names: Iterable[str] | None = None,
+    minutes: int | None = None,
 ) -> ValidationResult:
     """`catalog_extra_names`: si es None no se exige el catálogo (llamadas directas, tests de
     reglas); si es una lista (aunque esté vacía), todo ejercicio tiene que salir del catálogo o
@@ -199,24 +209,28 @@ def validate_routine(
     # --- Avisos: se muestran, no se rechaza ---
     _volume_warnings(routine, goal, n_strength, total_cardio, sets_by_muscle, warn)
 
-    reference = reference_minutes(goal, level)
+    # Decisión 82: si la persona eligió el tiempo, ese es la referencia (y manda sobre R18).
+    reference = (minutes, minutes) if minutes is not None else reference_minutes(goal, level)
     if reference:
         low, high = reference
+        minutes_chosen = minutes is not None
         for number, day in enumerate(routine.days, start=1):
             if all(e.kind == ExerciseKind.CARDIO for e in day.exercises):
                 continue  # un día solo de cardio no tiene referencia de duración
-            minutes = estimate_day_minutes(day)
+            minutes_day = estimate_day_minutes(day)
             if goal == Goal.PERDER_GRASA:  # R18: 60 min de fuerza, más el cardio
-                minutes -= sum(
+                minutes_day -= sum(
                     s.duration_minutes or 0
                     for e in day.exercises
                     if e.kind == ExerciseKind.CARDIO
                     for s in e.sets
                 )
-            if minutes > high + DURATION_TOLERANCE_MINUTES or minutes < low - DURATION_TOLERANCE_MINUTES:
+            over = OVER_TOLERANCE_MINUTES if minutes_chosen else DURATION_TOLERANCE_MINUTES
+            if minutes_day > high + over or minutes_day < low - DURATION_TOLERANCE_MINUTES:
                 warn(
                     "R34",
-                    f"El Día {number} dura unos {round(minutes)} min y la referencia es "
+                    f"El Día {number} dura unos {round(minutes_day)} min y "
+                    f"{'elegiste' if minutes_chosen else 'la referencia es'} "
                     f"{low if low == high else f'{low} a {high}'}.",
                 )
     return result

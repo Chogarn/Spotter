@@ -280,12 +280,29 @@ function ResumenSemana({ resumen }: { resumen: WeekSummaryDetail }) {
             ? `Cerrada el ${shortDate(resumen.closed_at.slice(0, 10))}`
             : "Cerrada"}
       </p>
-      <div className={cn("mb-4 grid gap-2", resumen.cardio_minutes > 0 ? "grid-cols-2" : "grid-cols-3")}>
+      <div
+        className={cn(
+          "mb-4 grid gap-2",
+          resumen.cardio_minutes > 0 || resumen.duration_minutes !== null ? "grid-cols-2" : "grid-cols-3",
+        )}
+      >
         <Numero valor={`${resumen.days_completed}/${resumen.day_states.length}`} texto="días entrenados" />
         <Numero valor={`${resumen.sets_done}/${resumen.sets_planned}`} texto="series hechas" />
         <Numero valor={Math.round(resumen.kg_moved).toLocaleString("es-AR")} texto="kg movidos" azul />
         {resumen.cardio_minutes > 0 && <Numero valor={String(resumen.cardio_minutes)} texto="min de cardio" />}
+        {resumen.duration_minutes !== null && (
+          <Numero valor={String(resumen.duration_minutes)} texto="min entrenando" />
+        )}
       </div>
+      {/* Lo que tardó en cada día (decisión 82): solo los días que se midieron. */}
+      {resumen.duration_minutes !== null && (
+        <p className="-mt-2 mb-4 text-sm text-muted-foreground">
+          {resumen.day_durations
+            .map((m, i) => (m === null ? null : `Día ${i + 1}: ${m} min`))
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      )}
 
       <ComoTeFue ejercicios={resumen.exercises} />
 

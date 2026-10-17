@@ -148,6 +148,7 @@ Surgieron al probar los asistentes, la barra con tres botones y Inicio. Cada una
   - **Criterios:** maqueta aprobada; los estados se entienden sin leer el texto.
 
 - [x] **Verificar el correo y recuperar la contraseña** `backend` `frontend`: hecho el 2026-10-16 (decisión 81) (#65). Quedan sin función "Cambiar correo" y "Borrar cuenta" de la pestaña Cuenta (decisión 75), y para producción falta la cuenta de Gmail de Spotter
+- [x] **El usuario elige el tiempo de la sesión** `backend` `frontend` `ia`: hecho el 2026-10-17 (decisión 82). Paso "tiempo" con rueda en Generar rutina, el tiempo manda sobre el volumen (R18 y R35 cambiadas, R34 con 3,5 min), contador en el modo entrenar y duración medida en el Calendario y el Resumen semanal. Falta probar el prompt nuevo con Gemini real.
   - **Para qué:** hoy, si alguien olvida la contraseña, no tiene cómo volver a entrar.
   - **Cómo se accede:** enlace "Olvidé mi contraseña" en el inicio de sesión.
   - **A definir:** cómo llega el enlace (correo) y con qué servicio; **verificar en la fuente oficial** si el plan gratuito del servicio alcanza antes de elegirlo; vencimiento del enlace; si cierra las sesiones abiertas.

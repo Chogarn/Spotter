@@ -69,6 +69,18 @@ def days_text(days: int | None) -> str:
     )
 
 
+def minutes_text(minutes: int | None) -> str:
+    """Decisión 82: el tiempo de la sesión lo elige el usuario y manda sobre el volumen semanal.
+    Sin el dato (pruebas viejas), decide la IA con la referencia de R18."""
+    if minutes is None:
+        return "**Vos decidís la duración** de cada sesión, con la referencia de abajo."
+    return (
+        f"**La persona eligió sesiones de {minutes} minutos: cada día tiene que durar cerca de "
+        f"{minutes} minutos, contando todo (series, descansos, cambios de ejercicio, cardio y movilidad).** "
+        "Ese tiempo manda sobre el volumen semanal: nunca alargues una sesión."
+    )
+
+
 def catalog_block(candidates: Sequence[CatalogExercise]) -> str:
     """La lista de ejercicios que se le ofrece a la IA, agrupada por músculo principal."""
     by_muscle: dict[Muscle, list[CatalogExercise]] = {}
@@ -98,10 +110,12 @@ def build_prompt(
     previous: str | None = None,
     days: int | None = None,
     candidates: Sequence[CatalogExercise] | None = None,
+    minutes: int | None = None,
 ) -> str:
     """`candidates`: los ejercicios que recuperó `retrieve.py`. Sin ellos, va el catálogo entero."""
     text = _template().replace("{{PERFIL}}", profile_block(profile, goal, level))
     text = text.replace("{{DIAS}}", days_text(days))
+    text = text.replace("{{TIEMPO}}", minutes_text(minutes))
     text = text.replace(
         "{{CATALOGO}}", catalog_block(load_catalog() if candidates is None else candidates)
     )

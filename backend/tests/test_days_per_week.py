@@ -38,8 +38,8 @@ def test_los_dias_son_obligatorios_y_van_de_2_a_6(api, entorno, monkeypatch):
     falso = usar_gemini(monkeypatch, rutina())
 
     assert generar(api, {"goal": "fuerza", "level": "avanzado"}).status_code == 422
-    assert generar(api, {"goal": "fuerza", "level": "avanzado", "days": 1}).status_code == 422
-    assert generar(api, {"goal": "fuerza", "level": "avanzado", "days": 7}).status_code == 422
+    assert generar(api, {"goal": "fuerza", "level": "avanzado", "days": 1, "minutes": 60}).status_code == 422
+    assert generar(api, {"goal": "fuerza", "level": "avanzado", "days": 7, "minutes": 60}).status_code == 422
     assert falso.llamadas == 0
 
 
@@ -47,7 +47,7 @@ def test_un_principiante_no_puede_elegir_4_y_no_se_llama_a_la_ia(api, entorno, m
     con_perfil(api)
     falso = usar_gemini(monkeypatch, rutina(dias=4))
 
-    respuesta = generar(api, {"goal": "masa", "level": "principiante", "days": 4})
+    respuesta = generar(api, {"goal": "masa", "level": "principiante", "days": 4, "minutes": 60})
 
     assert respuesta.status_code == 422
     assert "2 a 3" in respuesta.json()["detail"]
@@ -74,7 +74,7 @@ def test_si_la_ia_trae_otra_cantidad_reintenta(api, entorno, monkeypatch):
     con_perfil(api)
     falso = usar_gemini(monkeypatch, rutina(dias=2), rutina(dias=3))
 
-    respuesta = generar(api, {"goal": "fuerza", "level": "avanzado", "days": 3})
+    respuesta = generar(api, {"goal": "fuerza", "level": "avanzado", "days": 3, "minutes": 60})
 
     assert respuesta.status_code == 201
     assert falso.llamadas == 2
@@ -87,7 +87,7 @@ def test_si_la_ia_trae_otra_cantidad_reintenta(api, entorno, monkeypatch):
 def test_al_aceptar_la_rutina_nueva_guarda_los_dias(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina(dias=3))
-    propuesta = generar(api, {"goal": "fuerza", "level": "avanzado", "days": 3}).json()
+    propuesta = generar(api, {"goal": "fuerza", "level": "avanzado", "days": 3, "minutes": 60}).json()
 
     assert dias_de_la_rutina(api) is None  # la rutina nace recién al aceptar
     assert api.post(f"/proposals/{propuesta['id']}/accept").status_code == 200
@@ -99,13 +99,13 @@ def test_al_aceptar_la_rutina_nueva_guarda_los_dias(api, entorno, monkeypatch):
 def test_al_continuar_con_otra_cantidad_la_rutina_se_actualiza(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina(dias=2), rutina(dias=4))
-    primera = generar(api, {"goal": "fuerza", "level": "avanzado", "days": 2}).json()
+    primera = generar(api, {"goal": "fuerza", "level": "avanzado", "days": 2, "minutes": 60}).json()
     api.post(f"/proposals/{primera['id']}/accept")
     semana = api.get("/weeks/active").json()["id"]
     api.post(f"/weeks/{semana}/close")
     rutina_id = api.get("/routines").json()[0]["id"]
 
-    segunda = generar(api, {"routine_id": rutina_id, "days": 4}).json()
+    segunda = generar(api, {"routine_id": rutina_id, "days": 4, "minutes": 60}).json()
     assert dias_de_la_rutina(api) == 2  # todavía no se aceptó
     api.post(f"/proposals/{segunda['id']}/accept")
 

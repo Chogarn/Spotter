@@ -228,7 +228,7 @@ Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no s
 El detalle está en `docs/modelo-datos.md`. Cómo se refleja este flujo:
 
 - `profiles`: `birth_date` (la edad se calcula; `age` se conserva para perfiles viejos), peso, altura, sexo y limitaciones. Sin nivel, objetivo ni equipamiento. **Migración 0018.**
-- `routines`: nombre, objetivo, nivel y `days_per_week`; agrupan las semanas.
+- `routines`: nombre, objetivo, nivel, `days_per_week` y `session_minutes` (los minutos por sesión, decisión 82); agrupan las semanas.
 - `week_plans`: pertenece a una rutina; `week_start` es cuándo se activó, `closed_at` cuándo se cerró, y guarda el comentario de cierre y el resumen de la IA.
 - `plan_days`: `day_index` es el orden (Día 1, Día 2...), no un día del calendario.
 - `plan_exercises` y `plan_sets`: lo planificado (una fila por serie, con repeticiones o duración y peso).

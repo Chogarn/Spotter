@@ -18,7 +18,7 @@ from app.ai.changes import compare
 from app.ai.history import last_closed_week
 from app.ai.plan_writer import active_week, write_plan
 from app.ai.routine import RoutineProposal
-from app.ai.rules import allowed_days, estimate_day_minutes, validate_routine
+from app.ai.rules import allowed_days, allowed_minutes, estimate_day_minutes, validate_routine
 from app.ai.swap import SwapError, alternatives, swap
 from app.db import get_db
 from app.deps import get_current_user
@@ -85,8 +85,16 @@ def generate(
             status_code=422,
             detail=f"Con nivel {level.value} se entrena de {permitidos[0]} a {permitidos[-1]} días por semana",
         )
+    minutos = allowed_minutes(level)  # R18: los principiantes hasta 60
+    if data.minutes not in minutos:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Con nivel {level.value} la sesión dura de {minutos[0]} a {minutos[-1]} minutos, de 5 en 5",
+        )
     try:
-        return to_out(generate_proposal(db, user, goal, level, data.routine_id, data.days))
+        return to_out(
+            generate_proposal(db, user, goal, level, data.routine_id, data.days, data.minutes)
+        )
     except ProfileMissing:
         raise HTTPException(status_code=409, detail="Completá tu perfil primero") from None
     except ActiveWeekExists:
@@ -235,7 +243,10 @@ def swap_exercise(
     # Se vuelven a comprobar las reglas con la rutina nueva. Los ejercicios que ya venían de la
     # semana anterior (fuera del catálogo) se permiten, igual que al generar.
     legacy = [e.name for d in new_routine.days for e in d.exercises if find(e.name) is None]
-    result = validate_routine(new_routine, goal, level, changes.get("days"), catalog_extra_names=legacy)
+    result = validate_routine(
+        new_routine, goal, level, changes.get("days"), catalog_extra_names=legacy,
+        minutes=changes.get("minutes"),
+    )
     if result.errors:
         raise HTTPException(
             status_code=422,
@@ -277,11 +288,15 @@ def accept(
     else:
         # Recién acá nace la rutina nueva: si el usuario descarta la propuesta, no queda nada.
         plan_routine = create_routine(
-            db, user.id, Goal(changes["goal"]), Level(changes["level"]), changes.get("days")
+            db, user.id, Goal(changes["goal"]), Level(changes["level"]), changes.get("days"),
+            changes.get("minutes"),
         )
     # Al continuar con otra cantidad de días, la rutina se queda con la nueva (decisión 52).
     if changes.get("days") is not None:
         plan_routine.days_per_week = changes["days"]
+    # Lo mismo con el tiempo de la sesión (decisión 82).
+    if changes.get("minutes") is not None:
+        plan_routine.session_minutes = changes["minutes"]
     week = write_plan(db, user.id, routine, plan_routine)
     proposal.week_plan_id = week.id
     proposal.status = ProposalStatus.ACCEPTED

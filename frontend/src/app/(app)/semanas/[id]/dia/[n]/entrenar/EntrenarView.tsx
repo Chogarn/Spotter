@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { use, useEffect, useState, useTransition } from "react";
 
 import { ComoTeFue } from "@/components/ComoTeFue";
+import { ContadorSesion } from "@/components/ContadorSesion";
 import { BotonDescanso, RelojCircular, useDescanso } from "@/components/Descanso";
 import { Disco } from "@/components/Disco";
 import { Flecha } from "@/components/Flecha";
@@ -90,6 +91,17 @@ export default function EntrenarView({
         setDia(leido);
         const registra = leido.week_status === "active" && leido.finished_at === null;
         setPos(posicionInicial(leido, pedido, registra));
+        // Abrir el modo entrenar es "Empezar día": desde acá corre el contador (decisión 82).
+        // Es solo un dato, así que si falla no se interrumpe nada.
+        if (registra && leido.started_at === null) {
+          apiFetch(`/weeks/${id}/days/${n}/start`, { method: "POST" })
+            .then(async (r) => {
+              if (!r.ok) return;
+              const estado: { started_at: string | null } = await r.json();
+              setDia((d) => (d ? { ...d, started_at: estado.started_at } : d));
+            })
+            .catch(() => {});
+        }
       })
       .catch((e) => setError(e.message));
   }, [id, n, pedido]);
@@ -218,6 +230,7 @@ export default function EntrenarView({
           {pos && (pos.ej === CALOR ? " · entrada en calor" : ` · ejercicio ${pos.ej + 1} de ${total}`)}
           {!registra && " · solo lectura"}
         </span>
+        {registra && actual.started_at && <ContadorSesion desde={actual.started_at} />}
         <Button size="icon-lg" variant="ghost" nativeButton={false} render={<Link href={volver} />} aria-label="Volver al día">
           <X />
         </Button>

@@ -164,7 +164,7 @@ def test_los_avisos_se_recalculan_con_la_rutina_nueva(api, entorno, monkeypatch)
     rutina_nueva = RoutineProposal.model_validate(cuerpo["routine"])
     esperados = validate_routine(
         rutina_nueva, Goal(ELECCION["goal"]), Level(ELECCION["level"]), ELECCION["days"],
-        catalog_extra_names=[],
+        catalog_extra_names=[], minutes=ELECCION.get("minutes"),
     )
     assert sorted((w["rule"], w["message"]) for w in cuerpo["warnings"]) == sorted(
         (w.rule, w.message) for w in esperados.warnings

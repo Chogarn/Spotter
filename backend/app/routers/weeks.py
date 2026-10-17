@@ -108,6 +108,14 @@ def open_session(db: Session, user: User, day: PlanDay) -> WorkoutSession:
     return session
 
 
+def measured_minutes(session: WorkoutSession | None) -> int | None:
+    """Lo que tardó el día (decisión 82): de "Empezar día" a "Día completado". Nulo si falta alguno."""
+    if session is None or session.started_at is None or session.finished_at is None:
+        return None
+    seconds = (session.finished_at - session.started_at).total_seconds()
+    return max(0, round(seconds / 60)) if seconds >= 0 else None
+
+
 def day_minutes(day: PlanDay) -> int:
     """Duración estimada del día con la misma fórmula (R34) que usa la vista previa."""
     # La fórmula solo lee estos campos: se le pasa un objeto con esa forma.
@@ -345,6 +353,8 @@ def get_week_summary(
                     kg += entry.reps * entry.weight_kg
                 cardio += entry.duration_minutes or 0
     states = week_day_states(db, user, week)
+    durations = [measured_minutes(day_session(db, user, day)) for day in week.days]
+    measured = [m for m in durations if m is not None]
     weeks = routine_weeks(db, week.routine_id)
     following = weeks[number] if number < len(weeks) else None  # `number` empieza en 1
     return WeekSummaryDetailOut(
@@ -361,6 +371,8 @@ def get_week_summary(
         sets_planned=sets_planned,
         kg_moved=float(kg),
         cardio_minutes=cardio,
+        duration_minutes=sum(measured) if measured else None,
+        day_durations=durations,
         exercises=[
             ExerciseResultOut(
                 name=names[exercise_id].exercise.name,
@@ -498,6 +510,7 @@ def get_day(
         mobility_notes=day.mobility_notes,
         minutes=day_minutes(day),
         finished_at=None if session is None else session.finished_at,
+        started_at=None if session is None else session.started_at,
         exercises=[
             exercise_out(e, entries, done.get(e.id), previous.get(e.exercise_id))
             for e in day.exercises
@@ -804,6 +817,25 @@ def save_exercise_feel(
     )
 
 
+@router.post("/{week_id}/days/{day_index}/start", response_model=DayStatusOut)
+def start_day(
+    week_id: int,
+    day_index: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> DayStatusOut:
+    """Empezar día (decisión 82): marca la hora de inicio para el contador del modo entrenar. Si ya
+    estaba empezado no la cambia; un día completado hay que reabrirlo."""
+    week, _ = get_own_week(db, user, week_id)
+    day = find_day(week, day_index)
+    require_active(week)
+    session = open_session(db, user, day)
+    if session.started_at is None:
+        session.started_at = datetime.now(timezone.utc)
+    db.commit()
+    return DayStatusOut(finished_at=None, started_at=session.started_at)
+
+
 @router.post("/{week_id}/days/{day_index}/complete", response_model=DayStatusOut)
 def complete_day(
     week_id: int,
@@ -822,7 +854,7 @@ def complete_day(
     if session.finished_at is None:
         session.finished_at = datetime.now(timezone.utc)
     db.commit()
-    return DayStatusOut(finished_at=session.finished_at)
+    return DayStatusOut(finished_at=session.finished_at, started_at=session.started_at)
 
 
 @router.post("/{week_id}/days/{day_index}/reopen", response_model=DayStatusOut)
@@ -839,5 +871,6 @@ def reopen_day(
     session = day_session(db, user, day)
     if session is not None and session.finished_at is not None:
         session.finished_at = None
+        session.started_at = None  # el contador vuelve a empezar al retomar (decisión 82)
         db.commit()
     return DayStatusOut(finished_at=None)

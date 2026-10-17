@@ -93,6 +93,7 @@ def generate_proposal(
     level: Level,
     routine_id: int | None = None,
     days: int | None = None,
+    minutes: int | None = None,
 ) -> PlanProposal:
     """Genera una propuesta, de a una por persona (`GenerationInProgress` si ya hay otra)."""
     with _running_lock:
@@ -102,7 +103,7 @@ def generate_proposal(
     try:
         if _in_progress_in_db(db, user.id):
             raise GenerationInProgress
-        return _generate_proposal(db, user, goal, level, routine_id, days)
+        return _generate_proposal(db, user, goal, level, routine_id, days, minutes)
     finally:
         with _running_lock:
             _running.discard(user.id)
@@ -115,6 +116,7 @@ def _generate_proposal(
     level: Level,
     routine_id: int | None = None,
     days: int | None = None,
+    minutes: int | None = None,
 ) -> PlanProposal:
     if user.profile is None:
         raise ProfileMissing
@@ -132,7 +134,8 @@ def _generate_proposal(
         db, user.id, goal, level, keep_names=previous.exercise_names if previous else ()
     )
     base_prompt = build_prompt(
-        profile, goal, level, previous.text if previous else None, days, candidates.exercises
+        profile, goal, level, previous.text if previous else None, days, candidates.exercises,
+        minutes,
     )
     prompt = base_prompt
     problems: list[str] = []
@@ -158,13 +161,14 @@ def _generate_proposal(
             result = validate_routine(
                 routine, goal, level, days,
                 catalog_extra_names=previous.exercise_names if previous else (),
+                minutes=minutes,
             )
             if result.ok:
                 if previous is not None:
                     result.warnings += [
                         Issue(rule, message) for rule, message in weight_jump_warnings(routine, previous)
                     ]
-                return _save(db, user, routine, result, goal, level, routine_id, kind, days)
+                return _save(db, user, routine, result, goal, level, routine_id, kind, days, minutes)
             problems = [f"{i.rule}: {i.message}" for i in result.errors]
 
         if attempt + 1 < MAX_ATTEMPTS:
@@ -178,6 +182,7 @@ def _save(
     routine_id: int | None,
     kind: ProposalKind = ProposalKind.GENERATE,
     days: int | None = None,
+    minutes: int | None = None,
 ) -> PlanProposal:
     # Queda una sola propuesta pendiente: las anteriores se descartan al llegar la nueva.
     now = datetime.now(timezone.utc)
@@ -202,6 +207,8 @@ def _save(
             "routine_id": routine_id,
             # Los días que eligió el usuario: se guardan en la rutina al aceptar (decisión 52).
             "days": days,
+            # Los minutos por sesión que eligió el usuario (decisión 82).
+            "minutes": minutes,
             "warnings": [{"rule": w.rule, "message": w.message} for w in result.warnings],
         },
     )

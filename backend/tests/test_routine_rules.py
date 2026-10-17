@@ -215,13 +215,13 @@ def test_el_cardio_no_suma_series_a_ningun_musculo():
 
 def test_r34_estimacion_de_la_duracion():
     # 3 series x 10 reps = 90 s; 2 descansos de 60 s = 120 s; total 3,5 min.
-    # + movilidad 7,5 min + cardio 20 min + 1 cambio de ejercicio de 1,5 min = 32,5.
+    # + movilidad 7,5 min + cardio 20 min + 1 cambio de ejercicio de 3,5 min = 34,5.
     dia = DayProposal(
         title="x",
         mobility_notes="movilidad de cadera",
         exercises=[fuerza(Muscle.CHEST, sets=3, rest=60), cardio(20)],
     )
-    assert estimate_day_minutes(dia) == pytest.approx(32.5)
+    assert estimate_day_minutes(dia) == pytest.approx(34.5)
 
 
 def test_r34_avisa_si_la_sesion_se_aleja_de_la_referencia():

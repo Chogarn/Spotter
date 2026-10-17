@@ -144,10 +144,10 @@ def test_la_semana_lista_sus_dias_con_cantidad_de_ejercicios_y_duracion(api):
         (2, "Pierna A", 2),
     ]
     # Día 1: press = 34 reps (10+9+8+7) x 3 s + 3 descansos de 120 s = 462 s; plancha = 3 x 45 s + 2 descansos
-    # de 60 s = 255 s; en total 717 s = 11,95 min, más 1,5 de cambio y 7,5 de movilidad = 20,95 -> 21.
-    assert detalle["days"][0]["minutes"] == 21
-    # Día 2: sentadilla 462 s = 7,7 min + cardio 30 min + 1,5 de cambio = 39,2 -> 39.
-    assert detalle["days"][1]["minutes"] == 39
+    # de 60 s = 255 s; en total 717 s = 11,95 min, más 3,5 de cambio y 7,5 de movilidad = 22,95 -> 23.
+    assert detalle["days"][0]["minutes"] == 23
+    # Día 2: sentadilla 462 s = 7,7 min + cardio 30 min + 3,5 de cambio = 41,2 -> 41.
+    assert detalle["days"][1]["minutes"] == 41
 
 
 def test_el_dia_trae_los_ejercicios_en_orden_con_sus_series(api):
