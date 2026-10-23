@@ -30,7 +30,7 @@ GRANDES = [
 ]
 
 
-def ejercicio(nombre, musculo, region, direccion, sets=5):
+def ejercicio(nombre, musculo, region, direccion, sets=4):
     return {
         "name": nombre, "kind": "strength", "region": region, "direction": direccion,
         "primary_muscle": musculo, "secondary_muscles": [], "mechanic": "compound",
@@ -130,8 +130,10 @@ def test_los_avisos_viajan_con_la_propuesta_y_no_la_bloquean(api, entorno, monke
     corta = rutina()
     corta["days"] = [
         {**d, "exercises": [ejercicio(*g, sets=2) for g in GRANDES]} for d in corta["days"]
-    ]  # 4 series por grupo: por debajo de las 10 de R3
-    usar_gemini(monkeypatch, corta)
+    ]  # 4 series por grupo: por debajo de las 10 de R3 (y días de ~35 min contra los 60 elegidos)
+    # Dos respuestas iguales: la primera se rechaza por el tiempo y la segunda, el último intento,
+    # se acepta con los avisos (decisión 89).
+    usar_gemini(monkeypatch, corta, corta)
 
     cuerpo = api.post("/proposals/generate", json=ELECCION).json()
 
@@ -297,7 +299,7 @@ def test_aceptar_crea_la_semana_los_dias_los_ejercicios_y_las_series(api, entorn
         primero = semana.days[0].exercises[0]
         assert primero.position == 1
         assert primero.rest_seconds == 120
-        assert [s.set_number for s in primero.sets] == [1, 2, 3, 4, 5]
+        assert [s.set_number for s in primero.sets] == [1, 2, 3, 4]
         assert float(primero.sets[0].target_weight_kg) == 40.5
         guardada = db.get(PlanProposal, propuesta["id"])
         assert guardada.status == ProposalStatus.ACCEPTED
@@ -409,9 +411,9 @@ def test_la_propuesta_trae_la_duracion_estimada_de_cada_dia(api, entorno, monkey
     usar_gemini(monkeypatch, rutina())
     cuerpo = api.post("/proposals/generate", json=ELECCION).json()
 
-    # 6 ejercicios de 5 series x 10 reps con 120 s de descanso y 5 cambios de 3,5 min.
-    assert cuerpo["day_minutes"] == [80, 80]
-    assert api.get(f"/proposals/{cuerpo['id']}").json()["day_minutes"] == [80, 80]
+    # 6 ejercicios de 5 series x 10 reps con 120 s de descanso y 5 cambios de 3,5 min (con 4 series).
+    assert cuerpo["day_minutes"] == [66, 66]
+    assert api.get(f"/proposals/{cuerpo['id']}").json()["day_minutes"] == [66, 66]
 
 
 def test_sin_semana_activa_el_endpoint_da_404(api):

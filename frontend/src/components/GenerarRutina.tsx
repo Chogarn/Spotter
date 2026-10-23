@@ -32,12 +32,15 @@ function diasPermitidos(nivel: string): number[] {
 }
 
 // Los minutos por sesión (decisión 82), de 20 en 20 desde 40: hasta 60 para un principiante (R18),
-// 90 para un intermedio y 120 para un avanzado. El backend vuelve a comprobarlo.
+// 80 para el resto (por ahora, decisión 88). El backend vuelve a comprobarlo.
+// Por ahora no se pide (decisión 90): la IA decide la duración y el reparto de las series manda. El
+// paso y todo lo demás quedan guardados; para volver a pedirlo alcanza con poner esto en `true`.
+const PEDIR_TIEMPO = false;
 const MINUTOS_MIN = 40;
 const MINUTOS_PASO = 20;
 const MINUTOS_HABITUAL = 60;
 function minutosMaximo(nivel: string): number {
-  return nivel === "principiante" ? 60 : nivel === "intermedio" ? 90 : 120;
+  return nivel === "principiante" ? 60 : 80;
 }
 // Un valor de una rutina vieja (por ejemplo 45) se lleva al más cercano de los que hay ahora.
 function minutosValidos(minutos: number, nivel: string): number {
@@ -113,7 +116,7 @@ export function GenerarRutina({
   const pasos: Paso[] = [
     ...(hayEleccion ? (["eleccion"] as const) : []),
     ...(eleccion === "nueva" ? (["objetivo", "nivel"] as const) : []),
-    "tiempo",
+    ...(PEDIR_TIEMPO ? (["tiempo"] as const) : []),
     "dias",
   ];
   const actual = pasos.includes(paso) ? paso : pasos[0];
@@ -187,8 +190,8 @@ export function GenerarRutina({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           eleccion === "nueva"
-            ? { goal: objetivo, level: nivel, days: dias, minutes: minutos }
-            : { routine_id: Number(eleccion), days: dias, minutes: minutos },
+            ? { goal: objetivo, level: nivel, days: dias, ...(PEDIR_TIEMPO ? { minutes: minutos } : {}) }
+            : { routine_id: Number(eleccion), days: dias, ...(PEDIR_TIEMPO ? { minutes: minutos } : {}) },
         ),
       });
       if (res.ok) {

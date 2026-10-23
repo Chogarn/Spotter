@@ -130,9 +130,10 @@ class GenerateIn(BaseModel):
     # Cuántos días por semana entrena (decisión 52): obligatorio, también al continuar.
     # Que entre en lo que permite el nivel (2 o 3 para principiantes) lo comprueba el endpoint.
     days: int = Field(ge=2, le=6)
-    # Cuántos minutos dura cada sesión (decisión 82): obligatorio. Que entre en lo que permite el
-    # nivel (hasta 60 para principiantes) lo comprueba el endpoint.
-    minutes: int = Field(ge=30, le=120)
+    # Cuántos minutos dura cada sesión (decisión 82). Desde la decisión 90 la pantalla ya no lo pide
+    # (la IA decide la duración con la referencia de R18); si viene, que entre en lo que permite el
+    # nivel lo comprueba el endpoint.
+    minutes: int | None = Field(default=None, ge=30, le=120)
 
     @model_validator(mode="after")
     def one_way_or_the_other(self):

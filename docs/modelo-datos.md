@@ -28,7 +28,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0018` fecha de nacimiento | Suma `profiles.birth_date` (nula); la edad pasa a calcularse desde ella y `age` se conserva para perfiles viejos | Implementada |
 | `0019` carga y dolor por ejercicio | Suma `exercise_completions.load_feel` y `pain` (nulas): lo que la persona marca al terminar un ejercicio (decisión 74) | Implementada |
 | `0021` correo verificado y recuperación | Suma `users.email_verified_at` y crea `pending_registrations` (registros que esperan verificar el correo), `password_resets` (enlaces de recuperación de un solo uso) y `email_log` (cada correo enviado, para los topes); marca como verificadas las cuentas existentes (decisión 81) | Implementada |
-| `0022` tiempo de la sesión | Agrega `routines.session_minutes` (30 a 120; la app ofrece 40, 60, 80, 100 y 120) y `workout_sessions.started_at`: los minutos por sesión que elige el usuario y cuándo tocó "Empezar día" (decisión 82) | Implementada |
+| `0022` tiempo de la sesión | Agrega `routines.session_minutes` (30 a 120; la app ofrece 40, 60 y 80) y `workout_sessions.started_at`: los minutos por sesión que elige el usuario y cuándo tocó "Empezar día" (decisión 82) | Implementada |
 | `0023` mediciones de cuerpo | Crea `body_measurements`: el peso (y la grasa corporal, opcional) de cada día, cargados a mano; parte del peso actual de cada perfil (decisión 87) | Implementada |
 | `0020` cambio de contraseña | Suma `users.password_changed_at` (nula): al cambiar la contraseña se cierran las sesiones de los demás aparatos (decisión 80) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |

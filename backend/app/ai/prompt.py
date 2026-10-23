@@ -10,6 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from app.ai.catalog import MUSCLE_TEXT, CatalogExercise, load_catalog
+from app.ai.rules import CHOSEN_TOLERANCE_MINUTES, MINUTES_PER_EXERCISE, exercise_count_hint
 from app.enums import Goal, Level, Muscle
 from app.models import Profile
 
@@ -73,11 +74,44 @@ def minutes_text(minutes: int | None) -> str:
     """Decisión 82: el tiempo de la sesión lo elige el usuario y manda sobre el volumen semanal.
     Sin el dato (pruebas viejas), decide la IA con la referencia de R18."""
     if minutes is None:
-        return "**Vos decidís la duración** de cada sesión, con la referencia de abajo."
+        return (
+            "**Vos decidís la duración** de cada sesión. La referencia según el perfil es una guía y no un "
+            "tope: principiante, mantenerme_activo y condicion_general cerca de **60 minutos**; intermedio con "
+            "masa o fuerza, **60 a 90**; perder_grasa, **60 minutos de fuerza, más el cardio**. Los días tienen "
+            "que durar parecido entre sí."
+        )
     return (
-        f"**La persona eligió sesiones de {minutes} minutos: cada día tiene que durar cerca de "
-        f"{minutes} minutos, contando todo (series, descansos, cambios de ejercicio, cardio y movilidad).** "
-        "Ese tiempo manda sobre el volumen semanal: nunca alargues una sesión."
+        f"**La persona eligió sesiones de {minutes} minutos: cada día tiene que durar {minutes} minutos, "
+        f"con un margen de {CHOSEN_TOLERANCE_MINUTES} minutos por arriba y por abajo (entre "
+        f"{minutes - CHOSEN_TOLERANCE_MINUTES} y {minutes + CHOSEN_TOLERANCE_MINUTES}), contando todo: "
+        "series, descansos, cambios de ejercicio, cardio y movilidad. Todos los días tienen que quedar "
+        "parecidos entre sí: ni uno corto ni uno largo.** "
+        f"Para eso, un día de solo fuerza necesita unos {exercise_count_hint(minutes)} ejercicios de 3 series "
+        f"(cada uno dura entre {MINUTES_PER_EXERCISE[0]} y {MINUTES_PER_EXERCISE[1]} minutos con el descanso y el "
+        "cambio de máquina); si el día lleva movilidad o cardio, restá los ejercicios que ocupen ese tiempo. "
+        "Ese tiempo manda sobre el volumen semanal: no pases del tiempo para que entren más series."
+    )
+
+
+def volume_text(minutes: int | None) -> str:
+    """Qué hacer si el volumen semanal no entra: sin tiempo elegido, la regla de antes (alargar y
+    avisar); con tiempo elegido, recortar (decisión 82)."""
+    if minutes is None:
+        return (
+            "Si el volumen que pide el objetivo no entra en la duración de referencia, resolvelo **en este "
+            "orden**:\n\n**No sumes días**: la cantidad la eligió la persona.\n\n1. Dejá la sesión **más larga "
+            "que la referencia** y **avisalo en `notices`**.\n2. **Solo como último recurso**, recortá series de "
+            "**menor prioridad** y avisalo en `notices`. Menor prioridad son los ejercicios accesorios "
+            "(monoarticulares) y los músculos chicos (bíceps, tríceps, gemelos y core). Los multiarticulares "
+            "principales no se recortan primero."
+        )
+    return (
+        "Si el volumen que pide el objetivo no entra en el tiempo elegido, resolvelo **así**:\n\n**No sumes días "
+        "y no alargues la sesión**: la cantidad de días y el tiempo los eligió la persona.\n\n1. Recortá series "
+        "de **menor prioridad**: primero los ejercicios accesorios (monoarticulares) y los músculos chicos "
+        "(bíceps, tríceps, gemelos y core). Los multiarticulares principales no se recortan primero.\n2. "
+        "**Avisalo en `notices`**: decí qué recortaste y que el volumen semanal quedó por debajo de lo "
+        "recomendado por el tiempo elegido."
     )
 
 
@@ -116,6 +150,7 @@ def build_prompt(
     text = _template().replace("{{PERFIL}}", profile_block(profile, goal, level))
     text = text.replace("{{DIAS}}", days_text(days))
     text = text.replace("{{TIEMPO}}", minutes_text(minutes))
+    text = text.replace("{{VOLUMEN_NO_ENTRA}}", volume_text(minutes))
     text = text.replace(
         "{{CATALOGO}}", catalog_block(load_catalog() if candidates is None else candidates)
     )

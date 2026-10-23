@@ -86,7 +86,7 @@ def generate(
             detail=f"Con nivel {level.value} se entrena de {permitidos[0]} a {permitidos[-1]} días por semana",
         )
     minutos = allowed_minutes(level)  # R18: los principiantes hasta 60
-    if data.minutes not in minutos:
+    if data.minutes is not None and data.minutes not in minutos:
         raise HTTPException(
             status_code=422,
             detail=f"Con nivel {level.value} la sesión dura de {minutos[0]} a {minutos[-1]} minutos, de 20 en 20",

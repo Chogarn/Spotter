@@ -163,13 +163,17 @@ def _generate_proposal(
                 catalog_extra_names=previous.exercise_names if previous else (),
                 minutes=minutes,
             )
-            if result.ok:
+            if result.ok and (not result.soft_issues or attempt + 1 >= MAX_ATTEMPTS):
+                # Sin problemas, o con días fuera del tiempo o mal repartidos en el último intento: se
+                # acepta con el aviso (no se bloquea la generación por eso).
                 if previous is not None:
                     result.warnings += [
                         Issue(rule, message) for rule, message in weight_jump_warnings(routine, previous)
                     ]
                 return _save(db, user, routine, result, goal, level, routine_id, kind, days, minutes)
-            problems = [f"{i.rule}: {i.message}" for i in result.errors]
+            # Decisiones 89 y 90: los días se desvían del tiempo elegido o las series no están bien
+            # repartidas: se pide de nuevo (cada intento cuenta en los topes) mientras queden intentos.
+            problems = [f"{i.rule}: {i.message}" for i in (result.errors or result.soft_issues)]
 
         if attempt + 1 < MAX_ATTEMPTS:
             prompt = base_prompt + _correction(problems)

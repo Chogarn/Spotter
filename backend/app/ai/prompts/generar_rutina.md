@@ -71,24 +71,26 @@ Contá las series por semana así: una serie **directa** (músculo principal) va
 - **Descanso:** autorregulado ("el que necesites para repetir con buena técnica"), con una guía editable: **2 a 3 minutos** (120 a 180 s) en multiarticulares pesados y **1 a 2 minutos** (60 a 120 s) en accesorios.
 - **Movilidad y equilibrio:** en **2 días por semana**, un texto de 5 a 10 minutos en `mobility_notes` (por ejemplo "5 a 10 min de movilidad de cadera"), sin series.
 
+# Reparto de las series entre los días
+
+El volumen semanal de cada grupo grande tiene que **repartirse parejo entre los días**: no se junta en un solo día ni se llenan los primeros días dejando flacos los últimos.
+
+- Un grupo grande se trabaja en **al menos 2 días** cuando la rutina tiene 3 o más días de fuerza.
+- Entre los días en que trabajás un mismo grupo, la diferencia de series es de **3 como máximo**, y ningún día pasa de **9 series de un mismo grupo** (3 ejercicios de 3 series).
+- Todos los días tienen que tener una cantidad **parecida** de series de los grupos grandes: la diferencia entre el día con más y el que menos tiene es de **4 como máximo**.
+- **Bíceps, tríceps, gemelos y abdominales son complemento:** no cuentan para el volumen de los grupos grandes y **no sirven para completar un día**. Hasta **6 series de complemento por día**.
+
 # Duración de cada sesión
 
 {{TIEMPO}}
 
-**El tiempo manda sobre el volumen semanal.** No alargues una sesión para que entren más series. Si la persona no eligió un tiempo, la referencia según el perfil es una guía y no un tope: principiante, mantenerme_activo y condicion_general cerca de **60 minutos**; intermedio con masa o fuerza, **60 a 90**; perder_grasa, **60 minutos de fuerza, más el cardio**.
-
-Calculá la duración de cada día antes de responder así: tiempo de las series (cada repetición cuenta unos **3 segundos**; en un isométrico, sus segundos) **+** descanso (**series menos una, por `rest_seconds`**) **+** unos **3,5 minutos** de cambio entre ejercicios (incluye esperar la máquina y acomodar el peso) **+** los minutos de cardio **+** unos 7 minutos de movilidad en los días que la tengan. Si un día queda mucho más corto que el tiempo, agregá ejercicios o series; si queda más largo, sacá.
+Calculá la duración de cada día antes de responder así: tiempo de las series (cada repetición cuenta unos **3 segundos**; en un isométrico, sus segundos) **+** descanso (**series menos una, por `rest_seconds`**) **+** unos **3,5 minutos** de cambio entre ejercicios (incluye esperar la máquina y acomodar el peso) **+** los minutos de cardio **+** unos 7 minutos de movilidad en los días que la tengan. Si un día queda mucho más corto o más largo que lo buscado, ajustá los ejercicios.
 
 Ejemplo resuelto: un ejercicio de **4 series de 10 repeticiones con 120 s de descanso** dura 40 repeticiones x 3 s = 2 min, más 3 descansos x 2 min = 6 min, más 3,5 min de cambio: **unos 11,5 minutos**. Para llegar a 60 minutos hacen falta **unos 5 ejercicios de ese tipo**. Con ejercicios de 3 series y descansos de 90 s cada uno dura unos 8 minutos (1,5 de series + 3 de descanso + 3,5 de cambio), o sea que harían falta unos 7 u 8. **Hacé esta cuenta para cada día antes de responder.**
 
 # Si el volumen no entra
 
-Si el volumen que pide el objetivo no entra en el tiempo elegido, resolvelo **así**:
-
-**No sumes días y no alargues la sesión**: la cantidad de días y el tiempo los eligió la persona.
-
-1. Recortá series de **menor prioridad**: primero los ejercicios accesorios (monoarticulares) y los músculos chicos (bíceps, tríceps, gemelos y core). Los multiarticulares principales no se recortan primero.
-2. **Avisalo en `notices`**: decí qué recortaste y que el volumen semanal quedó por debajo de lo recomendado por el tiempo elegido.
+{{VOLUMEN_NO_ENTRA}}
 
 # Semana anterior y progresión
 
