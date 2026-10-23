@@ -7,6 +7,12 @@ class Level(str, enum.Enum):
     AVANZADO = "avanzado"
 
 
+class RoutineSplit(str, enum.Enum):
+    FULL_BODY = "full_body"
+    UPPER_LOWER = "upper_lower"
+    PPL = "ppl"
+
+
 class Goal(str, enum.Enum):
     MASA = "masa"
     FUERZA = "fuerza"

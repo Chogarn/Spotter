@@ -28,7 +28,8 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0018` fecha de nacimiento | Suma `profiles.birth_date` (nula); la edad pasa a calcularse desde ella y `age` se conserva para perfiles viejos | Implementada |
 | `0019` carga y dolor por ejercicio | Suma `exercise_completions.load_feel` y `pain` (nulas): lo que la persona marca al terminar un ejercicio (decisión 74) | Implementada |
 | `0021` correo verificado y recuperación | Suma `users.email_verified_at` y crea `pending_registrations` (registros que esperan verificar el correo), `password_resets` (enlaces de recuperación de un solo uso) y `email_log` (cada correo enviado, para los topes); marca como verificadas las cuentas existentes (decisión 81) | Implementada |
-| `0022` tiempo de la sesión | Agrega `routines.session_minutes` (30 a 120; la app ofrece 40, 60 y 80) y `workout_sessions.started_at`: los minutos por sesión que elige el usuario y cuándo tocó "Empezar día" (decisión 82) | Implementada |
+| `0022` tiempo de la sesión | Agrega `routines.session_minutes` (30 a 120; dato guardado y apagado desde decisión 90) y `workout_sessions.started_at`: cuándo tocó "Empezar día" (decisión 82) | Implementada |
+| `0024` estructura de entrenamiento | Agrega `routines.split_type` para guardar Full Body, torso/pierna o PPL (decisión 91) | Implementada |
 | `0023` mediciones de cuerpo | Crea `body_measurements`: el peso (y la grasa corporal, opcional) de cada día, cargados a mano; parte del peso actual de cada perfil (decisión 87) | Implementada |
 | `0020` cambio de contraseña | Suma `users.password_changed_at` (nula): al cambiar la contraseña se cierran las sesiones de los demás aparatos (decisión 80) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
@@ -242,7 +243,7 @@ Datos personales del usuario. Una fila por usuario. **No tiene nivel, objetivo n
 | birth_date | Fecha de nacimiento (nula en un perfil viejo que solo tiene la edad). La API la valida entre 14 y 100 años y calcula `age`. **Migración 0018** |
 | weight_kg, height_cm | Peso corporal y altura |
 | sex | Opcional; solo para ajustar cargas iniciales |
-| *(sin días ni duración)* | **El perfil no tiene "días por semana" ni "duración de la sesión"**: los determina la IA. La cantidad de días se calcula con `plan_days` |
+| *(sin días ni duración)* | **El perfil no tiene "días por semana" ni "duración de la sesión"**: los días se eligen por rutina y la IA decide la duración. La cantidad de días se calcula con `plan_days` |
 | limitations | Lesiones o limitaciones (texto opcional) |
 | legal_notice_accepted_at | Cuándo aceptó el aviso legal |
 
@@ -269,7 +270,7 @@ Ejercicios conocidos por la app. La tabla se completa al guardar un plan. Desde 
 Las etiquetas son **obligatorias** y las asigna la IA; el código las valida (R13) y la base rechaza cualquier valor fuera de las listas. Con ellas se cuentan las series por músculo (R3, R20, R24, R25), las indirectas (R5) y el equilibrio entre tirón y empuje (R14).
 
 ### routines
-Una rutina agrupa las semanas que el usuario va sumando con un mismo objetivo y nivel (por ejemplo, una de fuerza y otra de mantenimiento).
+Una rutina agrupa las semanas que el usuario va sumando con un mismo objetivo, nivel y estructura de entrenamiento (split). El split elegido queda guardado en `routines.split_type` y se conserva al continuar, salvo que la persona elija otra opción compatible en el asistente.
 
 | Campo | Detalle |
 |---|---|
@@ -425,7 +426,7 @@ En `ai_calls`, una llamada de embeddings ocupa **una fila por texto** (Google cu
 12. **El cardio es un ejercicio con duración.** No hay una tabla aparte: un ejercicio de cardio es un `exercises` con `kind = cardio` y sus series se miden en `duration_minutes`. Así entra en el mismo flujo (tilde, "Día completado", planificado frente a real). La intensidad (ritmo moderado, "que puedas hablar") va en `execution_notes`.
 13. **Una serie se mide en repeticiones o en minutos.** Una restricción de la base lo garantiza. Además, `set_entries.weight_kg` pasó a ser opcional, lo que también permite registrar ejercicios con peso corporal.
 14. **Los días los define la rutina, no el perfil.** Por eso `profiles` ya no tiene `days_per_week`: cuántos días entrena una persona se calcula contando los `plan_days` de su semana activa.
-15. **La duración de la sesión tampoco está en el perfil.** La determina la IA, igual que los días. Por eso se quitó `profiles.session_minutes`. El usuario puede pedir más (más días o sesiones más largas), nunca menos.
+15. **La duración de la sesión tampoco está en el perfil.** La IA la decide; R34 estima e informa el tiempo. `routines.session_minutes` queda guardado por compatibilidad con decisiones previas, pero el asistente no lo pide (decisión 90).
 16. **El descanso es un campo propio y editable.** `plan_exercises.rest_seconds` guarda el descanso entre series de cada ejercicio. La IA lo propone según el tipo de ejercicio y el usuario lo cambia. Con ese dato el código podrá estimar cuánto dura una sesión.
 17. **La movilidad y el equilibrio son un texto del día.** `plan_days.mobility_notes` es un texto libre, sin series ni tilde. Es lo más simple y se puede pasar a un tipo de ejercicio más adelante si hace falta registrarlos.
 18. **Las etiquetas del ejercicio son obligatorias y cerradas.** Región, dirección, músculo primario, mecánica, equipamiento y nivel no admiten valores libres, y los ejercicios de cardio o de cuerpo entero usan `full_body`. Así el código puede contar series por músculo sin depender de texto libre.

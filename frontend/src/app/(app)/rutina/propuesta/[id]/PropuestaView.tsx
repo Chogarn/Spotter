@@ -17,6 +17,19 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { cn } from "cn";
 import { Cargando } from "@/components/Cargando";
 
+const SPLIT_LABELS = {
+  full_body: "Cuerpo completo",
+  upper_lower: "Torso y pierna",
+  ppl: "Empuje, tirón y piernas",
+} as const;
+
+function focoDelDia(split: Proposal["split"], indice: number): string | null {
+  if (split === "full_body") return "Cuerpo completo";
+  if (split === "upper_lower") return indice % 2 === 0 ? "Torso" : "Piernas";
+  if (split === "ppl") return ["Empuje", "Tirón", "Piernas"][indice % 3];
+  return null; // propuestas anteriores a la elección de split
+}
+
 export default function PropuestaView({
   params,
 }: {
@@ -56,7 +69,7 @@ export default function PropuestaView({
       .catch(() => {});
   }
 
-  useEffect(cargarCambios, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(cargarCambios, [id]);
 
   async function resolver(accion: "accept" | "discard") {
     setError("");
@@ -174,7 +187,7 @@ export default function PropuestaView({
         aros="amarillo"
         volver={{ href: "/" }}
         arriba={<p className="m-0 mb-1 text-sm text-primary-foreground/70">Propuesta de la IA</p>}
-        titulo={`${days.length} días · ~${Math.round(propuesta.day_minutes.reduce((a, b) => a + b, 0) / days.length)} min`}
+        titulo={`${days.length} días · ${propuesta.split ? SPLIT_LABELS[propuesta.split] : "Rutina"} · ~${Math.round(propuesta.day_minutes.reduce((a, b) => a + b, 0) / days.length)} min`}
         subtitulo="La IA propone, vos decidís: nada se guarda hasta que aceptes."
       />
       <div style={{ ...contenedor, width: "100%", paddingTop: "1.25rem" }}>
@@ -214,7 +227,7 @@ export default function PropuestaView({
                 key={i}
                 type="button"
                 onClick={() => irADia(i)}
-                aria-label={`Día ${i + 1}: ${d.title}`}
+                aria-label={`Día ${i + 1}: ${focoDelDia(propuesta.split, i) ?? d.title}`}
                 aria-current={i === diaActual ? "step" : undefined}
                 className={cn(
                   "h-2 flex-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -232,7 +245,14 @@ export default function PropuestaView({
           </div>
           <h2 className="mt-3 mb-0 text-4xl">Día {diaActual + 1}</h2>
           <p className="mt-0 text-muted-foreground">
-            {dia.title} · ~{propuesta.day_minutes[diaActual]} min
+            {focoDelDia(propuesta.split, diaActual) ?? dia.title}
+            {focoDelDia(propuesta.split, diaActual) && dia.title !== focoDelDia(propuesta.split, diaActual)
+              ? ` · ${dia.title}`
+              : null}
+            {` · ~${propuesta.day_minutes[diaActual]} min`}
+          </p>
+          <p className="-mt-2 mb-4 text-sm text-muted-foreground">
+            {dia.exercises.length} {dia.exercises.length === 1 ? "ejercicio" : "ejercicios"} · {dia.exercises.reduce((total, ejercicio) => total + ejercicio.sets.length, 0)} series planificadas
           </p>
           {dia.mobility_notes && <p className="text-sm">Movilidad: {dia.mobility_notes}</p>}
           <ol className="m-0 grid list-none gap-2.5 p-0">

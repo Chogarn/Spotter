@@ -40,10 +40,6 @@ export default function DiaView({
   const [dias, setDias] = useState<WeekDetail["days"]>([]);
 
   useEffect(() => {
-    // Al cambiar de día se vacía lo anterior: no queda a la vista el día que se dejó.
-    setDia(null);
-    setAbierta(null);
-    setError("");
     apiFetch(`/weeks/${id}/days/${n}`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await readError(res));

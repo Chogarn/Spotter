@@ -115,14 +115,14 @@ El piso de 10 series o más por semana por grupo muscular (R3, masa muscular) no
 - **Por qué:** considerás que 10 series semanales **no son demasiadas** para un principiante. *(completar el resto; un dato a favor: la evidencia del ACSM 2026 viene sobre todo de personas sin experiencia)*
 - **Descartaste:** un piso más bajo para principiantes.
 
-### 19. La IA determina los días de la semana
+### 19. La IA determina los días de la semana (reemplazada por la decisión 52)
 La cantidad de días (entre 2 y 6) la determina la IA según los parámetros de la persona: objetivo, nivel y volumen necesario. El usuario no los elige, pero si prefiere **entrenar más días** puede pedirlo y la IA recalcula (nunca menos). No existe el pedido "solo puedo 3 días".
 - **Origen:** tuya.
 - **Por qué:** querés que la cantidad de días la defina la rutina y no el usuario; si la persona quiere más días, que la IA recalcule. *(completar el resto)*
 - **Descartaste:** que el usuario elija sus días por semana; una semana fija de 5 días para todos (lo decidiste antes y lo cambiaste el mismo día); que los días dependan solo del nivel.
 - **Historial:** el 2026-10-08 se decidió primero "5 días para todos" y luego esta regla, que la reemplaza.
 
-### 20. La IA también determina la duración de cada sesión
+### 20. La IA también determina la duración de cada sesión (decisión original; días reemplazados por 52 y tiempo apagado por 90)
 El usuario no ingresa cuánto tiempo tiene por sesión: lo determina la IA, igual que los días. Si prefiere entrenar más (más días o sesiones más largas), puede pedirlo y la IA recalcula; nunca menos.
 - **Origen:** tuya.
 - **Por qué:** querés que la IA decida el tiempo de sesión y que se trate igual que los días. *(completar el resto)*
@@ -540,7 +540,7 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte (mientras no estabas):** que las cuentas que ya existían (la tuya y las de prueba) quedaron marcadas como verificadas en la migración 0021; los topes de 50 por día y 1 por minuto (los propuse y no los confirmaste); que recuperar la contraseña no inicia sesión; que si el envío no está configurado, registrarse y recuperar responden "El envío de correos no está configurado" y no se crea nada.
 - **Ojo:** (1) Para que funcione en producción hay que crear la cuenta de Gmail de Spotter, activar la verificación en dos pasos y cargar las variables `SMTP_*`, `APP_URL` y `EMAIL_DAILY_LIMIT` (ver `.env.example`); sin eso, nadie puede registrarse. (2) Un error de tipeo en el correo ("gmial.com") rebota sin que nos enteremos: esa cuenta nunca se crea. (3) Los correos descartables pasan. (4) El login sigue sin límite de intentos. (5) Cambiar el correo y borrar la cuenta siguen sin hacerse. (6) Un registro pendiente que nunca se verifica queda en la base hasta que alguien se registre de nuevo con ese correo: falta una limpieza de los vencidos.
 
-### 82. El usuario elige cuánto dura la sesión, y el tiempo manda sobre el volumen
+### 82. El usuario elige cuánto dura la sesión (apagada por la decisión 90)
 - **Fecha:** 2026-10-17
 - **Decisión:** al generar una rutina, después del nivel, la persona elige los **minutos por sesión** en una rueda de 20 en 20 (antes de 5 en 5; el 2026-10-18 se simplificó): 40 y 60 para un principiante (R18 lo limita a 60), 40, 60 y 80 para un intermedio y 40, 60, 80, 100 y 120 para un avanzado; 60 es lo habitual. Se guarda en `routines.session_minutes` (migración 0022) y al continuar viene marcado. **El tiempo manda:** la IA nunca alarga una sesión; si el volumen de R3 no entra, recorta series (accesorios y músculos chicos primero) y avisa. Esto **cambia R18 y R35** (antes la IA decidía la duración y alargaba antes de recortar). R34 sube el cambio entre ejercicios de 1,5 a **3,5 minutos** (esperar la máquina y acomodar el peso). Además, el modo entrenar muestra un **contador** desde "Empezar día" hasta "Día completado" (`workout_sessions.started_at`); la duración medida aparece solo en las estadísticas: el detalle del día en el Calendario y el Resumen semanal de Progreso (total y por día).
 - **Por qué:** *(completar)*
@@ -610,6 +610,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Descartaste:** seguir pidiendo minutos exactos (la IA no logra sumar series, descansos y cambios de máquina, y los días del final quedaban flacos: 60 minutos el Día 1 y 37 el último con 6 días); que el código arme el esqueleto semanal y la IA solo elija ejercicios (queda como opción si esto no alcanza).
 - **Decidió la IA sin preguntarte:** las etiquetas de los avisos ("Reparto"); contar solo series directas (las indirectas de 0,5 siguen contando para el volumen semanal de R3, no para el reparto); que un día solo de cardio no entra en el reparto; que el reparto vale para todos los objetivos y niveles; que el paso del tiempo queda oculto y no borrado.
 - **Ojo:** (1) **no se probó con Gemini real** (gasta cuota). Hay que probarlo de a una generación y mirar los avisos. (2) Cada reintento es una llamada más y una generación puede tardar el doble. (3) Con muchos días (5 o 6) y pocos grupos grandes al día, puede no entrar el volumen mínimo de R3 con estos topes: la IA recorta y avisa. (4) Se comprobó contra propuestas reales: las de 3 y 4 días pasan sin problemas, y las de 5 y 6 días (13 series de pecho en un día, abdominales de relleno) se marcan.
+
+### 91. La persona elige cómo repartir el entrenamiento
+- **Fecha:** 2026-10-23
+- **Decisión:** el asistente ofrece tres estructuras: **cuerpo completo (Full Body)**, **torso/pierna (Upper/Lower)** y **empuje/tirón/piernas (PPL)**. La IA arma los días siguiendo esa estructura y el código valida la compatibilidad y los grupos principales de cada día. Se guarda en `routines.split_type`; al continuar aparece seleccionado y puede cambiarse dentro de las opciones válidas.
+- **Compatibilidad implementada:** principiantes: cuerpo completo, 2 o 3 días (R12). Para los demás niveles, cuerpo completo entre 2 y 6 días; torso/pierna con 2, 4, 5 o 6 días, excepto 2 días con objetivo masa; PPL con 6 días (dos vueltas de empuje, tirón y piernas). Se excluyen torso/pierna de 3 días y PPL de 3 días porque no cumplen la frecuencia mínima de dos días por grupo grande de la decisión 90; torso/pierna de 2 días y masa no permite alcanzar R3 sin romper el tope de 9 series por grupo y día.
+- **Por qué:** permite que la persona controle qué entrena en cada día manteniendo las reglas de reparto de series y frecuencia ya acordadas. Las fuentes no prescriben un split; son opciones de producto.
+- **Decidió la IA sin preguntarte:** la compatibilidad concreta entre nivel, objetivo, cantidad de días y estructura descrita arriba; considerar pecho y hombros como empuje, espalda como tirón y cuádriceps, isquios y glúteos como piernas; asignar por defecto Full Body para 2–3 días, torso/pierna para 4–5 y PPL para 6. Son decisiones de implementación revisables.
+- **Ojo:** los grupos se validan por músculo principal. Todavía no se probó la generación del prompt actualizado con Gemini real; hacerlo consume cuota.
 
 ## Decisiones abiertas
 

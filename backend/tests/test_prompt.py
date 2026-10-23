@@ -64,7 +64,7 @@ def test_no_se_manda_nombre_ni_email():
 
 @pytest.mark.parametrize(
     "fragmento",
-    ["R3", "10 a 20 series", "isometric", "duration_seconds", "notices", "2 y 6", "150 a 300"],
+    ["R3", "10 a 20 series", "isometric", "duration_seconds", "notices", "No inventes una", "150 a 300"],
 )
 def test_el_prompt_explica_las_reglas_clave(fragmento):
     # El texto del archivo no usa los códigos "R3": se comprueba el contenido, no la etiqueta.

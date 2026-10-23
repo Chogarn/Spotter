@@ -8,7 +8,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.ai.routine import RoutineProposal
-from app.enums import Goal, Level, LoadFeel, PainLevel
+from app.enums import Goal, Level, LoadFeel, PainLevel, RoutineSplit
 from app.models import age_on
 
 
@@ -130,9 +130,10 @@ class GenerateIn(BaseModel):
     # Cuántos días por semana entrena (decisión 52): obligatorio, también al continuar.
     # Que entre en lo que permite el nivel (2 o 3 para principiantes) lo comprueba el endpoint.
     days: int = Field(ge=2, le=6)
-    # Cuántos minutos dura cada sesión (decisión 82). Desde la decisión 90 la pantalla ya no lo pide
-    # (la IA decide la duración con la referencia de R18); si viene, que entre en lo que permite el
-    # nivel lo comprueba el endpoint.
+    # Estructura semanal elegida de las que son compatibles con los días y el nivel.
+    split: RoutineSplit | None = None
+    # Campo histórico de decisiones 82/88/89. Desde decisión 90 se acepta por compatibilidad,
+    # pero no se usa como objetivo, límite ni dato de la nueva propuesta.
     minutes: int | None = Field(default=None, ge=30, le=120)
 
     @model_validator(mode="after")
@@ -208,6 +209,7 @@ class ProposalOut(BaseModel):
     status: str
     created_at: datetime | None
     routine: RoutineProposal
+    split: RoutineSplit | None = None
     # Duración estimada de cada día en minutos (R34), en el mismo orden que `routine.days`.
     day_minutes: list[int]
     warnings: list[WarningOut]
@@ -243,6 +245,7 @@ class RoutineSummaryOut(BaseModel):
     has_active_week: bool
     days_per_week: int | None
     session_minutes: int | None = None
+    split_type: RoutineSplit | None = None
     # Estado de cada día de la semana más nueva ("completed", "partial" o "pending"), en orden;
     # la lista "Tus rutinas" lo muestra como discos. Vacía si la rutina no tiene semanas.
     last_week_day_states: list[str] = []
@@ -282,6 +285,7 @@ class RoutineDetailOut(BaseModel):
     level: Level
     days_per_week: int | None
     session_minutes: int | None = None
+    split_type: RoutineSplit | None = None
     weeks: list[WeekSummaryOut]  # de la más nueva a la más vieja
 
 

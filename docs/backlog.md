@@ -45,11 +45,11 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 - [x] Topes de uso de Gemini (diario y por minuto) `ia` `backend` (#30)
 - [x] Propuestas de la IA: ver la pendiente desde la portada (`GET /proposals/pending`) y vista previa con aceptar o descartar para "Generar rutina" `ia` `backend` `frontend` (#45). El antes y después pasó a #49
 - [x] Antes y después en las propuestas de semana nueva: qué cambia, con el valor anterior y el nuevo. Depende de #27 (hecha); el ajuste (#29) se descartó por ahora `ia` `backend` `frontend` (#49)
-- [x] ~~Nota de cómo me sentí al terminar la sesión (botones y texto)~~ **No se hace** (decisiones 71 y 74): cómo se sintió el entrenamiento y el dolor se cuentan en el **comentario al cerrar la semana** (#50) y en la marca opcional por ejercicio (#63) `backend` `frontend` (#46)
+- [x] ~~Nota de cómo me sentí al terminar la sesión (botones y texto)~~ **No se hace** (decisiones 71, 74 y 85): cómo se sintió el entrenamiento y el dolor se cuentan en el **comentario al cerrar la semana** (#50). Los datos viejos de #63 quedan guardados, pero ya no se piden ni se envían en nuevas generaciones `backend` `frontend` (#46)
 - [x] Comentario escrito del usuario al cerrar la semana (cómo se sintió), que la IA lee al armar la semana siguiente `backend` `ia` `frontend` (#50)
-- [x] ~~Esfuerzo por serie (1 a 10) al editar lo realizado~~ **No se hace** (decisión 74): lo reemplaza la marca de carga por ejercicio (#63) y la señal que compara peso y repeticiones `backend` `frontend` (#48)
-- [x] Catálogo de ejercicios para la IA (RAG): la IA arma la semana solo con ejercicios de `backend/app/ai/exercises.json` (118, aprobado el 2026-10-14). Embeddings de Gemini en PostgreSQL con pgvector, recuperación por nivel y similitud, y el código rechaza lo que no esté en el catálogo. Decisión 58. Pendiente: consultar al profesor si es lo que se espera de RAG `backend` `ia` (#52)
-- [x] ~~Semáforo de dolor (R31): zona y gravedad de 0 a 10 en la nota del día~~ **No se hace** (decisiones 71 y 74): el dolor llega a la IA por el comentario al cerrar la semana y por la marca opcional por ejercicio (#63). R31 se aplica con eso `backend` `frontend` `ia` (#51)
+- [x] ~~Esfuerzo por serie (1 a 10) al editar lo realizado~~ **No se hace** (decisión 74): el esfuerzo se deduce comparando peso y repeticiones; el dolor va en el comentario al cerrar la semana `backend` `frontend` (#48)
+- [x] Catálogo de ejercicios para la IA (RAG): la IA arma la semana solo con los **117 ejercicios** de `backend/app/ai/exercises.json` (aprobados el 2026-10-14). Embeddings de Gemini en PostgreSQL con pgvector, recuperación por nivel y similitud, y el código rechaza lo que no esté en el catálogo. Decisión 58. Pendiente: consultar al profesor si es lo que se espera de RAG `backend` `ia` (#52)
+- [x] ~~Semáforo de dolor (R31): zona y gravedad de 0 a 10 en la nota del día~~ **No se hace** (decisiones 71, 74 y 85): el dolor se informa en el comentario al cerrar la semana. Las marcas viejas de #63 se conservan en la base, pero R31 ya no recibe esos valores `backend` `frontend` `ia` (#51)
 - ~~Elegir camino A o B al empezar (#43) y formulario de rutina actual, camino B (#44)~~ **No se hacen**: se descartó el camino B (decisión 40); el nivel y el objetivo se eligen al generar
 - [x] Refactor y mejoras de UX: shadcn/ui y Tailwind en versión básica (sin estilos propios todavía), con componentes compartidos para el error y el recuadro de confirmación. Decisión 38; probado en una copia temporal `frontend` (#31)
 - [x] Diseño "Disco" (tema): colores de los discos, fuentes Barlow y Barlow Condensed, variables de shadcn en `globals.css` y modo oscuro. Decisión 41 `frontend` (#53)
@@ -61,24 +61,24 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 - [x] Reloj de descanso circular: botón redondo junto a "Serie hecha", el círculo ocupa el lugar de la serie, −15 s, +15 s y Saltar; vibra al terminar y una franja lo muestra en otras pantallas. Decisión 48. Depende de #58 `frontend` (#59)
 - [x] Inicio, la página principal con sesión iniciada: saludo, "Hoy te toca", avisos y accesos rápidos; Entrenar pasa a `/entrenar` y la barra tiene cinco lugares (Progreso reservado para #28). Decisión 51 `frontend` (#60)
 - [x] Revisar cómo se decide la cantidad de días por semana: **opción A**, el usuario la elige al generar (principiante 2 o 3, el resto de 2 a 6), se guarda en la rutina y se puede cambiar al continuar. Decisión 52 `ia` `backend` `frontend` (#61)
-- [x] Marca opcional de carga y dolor por ejercicio, en el modo entrenar (decisión 74), hecha el 2026-10-16 `backend` `frontend` `ia` (#63)
-  - **Para qué:** darle a la IA la carga y el dolor como dato, no solo por inferencia o por el comentario de cierre.
-  - **Cómo se accede:** modo entrenar (`/semanas/{id}/dia/{n}/entrenar`), al terminar un ejercicio; y, de lectura, el resumen semanal de Progreso.
-  - **Qué ve el usuario:** línea plegada "¿Cómo te fue? (opcional)" con dos filas independientes: carga (Liviana, Bien, Pesada, Muy pesada) y dolor (Leve, Moderado, Fuerte). Sin opción "No". Con "Fuerte", el aviso de parar y consultar a un profesional.
-  - **Acciones:** elegir una, las dos o ninguna; volver a tocar para desmarcar; plegar. Con la semana cerrada o el día completado, solo lectura.
-  - **Vista y componentes:** componente nuevo `ComoTeFue.tsx` en el modo entrenar; el resumen de Progreso muestra lo marcado. Sin pantalla nueva.
-  - **Datos:** dos columnas nulas en `exercise_completions` (carga y dolor, migración 0019); un endpoint que guarda solo el campo que se manda; `ai/history.py` las manda a la IA; el prompt aplica R10, R31 y R36.
-  - **Criterios:** (1) el ejercicio hecho muestra la sección plegada y cerrada no cambia el flujo; (2) elegir y desmarcar guarda y borra, y sobrevive a recargar; (3) dolor fuerte muestra el aviso; (4) sin marcar llega a la IA sin dato; (5) con semana cerrada o día completado es de lectura; (6) marcar solo la carga deja el dolor vacío y al revés; (7) el prompt aplica las reglas con esos valores; (8) tests de migración, endpoint y `history.py`.
+- [x] Marca opcional de carga y dolor por ejercicio, en el modo entrenar (decisión 74), implementada el 2026-10-16 y **oculta desde la decisión 85**; las columnas existentes y los datos previos se conservan `backend` `frontend` `ia` (#63)
+  - **Estado actual:** la UI y el envío de esas marcas se apagaron por decisión 85. Las columnas se mantienen por compatibilidad con registros previos; las generaciones nuevas usan el comentario de cierre y `signal()`.
 - [x] Publicación LinkedIn 3: cómo la IA arma tu semana, publicada el 2026-10-16 como "Segundo avance de Spotter" `docs` (#32)
 
 > **Para la Semana 4 (idea, sin definir):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
+
+## En construcción (se está definiendo, sin código todavía)
+
+- [ ] **Restricciones motrices en el perfil** `backend` `frontend` `ia` — el casillero "No puedo usar las piernas" (y después brazo, mano, de pie, articulaciones y equilibrio) que el código hace cumplir: bloquea ejercicios en el prompt, en la validación y en "Cambiar ejercicio", y los grupos bloqueados dejan de contar para los mínimos. **Plan, reglas propuestas (R37 a R42), fases y decisiones abiertas: [docs/restricciones-motrices-borrador.md](restricciones-motrices-borrador.md).** Hoy, quien escribe una limitación como "silla de ruedas" depende de que la IA la respete y puede recibir ejercicios de piernas.
+  - **Fase 1:** solo "No puedo usar las piernas", sobre las etiquetas que ya tiene el catálogo.
+  - **Falta decidir:** el alcance de la fase 1, qué pasa con el cardio sin piernas, si va como paso del asistente o como tarjeta del Perfil, fuentes para brazo y mano, el texto de los casilleros y quién revisa las reglas y el catálogo.
 
 ## S5: Calidad y despliegue
 - [x] Explicación por ejercicio ("¿por qué esto?"): cubierta con el campo `reason` que trae cada ejercicio y se muestra plegado en el modo entrenar; sin botón que llame a la IA `ia` `complementaria` (#42)
 - [x] Sustitución de ejercicios en la propuesta: botón "Cambiar ejercicio" con las alternativas del catálogo, en todos los días donde aparece y sin IA (decisión 65, 2026-10-15) `backend` `frontend`. Pendiente aparte, sin definir: cambiar un ejercicio ya aceptado en la semana activa.
 - [ ] Animación de carga mientras se genera la rutina (hoy aparece solo un texto) `frontend`
 - [x] Cambiar la contraseña desde la pestaña Cuenta: pide la actual y cierra las sesiones de los demás aparatos (decisión 80, 2026-10-16) `backend` `frontend` (#64)
-- [ ] Aviso legal visible en la app `frontend`
+- [ ] Aviso legal visible en la app `frontend` (#34). **En espera por decisión del usuario (2026-10-16):** la app muestra solo lo que ya tiene (tilde del paso 7, letra chica en el día y la propuesta, aviso de dolor fuerte). El borrador del texto completo y la maqueta están en [docs/aviso-legal-borrador.md](aviso-legal-borrador.md); faltan decidir el borrado de cuenta, el contacto y la revisión legal
 - [ ] Más tests y revisión de errores `backend`
 - [ ] Deploy en producción `docker`
 - [ ] README completo (cómo levantar, capturas) `docs`
@@ -148,9 +148,9 @@ Surgieron al probar los asistentes, la barra con tres botones y Inicio. Cada una
   - **Criterios:** maqueta aprobada; los estados se entienden sin leer el texto.
 
 - [x] **Verificar el correo y recuperar la contraseña** `backend` `frontend`: hecho el 2026-10-16 (decisión 81) (#65). Quedan sin función "Cambiar correo" y "Borrar cuenta" de la pestaña Cuenta (decisión 75), y para producción falta la cuenta de Gmail de Spotter
-- [x] **El usuario elige el tiempo de la sesión** `backend` `frontend` `ia`: hecho el 2026-10-17 (decisión 82). Paso "tiempo" con rueda en Generar rutina, el tiempo manda sobre el volumen (R18 y R35 cambiadas, R34 con 3,5 min), contador en el modo entrenar y duración medida en el Calendario y el Resumen semanal. Falta probar el prompt nuevo con Gemini real.
+- [x] **Elección de minutos por sesión (apagada desde decisión 90)** `backend` `frontend` `ia`: el paso con rueda se implementó el 2026-10-17 (decisión 82) y después se ocultó. `session_minutes` se conserva por compatibilidad, pero no limita la generación. El contador en modo entrenar y la duración medida en Calendario y Resumen semanal siguen activos.
 - [x] **Seguimiento semanal del peso** `backend` `frontend`: hecho el 2026-10-23 (decisión 87, lo pidió el profesor). Peso y grasa corporal opcional con fecha, cargados al cerrar la semana o en Progreso → Cuerpo; IMC calculado; la IA no los usa.
-- [x] **Reparto de las series entre los días y tiempo informativo** `backend` `frontend` `ia`: hecho el 2026-10-23 (decisiones 88 a 90). Controles de reparto con reintento (cada grupo grande en 2 días, diferencias máximas, complemento aparte); el tiempo de sesión ya no se elige (queda como dato de control); Next.js 16.4.2 por un aviso de seguridad crítico. **Sigue abierto:** que el código fije la estructura de la semana (full body, upper/lower, PPL según los días) y la IA solo elija ejercicios; el informe está en `Spotter-investigaciones/reports/Reparto de series por split.md` (fuera del repo).
+- [x] **Reparto de las series, tiempo informativo y elección del split** `backend` `frontend` `ia`: hecho el 2026-10-23 (decisiones 90 y 91). El asistente ofrece Full Body, torso/pierna o PPL solo cuando la combinación de nivel, objetivo y días es compatible; el backend valida la estructura, la guarda en la rutina y reintenta propuestas que no cumplen. La duración es informativa. El informe original está en `Spotter-investigaciones/reports/Reparto de series por split.md` (fuera del repo).
   - **Para qué:** hoy, si alguien olvida la contraseña, no tiene cómo volver a entrar.
   - **Cómo se accede:** enlace "Olvidé mi contraseña" en el inicio de sesión.
   - **A definir:** cómo llega el enlace (correo) y con qué servicio; **verificar en la fuente oficial** si el plan gratuito del servicio alcanza antes de elegirlo; vencimiento del enlace; si cierra las sesiones abiertas.

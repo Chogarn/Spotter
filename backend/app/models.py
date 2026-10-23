@@ -42,6 +42,7 @@ from app.enums import (
     PlanStatus,
     ProposalKind,
     ProposalStatus,
+    RoutineSplit,
 )
 
 
@@ -115,9 +116,10 @@ class Routine(Base):
     # Cuántos días por semana entrena (decisión 52). Lo elige el usuario al generar y lo puede
     # cambiar al continuar. Vacío solo en rutinas sin semanas (no debería pasar).
     days_per_week: Mapped[int | None] = mapped_column(SmallInteger)
-    # Cuánto dura cada sesión, en minutos (decisión 82). Lo elige el usuario; manda sobre el
-    # volumen semanal.
+    # Dato histórico de las decisiones 82/88/89. La decisión 90 lo dejó apagado; no limita la IA.
     session_minutes: Mapped[int | None] = mapped_column(SmallInteger)
+    # Split elegido para las semanas de la rutina; NULL en rutinas anteriores a esta función.
+    split_type: Mapped[RoutineSplit | None] = mapped_column(enum_column(RoutineSplit))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

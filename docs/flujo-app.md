@@ -1,14 +1,14 @@
 # Flujo de Spotter
 
-Este documento describe cómo se usa la aplicación de principio a fin. Es la base para definir las pantallas, la API y el modelo de datos. Las decisiones de producto reflejadas acá las tomó el usuario; lo que se descartó figura marcado y los puntos abiertos están al final.
+**Última revisión: 2026-10-23** (split elegido, duración informativa y reparto actual de las series; antes: franja oscura, Perfil con pestaña Cuenta, logo nuevo, Entrenar con franja amarilla, asistentes de una pregunta, navegación con tres botones, Inicio con "Hoy te toca", Progreso con calendario y fecha de nacimiento).
 
-**Última revisión: 2026-10-16** (franja oscura en casi todas las pantallas, Perfil con pestaña Cuenta, marca de carga y dolor por ejercicio, logo nuevo, Entrenar con franja amarilla; antes: asistentes de una pregunta por pantalla, navegación con tres botones, Inicio con "Hoy te toca", Progreso con calendario, fecha de nacimiento).
+Este documento describe cómo se usa la aplicación de principio a fin. Es la base para definir las pantallas, la API y el modelo de datos. Las decisiones de producto reflejadas acá las tomó el usuario; lo que se descartó figura marcado y los puntos abiertos están al final.
 
 ## Resumen en pasos
 
 1. La persona se **registra** con su nombre, correo y contraseña; la app le manda un enlace por correo y, **al tocarlo, se crea la cuenta** y entra directo al asistente del perfil (decisión 81). Si olvida la contraseña, "¿Olvidaste tu contraseña?" le manda otro enlace a su correo verificado para elegir una nueva.
 2. Completa su **perfil** en un asistente de una pregunta por pantalla (nombre, fecha de nacimiento, peso, altura, sexo, limitaciones y aviso legal).
-3. Toca **"Generar rutina"**: en otro asistente elige, **cada vez que empieza una rutina nueva**, su objetivo, su nivel y cuántos días por semana (todo obligatorio), y la IA le arma la primera semana. No hay un camino para cargar una rutina propia (decisión 40).
+3. Toca **"Generar rutina"**: en el asistente, al empezar una rutina nueva elige objetivo, nivel, días y estructura (split); al continuar puede ajustar días y split compatibles. La IA arma esa semana. No hay un camino para cargar una rutina propia (decisión 40).
 4. Revisa la propuesta (un día por vez) y la **acepta o la descarta**. Al aceptar, la semana queda activa.
 5. La semana se organiza en días: **Día 1, Día 2, Día 3**... La persona entrena a su ritmo: desde Inicio o Entrenar toca **"Empezar día N"** y avanza un ejercicio a la vez.
 6. En cada día marca lo que hizo (o corrige lo realizado) y cierra con **"Día completado"**, que la lleva a Inicio.
@@ -91,7 +91,7 @@ Se abre con **Generar rutina** (Inicio o Entrenar, sin semana activa) o con **Nu
 2. **Objetivo** (rutina nueva): cinco opciones con su ícono.
 3. **Nivel** (rutina nueva): principiante, intermedio o avanzado.
 4. **Días por semana**: principiante **2 o 3** (R12) y el resto **de 2 a 6** (R11); las opciones que no corresponden aparecen apagadas. Va al final porque depende del nivel. Al continuar una rutina viene marcado el valor anterior y se puede cambiar (decisión 52).
-5. **Generar**: la IA arma la semana. Continuar una rutina solo pide el paso de días.
+5. **Generar**: la IA arma la semana. Continuar una rutina permite revisar los días y el split compatibles, que aparecen seleccionados.
 
 **Si ya hay una semana en curso**, "Nueva rutina" no abre el asistente: avisa "Tenés una semana en curso. Para empezar una rutina nueva, primero cerrá la semana en curso desde Entrenar", con **Ir a Entrenar**. No se puede tener otra rutina en espera ni pausar la semana: se descartó (decisión del 2026-10-15). Para cambiar de rutina se cierra la semana, que se puede reabrir, y se empieza otra.
 
@@ -113,7 +113,7 @@ La llamada a Gemini puede tardar de 10 a 90 segundos. Una **pantalla completa de
 La semana no está atada al calendario: empieza cuando la persona la activa y termina cuando la cierra con el botón. Si tarda más de siete días, sigue siendo la misma semana. Solo hay **una semana activa a la vez**; las anteriores se conservan como historial.
 
 ### Cuántos días tiene la semana
-**Los elige la persona** (decisión 52, 2026-10-13; antes los decidía la IA): al generar, es obligatorio. La IA arma **exactamente** esa cantidad y el código lo comprueba (si no, reintenta). Como la IA ya no puede sumar días, si el volumen no entra alarga la sesión y avisa, y como último recurso recorta accesorios (R35). R1 (mínimo 2 días) y el máximo de 6 los valida el código.
+**Los elige la persona** (decisión 52): al generar, es obligatorio. La IA arma **exactamente** esa cantidad y el código lo comprueba (si no, reintenta). También se elige una estructura compatible (decisión 91) y el código comprueba que la propuesta la respete. Como la IA no puede sumar días, si el volumen no entra alarga la sesión y avisa, y como último recurso recorta accesorios (R35). El tiempo no se elige: R34 informa la duración estimada y R18 sirve de referencia (decisión 90). R1 (mínimo 2 días) y el máximo de 6 los valida el código.
 
 ### Duración de cada sesión
 La IA decide cuánto dura cada sesión, con una **referencia según el perfil** (una guía, no un tope): principiante y "mantenerme activo" cerca de **60 minutos**; "condición general" **60**; intermedio con masa o fuerza **60 a 90**; "perder grasa" **60 minutos de fuerza más el cardio**.
@@ -215,7 +215,7 @@ Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no s
 - **Pausar la rutina activa o dejar otra en espera** (2026-10-15): innecesario. Se cierra la semana y se empieza otra; la anterior queda "lista para continuar".
 - **Ajuste conversando durante la semana** (decisión 45, #29): el plan no cambia durante la semana y lo que no anda se cuenta al cerrarla.
 - **Avisos al usuario** (decisión 63) y **ajuste de ejercicios repetidos** (decisión 64).
-- **"Cómo me sentí" por día** (#46) y **semáforo de dolor** (#51): no se hacen por ahora (decisión 71). Cómo se sintió el entrenamiento y el dolor se cuentan en el **comentario al cerrar la semana**, que la IA lee. El **esfuerzo por serie** (#48) no se hace (decisión 74). El esfuerzo se deduce de comparar peso y repeticiones (decisión 73), y la **marca opcional de carga y dolor por ejercicio** (#63, decisión 74) está hecha: al terminar un ejercicio en el modo entrenar aparece "¿Cómo te fue?" (carga: Liviana, Bien, Pesada, Muy pesada; dolor: Leve, Moderado, Fuerte; las dos opcionales e independientes) y el botón "Siguiente ejercicio"; el resumen de Progreso la muestra. La semana liviana (R30) está descartada (decisión 72).
+- **"Cómo me sentí" por día** (#46), **semáforo de dolor** (#51) y **esfuerzo por serie** (#48) no se piden (decisiones 71, 74 y 85). Cómo se sintió la persona y el dolor se cuentan en el **comentario al cerrar la semana**, que la IA lee. El esfuerzo se deduce de comparar peso y repeticiones (decisión 73); los controles viejos de carga y dolor se conservan en el backend, pero no se piden ni se mandan en generaciones nuevas. La semana liviana (R30) está descartada (decisión 72).
 
 ## Puntos abiertos
 
@@ -228,7 +228,7 @@ Desde la semana cerrada, con confirmación. Solo la última de su rutina, y no s
 El detalle está en `docs/modelo-datos.md`. Cómo se refleja este flujo:
 
 - `profiles`: `birth_date` (la edad se calcula; `age` se conserva para perfiles viejos), peso, altura, sexo y limitaciones. Sin nivel, objetivo ni equipamiento. **Migración 0018.**
-- `routines`: nombre, objetivo, nivel, `days_per_week` y `session_minutes` (los minutos por sesión, decisión 82); agrupan las semanas.
+- `routines`: nombre, objetivo, nivel, `days_per_week`, `split_type` y `session_minutes` (dato histórico apagado, decisión 90); agrupan las semanas.
 - `week_plans`: pertenece a una rutina; `week_start` es cuándo se activó, `closed_at` cuándo se cerró, y guarda el comentario de cierre y el resumen de la IA.
 - `plan_days`: `day_index` es el orden (Día 1, Día 2...), no un día del calendario.
 - `plan_exercises` y `plan_sets`: lo planificado (una fila por serie, con repeticiones o duración y peso).

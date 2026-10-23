@@ -1,6 +1,6 @@
 # Criterios de entrenamiento investigados
 
-**Esto es un borrador de investigación, no son reglas.** Reúne lo que dice la evidencia sobre cómo planificar un entrenamiento de fuerza, con su fuente y su nivel de certeza. Es la base para escribir, más adelante, las reglas que la IA va a seguir: cada regla la elige y la valida el estudiante, no sale de acá automáticamente. No es consejo médico.
+Este documento separa la **evidencia investigada** de las **reglas de producto aprobadas**. Las tablas indican el respaldo y cómo se aplica cada regla; las decisiones de diseño del usuario se señalan como tales. No es consejo médico.
 
 ## Fuente principal
 
@@ -68,7 +68,7 @@ Es historia: el ACSM 2026 la reemplaza.
 - No da minutos específicos para entrenamiento de fuerza.
 - La revisión sistemática de 2025 (de segunda mano) coincide: combinar entrenamiento de fuerza con restricción calórica conserva la masa muscular.
 
-**Consecuencia para el producto:** la evidencia no dice que "perder grasa" requiera una rutina de fuerza distinta; lo que cambia es el **cardio** y la **alimentación**. **Decisión del estudiante (2026-10-08):** "perder grasa" es un objetivo con **más cardio y menos fuerza**, y la alimentación queda fuera de la app (se da por hecho que la persona la maneja). El cardio se planifica y se registra como un ejercicio con duración en minutos. La fuerza se mantiene al mínimo de R1 (al menos 2 días por semana). Los minutos exactos de cardio siguen **pendientes de aprobación** (ver más abajo).
+**Consecuencia para el producto:** la evidencia no dice que "perder grasa" requiera una rutina de fuerza distinta; lo que cambia es el **cardio** y la **alimentación**. **Decisión del usuario (2026-10-08):** "perder grasa" es un objetivo con **más cardio y menos fuerza**, y la alimentación queda fuera de la app. El cardio se planifica y registra como ejercicio con duración en minutos. La fuerza se mantiene al mínimo de R1 (al menos 2 días por semana). R17 resuelve los minutos: la IA elige entre 150 y 300 por semana y el código valida ese rango.
 
 ### ACSM 2026, series por ejercicio (leído en el texto completo el 2026-10-10)
 
@@ -96,12 +96,12 @@ Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and 
 
 - Las reglas conviene armarlas por **variables medibles**: series por semana por grupo muscular, carga o esfuerzo, y frecuencia. No por rangos fijos de repeticiones, que la evidencia no respalda.
 - Hay **mucha flexibilidad real**: pocas reglas y robustas dejan espacio para que la IA personalice según el perfil.
-- "Repeticiones en reserva" se parece al campo de **esfuerzo del 1 al 10** que ya tienen las series. Cómo se relacionan queda por definir, sin cambiar la base de datos.
+- R29 (repeticiones en reserva y esfuerzo) quedó resuelta como deducción en la decisión 74; las marcas viejas de carga y dolor no se piden en la interfaz desde la decisión 85.
 - Como la evidencia es de adultos sanos, Spotter debe seguir sin dar diagnósticos y mostrar el aviso legal.
 
 ## Reglas que elijo
 
-**Reglas aprobadas por el estudiante (R1 a R35, 2026-10-08).** Son las únicas reglas de entrenamiento que la app puede aplicar. **Evidencia** = respaldada por un estudio o una guía oficial; **Convención** = costumbre de la práctica o propuesta de diseño.
+**Reglas de entrenamiento aprobadas (R1 a R36; última aprobación R36, 2026-10-16).** Son las únicas reglas de entrenamiento que la app puede aplicar. Las decisiones 90 y 91 agregan criterios de diseño para repartir las series y elegir una estructura; no son reglas R. **Evidencia** = respaldada por un estudio o una guía oficial; **Convención** = costumbre de la práctica o propuesta de diseño.
 
 **Cómo se aplica:** *Código* = el código la comprueba después de que Gemini responde (se puede medir). *Gemini* = se le explica en una skill.
 
@@ -135,8 +135,8 @@ Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and 
 
 | # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
 |---|---|---|---|---|---|
-| R11 | **La IA determina cuántos días entrena la persona**, entre **2 y 6**, según su objetivo, nivel y el volumen que pide la regla del objetivo. El usuario puede pedir **más días**, nunca menos. Reparto por defecto: **2** cuerpo completo A/B · **3** cuerpo completo ×3 · **4** torso/pierna ×2 · **5** híbrido · **6** empuje/tirón/pierna ×2. *(Modificada 2026-10-08, dos veces: antes dependía de los días que elegía el usuario y, más tarde, eran 5 para todos)* | Decisión de producto y convención | Ninguna fuente prescribe un reparto ni una cantidad de días: el ACSM 2026 no encontró diferencias entre 1 y más de 5 días con igual volumen. El máximo de 6 días es una convención sin evidencia | Gemini decide; el código valida que sean 2 a 6 | Crear y ajustar |
-| R12 | **Principiantes:** cuerpo completo, **2 o 3 días**. *(Confirmada 2026-10-08 por el estudiante, tras haberse cambiado y restituido ese mismo día)* | Convención compatible con la evidencia | ACSM 2009 lo recomendaba para novatos; esa pauta fue reemplazada en 2026 | Gemini | Crear |
+| R11 | **La persona elige de 2 a 6 días** por semana; el código exige que la propuesta traiga exactamente esa cantidad. Elige además una estructura compatible: cuerpo completo, torso/pierna o PPL, según nivel, objetivo y días. Ninguna fuente prescribe el número de días ni la estructura. *(Días: decisión 52. Estructuras: decisión 91)* | Decisión de producto y convención | El ACSM 2026 no encontró diferencias entre 1 y más de 5 días con igual volumen; no prescribe splits | Código valida los días y el split | Crear y continuar |
+| R12 | **Principiantes:** 2 o 3 días y cuerpo completo. El código no ofrece otros splits para este nivel. | Convención compatible con la evidencia | ACSM 2009 recomendaba cuerpo completo para novatos; esa pauta fue reemplazada en 2026 | Código | Crear y continuar |
 
 ### Clasificación y equilibrio
 
@@ -164,9 +164,9 @@ Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and 
 
 | # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
 |---|---|---|---|---|---|
-| R18 | **El usuario elige los minutos por sesión** (decisión 82, 2026-10-17) y ese tiempo es la referencia de cada día; la IA no lo decide. Opciones de 20 en 20: principiante **40 y 60**, el resto **40, 60 y 80** (por ahora el tope es 80, decisión 88). Si no hubiera un tiempo elegido (rutinas anteriores), queda la referencia de antes: principiante y mantenerme activo **cerca de 60 min** · condición general **60 min** · intermedio con masa o fuerza **60 a 90 min** · perder grasa **60 min de fuerza, más el cardio (R17)**. No se arman sesiones de 90 minutos para un principiante | Decisión de producto | Sin fuente: el ACSM 2026 no fija una duración. El tope de 60 para principiantes sale del criterio del estudiante | Código (las opciones y el aviso); la IA arma el día para ese tiempo | Crear y ajustar |
-| R34 | **Duración estimada de una sesión = suma de:** el tiempo de las series (**repeticiones × unos 3 segundos** por repetición, o los **segundos** del ejercicio isométrico) + el descanso (**series menos una × `rest_seconds`**) + el **cambio entre ejercicios** (**3,5 minutos**: incluye esperar la máquina y acomodar el peso; antes 1,5) + los minutos de cardio planificados + la movilidad (5 a 10 minutos en los días que la tenga). Con el tiempo elegido, si un día queda a **más de 10 minutos por arriba o por abajo**, el código pide la rutina de nuevo (un reintento, decisión 89) y, si el segundo intento tampoco entra, **avisa** y la acepta; no bloquea la generación. Además, el modo entrenar **mide** lo que tardó el día (de "Empezar día" a "Día completado") y lo muestra en las estadísticas | Convención con una pieza respaldada | ACSM 2009 (resumen): velocidad moderada, 1 a 2 s subiendo y 1 a 2 s bajando, o sea 2 a 4 s por repetición (se toma el punto medio). El cambio entre ejercicios (3 a 4 min, punto medio 3,5) es una estimación sin fuente, elegida por el estudiante por ser más conservadora | Código | Crear y ajustar |
-| R35 | **Si el volumen de R3 no entra en el tiempo elegido (R18)**, **el tiempo manda** (decisión 82): la IA **no alarga la sesión ni suma días** (los dos los eligió la persona), **recorta las series de menor prioridad** y **se lo avisa al usuario**. **Menor prioridad = los ejercicios accesorios (monoarticulares) y los músculos chicos** (bíceps, tríceps, gemelos y core); los multiarticulares principales no se recortan primero. *(Antes de la decisión 82 la IA primero alargaba la sesión y recortaba solo como último recurso; antes de la 52 también sumaba días.)* | Decisión de producto | Sin fuente: es una regla de diseño. Se apoya en que el tiempo disponible es el límite real de la persona | Gemini decide; el código solo avisa si el día se pasa del tiempo | Crear y ajustar |
+| R18 | **La persona no elige la duración de la sesión** (decisión 90). La IA decide y estima la duración con R34; la referencia es orientativa, no un objetivo obligatorio. Principiante y mantenerse activo: cerca de 60 min · condición general: 60 min · intermedio con masa o fuerza: 60 a 90 min · perder grasa: 60 min de fuerza más el cardio (R17) · avanzado con masa o fuerza: sin referencia definida. Las opciones anteriores de 40/60/80 siguen apagadas y guardadas. | Decisión de producto | El ACSM 2026 no fija una duración. La referencia es diseño del usuario | Gemini estima; el código informa y avisa si se aleja más de 15 min de la referencia | Crear y continuar |
+| R34 | **Duración estimada =** repeticiones × unos 3 segundos, o segundos del isométrico, + descansos (series menos una × `rest_seconds`) + 3,5 min por cambio entre ejercicios + cardio + movilidad. La duración estimada se informa; el código avisa si se aleja más de 15 min de la referencia R18. El modo entrenar mide el tiempo real y se muestra en estadísticas. | Convención con una pieza respaldada | ACSM 2009 (resumen): 2 a 4 s por repetición, se usa el punto medio. El cambio y la movilidad son estimaciones de diseño | Código | Crear y continuar |
+| R35 | Si el volumen de R3 no entra en la **referencia** de duración, la IA **no suma días** porque la persona ya los eligió (decisión 52). Primero puede **alargar la sesión y avisarlo**; solo como último recurso recorta series, empezando por accesorios y músculos chicos (bíceps, tríceps, gemelos y core), y avisa qué recortó. El tiempo no es un límite elegido (decisión 90). | Decisión de producto | Sin fuente: regla de diseño. Se origina en el orden aprobado antes de las decisiones 82 y 90; se omite el paso de sumar días | Gemini; el código solo estima y avisa | Crear y continuar |
 
 ### Perder grasa: fuerza y cardio
 

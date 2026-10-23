@@ -65,6 +65,7 @@ export type Proposal = {
   id: number;
   kind: string;
   status: "pending" | "accepted" | "discarded";
+  split: "full_body" | "upper_lower" | "ppl" | null;
   routine: { days: DayItem[]; notices: string[]; summary?: string | null };
   day_minutes: number[];
   warnings: { rule: string; message: string }[];
@@ -120,6 +121,7 @@ export type Routine = {
   has_active_week: boolean;
   days_per_week: number | null; // cuántos días por semana entrena (decisión 52)
   session_minutes: number | null; // cuánto dura cada sesión (decisión 82)
+  split_type: "full_body" | "upper_lower" | "ppl" | null;
   last_week_day_states: DayState[]; // los días de la semana más nueva, en orden
 };
 
@@ -129,6 +131,7 @@ export type RoutineDetail = {
   goal: string;
   level: string;
   days_per_week: number | null;
+  split_type: "full_body" | "upper_lower" | "ppl" | null;
   weeks: WeekSummary[]; // de la más nueva a la más vieja
 };
 

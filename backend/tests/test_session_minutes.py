@@ -1,4 +1,4 @@
-"""El usuario elige cuánto dura cada sesión y se mide cuánto tarda (decisión 82)."""
+"""El campo histórico de duración está apagado; se mide cuánto tarda la sesión (decisión 90)."""
 
 from datetime import date, datetime, timedelta, timezone
 
@@ -35,50 +35,50 @@ def test_las_opciones_dependen_del_nivel():
     assert allowed_minutes(Level.AVANZADO) == (40, 60, 80)
 
 
-def test_un_principiante_no_puede_elegir_90_y_no_se_llama_a_la_ia(api, entorno, monkeypatch):
+def test_los_minutos_historicos_no_restringen_ni_se_envian_como_objetivo(api, entorno, monkeypatch):
     con_perfil(api)
     falso = usar_gemini(monkeypatch, rutina())
 
     respuesta = generar(api, {"goal": "masa", "level": "principiante", "days": 2, "minutes": 90})
 
-    assert respuesta.status_code == 422
-    assert "40 a 60" in respuesta.json()["detail"]
-    assert falso.llamadas == 0
+    assert respuesta.status_code == 201
+    assert falso.llamadas == 1
+    assert "no elige minutos" in falso.prompts[0]
 
 
-def test_los_minutos_son_opcionales_pero_de_20_en_20(api, entorno, monkeypatch):
+def test_minutos_historicos_irregulares_no_rechazan_generacion(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
 
     raro = generar(api, {"goal": "masa", "level": "intermedio", "days": 2, "minutes": 50})
 
-    assert raro.status_code == 422
+    assert raro.status_code == 201
 
 
-def test_el_prompt_le_dice_a_la_ia_que_el_tiempo_manda():
+def test_el_prompt_ignora_un_valor_historico_de_sesion():
     texto = minutes_text(45)
-    assert "45 minutos" in texto
-    assert "no pases del tiempo" in texto
+    assert "R18 es orientativa" in texto
+    assert "45" not in texto
 
 
 # --- el tiempo elegido es la referencia ---
 
 
-def test_r34_compara_con_el_tiempo_elegido():
-    # La rutina de prueba dura ~80 min por día: con 45 elegidos, se pasa.
+def test_r34_usa_la_referencia_aunque_haya_minutos_historicos():
+    # La rutina dura ~66 min, dentro de la referencia de 60 ±15 min para masa intermedia.
     larga = RoutineProposal.model_validate(rutina())  # ~66 min por día
 
     con_45 = validate_routine(larga, Goal.MASA, Level.INTERMEDIO, minutes=45)
     con_60 = validate_routine(larga, Goal.MASA, Level.INTERMEDIO, minutes=60)
 
-    assert any(w.rule == "R34" and "elegiste 45" in w.message for w in con_45.warnings)
+    assert not any(w.rule == "R34" for w in con_45.warnings)
     assert not any(w.rule == "R34" for w in con_60.warnings)
 
 
 # --- se guarda en la rutina ---
 
 
-def test_al_aceptar_la_rutina_guarda_el_tiempo(api, entorno, monkeypatch):
+def test_al_aceptar_no_se_guarda_el_tiempo_historico_como_preferencia(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
     propuesta = generar(
@@ -88,8 +88,8 @@ def test_al_aceptar_la_rutina_guarda_el_tiempo(api, entorno, monkeypatch):
     assert api.post(f"/proposals/{propuesta['id']}/accept").status_code == 200
 
     with api.session() as db:
-        assert db.scalar(select(Routine.session_minutes)) == 60
-    assert api.get("/routines").json()[0]["session_minutes"] == 60
+        assert db.scalar(select(Routine.session_minutes)) is None
+    assert api.get("/routines").json()[0]["session_minutes"] is None
 
 
 # --- el contador de la sesión ---
@@ -187,7 +187,7 @@ def test_la_semana_activa_dice_que_dia_esta_empezado(api):
     assert api.get("/weeks/active").json()["in_progress_day"] is None
 
 
-# --- el tiempo elegido se hace cumplir con un reintento (decisión 89) ---
+# --- la duración es informativa, no se persigue (decisión 90) ---
 
 
 def con_series(sets):
@@ -201,50 +201,48 @@ def con_series(sets):
 ELEGIDO = {"goal": "masa", "level": "principiante", "days": 2, "minutes": 60}
 
 
-def test_el_prompt_dice_cuantos_ejercicios_hacen_falta():
+def test_la_duracion_no_se_pasa_como_objetivo_a_gemini():
     texto = minutes_text(60)
-    assert "7 ejercicios" in texto
-    assert "entre 50 y 70" in texto
+    assert "no elige minutos" in texto
+    assert "60" not in texto
     assert exercise_count_hint(40) == 5 and exercise_count_hint(80) == 9
 
 
-def test_si_un_dia_se_desvia_se_pide_de_nuevo_y_se_le_dice_cual(api, entorno, monkeypatch):
+def test_la_duracion_corta_avisa_sin_reintentar(api, entorno, monkeypatch):
     con_perfil(api)
-    # 2 series por ejercicio: ~35 min por día contra los 60 elegidos; con 4 series, ~66.
-    falso = usar_gemini(monkeypatch, con_series(2), con_series(4))
+    # 2 series por ejercicio queda debajo de la referencia, pero el usuario no eligió un límite.
+    falso = usar_gemini(monkeypatch, con_series(2))
 
     respuesta = generar(api, ELEGIDO)
 
     assert respuesta.status_code == 201
-    assert falso.llamadas == 2
-    assert "agregá ejercicios" in falso.prompts[1]
-    assert "Día 1" in falso.prompts[1]
-    assert not any(w["rule"] == "R34" for w in respuesta.json()["warnings"])
+    assert falso.llamadas == 1
+    assert any(w["rule"] == "R34" for w in respuesta.json()["warnings"])
 
 
-def test_si_se_pasa_del_tiempo_se_le_pide_que_saque(api, entorno, monkeypatch):
+def test_la_duracion_larga_avisa_sin_reintentar(api, entorno, monkeypatch):
     con_perfil(api)
     falso = usar_gemini(monkeypatch, con_series(6), con_series(4))  # 6 series: ~96 min
 
     respuesta = generar(api, ELEGIDO)
 
     assert respuesta.status_code == 201
-    assert falso.llamadas == 2
-    assert "sacá ejercicios o series" in falso.prompts[1]
+    assert falso.llamadas == 1
+    assert any(w["rule"] == "R34" for w in respuesta.json()["warnings"])
 
 
-def test_si_el_reintento_tampoco_llega_se_acepta_con_el_aviso(api, entorno, monkeypatch):
+def test_la_duracion_corta_se_acepta_con_aviso_y_no_reintenta(api, entorno, monkeypatch):
     con_perfil(api)
     falso = usar_gemini(monkeypatch, con_series(2), con_series(2))
 
     respuesta = generar(api, ELEGIDO)
 
-    assert respuesta.status_code == 201  # no se bloquea la generación por el tiempo
-    assert falso.llamadas == 2  # nunca más que los intentos de siempre
+    assert respuesta.status_code == 201
+    assert falso.llamadas == 1
     assert any(w["rule"] == "R34" for w in respuesta.json()["warnings"])
 
 
-def test_si_los_dias_estan_en_tiempo_no_se_reintenta(api, entorno, monkeypatch):
+def test_la_duracion_dentro_de_la_referencia_no_genera_aviso(api, entorno, monkeypatch):
     con_perfil(api)
     falso = usar_gemini(monkeypatch, con_series(4))
 

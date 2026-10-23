@@ -1,6 +1,6 @@
 """Reglas de entrenamiento que comprueba el CÓDIGO sobre lo que devolvió Gemini.
 
-Fuente de cada regla: docs/criterios-entrenamiento.md (R1 a R35, aprobadas por el usuario).
+Fuente de cada regla: docs/criterios-entrenamiento.md (R1 a R36, aprobadas por el usuario).
 Dos niveles:
 - error: la rutina se rechaza (R1, R11, R12, R17). Son las que el proyecto fijó como "el código valida".
 - aviso: se muestra al usuario pero no se rechaza (volumen por objetivo, R4, R18, R34).
@@ -16,7 +16,8 @@ from dataclasses import dataclass, field
 from app.ai.catalog import MUSCLE_TEXT, find
 from app.ai.plan_writer import normalize_name
 from app.ai.routine import DayProposal, RoutineProposal
-from app.enums import ExerciseKind, Goal, Level, Muscle
+from app.enums import ExerciseKind, Goal, Level, Muscle, RoutineSplit
+from app.ai.splits import compatible_splits
 
 # Los isométricos (plancha) cuentan como fuerza: suman días de fuerza y series por músculo.
 STRENGTH_KINDS = (ExerciseKind.STRENGTH, ExerciseKind.ISOMETRIC)
@@ -37,9 +38,6 @@ TRANSITION_MINUTES = 3.5  # cambio entre ejercicios, con espera de máquina (dec
 MOBILITY_MINUTES = 7.5  # 5 a 10 minutos en los días que la tienen
 # Elección de diseño (R18 no define "se aleja mucho"): margen de aviso, en minutos.
 DURATION_TOLERANCE_MINUTES = 15
-# Decisión 89: con el tiempo que eligió la persona, cada día tiene que quedar a menos de 10 minutos,
-# por arriba y por abajo. Si no, se le pide a la IA que lo rehaga (y si no llega, se avisa).
-CHOSEN_TOLERANCE_MINUTES = 10
 # Decisión 90: el reparto de las series entre los días (valores elegidos por el usuario el
 # 2026-10-23; no salen de las fuentes: son reglas de diseño, no están entre R1 y R36). Se cuentan
 # solo las series directas (con el músculo como principal).
@@ -64,9 +62,8 @@ class Issue:
 class ValidationResult:
     errors: list[Issue] = field(default_factory=list)
     warnings: list[Issue] = field(default_factory=list)
-    # Lo que se le pide arreglar a la IA mientras queden intentos, dicho para ella (los días que se
-    # desvían del tiempo elegido, decisión 89, y el reparto de las series, decisión 90). No rechaza
-    # la rutina: en el último intento se acepta con los avisos.
+    # Lo que se le pide arreglar a la IA mientras queden intentos: el reparto de las series
+    # (decisión 90). La duración solo genera un aviso R34.
     soft_issues: list[Issue] = field(default_factory=list)
 
     @property
@@ -183,6 +180,49 @@ def distribution_issues(routine: RoutineProposal) -> list[str]:
     return issues
 
 
+def split_issues(routine: RoutineProposal, split: RoutineSplit) -> list[str]:
+    """Comprueba que los músculos principales de cada día respeten el split seleccionado."""
+    issues: list[str] = []
+    for number, day in enumerate(routine.days, start=1):
+        if split == RoutineSplit.FULL_BODY:
+            expected = set(BIG_GROUPS)
+        elif split == RoutineSplit.UPPER_LOWER:
+            expected = (
+                {Muscle.CHEST, Muscle.BACK, Muscle.SHOULDERS}
+                if number % 2 == 1
+                else {Muscle.QUADRICEPS, Muscle.HAMSTRINGS, Muscle.GLUTES}
+            )
+        else:  # PPL es seis días: empuje, tirón, piernas, repetidos dos veces.
+            phase = (number - 1) % 3
+            expected = (
+                {Muscle.CHEST, Muscle.SHOULDERS}
+                if phase == 0
+                else {Muscle.BACK}
+                if phase == 1
+                else {Muscle.QUADRICEPS, Muscle.HAMSTRINGS, Muscle.GLUTES}
+            )
+        actual = {
+            e.primary_muscle
+            for e in day.exercises
+            if e.kind in STRENGTH_KINDS and e.primary_muscle in BIG_GROUPS
+        }
+        missing = expected - actual
+        misplaced = actual - expected
+        if missing:
+            issues.append(
+                f"Día {number} ({day.title}): faltan grupos grandes del split: "
+                + ", ".join(MUSCLE_TEXT[m].capitalize() for m in sorted(missing, key=lambda m: m.value))
+                + "."
+            )
+        if misplaced:
+            issues.append(
+                f"Día {number} ({day.title}): estos grupos grandes no corresponden a este foco: "
+                + ", ".join(MUSCLE_TEXT[m].capitalize() for m in sorted(misplaced, key=lambda m: m.value))
+                + "."
+            )
+    return issues
+
+
 def estimate_day_minutes(day: DayProposal) -> float:
     """R34: series + descansos + cambios de ejercicio + cardio + movilidad.
 
@@ -276,6 +316,7 @@ def validate_routine(
     days: int | None = None,
     catalog_extra_names: Iterable[str] | None = None,
     minutes: int | None = None,
+    split: RoutineSplit | None = None,
 ) -> ValidationResult:
     """`catalog_extra_names`: si es None no se exige el catálogo (llamadas directas, tests de
     reglas); si es una lista (aunque esté vacía), todo ejercicio tiene que salir del catálogo o
@@ -293,6 +334,11 @@ def validate_routine(
     # Decisión 52: los días los elige el usuario y la rutina tiene que traer exactamente esos.
     if days is not None and n_days != days:
         error("Días", f"La persona eligió {days} días por semana y la rutina trae {n_days}.")
+    if split is not None:
+        if split not in compatible_splits(days or n_days, level, goal):
+            error("Split", f"{split.value} no es compatible con {days or n_days} días y el nivel elegido.")
+        for message in split_issues(routine, split):
+            error("Split", message)
 
     if catalog_extra_names is not None:
         for message in catalog_problems(routine, catalog_extra_names):
@@ -316,11 +362,10 @@ def validate_routine(
         warn("Reparto", message)
         result.soft_issues.append(Issue("Reparto", message))
 
-    # Decisión 82: si la persona eligió el tiempo, ese es la referencia (y manda sobre R18).
-    reference = (minutes, minutes) if minutes is not None else reference_minutes(goal, level)
+    # Decisión 90: `minutes` se conserva solo para compatibilidad; R18 es referencia y no límite.
+    reference = reference_minutes(goal, level)
     if reference:
         low, high = reference
-        minutes_chosen = minutes is not None
         for number, day in enumerate(routine.days, start=1):
             if all(e.kind == ExerciseKind.CARDIO for e in day.exercises):
                 continue  # un día solo de cardio no tiene referencia de duración
@@ -332,24 +377,14 @@ def validate_routine(
                     if e.kind == ExerciseKind.CARDIO
                     for s in e.sets
                 )
-            tolerance = CHOSEN_TOLERANCE_MINUTES if minutes_chosen else DURATION_TOLERANCE_MINUTES
+            tolerance = DURATION_TOLERANCE_MINUTES
             if minutes_day > high + tolerance or minutes_day < low - tolerance:
                 warn(
                     "R34",
                     f"El Día {number} dura unos {round(minutes_day)} min y "
-                    f"{'elegiste' if minutes_chosen else 'la referencia es'} "
+                    f"la referencia es "
                     f"{low if low == high else f'{low} a {high}'}.",
                 )
-                if minutes_chosen:
-                    action = "agregá ejercicios" if minutes_day < minutes else "sacá ejercicios o series"
-                    result.soft_issues.append(
-                        Issue(
-                            "R34",
-                            f"El Día {number} dura unos {round(minutes_day)} min y la persona eligió "
-                            f"{minutes}: {action} hasta llegar a unos {minutes} min (entre "
-                            f"{minutes - tolerance} y {minutes + tolerance}).",
-                        )
-                    )
     return result
 
 

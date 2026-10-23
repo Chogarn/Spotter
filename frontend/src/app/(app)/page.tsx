@@ -94,7 +94,7 @@ export default function Inicio() {
             </div>
             {proximo ? (
               <>
-                <p className="m-0 text-sm text-muted-foreground">Hoy te toca</p>
+                <p className="m-0 text-sm font-medium text-disco-azul">Próximo entrenamiento</p>
                 <h2 className="mt-0 mb-1 text-4xl">
                   Día {proximo.day_index} · {proximo.title}
                 </h2>

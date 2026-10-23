@@ -162,16 +162,18 @@ def test_si_el_segundo_intento_sigue_mal_repartido_se_acepta_con_el_aviso(api, e
 # --- el tiempo apagado (decisión 90) ---
 
 
-def test_sin_tiempo_elegido_el_prompt_deja_que_decida_la_ia_con_la_referencia():
+def test_el_prompt_presenta_r18_como_referencia_y_pide_informar_duracion():
     texto = minutes_text(None)
-    assert "Vos decidís la duración" in texto
-    assert "El tiempo manda" not in texto
-    assert "Dejá la sesión **más larga" in volume_text(None)
+    assert "no elige minutos" in texto
+    assert "R18 es orientativa" in texto
+    assert "Estimá cada día con R34" in texto
+    assert "Primero alargá la sesión" in volume_text(None)
+    assert "Solo como último recurso recortá" in volume_text(None)
 
 
-def test_con_tiempo_elegido_el_prompt_sigue_como_en_la_decision_82():
-    assert "no pases del tiempo" in minutes_text(60)
-    assert "no alargues la sesión" in volume_text(60)
+def test_los_minutos_anteriores_no_cambian_las_instrucciones_vigentes():
+    assert minutes_text(60) == minutes_text(None)
+    assert volume_text(60) == volume_text(None)
 
 
 def test_se_puede_generar_sin_minutos_y_no_se_reintenta_por_el_tiempo(api, entorno, monkeypatch):
@@ -182,11 +184,15 @@ def test_se_puede_generar_sin_minutos_y_no_se_reintenta_por_el_tiempo(api, entor
 
     assert respuesta.status_code == 201
     assert falso.llamadas == 1
-    assert "Vos decidís la duración" in falso.prompts[0]
+    assert "La persona no elige minutos" in falso.prompts[0]
 
 
-def test_unos_minutos_raros_siguen_rechazandose(api, entorno, monkeypatch):
+def test_minutos_anteriores_se_ignoran_y_no_restringen_la_propuesta(api, entorno, monkeypatch):
     con_perfil(api)
-    usar_gemini(monkeypatch, rutina_catalogo())
+    falso = usar_gemini(monkeypatch, rutina_catalogo())
 
-    assert generar(api, {**ELECCION, "minutes": 50}).status_code == 422
+    respuesta = generar(api, {**ELECCION, "minutes": 120})
+
+    assert respuesta.status_code == 201
+    assert respuesta.json()["day_minutes"] == [50, 50]
+    assert "La persona no elige minutos" in falso.prompts[0]

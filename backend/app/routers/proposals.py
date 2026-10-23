@@ -18,11 +18,12 @@ from app.ai.changes import compare
 from app.ai.history import last_closed_week
 from app.ai.plan_writer import active_week, write_plan
 from app.ai.routine import RoutineProposal
-from app.ai.rules import allowed_days, allowed_minutes, estimate_day_minutes, validate_routine
+from app.ai.rules import allowed_days, estimate_day_minutes, validate_routine
+from app.ai.splits import compatible_splits, default_split
 from app.ai.swap import SwapError, alternatives, swap
 from app.db import get_db
 from app.deps import get_current_user
-from app.enums import Goal, Level, ProposalKind, ProposalStatus
+from app.enums import Goal, Level, ProposalKind, ProposalStatus, RoutineSplit
 from app.models import PlanProposal, Routine, User
 from app.routines import create_routine
 from app.routers.weeks import routine_weeks
@@ -49,6 +50,7 @@ def to_out(proposal: PlanProposal) -> ProposalOut:
         status=proposal.status.value,
         created_at=proposal.created_at,
         routine=routine,
+        split=RoutineSplit(changes["split"]) if changes.get("split") else None,
         day_minutes=[round(estimate_day_minutes(day)) for day in routine.days],
         warnings=[WarningOut(**w) for w in changes.get("warnings", [])],
     )
@@ -79,21 +81,33 @@ def generate(
         if routine is None or routine.user_id != user.id:
             raise HTTPException(status_code=404, detail="No existe esa rutina")
         goal, level = routine.goal, routine.level  # el nivel queda fijo mientras sigue la rutina
+    else:
+        if goal is None or level is None:
+            raise HTTPException(status_code=422, detail="Falta el objetivo y el nivel")
     permitidos = allowed_days(level)  # R12 para principiantes, R11 para el resto
     if data.days not in permitidos:
         raise HTTPException(
             status_code=422,
             detail=f"Con nivel {level.value} se entrena de {permitidos[0]} a {permitidos[-1]} días por semana",
         )
-    minutos = allowed_minutes(level)  # R18: los principiantes hasta 60
-    if data.minutes is not None and data.minutes not in minutos:
+    split = data.split or (routine.split_type if data.routine_id is not None else None) or default_split(data.days, level, goal)
+    compatible = compatible_splits(data.days, level, goal)
+    if split not in compatible:
+        labels = {
+            RoutineSplit.FULL_BODY: "Cuerpo completo",
+            RoutineSplit.UPPER_LOWER: "Torso y pierna",
+            RoutineSplit.PPL: "Empuje, tirón y piernas",
+        }
         raise HTTPException(
             status_code=422,
-            detail=f"Con nivel {level.value} la sesión dura de {minutos[0]} a {minutos[-1]} minutos, de 20 en 20",
+            detail="Split incompatible con los días o el nivel. Opciones: "
+            + ", ".join(labels[s] for s in compatible),
         )
     try:
         return to_out(
-            generate_proposal(db, user, goal, level, data.routine_id, data.days, data.minutes)
+            # `minutes` se acepta por compatibilidad con clientes viejos, pero la decisión 90 lo apagó:
+            # R18 es referencia, no objetivo ni límite.
+            generate_proposal(db, user, goal, level, data.routine_id, data.days, None, split)
         )
     except ProfileMissing:
         raise HTTPException(status_code=409, detail="Completá tu perfil primero") from None
@@ -121,10 +135,18 @@ def generate(
             status_code=502,
             detail="La IA no respondió (puede haber tardado demasiado). Probá de nuevo.",
         ) from None
-    except GenerationFailed:
+    except GenerationFailed as error:
+        # Mostrar algunos motivos concretos evita que un rechazo por reglas parezca una caída
+        # de Gemini. La respuesta de la IA ya se recibió; se agotaron los intentos de corrección.
+        motivos = " ".join(error.problems[:3])
+        if len(error.problems) > 3:
+            motivos += f" (y {len(error.problems) - 3} problemas más)"
         raise HTTPException(
             status_code=502,
-            detail="La IA no pudo armar una rutina válida. Probá de nuevo.",
+            detail=(
+                "Gemini respondió, pero la rutina no pasó las reglas después de varios intentos. "
+                f"Motivos: {motivos or 'la propuesta no cumplió la validación.'}"
+            ),
         ) from None
 
 
@@ -245,7 +267,8 @@ def swap_exercise(
     legacy = [e.name for d in new_routine.days for e in d.exercises if find(e.name) is None]
     result = validate_routine(
         new_routine, goal, level, changes.get("days"), catalog_extra_names=legacy,
-        minutes=changes.get("minutes"),
+        minutes=None,
+        split=RoutineSplit(changes["split"]) if changes.get("split") else None,
     )
     if result.errors:
         raise HTTPException(
@@ -289,14 +312,13 @@ def accept(
         # Recién acá nace la rutina nueva: si el usuario descarta la propuesta, no queda nada.
         plan_routine = create_routine(
             db, user.id, Goal(changes["goal"]), Level(changes["level"]), changes.get("days"),
-            changes.get("minutes"),
+            changes.get("minutes"), RoutineSplit(changes["split"]) if changes.get("split") else None,
         )
     # Al continuar con otra cantidad de días, la rutina se queda con la nueva (decisión 52).
     if changes.get("days") is not None:
         plan_routine.days_per_week = changes["days"]
-    # Lo mismo con el tiempo de la sesión (decisión 82).
-    if changes.get("minutes") is not None:
-        plan_routine.session_minutes = changes["minutes"]
+    if changes.get("split") is not None:
+        plan_routine.split_type = RoutineSplit(changes["split"])
     week = write_plan(db, user.id, routine, plan_routine)
     proposal.week_plan_id = week.id
     proposal.status = ProposalStatus.ACCEPTED

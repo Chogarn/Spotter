@@ -11,13 +11,15 @@ import { FraseDeCarga } from "@/components/FraseDeCarga";
 import { IconoNivel } from "@/components/IconoNivel";
 import { IconoObjetivo } from "@/components/IconoObjetivo";
 
-type Paso = "eleccion" | "objetivo" | "nivel" | "tiempo" | "dias";
+type Paso = "eleccion" | "objetivo" | "nivel" | "tiempo" | "dias" | "split";
+type Split = "full_body" | "upper_lower" | "ppl";
 const TITULOS: Record<Paso, string> = {
   eleccion: "¿Qué querés hacer?",
   objetivo: "¿Cuál es tu objetivo?",
   nivel: "¿Cuál es tu nivel?",
   tiempo: "¿Cuánto querés que dure cada sesión?",
   dias: "¿Cuántos días por semana?",
+  split: "¿Cómo querés repartir tus entrenamientos?",
 };
 
 const NIVELES = [
@@ -29,6 +31,39 @@ const NIVELES = [
 // para el resto (2 a 6). El backend vuelve a comprobarlo.
 function diasPermitidos(nivel: string): number[] {
   return nivel === "principiante" ? [2, 3] : [2, 3, 4, 5, 6];
+}
+
+function splitsPermitidos(nivel: string, objetivo: string, dias: number | null): Split[] {
+  if (dias === null) return [];
+  if (nivel === "principiante") return dias === 2 || dias === 3 ? ["full_body"] : [];
+  const opciones: Split[] = ["full_body"];
+  // Con tres días, torso/pierna deja un grupo grande en una sola sesión (decisión 90).
+  // Con dos días de masa, el mínimo de R3 no cabe en el máximo de 9 series por grupo y día.
+  if ([2, 4, 5, 6].includes(dias) && !(dias === 2 && objetivo === "masa")) opciones.push("upper_lower");
+  // PPL clásico solo en dos vueltas; PPL de tres días contradice la frecuencia de la decisión 90.
+  if (dias === 6) opciones.push("ppl");
+  return opciones;
+}
+
+function splitPredeterminado(dias: number | null, nivel: string, objetivo: string): Split | "" {
+  const disponibles = splitsPermitidos(nivel, objetivo, dias);
+  const preferido: Split = dias === 4 || dias === 5 ? "upper_lower" : dias === 6 ? "ppl" : "full_body";
+  return disponibles.includes(preferido) ? preferido : disponibles[0] ?? "";
+}
+
+const SPLIT_ETIQUETAS: Record<Split, { titulo: string; detalle: string }> = {
+  full_body: { titulo: "Cuerpo completo", detalle: "Trabajás los seis grupos grandes en cada día." },
+  upper_lower: { titulo: "Torso y pierna", detalle: "Alternás un día de pecho, espalda y hombros con uno de piernas." },
+  ppl: { titulo: "Empuje, tirón y piernas", detalle: "Empuje: pecho y hombros · tirón: espalda · piernas. Con 6 días, hacés dos vueltas." },
+};
+
+function ayudaCompatibilidad(nivel: string, objetivo: string, dias: number | null): string {
+  if (dias === null) return "Al elegir los días te mostramos las estructuras que se pueden usar.";
+  if (nivel === "principiante") return "Para nivel principiante, Spotter ofrece Cuerpo completo con 2 o 3 días.";
+  if (dias === 3) return "Con 3 días, solo aparece Cuerpo completo: así cada grupo grande puede repetirse durante la semana.";
+  if (dias === 2 && objetivo === "masa") return "Con 2 días y objetivo masa, solo aparece Cuerpo completo: Torso/Piernas dejaría demasiado volumen de un grupo para un solo día.";
+  if (dias === 6) return "Con 6 días podés elegir Cuerpo completo, Torso/Piernas o dos vueltas de Empuje/Tirón/Piernas.";
+  return `Con ${dias} días podés elegir Cuerpo completo o Torso/Piernas. PPL requiere 6 días para completar dos vueltas.`;
 }
 
 // Los minutos por sesión (decisión 82), de 20 en 20 desde 40: hasta 60 para un principiante (R18),
@@ -87,6 +122,7 @@ export function GenerarRutina({
   const [objetivo, setObjetivo] = useState("");
   // Cuántos días por semana: obligatorio. Al continuar, viene la cantidad actual de la rutina.
   const [dias, setDias] = useState<number | null>(null);
+  const [split, setSplit] = useState<Split | "">("");
   // Cuánto dura cada sesión: arranca en lo habitual (60) y al continuar viene el de la rutina.
   const [minutos, setMinutos] = useState(MINUTOS_HABITUAL);
   const [paso, setPaso] = useState<Paso>("eleccion");
@@ -110,6 +146,7 @@ export function GenerarRutina({
   const rutinaElegida = rutinas?.find((r) => String(r.id) === eleccion);
   const continuando = continuar !== undefined;
   const nivelActual = eleccion === "nueva" ? nivel : (rutinaElegida?.level ?? "");
+  const objetivoActual = eleccion === "nueva" ? objetivo : (rutinaElegida?.goal ?? "");
   // Los pasos del asistente dependen de lo elegido: si hay rutinas, primero se elige cuál; una
   // rutina nueva suma objetivo y nivel; los días van al final porque dependen del nivel.
   const hayEleccion = !soloNueva && !continuando && rutinas !== null && rutinas.length > 0;
@@ -118,10 +155,11 @@ export function GenerarRutina({
     ...(eleccion === "nueva" ? (["objetivo", "nivel"] as const) : []),
     ...(PEDIR_TIEMPO ? (["tiempo"] as const) : []),
     "dias",
+    "split",
   ];
   const actual = pasos.includes(paso) ? paso : pasos[0];
   const indice = pasos.indexOf(actual);
-  const ultimo = actual === "dias";
+  const ultimo = actual === "split";
   const pasoListo =
     actual === "eleccion"
       ? eleccion !== ""
@@ -131,13 +169,16 @@ export function GenerarRutina({
           ? nivel !== ""
           : actual === "tiempo"
             ? Boolean(nivelActual)
-            : dias !== null && Boolean(nivelActual);
+            : actual === "dias"
+              ? dias !== null && Boolean(nivelActual)
+              : split !== "";
 
   function elegir(valor: string) {
     setEleccion(valor);
     const rutina = rutinas?.find((r) => String(r.id) === valor);
     setDias(rutina?.days_per_week ?? null);
     setMinutos(minutosValidos(rutina?.session_minutes ?? MINUTOS_HABITUAL, rutina?.level ?? ""));
+    setSplit(rutina?.split_type ?? splitPredeterminado(rutina?.days_per_week ?? null, rutina?.level ?? "", rutina?.goal ?? ""));
   }
 
   function cambiarNivel(valor: string) {
@@ -146,6 +187,15 @@ export function GenerarRutina({
     setMinutos(minutosValidos(minutos, valor));
     // Si los días elegidos no entran en el nivel nuevo (por ejemplo 4 para un principiante), se borran.
     if (dias !== null && !diasPermitidos(valor).includes(dias)) setDias(null);
+    else setSplit(splitPredeterminado(dias, valor, objetivoActual));
+  }
+
+  function elegirDias(valor: number) {
+    setDias(valor);
+    const disponibles = splitsPermitidos(nivelActual, objetivoActual, valor);
+    setSplit((actual) => disponibles.includes(actual as Split)
+      ? actual
+      : splitPredeterminado(valor, nivelActual, objetivoActual));
   }
 
   async function abrir() {
@@ -153,7 +203,10 @@ export function GenerarRutina({
     setPreguntando(true);
     setPaso("eleccion");
     setEleccion("");
+    setObjetivo("");
+    setNivel("");
     setDias(null);
+    setSplit("");
     setMinutos(MINUTOS_HABITUAL);
     setRutinas(null);
     if (soloNueva) {
@@ -172,6 +225,7 @@ export function GenerarRutina({
         setEleccion(String(rutina.id));
         setDias(rutina.days_per_week ?? null);
         setMinutos(minutosValidos(rutina.session_minutes ?? MINUTOS_HABITUAL, rutina.level));
+        setSplit(rutina.split_type ?? splitPredeterminado(rutina.days_per_week ?? null, rutina.level, rutina.goal));
       } else if (lista.length === 0) {
         setEleccion("nueva"); // sin rutinas no hay nada que continuar
       }
@@ -190,8 +244,8 @@ export function GenerarRutina({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           eleccion === "nueva"
-            ? { goal: objetivo, level: nivel, days: dias, ...(PEDIR_TIEMPO ? { minutes: minutos } : {}) }
-            : { routine_id: Number(eleccion), days: dias, ...(PEDIR_TIEMPO ? { minutes: minutos } : {}) },
+            ? { goal: objetivo, level: nivel, days: dias, split, ...(PEDIR_TIEMPO ? { minutes: minutos } : {}) }
+            : { routine_id: Number(eleccion), days: dias, split, ...(PEDIR_TIEMPO ? { minutes: minutos } : {}) },
         ),
       });
       if (res.ok) {
@@ -242,9 +296,11 @@ export function GenerarRutina({
                 : "Lo habitual son 60 minutos. Es el tiempo total, con descansos."
               : actual === "dias" && nivelActual === "principiante"
                 ? "Para empezar, 2 o 3 días."
-                : actual === "dias" && continuando && rutinaElegida
-                ? `Continuás «${rutinaElegida.name}».`
-                : undefined
+                : actual === "split"
+                  ? ayudaCompatibilidad(nivelActual, objetivoActual, dias)
+                  : actual === "dias" && continuando && rutinaElegida
+                    ? `Continuás «${rutinaElegida.name}».`
+                    : undefined
           }
           onAtras={indice > 0 ? () => setPaso(pasos[indice - 1]) : cancelar}
           etiquetaAtras={indice > 0 ? "Volver" : "Cancelar"}
@@ -297,7 +353,7 @@ export function GenerarRutina({
                     role="radio"
                     aria-checked={dias === d}
                     disabled={!permitido}
-                    onClick={() => setDias(d)}
+                    onClick={() => elegirDias(d)}
                     className={
                       "rounded-2xl border-2 py-5 font-heading text-4xl font-bold outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-35 " +
                       (dias === d ? "border-disco-azul bg-disco-azul text-white" : "border-transparent bg-card")
@@ -308,6 +364,19 @@ export function GenerarRutina({
                 );
               })}
             </div>
+          )}
+          {actual === "split" && (
+            <GrupoOpciones etiqueta="Estructura de la semana">
+              {splitsPermitidos(nivelActual, objetivoActual, dias).map((opcion) => (
+                <OpcionAsistente
+                  key={opcion}
+                  titulo={SPLIT_ETIQUETAS[opcion].titulo}
+                  detalle={SPLIT_ETIQUETAS[opcion].detalle}
+                  seleccionada={split === opcion}
+                  onElegir={() => setSplit(opcion)}
+                />
+              ))}
+            </GrupoOpciones>
           )}
         </PasoAsistente>
       )}

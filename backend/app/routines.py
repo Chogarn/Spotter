@@ -5,7 +5,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.enums import Goal, Level
+from app.enums import Goal, Level, RoutineSplit
 from app.models import Routine
 
 GOAL_LABEL = {
@@ -30,7 +30,7 @@ def auto_name(goal: Goal, start: date, taken: set[str]) -> str:
 
 def create_routine(
     db: Session, user_id: int, goal: Goal, level: Level, days: int | None = None,
-    minutes: int | None = None,
+    minutes: int | None = None, split: RoutineSplit | None = None,
 ) -> Routine:
     """Crea la rutina con nombre automático. No hace commit."""
     taken = set(db.scalars(select(Routine.name).where(Routine.user_id == user_id)))
@@ -40,6 +40,7 @@ def create_routine(
         level=level,
         days_per_week=days,
         session_minutes=minutes,
+        split_type=split,
         name=auto_name(goal, date.today(), taken),
     )
     db.add(routine)

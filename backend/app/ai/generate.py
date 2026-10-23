@@ -18,7 +18,7 @@ from app.ai.prompt import build_prompt
 from app.ai.retrieve import retrieve_candidates
 from app.ai.routine import RoutineProposal
 from app.ai.rules import Issue, validate_routine
-from app.enums import AiCallKind, Goal, Level, ProposalKind, ProposalStatus
+from app.enums import AiCallKind, Goal, Level, ProposalKind, ProposalStatus, RoutineSplit
 from app.models import AiCall, PlanProposal, User
 
 MAX_ATTEMPTS = 2  # la primera llamada y un reintento; cada intento cuenta en los topes
@@ -94,6 +94,7 @@ def generate_proposal(
     routine_id: int | None = None,
     days: int | None = None,
     minutes: int | None = None,
+    split: RoutineSplit | None = None,
 ) -> PlanProposal:
     """Genera una propuesta, de a una por persona (`GenerationInProgress` si ya hay otra)."""
     with _running_lock:
@@ -103,7 +104,7 @@ def generate_proposal(
     try:
         if _in_progress_in_db(db, user.id):
             raise GenerationInProgress
-        return _generate_proposal(db, user, goal, level, routine_id, days, minutes)
+        return _generate_proposal(db, user, goal, level, routine_id, days, minutes, split)
     finally:
         with _running_lock:
             _running.discard(user.id)
@@ -117,6 +118,7 @@ def _generate_proposal(
     routine_id: int | None = None,
     days: int | None = None,
     minutes: int | None = None,
+    split: RoutineSplit | None = None,
 ) -> PlanProposal:
     if user.profile is None:
         raise ProfileMissing
@@ -135,7 +137,7 @@ def _generate_proposal(
     )
     base_prompt = build_prompt(
         profile, goal, level, previous.text if previous else None, days, candidates.exercises,
-        minutes,
+        minutes, split,
     )
     prompt = base_prompt
     problems: list[str] = []
@@ -162,6 +164,7 @@ def _generate_proposal(
                 routine, goal, level, days,
                 catalog_extra_names=previous.exercise_names if previous else (),
                 minutes=minutes,
+                split=split,
             )
             if result.ok and (not result.soft_issues or attempt + 1 >= MAX_ATTEMPTS):
                 # Sin problemas, o con días fuera del tiempo o mal repartidos en el último intento: se
@@ -170,9 +173,9 @@ def _generate_proposal(
                     result.warnings += [
                         Issue(rule, message) for rule, message in weight_jump_warnings(routine, previous)
                     ]
-                return _save(db, user, routine, result, goal, level, routine_id, kind, days, minutes)
-            # Decisiones 89 y 90: los días se desvían del tiempo elegido o las series no están bien
-            # repartidas: se pide de nuevo (cada intento cuenta en los topes) mientras queden intentos.
+                return _save(db, user, routine, result, goal, level, routine_id, kind, days, minutes, split)
+            # Decisión 90: el reparto de series se vuelve a pedir mientras queden intentos;
+            # la duración es orientativa y solo produce un aviso.
             problems = [f"{i.rule}: {i.message}" for i in (result.errors or result.soft_issues)]
 
         if attempt + 1 < MAX_ATTEMPTS:
@@ -187,6 +190,7 @@ def _save(
     kind: ProposalKind = ProposalKind.GENERATE,
     days: int | None = None,
     minutes: int | None = None,
+    split: RoutineSplit | None = None,
 ) -> PlanProposal:
     # Queda una sola propuesta pendiente: las anteriores se descartan al llegar la nueva.
     now = datetime.now(timezone.utc)
@@ -211,8 +215,9 @@ def _save(
             "routine_id": routine_id,
             # Los días que eligió el usuario: se guardan en la rutina al aceptar (decisión 52).
             "days": days,
-            # Los minutos por sesión que eligió el usuario (decisión 82).
+            # Dato histórico; la decisión 90 apagó la elección de minutos. Se guarda null en propuestas nuevas.
             "minutes": minutes,
+            "split": split.value if split is not None else None,
             "warnings": [{"rule": w.rule, "message": w.message} for w in result.warnings],
         },
     )
