@@ -12,6 +12,7 @@ from app.ai.rules import estimate_day_minutes
 from app.db import get_db
 from app.deps import get_current_user
 from app.enums import ExerciseKind, LoadFeel, PainLevel, PlanStatus, ProposalKind, ProposalStatus
+from app.measurements import record
 from app.models import (
     ExerciseCompletion,
     PlanDay,
@@ -289,6 +290,16 @@ def get_active_week(
         id=week.id,
         week_start=week.week_start,
         days=[{"day_index": d.day_index, "title": d.title} for d in week.days],
+        in_progress_day=next(
+            (
+                d.day_index
+                for d in week.days
+                if (s := day_session(db, user, d)) is not None
+                and s.started_at is not None
+                and s.finished_at is None
+            ),
+            None,
+        ),
     )
 
 
@@ -426,6 +437,9 @@ def close_week(
     week.closing_note = note or None
     week.status = PlanStatus.CLOSED
     week.closed_at = datetime.now(timezone.utc)
+    # Peso (y grasa corporal) opcionales del día del cierre (decisión 87).
+    if data is not None and data.weight_kg is not None:
+        record(db, user, data.weight_kg, data.body_fat_pct, week_plan_id=week.id)
     db.commit()
     return WeekSummaryOut(
         id=week.id,

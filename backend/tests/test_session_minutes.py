@@ -28,10 +28,9 @@ def generar(api, cuerpo):
 
 
 def test_las_opciones_dependen_del_nivel():
-    assert allowed_minutes(Level.PRINCIPIANTE) == tuple(range(30, 61, 5))
-    assert allowed_minutes(Level.INTERMEDIO)[-1] == 90
-    assert allowed_minutes(Level.AVANZADO)[-1] == 120
-    assert allowed_minutes(Level.AVANZADO)[0] == 30
+    assert allowed_minutes(Level.PRINCIPIANTE) == (40, 60)
+    assert allowed_minutes(Level.INTERMEDIO) == (40, 60, 80)
+    assert allowed_minutes(Level.AVANZADO) == (40, 60, 80, 100, 120)
 
 
 def test_un_principiante_no_puede_elegir_90_y_no_se_llama_a_la_ia(api, entorno, monkeypatch):
@@ -41,16 +40,16 @@ def test_un_principiante_no_puede_elegir_90_y_no_se_llama_a_la_ia(api, entorno, 
     respuesta = generar(api, {"goal": "masa", "level": "principiante", "days": 2, "minutes": 90})
 
     assert respuesta.status_code == 422
-    assert "30 a 60" in respuesta.json()["detail"]
+    assert "40 a 60" in respuesta.json()["detail"]
     assert falso.llamadas == 0
 
 
-def test_los_minutos_son_obligatorios_y_de_5_en_5(api, entorno, monkeypatch):
+def test_los_minutos_son_obligatorios_y_de_20_en_20(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
 
     sin = generar(api, {"goal": "masa", "level": "intermedio", "days": 2})
-    raro = generar(api, {"goal": "masa", "level": "intermedio", "days": 2, "minutes": 62})
+    raro = generar(api, {"goal": "masa", "level": "intermedio", "days": 2, "minutes": 50})
 
     assert sin.status_code == 422
     assert raro.status_code == 422
@@ -83,14 +82,14 @@ def test_al_aceptar_la_rutina_guarda_el_tiempo(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
     propuesta = generar(
-        api, {"goal": "masa", "level": "principiante", "days": 2, "minutes": 45}
+        api, {"goal": "masa", "level": "principiante", "days": 2, "minutes": 40}
     ).json()
 
     assert api.post(f"/proposals/{propuesta['id']}/accept").status_code == 200
 
     with api.session() as db:
-        assert db.scalar(select(Routine.session_minutes)) == 45
-    assert api.get("/routines").json()[0]["session_minutes"] == 45
+        assert db.scalar(select(Routine.session_minutes)) == 40
+    assert api.get("/routines").json()[0]["session_minutes"] == 40
 
 
 # --- el contador de la sesión ---
@@ -175,3 +174,14 @@ def test_el_calendario_trae_lo_que_tardo(api):
     calendario = api.get(f"/calendar?month={ahora:%Y-%m}").json()
 
     assert calendario["sessions"][0]["duration_minutes"] == 47
+
+
+def test_la_semana_activa_dice_que_dia_esta_empezado(api):
+    semana = semana_activa(api)
+    assert api.get("/weeks/active").json()["in_progress_day"] is None
+
+    api.post(f"/weeks/{semana}/days/2/start")
+    assert api.get("/weeks/active").json()["in_progress_day"] == 2
+
+    api.post(f"/weeks/{semana}/days/2/complete")
+    assert api.get("/weeks/active").json()["in_progress_day"] is None

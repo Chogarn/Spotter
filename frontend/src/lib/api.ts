@@ -94,9 +94,21 @@ export type ProposalChanges = {
   removed: string[];
 };
 
+// Una medición de cuerpo cargada a mano (decisión 87).
+export type Measurement = {
+  id: number;
+  measured_on: string; // AAAA-MM-DD
+  weight_kg: string | number;
+  body_fat_pct: string | number | null;
+  bmi: number | null; // se calcula con la altura del perfil
+  week_number: number | null; // la semana en cuyo cierre se cargó, si fue ahí
+};
+
 export type Week = {
   id: number;
   days: { day_index: number; title: string }[];
+  // El día empezado y sin completar, si hay uno (decisión 84).
+  in_progress_day?: number | null;
 };
 
 export type Routine = {

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import { Disco } from "@/components/Disco";
+import { InfoEjercicio } from "@/components/InfoEjercicio";
 import { DoneControl } from "@/components/DoneControl";
 import { Flecha } from "@/components/Flecha";
 import { Resumen } from "@/components/ExerciseRow";
@@ -371,26 +372,15 @@ function TarjetaEjercicio({
             ))}
           </ul>
           <SemanaPasada ejercicio={exercise} />
-          {exercise.execution_notes && (
-            <details className="border-t border-border py-1">
-              <summary className="cursor-pointer py-1.5 font-medium">Cómo hacerlo</summary>
-              <p className="mt-0 mb-2 text-sm">{exercise.execution_notes}</p>
-            </details>
-          )}
-          {exercise.reason && (
-            <details className="border-t border-border py-1">
-              <summary className="cursor-pointer py-1.5 font-medium">Por qué está en tu rutina</summary>
-              <p className="mt-0 mb-2 text-sm">{exercise.reason}</p>
-            </details>
-          )}
-          {registra && (
-            <div className="mt-2 flex justify-end">
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <InfoEjercicio nombre={exercise.name} comoHacerlo={exercise.execution_notes} porQue={exercise.reason} />
+            {registra && (
               <DoneControl
                 exercise={exercise}
                 edit={{ weekId: dia.week_id, dayIndex: dia.day_index, onChanged: onEjercicioCambiado }}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </li>

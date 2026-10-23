@@ -1,6 +1,7 @@
 import { ArrowLeftRight, ChevronDown } from "lucide-react";
 
 import type { ExerciseItem } from "@/lib/api";
+import { InfoEjercicio } from "@/components/InfoEjercicio";
 import { restText, summarize } from "@/lib/format";
 import { cn } from "cn";
 
@@ -59,20 +60,9 @@ export function ExerciseRow({
               <SetRow key={i} kind={exercise.kind} index={i} set={s} />
             ))}
           </ul>
-          {exercise.execution_notes && (
-            <details className="border-t border-border py-1">
-              <summary className="cursor-pointer py-1.5 font-medium">Cómo hacerlo</summary>
-              <p className="mt-0 mb-2 text-sm">{exercise.execution_notes}</p>
-            </details>
-          )}
-          {exercise.reason && (
-            <details className="border-t border-border py-1">
-              <summary className="cursor-pointer py-1.5 font-medium">Por qué está en tu rutina</summary>
-              <p className="mt-0 mb-2 text-sm">{exercise.reason}</p>
-            </details>
-          )}
-          {onCambiar && (
-            <div className="border-t border-border pt-3">
+          <div className="flex items-center justify-between gap-2 border-t border-border pt-3">
+            <InfoEjercicio nombre={exercise.name} comoHacerlo={exercise.execution_notes} porQue={exercise.reason} />
+            {onCambiar && (
               <button
                 type="button"
                 onClick={onCambiar}
@@ -81,8 +71,8 @@ export function ExerciseRow({
                 <ArrowLeftRight className="size-4" aria-hidden="true" />
                 Cambiar ejercicio
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </li>

@@ -121,10 +121,10 @@ def reference_minutes(goal: Goal, level: Level) -> tuple[int, int] | None:
 
 
 def allowed_minutes(level: Level) -> tuple[int, ...]:
-    """Los minutos por sesión que puede elegir el usuario (decisión 82), de 5 en 5: hasta 60
-    para un principiante (R18), 90 para un intermedio y 120 para un avanzado."""
+    """Los minutos por sesión que puede elegir el usuario (decisión 82), de 20 en 20 desde 40:
+    hasta 60 para un principiante (R18), 90 para un intermedio y 120 para un avanzado."""
     top = {Level.PRINCIPIANTE: 60, Level.INTERMEDIO: 90, Level.AVANZADO: 120}[level]
-    return tuple(range(30, top + 1, 5))
+    return tuple(range(40, top + 1, 20))
 
 
 def allowed_days(level: Level) -> tuple[int, ...]:

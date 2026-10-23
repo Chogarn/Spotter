@@ -2220,24 +2220,6 @@
         "cinta inclinada",
         "incline walk"
       ]
-    },
-    {
-      "id": "natacion",
-      "name": "Natación",
-      "kind": "cardio",
-      "region": "full_body",
-      "direction": "none",
-      "primary_muscle": "full_body",
-      "secondary_muscles": [],
-      "mechanic": "compound",
-      "equipment": "other",
-      "level": "intermedio",
-      "description": "Nadar de forma continua o por intervalos. Cardio de bajo impacto que usa todo el cuerpo.",
-      "aliases": [
-        "nadar",
-        "pileta",
-        "natacion"
-      ]
     }
   ]
 }

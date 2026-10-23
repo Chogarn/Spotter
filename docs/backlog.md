@@ -116,7 +116,7 @@ La definición completa de cada una está en su issue de GitHub.
 
 ## Hecho el 2026-10-14 y 15 (fuera de los issues, con su decisión)
 
-- [x] Catálogo con RAG: 118 ejercicios, pgvector, recuperación y validación (decisión 58, #52).
+- [x] Catálogo con RAG: 117 ejercicios, pgvector, recuperación y validación (decisión 58, #52).
 - [x] Cambiar un ejercicio de la propuesta por otro del catálogo (decisión 65).
 - [x] Reabrir una semana cerrada, y dos opciones claras al terminar la semana, en Entrenar e Inicio (decisión 66).
 - [x] Una sola generación a la vez, pantalla de carga completa y pantalla de "aceptado" (decisión 67).
@@ -149,6 +149,7 @@ Surgieron al probar los asistentes, la barra con tres botones y Inicio. Cada una
 
 - [x] **Verificar el correo y recuperar la contraseña** `backend` `frontend`: hecho el 2026-10-16 (decisión 81) (#65). Quedan sin función "Cambiar correo" y "Borrar cuenta" de la pestaña Cuenta (decisión 75), y para producción falta la cuenta de Gmail de Spotter
 - [x] **El usuario elige el tiempo de la sesión** `backend` `frontend` `ia`: hecho el 2026-10-17 (decisión 82). Paso "tiempo" con rueda en Generar rutina, el tiempo manda sobre el volumen (R18 y R35 cambiadas, R34 con 3,5 min), contador en el modo entrenar y duración medida en el Calendario y el Resumen semanal. Falta probar el prompt nuevo con Gemini real.
+- [x] **Seguimiento semanal del peso** `backend` `frontend`: hecho el 2026-10-23 (decisión 87, lo pidió el profesor). Peso y grasa corporal opcional con fecha, cargados al cerrar la semana o en Progreso → Cuerpo; IMC calculado; la IA no los usa.
   - **Para qué:** hoy, si alguien olvida la contraseña, no tiene cómo volver a entrar.
   - **Cómo se accede:** enlace "Olvidé mi contraseña" en el inicio de sesión.
   - **A definir:** cómo llega el enlace (correo) y con qué servicio; **verificar en la fuente oficial** si el plan gratuito del servicio alcanza antes de elegirlo; vencimiento del enlace; si cierra las sesiones abiertas.
@@ -206,6 +207,7 @@ Ideas anotadas durante el diseño. No son tareas todavía: antes de convertirlas
   - Punto a decidir: qué hacer con un día completado que se reabrió después, y con dos días completados el mismo día del calendario.
   - Se puede construir con datos que ya existen, sin tablas nuevas ni IA; lo nuevo sería un endpoint de lectura de las fechas. Se relaciona con la idea de rachas (arriba): el calendario sería su vista natural.
 - **Logros y récords personales** (relacionado con las rachas): marcas como "mejor peso en press banca".
+- **Mapa muscular** (idea del 2026-10-18, sin definir ni decidir; el usuario la dejó para después): un dibujo plano del cuerpo, de frente y de espalda, con los músculos de cada ejercicio pintados (principal fuerte, secundarios suaves), usando `primary_muscle` y `secondary_muscles` del catálogo, sin guardar imágenes por ejercicio. Se probó un dibujo propio en Figma (no gustó) y un candidato de código abierto, [react-body-highlighter](https://github.com/giavinh79/react-body-highlighter) (MIT, 19 grupos; habría que dejar su aviso de copyright y verificar la licencia de los polígonos de [react-native-body-highlighter](https://github.com/HichamELBSI/react-native-body-highlighter)). A decidir: dónde se ve (Cómo hacerlo, la propuesta o las estadísticas) y que una persona de educación física revise los músculos. El archivo de Figma quedó en los borradores.
 - **Entrada por voz** para contar cómo se sintió el usuario (hoy solo texto y botones rápidos).
 - **Notificaciones al usuario.** Avisos que ayudan a seguir el plan, por ejemplo: "Hoy te toca el Día 3", "Tenés pendiente el Día 2" o "Te salteaste el Día 4".
   - A definir: por qué canal llegan (dentro de la app, correo, avisos del navegador o del celular), cuándo se envían, qué eventos las disparan y cómo se desactivan.

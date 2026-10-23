@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_current_user
+from app.measurements import record
 from app.models import Profile, User
 from app.schemas import ProfileIn, ProfileOut
 
@@ -42,11 +43,17 @@ def put_profile(
     if fields["birth_date"] is None:
         # Un guardado sin fecha (perfil viejo) no borra la fecha que ya hubiera.
         del fields["birth_date"]
+    weight_changed = user.profile is None or user.profile.weight_kg != fields["weight_kg"]
     if user.profile is None:
         user.profile = Profile(**fields)
     else:
         for key, value in fields.items():
             setattr(user.profile, key, value)
+    if weight_changed:
+        # Un peso nuevo es una medición nueva de hoy (decisión 87); el perfil sigue en la última.
+        db.add(user)
+        db.flush()
+        record(db, user, user.profile.weight_kg)
     if user.profile.legal_notice_accepted_at is None:
         user.profile.legal_notice_accepted_at = datetime.now(timezone.utc)
     user.name = data.name

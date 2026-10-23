@@ -16,17 +16,21 @@ import { Cargando } from "@/components/Cargando";
 
 type Form = DatosPerfil;
 
-// Las tarjetas del perfil y qué pasos del asistente abre cada lápiz.
-type Tarjeta = "nombre" | "cuerpo" | "limitaciones";
+// Cada dato del perfil se edita por separado (decisión 85): cada lápiz abre solo la pregunta de ese
+// dato, nunca varias juntas.
+type Tarjeta = "nombre" | "edad" | "peso" | "altura" | "sexo" | "limitaciones";
 const PASOS: Record<Tarjeta, PasoPerfil[]> = {
   nombre: ["nombre"],
-  cuerpo: ["edad", "peso", "altura", "sexo"],
+  edad: ["edad"],
+  peso: ["peso"],
+  altura: ["altura"],
+  sexo: ["sexo"],
   limitaciones: ["limitaciones"],
 };
 
-// Perfil: se ven los datos guardados y cada lápiz abre los pasos de esa tarjeta (el mismo
-// asistente de una pregunta por pantalla). Un usuario sin perfil todavía (recién registrado) lo
-// completa todo de una vez.
+// Perfil: se ven los datos guardados y cada lápiz abre la pregunta de ese dato (el mismo asistente
+// de una pregunta por pantalla, con un solo paso). Un usuario sin perfil todavía (recién
+// registrado) lo completa todo de una vez.
 export default function PerfilPage() {
   const router = useRouter();
   // Lo último guardado (null = todavía no hay perfil).
@@ -198,19 +202,39 @@ export default function PerfilPage() {
       {pestana === "perfil" ? (
       <div role="tabpanel" id="panel-perfil" aria-labelledby="tab-perfil">
       <section className="mb-3 rounded-2xl bg-card p-4">
-        <div className="mb-3 flex items-center justify-between gap-2">
+        <div className="mb-3">
           <h2 className="my-0 text-xl">Tu cuerpo</h2>
-          {lapiz("cuerpo", "tus datos del cuerpo")}
         </div>
-        {/* Los tres números en fila y el sexo debajo, a todo el ancho, con el mismo formato. */}
-          <div className="grid grid-cols-3 gap-2">
-            <Dato valor={form.age} unidad="años" />
-            <Dato valor={Number(form.weight_kg).toLocaleString("es-AR")} unidad="kg" azul />
-            <Dato valor={form.height_cm} unidad="cm" />
-            <div className="col-span-3">
-              <Dato valor={SEXOS.find(([v]) => v === form.sex)?.[1] ?? "Sin indicar"} unidad="sexo" />
+        {/* A la vista, lo que cambia: el peso y el IMC, que se calcula con el peso y la altura (por eso
+            no tiene lápiz ni lo pide el asistente). Lo demás, plegado (decisión 86). */}
+        <div className="grid grid-cols-2 gap-2">
+          <Dato
+            valor={Number(form.weight_kg).toLocaleString("es-AR")}
+            unidad="kg"
+            azul
+            editar={() => setEditando("peso")}
+            etiqueta="el peso"
+          />
+          <Dato valor={imc(form.weight_kg, form.height_cm)} unidad="IMC" />
+        </div>
+        <p className="mt-2 mb-0 text-xs text-muted-foreground">
+          El IMC se calcula con tu peso y tu altura. Es orientativo: no distingue músculo de grasa.
+        </p>
+        <details className="mt-3 border-t border-border pt-2">
+          <summary className="cursor-pointer py-1.5 font-medium">Datos personales</summary>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <Dato valor={form.age} unidad="años" editar={() => setEditando("edad")} etiqueta="la edad" />
+            <Dato valor={form.height_cm} unidad="cm de altura" editar={() => setEditando("altura")} etiqueta="la altura" />
+            <div className="col-span-2">
+              <Dato
+                valor={SEXOS.find(([v]) => v === form.sex)?.[1] ?? "Sin indicar"}
+                unidad="sexo"
+                editar={() => setEditando("sexo")}
+                etiqueta="el sexo"
+              />
             </div>
           </div>
+        </details>
       </section>
 
       <section className="mb-3 rounded-2xl bg-card p-4">
@@ -260,11 +284,42 @@ export default function PerfilPage() {
 }
 
 // Un dato del cuerpo en lectura: el número grande y su unidad.
-function Dato({ valor, unidad, azul = false }: { valor: string; unidad: string; azul?: boolean }) {
+function Dato({
+  valor,
+  unidad,
+  azul = false,
+  editar,
+  etiqueta,
+}: {
+  valor: string;
+  unidad: string;
+  azul?: boolean;
+  editar?: () => void;
+  etiqueta?: string;
+}) {
   return (
-    <div className="rounded-xl bg-muted px-1 py-2.5 text-center">
+    <div className="relative rounded-xl bg-muted px-1 py-2.5 text-center">
       <p className={cn("m-0 font-heading text-3xl leading-none font-bold", azul && "text-disco-azul")}>{valor || "—"}</p>
       <p className="m-0 mt-1 text-xs text-muted-foreground">{unidad}</p>
+      {editar && (
+        <button
+          type="button"
+          onClick={editar}
+          aria-label={`Cambiar ${etiqueta}`}
+          className="absolute top-1 right-1 inline-flex size-8 items-center justify-center rounded-full text-muted-foreground outline-none hover:bg-background focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          <Pencil className="size-4" aria-hidden="true" />
+        </button>
+      )}
     </div>
   );
+}
+
+// Índice de masa corporal: peso (kg) dividido por la altura (m) al cuadrado, con un decimal. Es un
+// número informativo, sin categoría ni consejo (decisión 86). "—" si falta algún dato.
+function imc(pesoKg: string, alturaCm: string): string {
+  const peso = Number(pesoKg);
+  const altura = Number(alturaCm) / 100;
+  if (!peso || !altura) return "—";
+  return (peso / (altura * altura)).toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 }

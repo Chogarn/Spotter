@@ -14,9 +14,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { aNumero } from "@/components/SeguimientoCuerpo";
 
 // "Cerrar semana" con su recuadro: avisa los días sin completar (cuentan como no hechos) y deja
 // un comentario opcional que la IA lee al armar la semana siguiente. Vive en Entrenar (decisión 44).
@@ -36,16 +38,28 @@ export function CerrarSemana({
   const [confirmando, setConfirmando] = useState(false);
   const [cerrando, setCerrando] = useState(false);
   const [comentario, setComentario] = useState("");
+  // El peso y la grasa corporal del día (opcionales, decisión 87): quedan en Progreso → Cuerpo.
+  const [peso, setPeso] = useState("");
+  const [grasa, setGrasa] = useState("");
   const [error, setError] = useState("");
 
   async function cerrar() {
+    const kg = aNumero(peso);
+    const pct = aNumero(grasa);
+    if (peso.trim() !== "" && (kg === null || kg < 30 || kg > 300)) return setError("Escribí un peso entre 30 y 300 kg, o dejalo vacío");
+    if (grasa.trim() !== "" && (pct === null || pct < 2 || pct > 70)) return setError("La grasa corporal va entre 2 y 70 %, o dejala vacía");
     setError("");
     setCerrando(true);
     try {
       const res = await apiFetch(`/weeks/${weekId}/close`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note: comentario.trim() || null }),
+        body: JSON.stringify({
+          note: comentario.trim() || null,
+          weight_kg: kg,
+          // La grasa sola, sin peso, no se guarda.
+          body_fat_pct: kg !== null ? pct : null,
+        }),
       });
       if (!res.ok) throw new Error(await readError(res));
       setConfirmando(false);
@@ -90,6 +104,33 @@ export function CerrarSemana({
               La IA arma la siguiente con lo que hiciste. No se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="cierre-peso">¿Cuánto pesás hoy? (kg) (opcional)</Label>
+              <Input
+                id="cierre-peso"
+                inputMode="decimal"
+                placeholder="Ej: 78,4"
+                value={peso}
+                disabled={cerrando}
+                onChange={(e) => setPeso(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="cierre-grasa">Grasa corporal (%) (opcional)</Label>
+              <Input
+                id="cierre-grasa"
+                inputMode="decimal"
+                placeholder="Ej: 18,5"
+                value={grasa}
+                disabled={cerrando}
+                onChange={(e) => setGrasa(e.target.value)}
+              />
+            </div>
+            <small className="col-span-2">
+              Si tenés balanza biométrica. Queda en Progreso, en la pestaña Cuerpo.
+            </small>
+          </div>
           <div>
             <Label htmlFor="comentario">¿Cómo te sentiste esta semana? ¿Algún dolor o molestia? (opcional)</Label>
             <Textarea

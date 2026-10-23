@@ -3,12 +3,13 @@ import Link from "next/link";
 import { cn } from "cn";
 
 // Las pantallas de Progreso: los resúmenes de cada semana, la evolución por ejercicio y el
-// calendario de entrenamientos. Se llega a cada una desde Inicio; estas pestañas sirven para pasar
+// calendario de entrenamientos y el seguimiento del cuerpo (el peso). Se llega a cada una desde Inicio; estas pestañas sirven para pasar
 // de una a otra.
 const PESTANAS = [
   { href: "/progreso", texto: "Resúmenes" },
   { href: "/progreso/estadisticas", texto: "Estadísticas" },
   { href: "/progreso/calendario", texto: "Calendario" },
+  { href: "/progreso/cuerpo", texto: "Cuerpo" },
 ] as const;
 
 export function PestanasProgreso({ actual }: { actual: (typeof PESTANAS)[number]["href"] }) {

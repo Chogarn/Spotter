@@ -2,7 +2,7 @@
 
 > Generada desde `backend/app/ai/exercises.json` (versión 2). **No se edita a mano**: se corrige el JSON y se vuelve a generar. Aprobado por el usuario. Pendiente, más adelante: revisión por una persona con formación en educación física.
 
-118 ejercicios. Para corregir, anotá el `id` y qué cambia (nombre, músculo principal, secundarios, nivel, descripción o alias).
+117 ejercicios. Para corregir, anotá el `id` y qué cambia (nombre, músculo principal, secundarios, nivel, descripción o alias).
 
 ## Pecho (14)
 
@@ -163,7 +163,7 @@
 | `lenador_polea` | Leñador en polea | strength/comp. | polea | interm. | — | Con una polea alta, se baja el agarre en diagonal rotando el torso. Trabaja oblicuos y rotación del tronco. | woodchop, leñador, chop en polea |
 | `hollow_hold` | Posición hollow | isometric/isol. | peso corporal | interm. | — | Acostado boca arriba, se elevan hombros y piernas del suelo con la zona lumbar pegada, y se sostiene la posición. | hollow, hollow body hold, posición de bote |
 
-## Cardio (9)
+## Cardio (8)
 
 | id | Nombre | Tipo | Equipo | Nivel | Secundarios | Descripción | Alias |
 |---|---|---|---|---|---|---|---|
@@ -175,4 +175,3 @@
 | `escaladora` | Escaladora | cardio/comp. | máquina | interm. | — | Subir escalones en una máquina continua. Cardio con foco en las piernas. | escalera, stairmaster, stair climber, escalera mecánica |
 | `soga` | Salto de soga | cardio/comp. | otro | interm. | — | Saltar la cuerda a ritmo constante o por intervalos. Cardio de impacto. | saltar la soga, salto de cuerda, jump rope, saltar la cuerda |
 | `caminata_inclinada_cinta` | Caminata en cinta con inclinación | cardio/comp. | máquina | princ. | — | Caminar en la cinta con pendiente. Sube la exigencia sin aumentar el impacto. | caminata con inclinacion, cinta inclinada, incline walk |
-| `natacion` | Natación | cardio/comp. | otro | interm. | — | Nadar de forma continua o por intervalos. Cardio de bajo impacto que usa todo el cuerpo. | nadar, pileta, natacion |

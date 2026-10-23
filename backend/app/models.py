@@ -320,6 +320,30 @@ class PlanSet(Base):
     plan_exercise: Mapped[PlanExercise] = relationship(back_populates="sets")
 
 
+class BodyMeasurement(Base):
+    """Una medición de cuerpo cargada a mano (decisión 87): el peso de un día y, si la persona
+    quiere, la grasa corporal. Una por día. El IMC no se guarda: se calcula con la altura del perfil.
+    """
+
+    __tablename__ = "body_measurements"
+    __table_args__ = (
+        UniqueConstraint("user_id", "measured_on", name="uq_body_measurements_user_day"),
+        CheckConstraint("weight_kg BETWEEN 30 AND 300", name="ck_body_measurements_weight"),
+        CheckConstraint(
+            "body_fat_pct IS NULL OR body_fat_pct BETWEEN 2 AND 70", name="ck_body_measurements_fat"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    measured_on: Mapped[date] = mapped_column(Date)
+    weight_kg: Mapped[Decimal] = mapped_column(Numeric(5, 2))
+    body_fat_pct: Mapped[Decimal | None] = mapped_column(Numeric(4, 1))
+    # La semana en cuyo cierre se cargó, si fue ahí.
+    week_plan_id: Mapped[int | None] = mapped_column(ForeignKey("week_plans.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class WorkoutSession(Base):
     """Una sesión de entrenamiento realizada."""
 

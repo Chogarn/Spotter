@@ -89,7 +89,7 @@ def generate(
     if data.minutes not in minutos:
         raise HTTPException(
             status_code=422,
-            detail=f"Con nivel {level.value} la sesión dura de {minutos[0]} a {minutos[-1]} minutos, de 5 en 5",
+            detail=f"Con nivel {level.value} la sesión dura de {minutos[0]} a {minutos[-1]} minutos, de 20 en 20",
         )
     try:
         return to_out(

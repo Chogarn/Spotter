@@ -21,6 +21,7 @@ TABLAS_ESPERADAS = {
     "pending_registrations",
     "password_resets",
     "email_log",
+    "body_measurements",
 }
 
 

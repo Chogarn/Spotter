@@ -226,6 +226,9 @@ class WeekOut(BaseModel):
     id: int
     week_start: date
     days: list[WeekDayOut]
+    # El día que se empezó ("Empezar día") y todavía no se completó, si hay uno: la barra de abajo
+    # lleva directo a su modo entrenar (decisión 84).
+    in_progress_day: int | None = None
 
 
 class RoutineSummaryOut(BaseModel):
@@ -285,6 +288,30 @@ class CloseWeekIn(BaseModel):
     """Lo que el usuario puede escribir al cerrar la semana (opcional)."""
 
     note: str | None = Field(default=None, max_length=1000)
+    # El peso y la grasa corporal de ese día (decisión 87), opcionales: si hay peso se guarda una
+    # medición ligada a la semana. La grasa sola, sin peso, no se guarda.
+    weight_kg: Decimal | None = Field(default=None, ge=30, le=300, max_digits=5, decimal_places=2)
+    body_fat_pct: Decimal | None = Field(default=None, ge=2, le=70, max_digits=4, decimal_places=1)
+
+
+class MeasurementIn(BaseModel):
+    """Cargar o corregir una medición de cuerpo (decisión 87)."""
+
+    weight_kg: Decimal = Field(ge=30, le=300, max_digits=5, decimal_places=2)
+    body_fat_pct: Decimal | None = Field(default=None, ge=2, le=70, max_digits=4, decimal_places=1)
+    # Sin fecha, hoy. No puede ser futura.
+    measured_on: date | None = None
+
+
+class MeasurementOut(BaseModel):
+    id: int
+    measured_on: date
+    weight_kg: Decimal
+    body_fat_pct: Decimal | None
+    # Calculado con la altura del perfil; nulo si no hay altura.
+    bmi: float | None
+    # La semana (número dentro de su rutina) en cuyo cierre se cargó, si fue ahí.
+    week_number: int | None = None
 
 
 class RealSetOut(BaseModel):

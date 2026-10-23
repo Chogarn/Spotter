@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState, useTransition } from "react";
 
-import { ComoTeFue } from "@/components/ComoTeFue";
 import { ContadorSesion } from "@/components/ContadorSesion";
 import { BotonDescanso, RelojCircular, useDescanso } from "@/components/Descanso";
 import { Disco } from "@/components/Disco";
+import { InfoEjercicio } from "@/components/InfoEjercicio";
 import { Flecha } from "@/components/Flecha";
 import { DoneControl } from "@/components/DoneControl";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -48,13 +48,39 @@ function proximoEjercicio(dia: DayDetail, desde: number): number | null {
   return null;
 }
 
-// Dónde abrir: el ejercicio pedido (`?ejercicio=K`, desde la tarjeta del día); si no hay, la
-// entrada en calor mientras el día no haya empezado, o el primero sin hacer. Null si no queda
-// ninguno: se muestra el cierre del día.
-function posicionInicial(dia: DayDetail, pedido: number | null, registra: boolean): Posicion | null {
+// Dónde estaba la persona la última vez en este día (decisión 84): se guarda cada vez que cambia
+// de ejercicio o de serie y se usa al volver. Va en el navegador, por semana y día.
+function claveDePosicion(id: string, n: string): string {
+  return `spotter_pos_${id}_${n}`;
+}
+
+function posicionGuardada(id: string, n: string, dia: DayDetail): Posicion | null {
+  try {
+    const crudo = localStorage.getItem(claveDePosicion(id, n));
+    if (!crudo) return null;
+    const p = JSON.parse(crudo) as Posicion;
+    if (p.ej === CALOR) return dia.mobility_notes ? { ej: CALOR, serie: 0 } : null;
+    const ejercicio = dia.exercises[p.ej];
+    if (!ejercicio || !Number.isInteger(p.serie) || p.serie < 0 || p.serie >= ejercicio.sets.length) return null;
+    return p;
+  } catch {
+    return null;
+  }
+}
+
+// Dónde abrir: el ejercicio pedido (`?ejercicio=K`, desde la tarjeta del día); si no hay, donde se
+// estaba la última vez (`guardada`); si tampoco, la entrada en calor mientras el día no haya
+// empezado, o el primero sin hacer. Null si no queda ninguno: se muestra el cierre del día.
+function posicionInicial(
+  dia: DayDetail,
+  pedido: number | null,
+  registra: boolean,
+  guardada: Posicion | null,
+): Posicion | null {
   if (pedido !== null && pedido >= 0 && pedido < dia.exercises.length) {
     return { ej: pedido, serie: serieInicial(dia.exercises[pedido]) };
   }
+  if (registra && guardada) return guardada;
   if (dia.mobility_notes && (!registra || !empezoElDia(dia))) return { ej: CALOR, serie: 0 };
   const ej = registra ? dia.exercises.findIndex((e) => !estaHecho(e)) : 0;
   return ej === -1 ? null : { ej, serie: serieInicial(dia.exercises[ej]) };
@@ -90,7 +116,7 @@ export default function EntrenarView({
         const leido: DayDetail = await res.json();
         setDia(leido);
         const registra = leido.week_status === "active" && leido.finished_at === null;
-        setPos(posicionInicial(leido, pedido, registra));
+        setPos(posicionInicial(leido, pedido, registra, posicionGuardada(id, n, leido)));
         // Abrir el modo entrenar es "Empezar día": desde acá corre el contador (decisión 82).
         // Es solo un dato, así que si falla no se interrumpe nada.
         if (registra && leido.started_at === null) {
@@ -105,6 +131,17 @@ export default function EntrenarView({
       })
       .catch((e) => setError(e.message));
   }, [id, n, pedido]);
+
+  // Guarda dónde está la persona para volver ahí (decisión 84). Al terminar todos los ejercicios
+  // (sin posición) se borra, y la próxima vez se calcula con lo registrado.
+  const editable = dia !== null && dia.week_status === "active" && dia.finished_at === null;
+  useEffect(() => {
+    if (!editable) return;
+    try {
+      if (pos) localStorage.setItem(claveDePosicion(id, n), JSON.stringify(pos));
+      else localStorage.removeItem(claveDePosicion(id, n));
+    } catch {}
+  }, [pos, editable, id, n]);
 
   const volver = `/semanas/${id}/dia/${n}`;
 
@@ -150,20 +187,15 @@ export default function EntrenarView({
     return res.json();
   }
 
-  // Cierra el ejercicio y se queda en él: ahí aparece "¿Cómo te fue?" (decisión 74) y el botón para
-  // pasar al siguiente sin hacer (o al final, si no queda ninguno).
+  // Cierra el ejercicio y pasa al siguiente sin hacer (o al final, si no queda ninguno).
   async function terminarEjercicio(d: DayDetail, ej: number) {
     const ejercicio = await llamar<ExerciseItem>(`/exercises/${d.exercises[ej].id}/done`);
     if (!ejercicio) return;
     const nuevo = conEjercicio(d, ejercicio);
     setDia(nuevo);
-    setPos({ ej, serie: serieInicial(nuevo.exercises[ej]) });
-  }
-
-  function irAlSiguiente(desde: number) {
-    const siguiente = proximoEjercicio(actual, desde);
+    const siguiente = proximoEjercicio(nuevo, ej);
     setCorrigiendo(false);
-    setPos(siguiente === null ? null : { ej: siguiente, serie: serieInicial(actual.exercises[siguiente]) });
+    setPos(siguiente === null ? null : { ej: siguiente, serie: serieInicial(nuevo.exercises[siguiente]) });
   }
 
   // El botón grande: marca la serie, pasa a la siguiente o cierra el ejercicio, según toque.
@@ -313,7 +345,6 @@ export default function EntrenarView({
             setPos({ ej: pos.ej, serie: serieInicial(nuevo.exercises[pos.ej]) });
           }}
           onAvanzar={avanzar}
-          onSiguiente={() => irAlSiguiente(pos.ej)}
         />
       ) : (
         <section className="rounded-2xl bg-card p-5">
@@ -384,7 +415,6 @@ function Ejercicio({
   onSerieGuardada,
   onEjercicioCambiado,
   onAvanzar,
-  onSiguiente,
 }: {
   dia: DayDetail;
   pos: Posicion;
@@ -397,7 +427,6 @@ function Ejercicio({
   onSerieGuardada: (s: SetItem) => void;
   onEjercicioCambiado: (e: ExerciseItem) => void;
   onAvanzar: () => void;
-  onSiguiente: () => void;
 }) {
   const ejercicio = dia.exercises[pos.ej];
   const hecho = estaHecho(ejercicio);
@@ -407,7 +436,15 @@ function Ejercicio({
 
   return (
     <>
-      <h1 className="my-0 text-4xl">{ejercicio.name}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="my-0 text-4xl">{ejercicio.name}</h1>
+        <InfoEjercicio
+          nombre={ejercicio.name}
+          comoHacerlo={ejercicio.execution_notes}
+          porQue={ejercicio.reason}
+          className="mt-1.5"
+        />
+      </div>
       {hecho && <p className="mt-1 mb-0 text-sm text-muted-foreground">Ejercicio hecho</p>}
 
       {enCurso ? (
@@ -435,37 +472,8 @@ function Ejercicio({
         </section>
       )}
 
-      {/* "¿Cómo te fue?" (decisión 74): opcional, al terminar el ejercicio. Con el día completado
-          o la semana cerrada solo muestra lo que se marcó. */}
-      {hecho && (
-        <div className="mt-3">
-          <ComoTeFue
-            exercise={ejercicio}
-            edit={registra ? { weekId: dia.week_id, dayIndex: dia.day_index, onChanged: onEjercicioCambiado } : undefined}
-          />
-        </div>
-      )}
-      {hecho && registra && (
-        <Button size="xl" className="mt-4 w-full" type="button" onClick={onSiguiente}>
-          {siguiente !== null && siguiente !== pos.ej ? "Siguiente ejercicio" : "Terminar el día"}
-        </Button>
-      )}
-
-      {/* El detalle que antes estaba en la lista del día (decisión 47), plegado. */}
-      <div className="mt-4 grid gap-2">
-        {ejercicio.execution_notes && (
-          <details className="rounded-xl bg-card px-4 py-2">
-            <summary className="cursor-pointer py-1 font-medium">Cómo hacerlo</summary>
-            <p className="mt-1 mb-1 text-sm">{ejercicio.execution_notes}</p>
-          </details>
-        )}
-        {ejercicio.reason && (
-          <details className="rounded-xl bg-card px-4 py-2">
-            <summary className="cursor-pointer py-1 font-medium">Por qué está en tu rutina</summary>
-            <p className="mt-1 mb-1 text-sm">{ejercicio.reason}</p>
-          </details>
-        )}
-      </div>
+      {/* "Cómo hacerlo" y "Por qué" están en el ícono de información de arriba (decisión 85). El
+          esfuerzo y el dolor ya no se marcan acá: van en el comentario al cerrar la semana. */}
 
       {/* Reabrir y deshacer el ejercicio; el tilde no hace falta (lo cierra el botón grande). */}
       {registra && (

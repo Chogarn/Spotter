@@ -7,6 +7,7 @@ import { readError, type Routine, apiFetch } from "@/lib/api";
 import { GrupoOpciones, OpcionAsistente, PasoAsistente, RuedaNumero } from "@/components/Asistente";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { FraseDeCarga } from "@/components/FraseDeCarga";
 import { IconoNivel } from "@/components/IconoNivel";
 import { IconoObjetivo } from "@/components/IconoObjetivo";
 
@@ -30,12 +31,19 @@ function diasPermitidos(nivel: string): number[] {
   return nivel === "principiante" ? [2, 3] : [2, 3, 4, 5, 6];
 }
 
-// Los minutos por sesión (decisión 82), de 5 en 5: hasta 60 para un principiante (R18), 90 para un
-// intermedio y 120 para un avanzado. El backend vuelve a comprobarlo.
-const MINUTOS_MIN = 30;
+// Los minutos por sesión (decisión 82), de 20 en 20 desde 40: hasta 60 para un principiante (R18),
+// 90 para un intermedio y 120 para un avanzado. El backend vuelve a comprobarlo.
+const MINUTOS_MIN = 40;
+const MINUTOS_PASO = 20;
 const MINUTOS_HABITUAL = 60;
 function minutosMaximo(nivel: string): number {
   return nivel === "principiante" ? 60 : nivel === "intermedio" ? 90 : 120;
+}
+// Un valor de una rutina vieja (por ejemplo 45) se lleva al más cercano de los que hay ahora.
+function minutosValidos(minutos: number, nivel: string): number {
+  const tope = Math.floor((minutosMaximo(nivel) - MINUTOS_MIN) / MINUTOS_PASO);
+  const lugar = Math.round((minutos - MINUTOS_MIN) / MINUTOS_PASO);
+  return MINUTOS_MIN + Math.min(tope, Math.max(0, lugar)) * MINUTOS_PASO;
 }
 
 const OBJETIVOS = [
@@ -126,13 +134,13 @@ export function GenerarRutina({
     setEleccion(valor);
     const rutina = rutinas?.find((r) => String(r.id) === valor);
     setDias(rutina?.days_per_week ?? null);
-    setMinutos(rutina?.session_minutes ?? MINUTOS_HABITUAL);
+    setMinutos(minutosValidos(rutina?.session_minutes ?? MINUTOS_HABITUAL, rutina?.level ?? ""));
   }
 
   function cambiarNivel(valor: string) {
     setNivel(valor);
     // Lo mismo con el tiempo: un principiante no pasa de 60.
-    if (minutos > minutosMaximo(valor)) setMinutos(minutosMaximo(valor));
+    setMinutos(minutosValidos(minutos, valor));
     // Si los días elegidos no entran en el nivel nuevo (por ejemplo 4 para un principiante), se borran.
     if (dias !== null && !diasPermitidos(valor).includes(dias)) setDias(null);
   }
@@ -160,7 +168,7 @@ export function GenerarRutina({
         if (!rutina) throw new Error("No se encontró la rutina para continuar");
         setEleccion(String(rutina.id));
         setDias(rutina.days_per_week ?? null);
-        setMinutos(rutina.session_minutes ?? MINUTOS_HABITUAL);
+        setMinutos(minutosValidos(rutina.session_minutes ?? MINUTOS_HABITUAL, rutina.level));
       } else if (lista.length === 0) {
         setEleccion("nueva"); // sin rutinas no hay nada que continuar
       }
@@ -271,8 +279,8 @@ export function GenerarRutina({
             </GrupoOpciones>
           )}
           {actual === "tiempo" && nivelActual && (
-            <RuedaNumero valor={Math.min(minutos, minutosMaximo(nivelActual))} min={MINUTOS_MIN}
-              max={minutosMaximo(nivelActual)} paso={5} unidad="min" etiqueta="los minutos de cada sesión"
+            <RuedaNumero valor={minutosValidos(minutos, nivelActual)} min={MINUTOS_MIN}
+              max={minutosMaximo(nivelActual)} paso={MINUTOS_PASO} unidad="min" etiqueta="los minutos de cada sesión"
               onChange={setMinutos} />
           )}
           {actual === "dias" && (
@@ -318,6 +326,7 @@ export function GenerarRutina({
           <p className="m-0 max-w-xs text-muted-foreground">
             La IA está pensando tu rutina. Puede tardar hasta 2 minutos. No cierres esta página.
           </p>
+          <FraseDeCarga />
         </div>
       )}
       {error && !preguntando && <ErrorMessage>{error}</ErrorMessage>}

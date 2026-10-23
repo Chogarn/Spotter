@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarCheck, CalendarDays, ChartLine, Lightbulb, ListChecks, Sparkles } from "lucide-react";
+import { CalendarCheck, CalendarDays, ChartLine, Lightbulb, ListChecks, Scale, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -171,6 +171,7 @@ export default function Inicio() {
             <TarjetaAcceso href="/progreso" Icono={CalendarCheck} texto="Resúmenes" />
             <TarjetaAcceso href="/progreso/estadisticas" Icono={ChartLine} texto="Estadísticas" />
             <TarjetaAcceso href="/progreso/calendario" Icono={CalendarDays} texto="Calendario" />
+            <TarjetaAcceso href="/progreso/cuerpo" Icono={Scale} texto="Cuerpo" />
           </div>
         </nav>
       </div>

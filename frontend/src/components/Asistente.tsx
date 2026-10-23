@@ -337,7 +337,7 @@ export function RuedaNumero({
   valor: number;
   min: number;
   max: number;
-  // De cuánto en cuánto va la rueda (los minutos de una sesión, de 5 en 5).
+  // De cuánto en cuánto va la rueda (los minutos de una sesión, de 20 en 20).
   paso?: number;
   unidad: string;
   etiqueta: string;
