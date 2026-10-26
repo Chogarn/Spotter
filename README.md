@@ -14,51 +14,47 @@ Personas que entrenan por su cuenta (de principiante a intermedio) y no pueden p
 
 ## Cómo funciona
 
-1. El usuario se registra y completa sus datos: edad, peso, altura, sexo (opcional) y limitaciones. Ni los días ni la duración de las sesiones los elige: **los determina la IA** (entre 2 y 6 días) según sus datos, el nivel y el objetivo, y si prefiere entrenar más, la IA recalcula.
-2. **Cada vez que empieza una rutina nueva elige su nivel** (principiante, intermedio o avanzado) **y su objetivo** (obligatorios): ganar masa muscular, ganar fuerza, perder grasa, mantenerse activo. No están en el perfil, porque cambian de una rutina a otra. Se da por hecho que entrena en un gimnasio completo.
-3. **La app crea su primera rutina** a partir del perfil, el nivel y el objetivo. Después puede **continuar** una rutina que ya tiene (la semana siguiente hereda su nivel y su objetivo) o **empezar una nueva**. No se carga una rutina propia: toda rutina la arma la IA.
-4. La semana se organiza en días: **Día 1, Día 2, Día 3**... en lugar de lunes o martes, así el usuario entrena a su ritmo.
-5. En cada día, cada ejercicio muestra lo planificado (por ejemplo, press banca 3 × 8 con 50 kg) y, si el usuario lo despliega, **cada serie** con sus propias repeticiones y su propio peso. Lo **tilda** si lo hizo tal cual, o carga lo que realmente hizo (3 × 10 con 40 kg). Cada ejercicio puede traer indicaciones de ejecución (por ejemplo, "bajar lento, pausa arriba").
-6. Al terminar, toca **"Día completado"** y, si quiere, cuenta cómo se sintió.
-7. Cuando decide, toca **"Cerrar semana"**: la IA compara lo planificado con lo real (incluidos los días que no se hicieron) y propone la semana siguiente.
-
-El cierre es siempre manual: nada se genera solo por fecha.
+1. **Registro con correo verificado.** La persona se registra, toca el enlace que le llega por correo (la cuenta se crea al tocarlo) y completa su perfil en un asistente de una pregunta por pantalla: nombre, fecha de nacimiento, peso, altura, sexo, lesiones o limitaciones y aviso legal.
+2. **Cada rutina nueva se arma con cuatro elecciones:** **nivel** (principiante, intermedio o avanzado), **objetivo** (ganar masa, ganar fuerza, perder grasa o mantenerse activo), **días por semana** (de 2 a 6; un principiante, 2 o 3) y **estructura** (cuerpo completo, torso y pierna o empuje, tirón y piernas, según los días y el nivel). No están en el perfil, porque cambian de una rutina a otra. Se da por hecho un gimnasio completo.
+3. **La IA arma la rutina.** Elige solo ejercicios de un catálogo de 124 (recuperados con embeddings y pgvector) y el código valida que cumpla las reglas de entrenamiento. La persona ve una vista previa y **acepta o descarta**; recién al aceptar se escribe en el plan. En la propuesta puede **cambiar un ejercicio** por otro del catálogo. Después puede **continuar** la rutina (objetivo y nivel quedan fijos) o empezar otra. No se carga una rutina propia.
+4. **La semana se organiza en días** ("Día 1", "Día 2"...), no en lunes o martes: la persona entrena a su ritmo.
+5. **Entrenar.** Desde "Empezar" se abre el modo entrenar, un ejercicio a la vez, con la serie en grande, un reloj de descanso y un contador de la sesión. Cada serie se marca como hecha o se corrige con lo que realmente se hizo. Cada ejercicio trae su "Cómo hacerlo" y por qué está en la rutina.
+6. **Día completado.** Cierra la sesión (se puede reabrir con una confirmación).
+7. **Cerrar semana** (siempre manual, nunca por fecha): avisa los días sin hacer, que cuentan como no hechos, y permite cargar el peso, la grasa corporal y un comentario sobre cómo se sintió, todo opcional. Con eso, la IA compara lo planificado con lo real y propone la semana siguiente, que la persona acepta o descarta.
 
 ## Estado actual
 
-El proyecto se construye por etapas. Hoy funciona, con registro e inicio de sesión:
+El proyecto se construye por etapas. Hoy funciona de punta a punta:
 
-- **Perfil** (datos personales y aviso legal).
-- **Generar rutina**, desde la portada: se elige continuar una rutina o empezar una nueva (nivel y objetivo), con Cancelar. Gemini arma la semana, con vista previa y avisos; el usuario acepta o descarta, y solo al aceptar se escribe en el plan (y se crea la rutina nueva).
-- **Mis rutinas:** las rutinas (con nombre automático que se puede cambiar), las semanas de cada una, sus días y los ejercicios de cada día, con las series desplegables.
-- **Cerrar semana:** botón en la semana activa, con aviso de los días sin completar (sin IA).
-- **Registro del día:** editar lo realizado por serie, marcar series y ejercicios como hechos (un ejercicio hecho queda bloqueado hasta reabrirlo) y **Día completado** (que también se puede reabrir).
-- **Semana nueva:** al continuar una rutina, la IA lee lo planificado frente a lo real de la última semana cerrada (con una señal por ejercicio: superó, cumplió, no llegó) y propone la siguiente con un resumen; sube la carga si superaste las repeticiones y la mantiene si no llegaste.
-- **Cerrar semana con un comentario** escrito (opcional) sobre cómo te sentiste, que la IA tiene en cuenta; y **ver la propuesta pendiente** desde la portada.
-- **Cuenta y sesión:** registro e inicio de sesión con cookie `httpOnly` (JWT de 7 días) y contraseñas con hash argon2; sin sesión, todas las pantallas llevan a `/login`.
-- **Interfaz** con shadcn/ui y Tailwind en versión básica (los estilos propios vienen más adelante).
+- **Cuenta:** registro con correo verificado, inicio de sesión con la casilla "Recordarme" (sesión de 30 días o de 12 horas), recuperar la contraseña, cambiar la contraseña y el correo, y borrar la cuenta. La sesión es un JWT en una cookie `httpOnly` y las contraseñas llevan hash argon2.
+- **Perfil** en dos pestañas (Perfil y Cuenta): cada dato se edita por separado.
+- **Generar rutina** con vista previa, avisos de las reglas, aceptar o descartar, y cambiar un ejercicio sin IA. Una sola generación a la vez, con topes de uso de la IA que se aplican antes de cada llamada.
+- **Inicio, Entrenar y Rutinas:** la semana en curso, el modo entrenar con reloj de descanso, las rutinas con sus semanas y días (mirar sin registrar) y reabrir semanas o días cerrados.
+- **Semana nueva:** al continuar una rutina, la IA lee lo planificado frente a lo real (con una señal por ejercicio: superó, cumplió o no llegó) y el comentario de cierre, y propone la siguiente. Sube la carga si superaste lo planificado, la mantiene si no llegaste y baja un escalón si el comentario cuenta fatiga o cargas altas.
+- **Progreso:** resúmenes de cada semana, radar de músculos, mapa muscular sobre el cuerpo, evolución por ejercicio, calendario y seguimiento del peso con IMC.
+- **Interfaz** con el estilo "Disco" (inspirado en los discos de pesas) sobre shadcn/ui y Tailwind; ver [docs/sistema-de-diseno.md](docs/sistema-de-diseno.md).
 
-Descartado por ahora: el ajuste conversando durante la semana. No se hacen: la nota de cómo me sentí por día, el esfuerzo por serie y el semáforo de dolor con escala; en su lugar, la IA deduce el esfuerzo de la carga y las repeticiones, lee el comentario de cierre y, al terminar cada ejercicio, una marca opcional de carga y dolor. La IA elige los ejercicios de un catálogo de 118 (`backend/app/ai/exercises.json`), que recupera con embeddings y pgvector; falta consultar al profesor si es lo que se espera de RAG. El plan no se edita a mano: lo único editable es lo realizado, y la IA es la que cambia el plan, al armar la semana nueva. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
+**Todavía no está:** el despliegue en producción, las capturas de pantalla en este archivo y la revisión de los criterios y del catálogo por una persona con formación en educación física.
+
+**Descartado por ahora:** el ajuste conversando durante la semana, la nota de cómo me sentí por día, el esfuerzo por serie y el semáforo de dolor con escala. En su lugar, la IA deduce el esfuerzo de la carga y las repeticiones y lee el comentario de cierre. El plan no se edita a mano: lo único editable es lo realizado, y el plan solo cambia con la semana nueva. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
 ## Funcionalidades
 
 ### Base
-- Registro e inicio de sesión (JWT).
-- Perfil con datos personales y aviso legal; nivel y objetivo se eligen al empezar cada rutina.
-- Rutinas semanales organizadas en días y ejercicios, con series desglosables (cada serie con sus repeticiones y su peso), indicaciones de ejecución. El plan no se edita a mano; el usuario edita lo realizado. El cardio es un ejercicio más, medido en minutos.
-- Registro de sesiones: lo realizado frente a lo planificado, serie por serie. *(El esfuerzo del 1 al 10 y la nota de cómo se sintió el día están definidos pero pospuestos.)*
+- Registro e inicio de sesión (JWT), con verificación de correo.
+- Perfil con datos personales y aviso legal; el nivel, el objetivo, los días y la estructura se eligen al empezar cada rutina.
+- Rutinas semanales organizadas en días y ejercicios, con series desglosables (cada serie con sus repeticiones y su peso) e indicaciones de ejecución. El cardio y los isométricos son ejercicios con duración.
+- Registro de sesiones: lo realizado frente a lo planificado, serie por serie.
 
 ### Valor de la IA
-La IA trabaja sobre los datos del usuario y siempre **propone**: el usuario ve una vista previa de los cambios y los acepta o los descarta. No es un chat genérico. (La 3 se descartó por ahora: decisión 45.)
+La IA trabaja sobre los datos del usuario y siempre **propone**: se ve una vista previa de los cambios y se aceptan o descartan. No es un chat genérico.
 
-1. **Primera rutina**, según el nivel y el objetivo.
-2. **Cierre de semana:** analiza lo planificado frente a lo real de la semana anterior y propone la siguiente con un resumen de evolución. *(Sube la carga si superaste lo planificado, la mantiene si no llegaste y, si el comentario cuenta fatiga o cargas altas, baja un escalón del equipo.)*
-3. **Ajuste conversando:** "no tengo esa máquina", "me molesta el hombro". La IA propone una versión modificada de la semana.
-4. **Explicación por ejercicio:** botón "¿por qué esto?" con la razón basada en los números del usuario.
-5. **Sustitución:** el usuario rechaza un ejercicio y elige entre 2 alternativas propuestas por la IA.
+1. **Rutina nueva**, según el nivel, el objetivo, los días y la estructura elegidos.
+2. **Cierre de semana:** analiza lo planificado frente a lo real y propone la siguiente, con un resumen de evolución.
+3. **Explicación por ejercicio:** el ícono ⓘ muestra "Cómo hacerlo" y por qué el ejercicio está en la rutina.
 
 ### Fuera del alcance del MVP
-Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal visible.
+Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal.
 
 ## Tecnologías
 
@@ -67,14 +63,14 @@ Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal 
 | FastAPI | API del backend en Python; genera la documentación (`/docs`) automáticamente |
 | Pydantic | Valida los datos del usuario y las respuestas de la IA antes de guardarlas |
 | SQLAlchemy | Trabajar con la base de datos usando clases de Python |
-| PostgreSQL | Base de datos relacional |
+| PostgreSQL + pgvector | Base de datos relacional; pgvector guarda los vectores del catálogo de ejercicios (RAG) |
 | Alembic | Migraciones: versiona los cambios de estructura de la base de datos |
-| JWT + argon2 | Sesión en una cookie `httpOnly` (JWT de 7 días) y contraseñas con hash |
+| JWT + argon2 | Sesión en una cookie `httpOnly` (JWT de 30 días o de 12 horas, según "Recordarme") y contraseñas con hash |
 | shadcn/ui + Tailwind CSS | Componentes de la interfaz (versión básica) |
 | Next.js + TypeScript | Frontend |
 | pytest | Tests automáticos del backend |
 | Docker Compose | Entornos de desarrollo y producción en contenedores |
-| Gemini | IA (modelo `gemini-3.5-flash-lite`, plan gratuito): respuestas en JSON validadas con Pydantic, con topes de uso diarios y por minuto que se aplican antes de cada llamada |
+| Gemini | IA (modelo `gemini-3.5-flash-lite`, plan gratuito) y embeddings (`gemini-embedding-001`): respuestas en JSON validadas con Pydantic, con topes de uso diarios y por minuto que se aplican antes de cada llamada |
 
 ## Estructura de carpetas
 
@@ -82,9 +78,9 @@ Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal 
 spotter/
 ├── backend/
 │   ├── app/                  # API: main.py, db.py, deps.py, security.py, enums.py, models.py, schemas.py
-│   │   ├── routers/          # Endpoints: auth, profile, proposals, routines y weeks
-│   │   ├── scripts/          # Tareas de una sola vez (reclamar el usuario de desarrollo)
-│   │   └── ai/               # IA: Gemini con topes, formato y reglas de la rutina, prompt
+│   │   ├── routers/          # Endpoints: auth, calendar, exercises, profile, proposals, routines y weeks
+│   │   ├── scripts/          # Tareas de una sola vez (reclamar el usuario de desarrollo e indexar el catálogo)
+│   │   └── ai/               # IA: Gemini con topes, catálogo de ejercicios y RAG, reglas de la rutina, prompt
 │   ├── migrations/           # Migraciones de Alembic
 │   ├── tests/                # Tests con pytest (no llaman a Gemini de verdad)
 │   ├── Dockerfile            # Imagen de desarrollo
@@ -92,8 +88,8 @@ spotter/
 │   ├── requirements.txt      # Dependencias de producción
 │   └── requirements-dev.txt  # Dependencias de desarrollo (pytest)
 ├── frontend/
-│   ├── src/app/              # Páginas (Next.js, App Router): portada, login, registro, perfil, propuesta, rutinas y semanas
-│   ├── src/components/       # Componentes compartidos (fila de ejercicio, serie, errores) y ui/ (shadcn)
+│   ├── src/app/              # Páginas (Next.js, App Router): bienvenida, login, registro, inicio, entrenar, progreso, perfil, propuesta, rutinas y semanas
+│   ├── src/components/       # Componentes compartidos (asistentes, discos, mapa muscular, radar...) y ui/ (shadcn)
 │   ├── src/lib/              # Tipos de la API, apiFetch (sesión) y funciones de formato
 │   ├── src/proxy.ts          # Redirige a /login si no hay sesión
 │   ├── Dockerfile            # Imagen de desarrollo
@@ -121,6 +117,7 @@ docker compose -f docker-compose.dev.yml up --build
 | Frontend (Next.js) | http://localhost:3001 |
 | Backend (FastAPI) | http://localhost:8000 (documentación en `/docs`, salud en `/health`) |
 | PostgreSQL | `localhost:5434` |
+| Mailpit (buzón falso donde llegan los correos en desarrollo) | http://localhost:8025 |
 
 El código se monta desde tu PC y se recarga solo al guardar. Para apagar todo: `docker compose -f docker-compose.dev.yml down` (agregá `-v` para borrar también los datos de la base).
 
@@ -144,9 +141,9 @@ En desarrollo las migraciones **no se aplican solas**: se corren a mano para no 
 
 ### Variables de entorno
 
-Para levantar la app y usar el perfil, Mis rutinas y el registro del día alcanzan los valores por defecto. Para **Generar rutina** hace falta la IA: copiá `.env.example` a `.env` y completá `GEMINI_API_KEY` (una clave del plan gratuito, de preferencia en un proyecto propio de Google AI Studio, porque los límites son por proyecto), `GEMINI_MODEL` y los topes `GEMINI_DAILY_LIMIT` y `GEMINI_RPM_LIMIT`. No hay valores por defecto a propósito: si falta alguno, la app se niega a llamar a Gemini. El archivo `.env` no se sube al repositorio.
+Para levantar la app, registrarse (los correos llegan a Mailpit) y usar el registro del día alcanzan los valores por defecto. Para **Generar rutina** hace falta la IA: copiá `.env.example` a `.env` y completá `GEMINI_API_KEY` (una clave del plan gratuito, de preferencia en un proyecto propio de Google AI Studio, porque los límites son por proyecto), `GEMINI_MODEL`, los topes `GEMINI_DAILY_LIMIT` y `GEMINI_RPM_LIMIT`, y los de los embeddings (`GEMINI_EMBEDDING_*`). Después hay que indexar el catálogo una vez: `docker compose -f docker-compose.dev.yml exec backend python -m app.scripts.index_catalog`. No hay valores por defecto a propósito: si falta alguno, la app se niega a llamar a Gemini. El archivo `.env` no se sube al repositorio.
 
-**Cuenta y sesión.** La API exige sesión (excepto `/health` y `/auth/*`): creá tu cuenta en `/registro` e iniciá sesión en `/login`. `JWT_SECRET` firma la sesión (sin valor por defecto en producción; usá 32 caracteres o más) y `COOKIE_SECURE=true` hace que la cookie solo viaje por HTTPS. Si ya tenías datos del desarrollo previo al login, `docker compose -f docker-compose.dev.yml exec backend python -m app.scripts.claim_user` convierte el usuario de desarrollo en tu cuenta (una sola vez; la contraseña la escribís por teclado).
+**Cuenta y sesión.** La API exige sesión (excepto `/health` y `/auth/*`): creá tu cuenta en `/registro` (el enlace de verificación llega a Mailpit en desarrollo; en producción hacen falta `SMTP_*`, `APP_URL` y `EMAIL_DAILY_LIMIT`) e iniciá sesión en `/login`. `JWT_SECRET` firma la sesión (sin valor por defecto en producción; usá 32 caracteres o más) y `COOKIE_SECURE=true` hace que la cookie solo viaje por HTTPS. Si ya tenías datos del desarrollo previo al login, `docker compose -f docker-compose.dev.yml exec backend python -m app.scripts.claim_user` convierte el usuario de desarrollo en tu cuenta (una sola vez; la contraseña la escribís por teclado).
 
 El `.env` se lee al **crear** el contenedor: después de cambiarlo, corré `docker compose -f docker-compose.dev.yml up -d backend` (reiniciar no alcanza).
 
