@@ -2,7 +2,7 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
@@ -25,12 +25,13 @@ from app.schemas import (
 )
 from app.security import (
     COOKIE_NAME,
-    SESSION_DAYS,
+    REMEMBER_DAYS,
     SessionConfigError,
     burn_time,
     cookie_secure,
     create_token,
     hash_password,
+    is_remembered,
     verify_password,
 )
 
@@ -74,15 +75,17 @@ def queue_mail(
     return why
 
 
-def start_session(response: Response, user: User) -> None:
+def start_session(response: Response, user: User, remember: bool = True) -> None:
+    """Abre la sesión. Con `remember` dura 30 días y la cookie queda en el aparato; sin él dura 12
+    horas y la cookie (sin vencimiento) se borra al cerrar el navegador."""
     try:
-        token = create_token(user.id)
+        token = create_token(user.id, remember)
     except SessionConfigError:
         raise HTTPException(status_code=503, detail="La sesión no está configurada") from None
     response.set_cookie(
         COOKIE_NAME,
         token,
-        max_age=SESSION_DAYS * 24 * 3600,
+        max_age=REMEMBER_DAYS * 24 * 3600 if remember else None,
         httponly=True,  # el JavaScript de la página no puede leerla
         samesite="lax",
         secure=cookie_secure(),
@@ -225,13 +228,14 @@ def login(data: LoginIn, response: Response, db: Session = Depends(get_db)) -> U
         raise HTTPException(status_code=401, detail=BAD_LOGIN)
     if not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail=BAD_LOGIN)
-    start_session(response, user)
+    start_session(response, user, data.remember)
     return user
 
 
 @router.put("/password", status_code=204)
 def change_password(
     data: ChangePasswordIn,
+    request: Request,
     response: Response,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -251,7 +255,8 @@ def change_password(
     # Un segundo de margen hacia atrás no hace falta: la cookie nueva se emite en este mismo segundo
     # o después, y solo valen las emitidas desde ese segundo.
     user.password_changed_at = datetime.now(timezone.utc)
-    start_session(response, user)
+    # La cookie nueva dura lo mismo que la que tenía: si no se pidió "Recordarme", tampoco ahora.
+    start_session(response, user, is_remembered(request.cookies.get(COOKIE_NAME)))
     db.commit()
 
 

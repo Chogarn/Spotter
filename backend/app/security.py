@@ -13,7 +13,10 @@ from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
 
 COOKIE_NAME = "spotter_session"
-SESSION_DAYS = 7
+# "Recordarme" tildado: la sesión dura 30 días y la cookie se guarda en el aparato. Sin tildar: dura
+# un día de uso (12 horas) y la cookie se borra al cerrar el navegador.
+REMEMBER_DAYS = 30
+SHORT_HOURS = 12
 ALGORITHM = "HS256"
 
 _hasher = PasswordHasher()
@@ -49,10 +52,23 @@ def burn_time() -> None:
     verify_password("x", _DUMMY_HASH)
 
 
-def create_token(user_id: int) -> str:
+def create_token(user_id: int, remember: bool = True) -> str:
     now = datetime.now(timezone.utc)
-    claims = {"sub": str(user_id), "iat": now, "exp": now + timedelta(days=SESSION_DAYS)}
+    lifetime = timedelta(days=REMEMBER_DAYS) if remember else timedelta(hours=SHORT_HOURS)
+    claims = {"sub": str(user_id), "iat": now, "exp": now + lifetime}
     return jwt.encode(claims, jwt_secret(), algorithm=ALGORITHM)
+
+
+def is_remembered(token: str | None) -> bool:
+    """Si la sesión de este token es de las largas ("Recordarme"). Sin token o ilegible: sí, el
+    comportamiento normal."""
+    if not token:
+        return True
+    try:
+        claims = jwt.decode(token, jwt_secret(), algorithms=[ALGORITHM])
+        return int(claims["exp"]) - int(claims["iat"]) > 24 * 3600
+    except (jwt.PyJWTError, KeyError, ValueError):
+        return True
 
 
 def read_token(token: str) -> int | None:

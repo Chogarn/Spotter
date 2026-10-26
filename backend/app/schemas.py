@@ -41,6 +41,9 @@ class RegisterIn(BaseModel):
 class LoginIn(BaseModel):
     email: str
     password: str = Field(min_length=1, max_length=128)
+    # "Recordarme": sesión de 30 días con la cookie guardada. Sin él, 12 horas y la cookie se borra
+    # al cerrar el navegador. Quien no lo manda queda como antes: recordado.
+    remember: bool = True
 
     _email = field_validator("email")(_clean_email)
 

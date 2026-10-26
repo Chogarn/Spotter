@@ -668,6 +668,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** pedir la contraseña para iniciar el cambio; el vencimiento de 24 horas; que el correo nuevo ya registrado dé 409 al pedirlo (igual que el registro) y de nuevo al confirmar; que el mismo correo dé 400; los textos del correo y de las pantallas.
 - **Ojo:** probado con tests del backend (593 pasan) y a mano con un usuario descartable, con el correo real que llega a Mailpit; **las pantallas no se vieron**. Quien tenga el correo viejo no se entera del cambio.
 
+### 98. Recordarme en el login
+- **Fecha:** 2026-10-26
+- **Decisión:** casilla **"Recordarme en este aparato"** debajo de la contraseña en el login, tildada por defecto. `POST /auth/login` recibe `remember` (si falta, queda en `true`). Tildada: la sesión dura **30 días** y la cookie se guarda en el aparato (antes toda sesión duraba 7 días); sin tildar: **12 horas** y la cookie, sin vencimiento, se borra al cerrar el navegador. Cambiar la contraseña conserva el tipo de sesión que tenía. **La app no guarda la contraseña:** lo que evita volver a escribirla es la sesión larga; el navegador del celular no ofrecía guardarla.
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)*
+- **Decidió la IA sin preguntarte:** que venga tildada, los 30 días y las 12 horas, que las cuentas nuevas y los demás inicios de sesión (verificar el correo) queden como "recordado", y que no se guarde la contraseña en el navegador ni en la app.
+- **Ojo:** probado con tests del backend (598 pasan); **la pantalla no se vio**. Las sesiones ya abiertas siguen con su vencimiento de 7 días.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
