@@ -48,7 +48,7 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 - [x] ~~Nota de cómo me sentí al terminar la sesión (botones y texto)~~ **No se hace** (decisiones 71, 74 y 85): cómo se sintió el entrenamiento y el dolor se cuentan en el **comentario al cerrar la semana** (#50). Los datos viejos de #63 quedan guardados, pero ya no se piden ni se envían en nuevas generaciones `backend` `frontend` (#46)
 - [x] Comentario escrito del usuario al cerrar la semana (cómo se sintió), que la IA lee al armar la semana siguiente `backend` `ia` `frontend` (#50)
 - [x] ~~Esfuerzo por serie (1 a 10) al editar lo realizado~~ **No se hace** (decisión 74): el esfuerzo se deduce comparando peso y repeticiones; el dolor va en el comentario al cerrar la semana `backend` `frontend` (#48)
-- [x] Catálogo de ejercicios para la IA (RAG): la IA arma la semana solo con los **117 ejercicios** de `backend/app/ai/exercises.json` (aprobados el 2026-10-14). Embeddings de Gemini en PostgreSQL con pgvector, recuperación por nivel y similitud, y el código rechaza lo que no esté en el catálogo. Decisión 58. Pendiente: consultar al profesor si es lo que se espera de RAG `backend` `ia` (#52)
+- [x] Catálogo de ejercicios para la IA (RAG): la IA arma la semana solo con los **117 ejercicios** de `backend/app/ai/exercises.json` (aprobados el 2026-10-14). Embeddings de Gemini en PostgreSQL con pgvector, recuperación por nivel y similitud, y el código rechaza lo que no esté en el catálogo. Decisión 58. El profesor dio el OK (2026-10-26): solo preguntó qué se usaba; hay que saber decir que se usan los embeddings de Google `backend` `ia` (#52)
 - [x] ~~Semáforo de dolor (R31): zona y gravedad de 0 a 10 en la nota del día~~ **No se hace** (decisiones 71, 74 y 85): el dolor se informa en el comentario al cerrar la semana. Las marcas viejas de #63 se conservan en la base, pero R31 ya no recibe esos valores `backend` `frontend` `ia` (#51)
 - ~~Elegir camino A o B al empezar (#43) y formulario de rutina actual, camino B (#44)~~ **No se hacen**: se descartó el camino B (decisión 40); el nivel y el objetivo se eligen al generar
 - [x] Refactor y mejoras de UX: shadcn/ui y Tailwind en versión básica (sin estilos propios todavía), con componentes compartidos para el error y el recuadro de confirmación. Decisión 38; probado en una copia temporal `frontend` (#31)
@@ -79,7 +79,7 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 
 ## S5: Calidad y despliegue
 - [x] Explicación por ejercicio ("¿por qué esto?"): cubierta con el campo `reason` que trae cada ejercicio y se muestra plegado en el modo entrenar; sin botón que llame a la IA `ia` `complementaria` (#42)
-- [x] Sustitución de ejercicios en la propuesta: botón "Cambiar ejercicio" con las alternativas del catálogo, en todos los días donde aparece y sin IA (decisión 65, 2026-10-15) `backend` `frontend`. Pendiente aparte, sin definir: cambiar un ejercicio ya aceptado en la semana activa.
+- [x] Sustitución de ejercicios en la propuesta: botón "Cambiar ejercicio" con las alternativas del catálogo, en todos los días donde aparece y sin IA (decisión 65, 2026-10-15) `backend` `frontend`. Cambiar un ejercicio ya aceptado en la semana activa **no se hace** (2026-10-26: sería anular el plan, no generarlo).
 - [ ] Animación de carga mientras se genera la rutina (hoy aparece solo un texto) `frontend`
 - [x] Cambiar la contraseña desde la pestaña Cuenta: pide la actual y cierra las sesiones de los demás aparatos (decisión 80, 2026-10-16) `backend` `frontend` (#64)
 - [ ] Aviso legal visible en la app `frontend` (#34). **En espera por decisión del usuario (2026-10-16):** la app muestra solo lo que ya tiene (tilde del paso 7, letra chica en el día y la propuesta, aviso de dolor fuerte). El borrador del texto completo y la maqueta están en [docs/aviso-legal-borrador.md](aviso-legal-borrador.md); faltan decidir el borrado de cuenta, el contacto y la revisión legal
@@ -116,7 +116,7 @@ La definición completa de cada una está en su issue de GitHub.
 | ~~Elegir camino A o B (#43)~~ y ~~formulario de rutina actual (#44)~~ | No se hacen: se descartó el camino B (decisión 40) | — |
 | ~~Editar la semana a mano (#13)~~ | No se hace: el plan solo lo cambia la IA, con la semana nueva | — |
 
-**Decisiones pendientes del usuario:** consultar al profesor si el RAG con pgvector de #52 es lo que se espera. (Cerradas el 2026-10-14, decisiones 59 a 64: series por ejercicio, R5b, R20/R24/R25, R30 "no implementada", avisos y ejercicios repetidos. Resueltos antes: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
+**Decisiones pendientes del usuario:** ninguna abierta: el profesor aprobó el RAG de #52 (2026-10-26). (Cerradas el 2026-10-14, decisiones 59 a 64: series por ejercicio, R5b, R20/R24/R25, R30 "no implementada", avisos y ejercicios repetidos. Resueltos antes: los botones Cerrar semana y Generar, y que el plan no se edita a mano.)
 
 ## Hecho el 2026-10-14 y 15 (fuera de los issues, con su decisión)
 
@@ -127,7 +127,7 @@ La definición completa de cada una está en su issue de GitHub.
 - [x] Un ícono por objetivo de rutina (decisión 68).
 - [x] Evolución de cada ejercicio por fecha, acumulando todas las rutinas (decisión 69).
 - [x] Pantalla del día: pasar al día anterior o al siguiente con barritas y flechas.
-- [ ] Sin definir: cambiar un ejercicio ya aceptado en la semana activa (hoy solo en la propuesta).
+- [x] ~~Cambiar un ejercicio ya aceptado en la semana activa~~: **no se hace** (2026-10-26).
 
 ## Anotado el 2026-10-15 (para hacer; el usuario pidió agendarlas)
 
@@ -151,7 +151,7 @@ Surgieron al probar los asistentes, la barra con tres botones y Inicio. Cada una
   - **A definir:** cómo se ven "hecho / no hecho / llegó / no llegó" con los discos y la paleta Disco (rojo hecho, verde cumplido, amarillo aviso), sin que el rojo signifique error.
   - **Criterios:** maqueta aprobada; los estados se entienden sin leer el texto.
 
-- [x] **Verificar el correo y recuperar la contraseña** `backend` `frontend`: hecho el 2026-10-16 (decisión 81) (#65). Quedan sin función "Cambiar correo" y "Borrar cuenta" de la pestaña Cuenta (decisión 75), y para producción falta la cuenta de Gmail de Spotter
+- [x] **Verificar el correo y recuperar la contraseña** `backend` `frontend`: hecho el 2026-10-16 (decisión 81) (#65). "Cambiar correo" y "Borrar cuenta" se hicieron el 2026-10-26 (decisiones 96 y 97); para producción falta la cuenta de Gmail de Spotter
 - [x] **Elección de minutos por sesión (apagada desde decisión 90)** `backend` `frontend` `ia`: el paso con rueda se implementó el 2026-10-17 (decisión 82) y después se ocultó. `session_minutes` se conserva por compatibilidad, pero no limita la generación. El contador en modo entrenar y la duración medida en Calendario y Resumen semanal siguen activos.
 - [x] **Seguimiento semanal del peso** `backend` `frontend`: hecho el 2026-10-23 (decisión 87, lo pidió el profesor). Peso y grasa corporal opcional con fecha, cargados al cerrar la semana o en Progreso → Cuerpo; IMC calculado; la IA no los usa.
 - [x] **Reparto de las series, tiempo informativo y elección del split** `backend` `frontend` `ia`: hecho el 2026-10-23 (decisiones 90 y 91). El asistente ofrece Full Body, torso/pierna o PPL solo cuando la combinación de nivel, objetivo y días es compatible; el backend valida la estructura, la guarda en la rutina y reintenta propuestas que no cumplen. La duración es informativa. El informe original está en `Spotter-investigaciones/reports/Reparto de series por split.md` (fuera del repo).
