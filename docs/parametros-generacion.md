@@ -213,7 +213,7 @@ Más peso con menos repeticiones cuenta como progresión (decisión 73).
 |---|---|---|
 | Superó | Sube la carga **entre 2 % y 10 %**, redondeada al salto de peso del equipo y nunca menos de un salto. Parte del **peso que realmente levantó** | Convención (R9, R28; ACSM 2009, que el ACSM 2026 reemplazó) |
 | Cumplió | Mantiene la carga y las repeticiones | Fuente |
-| No llegó | **Mantiene** la carga. Baja **un escalón** (el salto mínimo del equipo, sin porcentaje) solo si el comentario cuenta fatiga o cargas demasiado altas (o hay una marca vieja de "muy pesada") | Diseño (R36) |
+| No llegó | **Mantiene** la carga. Baja **un escalón respecto del peso planificado** (el salto mínimo del equipo, sin porcentaje; si lo levantado ya fue más bajo, usa lo levantado) y lo cuenta como una baja en el resumen, solo si el comentario cuenta fatiga o cargas demasiado altas (o hay una marca vieja de "muy pesada") | Diseño (R36) |
 | Sin registrar | Es información, no un error: no lo castiga ni lo rellena | Diseño |
 
 Un dato aislado no decide: una sola serie rara no cambia la carga de todo el ejercicio. Mantiene los **mismos ejercicios** de la semana anterior (solo cambia uno si hay dolor o una limitación que lo pida).
@@ -254,7 +254,7 @@ Si un peso propuesto sube **más de 10 %** sobre el último peso realizado, mues
 ### Rechaza la rutina (la IA tiene que rehacerla)
 - Cantidad de días fuera de 2 a 6, o un principiante con 4 o más (R11, R12).
 - Días distintos de los que eligió la persona.
-- Split incompatible con los días, el nivel o el objetivo; o estructura diaria que no respeta el split.
+- Split incompatible con los días, el nivel o el objetivo.
 - Menos de 2 días de fuerza o faltan grupos grandes (R1).
 - Perder grasa con cardio fuera de 150 a 300 min (R17).
 - Ejercicios fuera del catálogo o con el tipo equivocado.
@@ -264,6 +264,7 @@ Si un peso propuesto sube **más de 10 %** sobre el último peso realizado, mues
 - Duración de un día lejos de la referencia (R34).
 - Un peso que sube más de 10 % (R9).
 - El reparto entre días (sección 7): primero pide un reintento y después avisa.
+- Que un día no trabaje los grupos de su foco en el split elegido (por ejemplo, un día de torso sin hombros como músculo principal): también pide un reintento y después avisa con la etiqueta "Split" (cambiado el 2026-10-26; antes rechazaba la rutina y la generación fallaba tras el reintento).
 
 ### Reintentos
 Hasta **2 intentos** por generación (la llamada inicial y uno más). Cada intento cuenta en los topes de la IA.
@@ -290,7 +291,7 @@ Hasta **2 intentos** por generación (la llamada inicial y uno más). Cada inten
 
 **Convención con apoyo parcial o débil:** progresión de 2 % a 10 % por semana (ACSM 2009, reemplazado), indirectas a 0,5, descanso, movilidad, cantidad de días y reparto por defecto (ninguna fuente prescribe un split).
 
-**Diseño del usuario, sin cifra publicada:** el semáforo de dolor y sus umbrales; el máximo de series por sesión y las diferencias entre días (sección 7); el cambio de 3,5 minutos entre ejercicios y los 7,5 de movilidad; "hasta 6 ejercicios por grupo" que llegan a la IA; los saltos de peso de las máquinas; el orden dentro de la sesión; subir `bajar un escalón` ante "no llegó" con fatiga; el reparto por defecto de 4, 5 y 6 días.
+**Diseño del usuario, sin cifra publicada:** el semáforo de dolor y sus umbrales; el máximo de series por sesión y las diferencias entre días (sección 7); el cambio de 3,5 minutos entre ejercicios y los 7,5 de movilidad; "hasta 6 ejercicios por grupo" que llegan a la IA; los saltos de peso de las máquinas; el orden dentro de la sesión; bajar un escalón ante "no llegó" con fatiga; el reparto por defecto de 4, 5 y 6 días.
 
 **Aviso general:** casi toda la evidencia de hipertrofia y fuerza viene de varones jóvenes y poco entrenados. Varias fuentes se leyeron por resumen y hay preprints sin revisión de pares.
 

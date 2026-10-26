@@ -2,7 +2,7 @@
 
 Fuente de cada regla: docs/criterios-entrenamiento.md (R1 a R36, aprobadas por el usuario).
 Dos niveles:
-- error: la rutina se rechaza (R1, R11, R12, R17). Son las que el proyecto fijó como "el código valida".
+- error: la rutina se rechaza (R1, R11, R12, R17, split incompatible). Son las que el proyecto fijó como "el código valida".
 - aviso: se muestra al usuario pero no se rechaza (volumen por objetivo, R4, R18, R34).
 
 R3 (10 a 20 series semanales para masa) aplica solo a los 6 grupos grandes (decisión del usuario);
@@ -345,8 +345,11 @@ def validate_routine(
     if split is not None:
         if split not in compatible_splits(days or n_days, level, goal):
             error("Split", f"{split.value} no es compatible con {days or n_days} días y el nivel elegido.")
+        # Decisión 91: que un día no trabaje justo los grupos de su foco se reintenta una vez y, si
+        # sigue igual, se acepta con el aviso (como el reparto): la persona ve la vista previa y decide.
         for message in split_issues(routine, split):
-            error("Split", message)
+            warn("Split", message)
+            result.soft_issues.append(Issue("Split", message))
 
     if catalog_extra_names is not None:
         for message in catalog_problems(routine, catalog_extra_names):

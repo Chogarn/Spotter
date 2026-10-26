@@ -19,7 +19,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.ai.routine import RoutineProposal
-from app.enums import ExerciseKind, LoadFeel, PainLevel, PlanStatus
+from app.enums import ExerciseEquipment, ExerciseKind, LoadFeel, PainLevel, PlanStatus
 from app.models import (
     ExerciseCompletion,
     PlanDay,
@@ -67,6 +67,40 @@ def last_closed_week(db: Session, routine_id: int) -> WeekPlan | None:
         .where(WeekPlan.routine_id == routine_id, WeekPlan.status == PlanStatus.CLOSED)
         .order_by(WeekPlan.week_start.desc(), WeekPlan.id.desc())
     )
+
+
+# R36: el escalón es el salto mínimo de peso del equipo (decisión 73). Las máquinas y poleas con pila
+# de placas saltan de a 5 kg; las que se cargan con discos olímpicos (prensa, hack, Smith), de a 2,5.
+STEP_BY_EQUIPMENT = {
+    ExerciseEquipment.BARBELL: Decimal("2.5"),
+    ExerciseEquipment.DUMBBELL: Decimal("2.5"),
+    ExerciseEquipment.KETTLEBELL: Decimal("4"),
+    ExerciseEquipment.CABLE: Decimal("5"),
+}
+PLATE_LOADED_WORDS = ("prensa", "hack", "smith")
+
+
+def load_step(exercise) -> Decimal | None:
+    """El escalón de peso de un ejercicio, o None si no lleva pesas (peso corporal, banda, cardio)."""
+    equipment = exercise.equipment
+    if equipment == ExerciseEquipment.MACHINE:
+        name = normalize(exercise.name)
+        return Decimal("2.5") if any(w in name for w in PLATE_LOADED_WORDS) else Decimal("5")
+    return STEP_BY_EQUIPMENT.get(equipment)
+
+
+def suggested_drop(exercise, pairs) -> tuple[Decimal, Decimal, Decimal, Decimal] | None:
+    """R36: el peso de la serie más pesada si el comentario cuenta fatiga o cargas altas.
+
+    Es el planificado menos un escalón, o lo que realmente levantó si ya fue más bajo. Devuelve
+    (sugerido, planificado, escalón, levantado), o None si el ejercicio no lleva peso.
+    """
+    step = load_step(exercise)
+    planned = max((p.target_weight_kg for p, _ in pairs if p.target_weight_kg is not None), default=None)
+    lifted = max((e.weight_kg for _, e in pairs if e is not None and e.weight_kg is not None), default=None)
+    if step is None or planned is None or lifted is None:
+        return None
+    return min(planned - step, lifted), planned, step, lifted
 
 
 def _measure(plan_or_entry) -> tuple[int | None, str]:
@@ -210,7 +244,17 @@ def _exercise_lines(
     pairs = [(s, entries.get(s.id)) for s in exercise.sets]
     name = _clean(exercise.exercise.name)
     kind = KIND_LABEL[exercise.exercise.kind]
-    lines = [f"- {name} [{kind}] — señal: {signal(pairs)}{feel_text(completion)}"]
+    result = signal(pairs)
+    lines = [f"- {name} [{kind}] — señal: {result}{feel_text(completion)}"]
+    if result == "no llegó":
+        drop = suggested_drop(exercise.exercise, pairs)
+        if drop is not None:
+            suggested, planned, step, lifted = drop
+            lines.append(
+                "  Si el comentario cuenta fatiga o cargas altas (R36): peso sugerido de la serie más pesada "
+                f"{float(suggested):g} kg (planificado {float(planned):g} menos un escalón de {float(step):g} kg; "
+                f"levantó hasta {float(lifted):g} kg). Bajá las demás series la misma cantidad."
+            )
     for plan, entry in pairs:
         planned, unit = _measure(plan)
         text = f"  Serie {plan.set_number}: plan {planned} {unit}{_kg(plan.target_weight_kg)}"

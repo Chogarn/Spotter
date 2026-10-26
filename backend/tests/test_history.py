@@ -129,3 +129,41 @@ def test_avisa_una_subida_de_mas_de_10_por_ciento(api, semana):
     assert avisos[0][0] == "R9"
     assert "Press de banca con barra" in avisos[0][1]
     assert weight_jump_warnings(propuesta(70), previa) == []  # 65 -> 70 kg: dentro de 10 %
+
+
+def test_no_llegó_trae_el_peso_sugerido_de_r36_con_el_escalon_del_equipo(api, semana):
+    # plan del press: hasta 65 kg; lo realizado quedó corto en repeticiones con los mismos pesos
+    registrar(api, semana, 1, "Press de banca con barra", [(8, 50), (7, 55), (6, 60), (5, 65)])
+
+    texto = anterior(api, semana).text
+
+    assert "62.5 kg (planificado 65 menos un escalón de 2.5 kg; levantó hasta 65 kg)" in texto
+
+
+def test_el_peso_sugerido_no_supera_lo_que_realmente_levanto(api, semana):
+    registrar(api, semana, 1, "Press de banca con barra", [(8, 45), (7, 50), (6, 52), (5, 54)])
+
+    assert "54 kg (planificado 65 menos un escalón de 2.5 kg; levantó hasta 54 kg)" in anterior(api, semana).text
+
+
+def test_sin_no_llegó_no_hay_peso_sugerido(api, semana):
+    registrar(api, semana, 1, "Press de banca con barra", [(10, 50), (9, 55), (8, 60), (7, 65)])
+
+    assert "peso sugerido" not in anterior(api, semana).text
+
+
+def test_el_escalon_depende_del_equipo():
+    from types import SimpleNamespace
+
+    from app.ai.history import load_step
+    from app.enums import ExerciseEquipment as E
+
+    def ej(equipo, nombre="x"):
+        return SimpleNamespace(equipment=equipo, name=nombre)
+
+    assert str(load_step(ej(E.BARBELL))) == "2.5"
+    assert str(load_step(ej(E.KETTLEBELL))) == "4"
+    assert str(load_step(ej(E.MACHINE, "Prensa de piernas"))) == "2.5"
+    assert str(load_step(ej(E.MACHINE, "Press de pecho en máquina"))) == "5"
+    assert str(load_step(ej(E.CABLE))) == "5"
+    assert load_step(ej(E.BODYWEIGHT)) is None

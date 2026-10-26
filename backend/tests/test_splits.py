@@ -107,3 +107,17 @@ def test_split_elegido_viaja_al_prompt_y_queda_guardado_al_aceptar(api, entorno,
     assert "Estructura elegida: torso y pierna" in falso.prompts[0]
     assert api.post(f"/proposals/{cuerpo['id']}/accept").status_code == 200
     assert api.get("/routines").json()[0]["split_type"] == "upper_lower"
+
+
+def test_un_dia_que_no_trabaja_los_grupos_de_su_foco_es_aviso_y_no_rechazo():
+    # Torso/pierna de 4 días con el Día 3 (torso) sin hombros como músculo principal.
+    ruti = propuesta(RoutineSplit.UPPER_LOWER, 4)
+    ruti.days[2].exercises = [e for e in ruti.days[2].exercises if e.primary_muscle.value != "shoulders"]
+
+    resultado = validate_routine(
+        ruti, Goal.FUERZA, Level.INTERMEDIO, days=4, split=RoutineSplit.UPPER_LOWER
+    )
+
+    assert not [e for e in resultado.errors if e.rule == "Split"]
+    assert any(i.rule == "Split" and "Hombros" in i.message for i in resultado.warnings)
+    assert any(i.rule == "Split" for i in resultado.soft_issues)  # se pide de nuevo una vez

@@ -46,8 +46,10 @@ def split_prompt(split: RoutineSplit, days: int) -> str:
         return (
             "**Estructura elegida: torso y pierna.** Alterná los focos en este orden: "
             f"{schedule}. En torso, los grupos grandes permitidos son pecho, espalda y hombros; en pierna, "
-            "cuádriceps, isquios y glúteos. No pongas un grupo grande como músculo principal en el tipo "
-            "opuesto. Bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial siguen siendo complemento."
+            "cuádriceps, isquios y glúteos. Cada día de torso trabaja directamente los tres grupos: al menos "
+            "un ejercicio con pecho, uno con espalda y uno con hombros como músculo principal. Cada día de "
+            "pierna, los tres de pierna (cuádriceps, isquios y glúteos). No pongas un grupo grande como "
+            "músculo principal en el tipo opuesto. Bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial siguen siendo complemento."
         )
     pattern = ["empuje", "tirón", "piernas"] * 2
     schedule = " · ".join(f"Día {i + 1}: {focus}" for i, focus in enumerate(pattern[:days]))

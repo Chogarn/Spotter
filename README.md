@@ -54,7 +54,7 @@ La IA trabaja sobre los datos del usuario y siempre **propone**: se ve una vista
 3. **Explicación por ejercicio:** el ícono ⓘ muestra "Cómo hacerlo" y por qué el ejercicio está en la rutina.
 
 ### Fuera del alcance del MVP
-Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal.
+Nutrición, wearables, video y consejos médicos. La app pide aceptar que no da consejo médico al crear el perfil y lo recuerda en letra chica en el día y en la propuesta; la página completa del aviso legal está en espera (borrador en [docs/aviso-legal-borrador.md](docs/aviso-legal-borrador.md)).
 
 ## Tecnologías
 
@@ -66,7 +66,7 @@ Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal.
 | PostgreSQL + pgvector | Base de datos relacional; pgvector guarda los vectores del catálogo de ejercicios (RAG) |
 | Alembic | Migraciones: versiona los cambios de estructura de la base de datos |
 | JWT + argon2 | Sesión en una cookie `httpOnly` (JWT de 30 días o de 12 horas, según "Recordarme") y contraseñas con hash |
-| shadcn/ui + Tailwind CSS | Componentes de la interfaz (versión básica) |
+| shadcn/ui + Tailwind CSS | Componentes de la interfaz, con el estilo propio "Disco" |
 | Next.js + TypeScript | Frontend |
 | pytest | Tests automáticos del backend |
 | Docker Compose | Entornos de desarrollo y producción en contenedores |
@@ -78,7 +78,7 @@ Nutrición, wearables, video y consejos médicos. La app muestra un aviso legal.
 spotter/
 ├── backend/
 │   ├── app/                  # API: main.py, db.py, deps.py, security.py, enums.py, models.py, schemas.py
-│   │   ├── routers/          # Endpoints: auth, calendar, exercises, profile, proposals, routines y weeks
+│   │   ├── routers/          # Endpoints: auth, calendar, exercises, measurements, period, profile, proposals, routines y weeks
 │   │   ├── scripts/          # Tareas de una sola vez (reclamar el usuario de desarrollo e indexar el catálogo)
 │   │   └── ai/               # IA: Gemini con topes, catálogo de ejercicios y RAG, reglas de la rutina, prompt
 │   ├── migrations/           # Migraciones de Alembic
@@ -159,7 +159,7 @@ Imágenes construidas, sin código montado ni recarga automática, con los servi
 docker compose -f docker-compose.prod.yml up --build -d
 ```
 
-Las migraciones se aplican solas en un paso previo (servicio `migrate`) y el backend arranca recién cuando terminan bien. Para apagar: `docker compose -f docker-compose.prod.yml down`.
+Las migraciones se aplican solas en un paso previo (servicio `migrate`) y el backend arranca recién cuando terminan bien. **Después hay que indexar el catálogo una vez** (`docker compose -f docker-compose.prod.yml exec backend python -m app.scripts.index_catalog`): sin eso, la IA recibe todos los ejercicios sin ordenar por similitud. Para apagar: `docker compose -f docker-compose.prod.yml down`.
 
 Este compose corre la aplicación completa como en producción, en tu PC o en un servidor propio. El despliegue en la nube todavía no está definido.
 
