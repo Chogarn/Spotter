@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 
 import { InlineError } from "@/components/ErrorMessage";
-import { apiFetch, readError, type WeekMuscles } from "@/lib/api";
+import { inicioDe, Navegador, useHoy, type Tramo } from "@/components/ResumenPeriodo";
+import { SelectorPeriodo, usePeriodo } from "@/components/SelectorPeriodo";
+import { apiFetch, readError, type MuscleSets, type PeriodMuscles, type WeekMuscles } from "@/lib/api";
 
 const NOMBRE: Record<string, string> = {
   chest: "Pecho",
@@ -27,9 +29,56 @@ function punto(i: number, total: number, fraccion: number, radio = RADIO): [numb
 
 const poligono = (puntos: [number, number][]) => puntos.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
 
-// Progreso › Estadísticas: las series hechas en la última semana por cada grupo grande, contra el
-// mínimo de R3 (10) y contra la semana cerrada anterior de la rutina. Solo cuenta series directas.
+// Lo que el radar necesita, venga de la semana o de un día, un mes o un año.
+type Vista = {
+  subtitulo: string;
+  minimum: number | null; // nulo: sin línea de mínimo (el día)
+  anterior: string | null; // cómo se llama el período con el que se compara; nulo si no hay
+  actual: string;
+  terminado: boolean; // si el período ya pasó (cambia "faltan" por "faltaron")
+  muscles: MuscleSets[];
+};
+
+const ANTERIOR = { day: "Día anterior", month: "Mes anterior", year: "Año anterior" } as const;
+const ACTUAL = { day: "Este día", month: "Este mes", year: "Este año" } as const;
+
+function deLaSemana(d: WeekMuscles): Vista {
+  return {
+    subtitulo: `Semana ${d.number} de ${d.routine_name} · series directas hechas`,
+    minimum: d.minimum,
+    anterior: d.has_previous ? "Semana pasada" : null,
+    actual: "Esta semana",
+    terminado: d.status !== "active",
+    muscles: d.muscles,
+  };
+}
+
+function deUnPeriodo(d: PeriodMuscles, hoy: string | null): Vista {
+  return {
+    subtitulo: "Series directas hechas, de todas tus rutinas",
+    minimum: d.minimum,
+    anterior: ANTERIOR[d.period],
+    actual: ACTUAL[d.period],
+    terminado: hoy !== null && d.end < hoy,
+    muscles: d.muscles,
+  };
+}
+
+// Progreso › Estadísticas: las series hechas por cada grupo grande, contra el mínimo de R3 (10 por
+// semana, escalado al período) y contra el período anterior. Solo cuenta series directas. La
+// semana es la última (con la anterior de su rutina); día, mes y año se recorren con las flechas.
 export function RadarMusculos() {
+  const [periodo, setPeriodo] = usePeriodo();
+  return (
+    <section className="mt-4 mb-3 rounded-2xl bg-card p-4">
+      <h3 className="mt-0 mb-2 font-heading text-xl font-bold">Series por músculo</h3>
+      <SelectorPeriodo periodo={periodo} onElegir={setPeriodo} />
+      {periodo === "week" ? <DeLaSemana /> : <DeUnPeriodo key={periodo} tramo={periodo} />}
+    </section>
+  );
+}
+
+function DeLaSemana() {
   const [datos, setDatos] = useState<WeekMuscles | null>(null);
   const [vacio, setVacio] = useState(false);
   const [error, setError] = useState("");
@@ -45,43 +94,88 @@ export function RadarMusculos() {
   }, []);
 
   if (error) return <InlineError>{error}</InlineError>;
-  if (vacio) {
-    return (
-      <section className="mt-4 mb-3 rounded-2xl bg-card p-6 text-center">
-        <p className="mt-0 mb-1 font-medium">Todavía no hay series para mostrar</p>
-        <p className="m-0 text-sm text-muted-foreground">
-          Cuando tengas una semana, acá vas a ver cuántas series hiciste por músculo.
-        </p>
-      </section>
-    );
-  }
+  if (vacio) return <Vacio />;
   if (!datos) return null;
+  return <Radar vista={deLaSemana(datos)} />;
+}
 
-  const grupos = datos.muscles;
+function DeUnPeriodo({ tramo }: { tramo: Tramo }) {
+  const hoy = useHoy();
+  const [ancla, setAncla] = useState<string | null>(null);
+  const [datos, setDatos] = useState<PeriodMuscles | null>(null);
+  const [error, setError] = useState("");
+  const fecha = ancla ?? hoy;
+
+  useEffect(() => {
+    if (fecha === null) return;
+    const tz = -new Date().getTimezoneOffset();
+    apiFetch(`/progress/muscles?period=${tramo}&date=${fecha}&tz=${tz}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error(await readError(res));
+        setDatos(await res.json());
+        setError("");
+      })
+      .catch((e) => setError(e.message));
+  }, [fecha, tramo]);
+
+  if (error) return <InlineError>{error}</InlineError>;
+  if (fecha === null || datos === null || datos.start !== inicioDe(fecha, tramo)) return null;
+
+  return (
+    <>
+      <Navegador
+        tramo={tramo}
+        fecha={fecha}
+        puedeRetroceder={datos.first_date !== null && inicioDe(fecha, tramo) > inicioDe(datos.first_date, tramo)}
+        puedeAvanzar={hoy !== null && inicioDe(fecha, tramo) < inicioDe(hoy, tramo)}
+        onIr={setAncla}
+      />
+      {datos.muscles.every((m) => m.sets === 0 && !m.previous_sets) ? (
+        <Vacio />
+      ) : (
+        <Radar vista={deUnPeriodo(datos, hoy)} />
+      )}
+    </>
+  );
+}
+
+function Vacio() {
+  return (
+    <div className="rounded-xl bg-background p-4 text-center">
+      <p className="mt-0 mb-1 font-medium">Todavía no hay series para mostrar</p>
+      <p className="m-0 text-sm text-muted-foreground">
+        Cuando completes un día, acá vas a ver cuántas series hiciste por músculo.
+      </p>
+    </div>
+  );
+}
+
+function Radar({ vista }: { vista: Vista }) {
+  const grupos = vista.muscles;
   const total = grupos.length;
-  const maximo = Math.max(14, ...grupos.flatMap((g) => [g.sets, g.previous_sets ?? 0]));
+  const minimo = vista.minimum;
+  // El borde del hexágono: el mínimo con aire, o lo mayor que se haya hecho.
+  const maximo = Math.max((minimo ?? 4) * 1.4, ...grupos.flatMap((g) => [g.sets, g.previous_sets ?? 0]));
   const fraccion = (v: number) => v / maximo;
-  const faltan = grupos.filter((g) => g.sets < datos.minimum);
-  const verbo = datos.status === "active" ? "faltan" : "faltaron";
+  const faltan = minimo === null ? [] : grupos.filter((g) => g.sets < minimo);
+  const verbo = vista.terminado ? "faltaron" : "faltan";
+  const corto = (g: MuscleSets) => minimo !== null && g.sets < minimo;
 
   const resumen = grupos
     .map(
       (g) =>
-        `${NOMBRE[g.muscle] ?? g.muscle}: ${g.sets} series${g.previous_sets === null ? "" : `, antes ${g.previous_sets}`}`,
+        `${NOMBRE[g.muscle] ?? g.muscle}: ${g.sets} series${vista.anterior === null || g.previous_sets === null ? "" : `, antes ${g.previous_sets}`}`,
     )
     .join("; ");
 
   return (
-    <section className="mt-4 mb-3 rounded-2xl bg-card p-4">
-      <h3 className="mt-0 mb-1 font-heading text-xl font-bold">Series por músculo</h3>
-      <p className="mt-0 mb-1 text-sm text-muted-foreground">
-        Semana {datos.number} de {datos.routine_name} · series directas hechas
-      </p>
+    <>
+      <p className="mt-0 mb-1 text-sm text-muted-foreground">{vista.subtitulo}</p>
       <svg
         viewBox="0 0 340 290"
         className="w-full"
         role="img"
-        aria-label={`Series hechas por músculo contra el mínimo de ${datos.minimum}. ${resumen}.`}
+        aria-label={`Series hechas por músculo${minimo === null ? "" : ` contra el mínimo de ${minimo}`}. ${resumen}.`}
       >
         {[0.25, 0.5, 0.75, 1].map((f) => (
           <polygon
@@ -95,14 +189,16 @@ export function RadarMusculos() {
           const [x, y] = punto(i, total, 1);
           return <line key={i} x1={CX} y1={CY} x2={x} y2={y} className="stroke-border" />;
         })}
-        {/* El mínimo de R3, siempre a la vista. */}
-        <polygon
-          points={poligono(grupos.map((_, i) => punto(i, total, fraccion(datos.minimum))))}
-          className="fill-none stroke-disco-rojo"
-          strokeWidth={1.5}
-          strokeDasharray="5 4"
-        />
-        {datos.has_previous && (
+        {/* El mínimo de R3, a la vista (no hay en el día). */}
+        {minimo !== null && (
+          <polygon
+            points={poligono(grupos.map((_, i) => punto(i, total, fraccion(minimo))))}
+            className="fill-none stroke-disco-rojo"
+            strokeWidth={1.5}
+            strokeDasharray="5 4"
+          />
+        )}
+        {vista.anterior !== null && (
           <polygon
             points={poligono(grupos.map((g, i) => punto(i, total, fraccion(g.previous_sets ?? 0))))}
             className="fill-muted-foreground/15 stroke-muted-foreground"
@@ -118,7 +214,6 @@ export function RadarMusculos() {
           const [px, py] = punto(i, total, fraccion(g.sets));
           const [lx, ly] = punto(i, total, 1, RADIO_ROTULO);
           const ancla = Math.abs(lx - CX) < 5 ? "middle" : lx > CX ? "start" : "end";
-          const corto = g.sets < datos.minimum;
           return (
             <g key={g.muscle}>
               <circle cx={px} cy={py} r={4} className="fill-disco-azul stroke-background" strokeWidth={2} />
@@ -131,7 +226,7 @@ export function RadarMusculos() {
                 textAnchor={ancla}
                 fontSize={15}
                 fontWeight={600}
-                className={corto ? "fill-disco-rojo" : "fill-disco-azul"}
+                className={corto(g) ? "fill-disco-rojo" : "fill-disco-azul"}
               >
                 {g.sets}
                 <tspan fontSize={11} fontWeight={400} className="fill-muted-foreground">
@@ -146,26 +241,30 @@ export function RadarMusculos() {
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="size-2.5 rounded-xs bg-disco-azul" aria-hidden="true" />
-          Esta semana
+          {vista.actual}
         </span>
-        {datos.has_previous && (
+        {vista.anterior !== null && (
           <span className="flex items-center gap-1.5">
             <span className="size-2.5 rounded-xs bg-muted-foreground" aria-hidden="true" />
-            Semana pasada
+            {vista.anterior}
           </span>
         )}
-        <span className="flex items-center gap-1.5">
-          <span className="w-3.5 border-t-2 border-dashed border-disco-rojo" aria-hidden="true" />
-          Mínimo {datos.minimum} series
-        </span>
+        {minimo !== null && (
+          <span className="flex items-center gap-1.5">
+            <span className="w-3.5 border-t-2 border-dashed border-disco-rojo" aria-hidden="true" />
+            Mínimo {minimo} series
+          </span>
+        )}
       </div>
-      <p className="mt-3 mb-0 rounded-xl bg-background px-3 py-2.5 text-sm">
-        {faltan.length === 0
-          ? `Llegaste al mínimo de ${datos.minimum} series en los seis grupos.`
-          : `Te ${verbo} series de ${faltan
-              .map((g) => `${(NOMBRE[g.muscle] ?? g.muscle).toLowerCase()} (${g.sets} de ${datos.minimum})`)
-              .join(", ")}.`}
-      </p>
-    </section>
+      {minimo !== null && (
+        <p className="mt-3 mb-0 rounded-xl bg-background px-3 py-2.5 text-sm">
+          {faltan.length === 0
+            ? `Llegaste al mínimo de ${minimo} series en los seis grupos.`
+            : `Te ${verbo} series de ${faltan
+                .map((g) => `${(NOMBRE[g.muscle] ?? g.muscle).toLowerCase()} (${g.sets} de ${minimo})`)
+                .join(", ")}.`}
+        </p>
+      )}
+    </>
   );
 }

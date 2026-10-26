@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { BuscarEjercicio } from "@/components/BuscarEjercicio";
 import { InlineError } from "@/components/ErrorMessage";
 import { readError, apiFetch, type ExerciseOption, type ExerciseTimeline } from "@/lib/api";
+import { curva } from "@/lib/curva";
 import { shortDate } from "@/lib/format";
 
 const UNIDAD: Record<ExerciseTimeline["unit"], string> = { kg: "kg", reps: "reps", s: "s", min: "min" };
@@ -22,14 +23,49 @@ const FONDOS = [
   { banda: "fill-border/30", pastilla: "bg-border/40" },
 ];
 
-// "22/10": en el eje alcanza con día y mes (el año completo va en la versión para lectores).
-function diaYMes(iso: string): string {
-  const [, m, d] = iso.split("-");
-  return `${Number(d)}/${Number(m)}`;
-}
+type Periodo = "semana" | "mes" | "anio";
+const PERIODOS: { id: Periodo; nombre: string }[] = [
+  { id: "semana", nombre: "Semana" },
+  { id: "mes", nombre: "Mes" },
+  { id: "anio", nombre: "Año" },
+];
+
+// Un punto de la curva: el momento, el mejor valor de ese tramo y de qué rutina salió.
+type Punto = { t: number; value: number; etiqueta: string; routineId: number; routineName: string };
+
+const DIA = 86_400_000;
+const tiempo = (iso: string) => {
+  const [a, m, d] = iso.split("-").map(Number);
+  return Date.UTC(a, m - 1, d);
+};
 
 function numero(v: number): string {
   return v.toLocaleString("es-AR", { maximumFractionDigits: 1 });
+}
+
+// Agrupa las semanas con dato en el período elegido, quedándose con el mayor valor de cada tramo.
+// Semana: una por fecha de inicio (dos semanas del mismo día se juntan); mes y año: por calendario.
+function agrupar(historial: ExerciseTimeline, periodo: Periodo): Punto[] {
+  const grupos = new Map<string, Punto>();
+  for (const p of historial.points) {
+    if (p.value === null || !p.week_start) continue;
+    const f = new Date(tiempo(p.week_start));
+    const anio = f.getUTCFullYear();
+    const mes = f.getUTCMonth();
+    const clave = periodo === "semana" ? p.week_start : periodo === "mes" ? `${anio}-${mes}` : String(anio);
+    const t = periodo === "semana" ? tiempo(p.week_start) : periodo === "mes" ? Date.UTC(anio, mes, 15) : Date.UTC(anio, 6, 1);
+    const etiqueta =
+      periodo === "semana"
+        ? shortDate(p.week_start)
+        : periodo === "mes"
+          ? new Date(t).toLocaleDateString("es-AR", { month: "long", year: "numeric", timeZone: "UTC" })
+          : String(anio);
+    const actual = grupos.get(clave);
+    if (!actual || p.value > actual.value) {
+      grupos.set(clave, { t, value: p.value, etiqueta, routineId: p.routine_id, routineName: p.routine_name });
+    }
+  }
+  return [...grupos.values()].sort((a, b) => a.t - b.t);
 }
 
 // Progreso (decisión 69): la evolución de un ejercicio por fecha, acumulando TODAS las rutinas.
@@ -86,22 +122,16 @@ export function EvolucionEjercicio() {
 
 function Linea({ historial }: { historial: ExerciseTimeline }) {
   const [activo, setActivo] = useState<number | null>(null);
+  const [periodo, setPeriodo] = useState<Periodo>("semana");
   const unidad = UNIDAD[historial.unit];
-  const puntos = historial.points;
-  const valores = puntos.map((p) => p.value).filter((v): v is number => v !== null);
+  const puntos = agrupar(historial, periodo);
 
-  if (valores.length === 0) {
+  if (historial.weeks_with_data === 0 || puntos.length === 0) {
     return <p className="m-0 text-sm text-muted-foreground">Todavía no registraste este ejercicio.</p>;
   }
 
-  // Las rutinas, en el orden en que aparecen, cada una con su color de fondo.
-  const rutinas: { id: number; nombre: string; semanas: number }[] = [];
-  for (const p of puntos) {
-    const existente = rutinas.find((r) => r.id === p.routine_id);
-    if (existente) existente.semanas += 1;
-    else rutinas.push({ id: p.routine_id, nombre: p.routine_name, semanas: 1 });
-  }
-  const colorDe = (rutinaId: number) => FONDOS[rutinas.findIndex((r) => r.id === rutinaId) % FONDOS.length];
+  const valores = puntos.map((p) => p.value);
+  const indiceRecord = valores.indexOf(Math.max(...valores));
 
   // Geometría: margen a la izquierda para los valores y abajo para las fechas.
   const ancho = 340;
@@ -119,68 +149,105 @@ function Linea({ historial }: { historial: ExerciseTimeline }) {
   const margen = (max - min) * 0.15;
   min = Math.max(0, min - margen);
   max = max + margen;
-  // Los puntos van parejos, en el orden de las fechas (dos semanas del mismo día no se pisan).
-  const x = (i: number) =>
-    puntos.length === 1 ? (izq + ancho - der) / 2 : izq + (i * (ancho - izq - der)) / (puntos.length - 1);
+
+  // El eje es de tiempo real: la distancia entre puntos depende de los días que pasaron.
+  const t0 = puntos[0].t;
+  const t1 = puntos.at(-1)!.t;
+  const x = (t: number) => (t1 === t0 ? (izq + ancho - der) / 2 : izq + ((t - t0) * (ancho - izq - der)) / (t1 - t0));
   const y = (v: number) => arriba + ((max - v) * (alto - arriba - abajo)) / (max - min);
+  const xs = puntos.map((p) => x(p.t));
+  const ys = puntos.map((p) => y(p.value));
 
-  // Las franjas de fondo: una por tramo de semanas seguidas de la misma rutina.
+  // Fondo por rutina, solo en la vista por semana: en mes y año se amontonaría.
   const franjas: { desde: number; hasta: number; rutinaId: number }[] = [];
-  puntos.forEach((p, i) => {
-    const ultima = franjas.at(-1);
-    if (ultima && ultima.rutinaId === p.routine_id) ultima.hasta = i;
-    else franjas.push({ desde: i, hasta: i, rutinaId: p.routine_id });
-  });
-  const bordeIzq = (f: { desde: number }) => (f.desde === 0 ? izq : (x(f.desde - 1) + x(f.desde)) / 2);
+  if (periodo === "semana") {
+    puntos.forEach((p, i) => {
+      const ultima = franjas.at(-1);
+      if (ultima && ultima.rutinaId === p.routineId) ultima.hasta = i;
+      else franjas.push({ desde: i, hasta: i, rutinaId: p.routineId });
+    });
+  }
+  const rutinas: { id: number; nombre: string }[] = [];
+  for (const p of puntos) {
+    if (!rutinas.some((r) => r.id === p.routineId)) rutinas.push({ id: p.routineId, nombre: p.routineName });
+  }
+  const colorDe = (rutinaId: number) => FONDOS[rutinas.findIndex((r) => r.id === rutinaId) % FONDOS.length];
+  const bordeIzq = (f: { desde: number }) => (f.desde === 0 ? izq : (xs[f.desde - 1] + xs[f.desde]) / 2);
   const bordeDer = (f: { hasta: number }) =>
-    f.hasta === puntos.length - 1 ? ancho - der : (x(f.hasta) + x(f.hasta + 1)) / 2;
+    f.hasta === puntos.length - 1 ? ancho - der : (xs[f.hasta] + xs[f.hasta + 1]) / 2;
 
-  // Tramos de semanas seguidas con datos: un hueco corta la línea (no se inventa el valor).
-  const tramos: { i: number; v: number }[][] = [];
-  puntos.forEach((p, i) => {
-    if (p.value === null) return;
-    const anterior = tramos.at(-1);
-    if (anterior && anterior.at(-1)!.i === i - 1) anterior.push({ i, v: p.value });
-    else tramos.push([{ i, v: p.value }]);
-  });
   const paso = max - min > 40 ? 10 : max - min > 8 ? 5 : 1;
   const lineasGuia = [
     Math.ceil(min / paso) * paso,
     Math.round((min + max) / 2 / paso) * paso,
     Math.floor(max / paso) * paso,
   ].filter((v, i, todos) => todos.indexOf(v) === i);
-  const indiceRecord = puntos.findIndex((p) => p.value === historial.record);
-  let ultimoConDato = -1;
-  puntos.forEach((p, i) => {
-    if (p.value !== null) ultimoConDato = i;
-  });
-  const mostrado = activo ?? (ultimoConDato >= 0 ? ultimoConDato : indiceRecord);
-  const etiqueta = puntos[mostrado]?.value !== null ? mostrado : indiceRecord;
-  // Para no amontonar las fechas, se muestra una de cada tanto (siempre la primera y la última).
-  const cada = Math.ceil(puntos.length / 5);
-  const mostrarFecha = (i: number) => i === 0 || i === puntos.length - 1 || i % cada === 0;
 
+  // Marcas del eje de tiempo: hasta 5, parejas en el tiempo.
+  const cantidad = t1 === t0 ? 1 : 5;
+  const marcas = Array.from({ length: cantidad }, (_, i) => t0 + ((t1 - t0) * i) / Math.max(1, cantidad - 1));
+  const textoMarca = (t: number) => {
+    const f = new Date(t);
+    if (periodo === "anio") return String(f.getUTCFullYear());
+    if (periodo === "mes" || t1 - t0 > 200 * DIA) {
+      return f.toLocaleDateString("es-AR", { month: "short", year: "2-digit", timeZone: "UTC" }).replace(".", "");
+    }
+    return `${f.getUTCDate()}/${f.getUTCMonth() + 1}`;
+  };
+
+  const mostrado = Math.min(activo ?? puntos.length - 1, puntos.length - 1);
+  const p = puntos[mostrado];
   const mejora =
     historial.weeks_with_data >= 2 && historial.first_value !== null && historial.last_value !== null
       ? historial.last_value - historial.first_value
       : null;
-  const resumen = puntos
-    .map(
-      (p) =>
-        `${p.week_start ? shortDate(p.week_start) : "semana"} (${p.routine_name}): ${
-          p.value === null ? "sin registrar" : `${numero(p.value)} ${unidad}`
-        }`,
-    )
-    .join(", ");
+  const resumen = puntos.map((q) => `${q.etiqueta} (${q.routineName}): ${numero(q.value)} ${unidad}`).join(", ");
+
+  // Al pasar el dedo o el mouse por el gráfico, se elige el punto más cercano en horizontal.
+  function elegir(e: React.PointerEvent<SVGSVGElement>) {
+    const caja = e.currentTarget.getBoundingClientRect();
+    const px = ((e.clientX - caja.left) / caja.width) * ancho;
+    let cerca = 0;
+    xs.forEach((vx, i) => {
+      if (Math.abs(vx - px) < Math.abs(xs[cerca] - px)) cerca = i;
+    });
+    setActivo(cerca);
+  }
+
+  const ancla = xs[mostrado] > ancho * 0.6 ? "end" : xs[mostrado] < ancho * 0.4 ? "start" : "middle";
 
   return (
     <>
-      <p className="mt-0 mb-1 text-sm text-muted-foreground">{QUE_MIDE[historial.unit]}</p>
+      <div className="mb-2 flex gap-1 rounded-full bg-muted p-1" role="group" aria-label="Período">
+        {PERIODOS.map((o) => (
+          <button
+            key={o.id}
+            type="button"
+            aria-pressed={periodo === o.id}
+            onClick={() => {
+              setPeriodo(o.id);
+              setActivo(null);
+            }}
+            className={`flex-1 rounded-full px-3 py-1 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 ${
+              periodo === o.id ? "bg-disco-tinta font-medium text-white" : "text-muted-foreground"
+            }`}
+          >
+            {o.nombre}
+          </button>
+        ))}
+      </div>
+      <p className="mt-0 mb-1 text-sm text-muted-foreground">
+        {QUE_MIDE[historial.unit]}
+        {periodo !== "semana" && ` · el mejor de cada ${periodo === "mes" ? "mes" : "año"}`}
+      </p>
       <svg
         viewBox={`0 0 ${ancho} ${alto}`}
-        className="w-full"
+        className="w-full touch-pan-y"
         role="img"
         aria-label={`${historial.name}, ${QUE_MIDE[historial.unit].toLowerCase()}: ${resumen}.`}
+        onPointerMove={elegir}
+        onPointerDown={elegir}
+        onPointerLeave={() => setActivo(null)}
       >
         {franjas.map((f, i) => (
           <rect
@@ -200,72 +267,48 @@ function Linea({ historial }: { historial: ExerciseTimeline }) {
             </text>
           </g>
         ))}
-        {puntos.map((p, i) =>
-          mostrarFecha(i) ? (
-            <text key={p.week_id} x={x(i)} y={alto - 8} textAnchor="middle" className="fill-muted-foreground text-[11px]">
-              {p.week_start ? diaYMes(p.week_start) : `S${p.number}`}
-            </text>
-          ) : null,
-        )}
-        {tramos.map((tramo, i) =>
-          tramo.length > 1 ? (
-            <polyline
-              key={i}
-              points={tramo.map((p) => `${x(p.i)},${y(p.v)}`).join(" ")}
-              fill="none"
-              className="stroke-disco-tinta"
-              strokeWidth="2.5"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-          ) : null,
-        )}
-        {puntos.map((p, i) =>
-          p.value === null ? null : (
-            <g key={p.week_id}>
-              <circle
-                cx={x(i)}
-                cy={y(p.value)}
-                r={i === indiceRecord ? 8 : 6}
-                className={i === indiceRecord ? "fill-disco-azul stroke-disco-tinta" : "fill-disco-rojo stroke-disco-tinta"}
-                strokeWidth="2.5"
-              />
-              {/* Área para tocar, más grande que el punto. */}
-              <circle
-                cx={x(i)}
-                cy={y(p.value)}
-                r="16"
-                fill="transparent"
-                onPointerEnter={() => setActivo(i)}
-                onClick={() => setActivo(i)}
-                className="cursor-pointer"
-              />
-            </g>
-          ),
-        )}
-        {etiqueta >= 0 && puntos[etiqueta].value !== null && (
+        {marcas.map((t, i) => (
           <text
-            x={x(etiqueta)}
-            y={y(puntos[etiqueta].value!) - 12}
-            textAnchor={x(etiqueta) > ancho * 0.7 ? "end" : x(etiqueta) < ancho * 0.3 ? "start" : "middle"}
-            className="fill-foreground text-[11px] font-semibold"
+            key={i}
+            x={x(t)}
+            y={alto - 8}
+            textAnchor={cantidad > 1 && i === 0 ? "start" : cantidad > 1 && i === cantidad - 1 ? "end" : "middle"}
+            className="fill-muted-foreground text-[11px]"
           >
-            {numero(puntos[etiqueta].value!)} {unidad}
-            {etiqueta === indiceRecord ? " · récord" : ""}
+            {textoMarca(t)}
           </text>
+        ))}
+        {puntos.length > 1 && (
+          <path
+            d={curva(xs, ys)}
+            fill="none"
+            className="stroke-disco-tinta"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         )}
+        {/* Sin círculos en cada dato: solo el récord y el punto que estás mirando. */}
+        <circle cx={xs[indiceRecord]} cy={ys[indiceRecord]} r={6} className="fill-disco-azul stroke-disco-tinta" strokeWidth="2.5" />
+        {mostrado !== indiceRecord && (
+          <circle cx={xs[mostrado]} cy={ys[mostrado]} r={5} className="fill-disco-rojo stroke-disco-tinta" strokeWidth="2.5" />
+        )}
+        <text x={xs[mostrado]} y={ys[mostrado] - 12} textAnchor={ancla} className="fill-foreground text-[11px] font-semibold">
+          {numero(p.value)} {unidad}
+          {mostrado === indiceRecord ? " · récord" : ""} · {p.etiqueta}
+        </text>
       </svg>
 
-      <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        {rutinas.map((r) => (
-          <span key={r.id} className={`rounded-full px-2.5 py-0.5 text-xs ${colorDe(r.id).pastilla}`}>
-            {r.nombre}
-          </span>
-        ))}
-        {rutinas.length > 1 && (
-          <span className="text-xs text-muted-foreground">El fondo cambia con cada rutina</span>
-        )}
-      </div>
+      {periodo === "semana" && (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          {rutinas.map((r) => (
+            <span key={r.id} className={`rounded-full px-2.5 py-0.5 text-xs ${colorDe(r.id).pastilla}`}>
+              {r.nombre}
+            </span>
+          ))}
+          {rutinas.length > 1 && <span className="text-xs text-muted-foreground">El fondo cambia con cada rutina</span>}
+        </div>
+      )}
 
       <div className="mt-3 grid grid-cols-3 gap-2">
         <Dato titulo="Récord" valor={`${numero(historial.record!)} ${unidad}`} />
@@ -290,11 +333,11 @@ function Linea({ historial }: { historial: ExerciseTimeline }) {
             </tr>
           </thead>
           <tbody>
-            {puntos.map((p) => (
-              <tr key={p.week_id}>
-                <td>{p.week_start ? shortDate(p.week_start) : `semana ${p.number}`}</td>
-                <td>{p.routine_name}</td>
-                <td>{p.value === null ? "sin registrar" : `${numero(p.value)} ${unidad}`}</td>
+            {puntos.map((q) => (
+              <tr key={q.t}>
+                <td>{q.etiqueta}</td>
+                <td>{q.routineName}</td>
+                <td>{`${numero(q.value)} ${unidad}`}</td>
               </tr>
             ))}
           </tbody>

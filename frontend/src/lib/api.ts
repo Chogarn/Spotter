@@ -218,6 +218,16 @@ export type WeekMuscles = {
   muscles: MuscleSets[];
 };
 
+// Series por grupo grande en un día, un mes o un año (`GET /progress/muscles`), para el radar.
+export type PeriodMuscles = {
+  period: "day" | "month" | "year";
+  start: string;
+  end: string;
+  first_date: string | null;
+  minimum: number | null; // R3 escalado a los días que pasaron del período; nulo en el día
+  muscles: MuscleSets[]; // previous_sets: el período anterior
+};
+
 export type WeekSummaryDetail = {
   week_id: number;
   routine_id: number;
@@ -304,3 +314,31 @@ export async function readError(res: Response): Promise<string> {
     return `Error ${res.status}`;
   }
 }
+
+// El resumen de un día, un mes o un año (`GET /progress/period`): histórico, de todas las rutinas.
+export type PeriodBucket = { label: string; start: string; days_trained: number; sets_done: number; kg_moved: number };
+export type PeriodSession = {
+  local_date: string;
+  title: string;
+  routine_name: string;
+  week_id: number;
+  week_number: number;
+  day_index: number;
+  duration_minutes: number | null;
+};
+export type PeriodExercise = { name: string; kind: ExerciseItem["kind"]; sets_done: number; best_weight_kg: number | null };
+export type PeriodSummary = {
+  period: "day" | "month" | "year";
+  start: string; // AAAA-MM-DD
+  end: string;
+  first_date: string | null; // el primer día entrenado (hasta dónde se puede retroceder)
+  days_trained: number;
+  sets_done: number;
+  sets_planned: number;
+  kg_moved: number;
+  cardio_minutes: number;
+  duration_minutes: number | null;
+  buckets: PeriodBucket[]; // una barra por día (mes) o por mes (año); vacío en el día
+  sessions: PeriodSession[];
+  exercises: PeriodExercise[];
+};

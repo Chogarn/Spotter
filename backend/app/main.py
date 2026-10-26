@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, calendar, exercises, measurements, profile, proposals, routines, weeks
+from app.routers import auth, calendar, exercises, measurements, period, profile, proposals, routines, weeks
 
 app = FastAPI(title="Spotter API")
 
@@ -21,6 +21,7 @@ app.include_router(calendar.router)
 app.include_router(exercises.router)
 app.include_router(measurements.router)
 app.include_router(profile.router)
+app.include_router(period.router)
 app.include_router(proposals.router)
 app.include_router(routines.router)
 app.include_router(weeks.router)

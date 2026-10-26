@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GraficoCuerpo } from "@/components/GraficoCuerpo";
 import { Confirmar } from "@/components/Confirmar";
 import { ErrorMessage, InlineError } from "@/components/ErrorMessage";
 import { errorText, readError, apiFetch, type Measurement } from "@/lib/api";
@@ -30,11 +31,6 @@ export function aNumero(texto: string): number | null {
 
 function numero(v: number | string, decimales = 1): string {
   return Number(v).toLocaleString("es-AR", { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
-}
-
-function diaYMes(iso: string): string {
-  const [, m, d] = iso.split("-");
-  return `${Number(d)}/${Number(m)}`;
 }
 
 // Progreso → Cuerpo (decisión 87): el seguimiento del peso con su historial, cargado a mano. Se
@@ -98,7 +94,7 @@ export function SeguimientoCuerpo() {
         <p className="mt-2 mb-3 text-xs text-muted-foreground">
           El IMC es orientativo: no distingue músculo de grasa. La grasa corporal es la que te dio tu balanza.
         </p>
-        <Grafico filas={filas} />
+        <GraficoCuerpo filas={filas} />
       </section>
 
       <section className="mb-3 rounded-2xl bg-card p-4">
@@ -280,108 +276,5 @@ function Formulario({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
-}
-
-// La evolución del peso: una línea por las mediciones, de la más vieja a la más nueva. Con una sola
-// medición se ve el punto solo.
-function Grafico({ filas }: { filas: Measurement[] }) {
-  const puntos = [...filas].reverse().map((f) => ({ dia: f.measured_on, kg: Number(f.weight_kg) }));
-  if (puntos.length < 2) {
-    return (
-      <p className="m-0 text-sm text-muted-foreground">
-        {puntos.length === 0
-          ? "Cargá tu peso para ver cómo evoluciona."
-          : "Con la segunda medición se ve la evolución."}
-      </p>
-    );
-  }
-  const ancho = 340;
-  const alto = 170;
-  const izq = 46;
-  const der = 14;
-  const arriba = 22;
-  const abajo = 26;
-  let min = Math.min(...puntos.map((p) => p.kg));
-  let max = Math.max(...puntos.map((p) => p.kg));
-  if (min === max) {
-    min -= 1;
-    max += 1;
-  }
-  const margen = (max - min) * 0.2;
-  min -= margen;
-  max += margen;
-  const x = (i: number) => izq + (i * (ancho - izq - der)) / (puntos.length - 1);
-  const y = (v: number) => arriba + ((max - v) * (alto - arriba - abajo)) / (max - min);
-  const guias = [min + margen, (min + max) / 2, max - margen];
-  const cada = Math.ceil(puntos.length / 5);
-  const resumen = puntos.map((p) => `${shortDate(p.dia)}: ${numero(p.kg)} kg`).join(", ");
-  return (
-    <>
-      <svg viewBox={`0 0 ${ancho} ${alto}`} className="w-full" role="img" aria-label={`Evolución del peso: ${resumen}.`}>
-        {guias.map((v, i) => (
-          <g key={i}>
-            <line x1={izq} x2={ancho - der} y1={y(v)} y2={y(v)} className="stroke-border" strokeWidth="1" />
-            <text x={izq - 6} y={y(v) + 4} textAnchor="end" className="fill-muted-foreground text-[11px]">
-              {numero(v)}
-            </text>
-          </g>
-        ))}
-        {puntos.map((p, i) =>
-          i === 0 || i === puntos.length - 1 || i % cada === 0 ? (
-            <text key={p.dia} x={x(i)} y={alto - 8} textAnchor="middle" className="fill-muted-foreground text-[11px]">
-              {diaYMes(p.dia)}
-            </text>
-          ) : null,
-        )}
-        <polyline
-          points={puntos.map((p, i) => `${x(i)},${y(p.kg)}`).join(" ")}
-          fill="none"
-          className="stroke-disco-tinta"
-          strokeWidth="2.5"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-        {puntos.map((p, i) => (
-          <circle
-            key={p.dia}
-            cx={x(i)}
-            cy={y(p.kg)}
-            r={i === puntos.length - 1 ? 8 : 6}
-            className={i === puntos.length - 1 ? "fill-disco-azul stroke-disco-tinta" : "fill-disco-rojo stroke-disco-tinta"}
-            strokeWidth="2.5"
-          />
-        ))}
-        <text
-          x={x(puntos.length - 1)}
-          y={y(puntos[puntos.length - 1].kg) - 12}
-          textAnchor="end"
-          className="fill-foreground text-[11px] font-semibold"
-        >
-          {numero(puntos[puntos.length - 1].kg)} kg
-        </text>
-      </svg>
-      {/* La misma información como tabla para lectores de pantalla, en una caja de 1 px (ver
-          EvolucionEjercicio). */}
-      <div className="relative h-px w-px overflow-hidden">
-        <table className="sr-only">
-          <caption>Evolución del peso</caption>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Peso (kg)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {puntos.map((p) => (
-              <tr key={p.dia}>
-                <td>{shortDate(p.dia)}</td>
-                <td>{numero(p.kg)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </>
   );
 }

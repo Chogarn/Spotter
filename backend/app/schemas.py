@@ -567,3 +567,63 @@ class WeekMusclesOut(BaseModel):
     minimum: int  # R3: series semanales mínimas por grupo grande
     has_previous: bool
     muscles: list[MuscleSetsOut]
+
+
+class PeriodBucketOut(BaseModel):
+    """Una barra del resumen de un mes (un día) o de un año (un mes)."""
+
+    label: str
+    start: date
+    days_trained: int
+    sets_done: int
+    kg_moved: float
+
+
+class PeriodSessionOut(BaseModel):
+    """Un día completado dentro del período."""
+
+    local_date: date
+    title: str
+    routine_name: str
+    week_id: int
+    week_number: int  # dentro de su rutina
+    day_index: int
+    duration_minutes: int | None = None  # lo que tardó (decisión 82); nulo si no se midió
+
+
+class PeriodExerciseOut(BaseModel):
+    """Lo hecho en un ejercicio dentro del período (juntando todas las rutinas)."""
+
+    name: str
+    kind: str
+    sets_done: int
+    best_weight_kg: float | None = None
+
+
+class PeriodSummaryOut(BaseModel):
+    """Resumen de un día, un mes o un año (histórico, de todas las rutinas)."""
+
+    period: str  # day, month o year
+    start: date
+    end: date  # incluido
+    first_date: date | None  # el primer día entrenado de todos (hasta dónde se puede retroceder)
+    days_trained: int
+    sets_done: int
+    sets_planned: int
+    kg_moved: float
+    cardio_minutes: int
+    duration_minutes: int | None = None  # suma de los días que se midieron
+    buckets: list[PeriodBucketOut]  # vacío para el día
+    sessions: list[PeriodSessionOut]
+    exercises: list[PeriodExerciseOut]
+
+
+class PeriodMusclesOut(BaseModel):
+    """Series hechas por grupo grande en un día, un mes o un año, para el radar de Estadísticas."""
+
+    period: str  # day, month o year
+    start: date
+    end: date  # incluido
+    first_date: date | None  # el primer día entrenado de todos (hasta dónde se puede retroceder)
+    minimum: int | None  # R3 escalado a los días que pasaron del período; nulo en el día
+    muscles: list[MuscleSetsOut]  # previous_sets: el mismo cálculo en el período anterior

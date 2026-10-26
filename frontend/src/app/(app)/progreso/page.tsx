@@ -10,6 +10,8 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { Flecha } from "@/components/Flecha";
 import { Franja } from "@/components/Franja";
 import { PestanasProgreso } from "@/components/PestanasProgreso";
+import { ResumenPeriodo } from "@/components/ResumenPeriodo";
+import { SelectorPeriodo, usePeriodo } from "@/components/SelectorPeriodo";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +37,7 @@ export default function Progreso() {
   const [semanaId, setSemanaId] = useState<number | null>(null);
   const [resumen, setResumen] = useState<WeekSummaryDetail | null>(null);
   const [error, setError] = useState("");
+  const [periodo, setPeriodo] = usePeriodo();
 
   // Las rutinas; por defecto, la que tiene semana en curso o, si no, la más nueva.
   useEffect(() => {
@@ -80,10 +83,12 @@ export default function Progreso() {
       <Franja titulo="Progreso" aros="azul" />
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
       <PestanasProgreso actual="/progreso" />
-      {error && <ErrorMessage>{error}</ErrorMessage>}
-      {!rutinas && !error && <CargandoDiscos />}
+      <SelectorPeriodo periodo={periodo} onElegir={setPeriodo} />
+      {periodo !== "week" && <ResumenPeriodo key={periodo} tramo={periodo} />}
+      {periodo === "week" && error && <ErrorMessage>{error}</ErrorMessage>}
+      {periodo === "week" && !rutinas && !error && <CargandoDiscos />}
 
-      {rutinas && rutinas.length === 0 && (
+      {periodo === "week" && rutinas && rutinas.length === 0 && (
         <section className="rounded-2xl bg-card p-6 text-center">
           <p className="mt-0 font-medium">Todavía no hay nada que mostrar</p>
           <p className="mt-0 text-sm text-muted-foreground">
@@ -95,7 +100,7 @@ export default function Progreso() {
         </section>
       )}
 
-      {rutinas && rutinas.length > 0 && (
+      {periodo === "week" && rutinas && rutinas.length > 0 && (
         <>
           {rutinas.length > 1 && (
             <NativeSelect
