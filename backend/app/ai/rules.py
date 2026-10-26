@@ -6,7 +6,7 @@ Dos niveles:
 - aviso: se muestra al usuario pero no se rechaza (volumen por objetivo, R4, R18, R34).
 
 R3 (10 a 20 series semanales para masa) aplica solo a los 6 grupos grandes (decisión del usuario);
-bíceps, tríceps, gemelos y core trabajan por las series indirectas (R5). Solo avisa.
+bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial trabajan por las series indirectas (R5). Solo avisa.
 """
 
 from collections import defaultdict
@@ -41,7 +41,15 @@ DURATION_TOLERANCE_MINUTES = 15
 # Decisión 90: el reparto de las series entre los días (valores elegidos por el usuario el
 # 2026-10-23; no salen de las fuentes: son reglas de diseño, no están entre R1 y R36). Se cuentan
 # solo las series directas (con el músculo como principal).
-COMPLEMENT = (Muscle.BICEPS, Muscle.TRICEPS, Muscle.CALVES, Muscle.CORE)
+COMPLEMENT = (
+    Muscle.BICEPS,
+    Muscle.TRICEPS,
+    Muscle.CALVES,
+    Muscle.CORE,
+    Muscle.ADDUCTORS,
+    Muscle.FOREARM,
+    Muscle.TIBIALIS,
+)
 MIN_DAYS_PER_BIG_GROUP = 2  # con 3 o más días de fuerza
 MAX_SPREAD_PER_MUSCLE = 3  # entre los días en que se trabaja un mismo músculo
 MAX_SETS_PER_MUSCLE_DAY = 9  # 3 ejercicios de 3 series
@@ -174,7 +182,7 @@ def distribution_issues(routine: RoutineProposal) -> list[str]:
         complement = sum(d.get(m, 0) for m in COMPLEMENT)
         if complement > MAX_COMPLEMENT_SETS_PER_DAY:
             issues.append(
-                f"El Día {labels[i]} tiene {complement} series de bíceps, tríceps, gemelos y abdominales: el "
+                f"El Día {labels[i]} tiene {complement} series de bíceps, tríceps, gemelos, abdominales, aductores, antebrazo y tibial: el "
                 f"máximo es {MAX_COMPLEMENT_SETS_PER_DAY}. Son complemento: no se usan para completar un día."
             )
     return issues

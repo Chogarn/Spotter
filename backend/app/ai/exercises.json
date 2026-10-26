@@ -1,5 +1,5 @@
 {
-  "_estado": "Aprobado por el usuario el 2026-10-14 (nombres, músculos, niveles, descripciones y alias). Pendiente, más adelante: revisión por una persona con formación en educación física.",
+  "_estado": "Aprobado por el usuario el 2026-10-14 (nombres, músculos, niveles, descripciones y alias), salvo los 7 ejercicios de aductores, antebrazo y tibial agregados el 2026-10-26, que esperan su aprobación. Pendiente, más adelante: revisión por una persona con formación en educación física.",
   "version": 2,
   "exercises": [
     {
@@ -2336,6 +2336,150 @@
         "caminata con inclinacion",
         "cinta inclinada",
         "incline walk"
+      ]
+    },
+    {
+      "id": "aductores_maquina",
+      "name": "Aductores en máquina (sentado)",
+      "kind": "strength",
+      "region": "lower",
+      "direction": "none",
+      "primary_muscle": "adductors",
+      "secondary_muscles": [],
+      "mechanic": "isolation",
+      "equipment": "machine",
+      "level": "principiante",
+      "description": "Sentado en la máquina, se juntan las piernas desde afuera hacia adentro contra la resistencia. Trabaja los aductores, la cara interna del muslo.",
+      "how_to": "Sentado con la espalda apoyada y las piernas abiertas contra los almohadillados, a una apertura cómoda. Juntá las piernas de forma controlada hasta casi tocarlas, sin dar tirones. Volvé despacio a la apertura inicial, sin soltar la carga de golpe.",
+      "aliases": [
+        "máquina de aductores",
+        "aducción de cadera en máquina",
+        "hip adduction",
+        "aductores"
+      ]
+    },
+    {
+      "id": "aduccion_cadera_polea",
+      "name": "Aducción de cadera en polea",
+      "kind": "strength",
+      "region": "lower",
+      "direction": "none",
+      "primary_muscle": "adductors",
+      "secondary_muscles": [],
+      "mechanic": "isolation",
+      "equipment": "cable",
+      "level": "intermedio",
+      "description": "De pie, con una tobillera enganchada a la polea baja, se lleva la pierna hacia adentro cruzando frente a la otra. Trabaja los aductores.",
+      "how_to": "De pie y de costado a la polea baja, con la tobillera en el tobillo de afuera y una mano apoyada en la máquina para equilibrarte. Llevá la pierna hacia adentro, cruzando frente a la otra, sin girar la cadera. Volvé controlado. Hacé todas las series de un lado y después del otro.",
+      "aliases": [
+        "aducción en polea",
+        "aducción de cadera con polea",
+        "cable hip adduction"
+      ]
+    },
+    {
+      "id": "sentadilla_sumo_mancuerna",
+      "name": "Sentadilla sumo con mancuerna",
+      "kind": "strength",
+      "region": "lower",
+      "direction": "none",
+      "primary_muscle": "quadriceps",
+      "secondary_muscles": [
+        "glutes",
+        "adductors"
+      ],
+      "mechanic": "compound",
+      "equipment": "dumbbell",
+      "level": "principiante",
+      "description": "Sentadilla con los pies bien abiertos y las puntas hacia afuera, sosteniendo una mancuerna entre las piernas. Trabaja cuádriceps y glúteos, con los aductores de ayuda.",
+      "how_to": "Con los pies más anchos que los hombros y las puntas apuntando algo hacia afuera, sostené una mancuerna con las dos manos frente al cuerpo. Bajá con el torso erguido y las rodillas siguiendo la dirección de los pies. Subí empujando el piso, sin dejar que las rodillas se cierren.",
+      "aliases": [
+        "sentadilla sumo",
+        "sumo squat",
+        "sentadilla sumo con mancuernas"
+      ]
+    },
+    {
+      "id": "curl_muneca_mancuernas",
+      "name": "Curl de muñeca con mancuernas",
+      "kind": "strength",
+      "region": "upper",
+      "direction": "pull",
+      "primary_muscle": "forearm",
+      "secondary_muscles": [],
+      "mechanic": "isolation",
+      "equipment": "dumbbell",
+      "level": "principiante",
+      "description": "Sentado, con el antebrazo apoyado y la palma hacia arriba, se flexiona la muñeca con una mancuerna. Trabaja los flexores del antebrazo.",
+      "how_to": "Sentado, con el antebrazo apoyado sobre el muslo o un banco y la muñeca fuera del apoyo, palma hacia arriba. Dejá bajar la mancuerna estirando la muñeca y subila flexionándola, moviendo solo la muñeca. Usá poco peso: es un músculo chico.",
+      "aliases": [
+        "curl de muñeca",
+        "flexión de muñeca",
+        "wrist curl",
+        "curl de antebrazo"
+      ]
+    },
+    {
+      "id": "extension_muneca_mancuernas",
+      "name": "Extensión de muñeca con mancuernas",
+      "kind": "strength",
+      "region": "upper",
+      "direction": "push",
+      "primary_muscle": "forearm",
+      "secondary_muscles": [],
+      "mechanic": "isolation",
+      "equipment": "dumbbell",
+      "level": "principiante",
+      "description": "Sentado, con el antebrazo apoyado y la palma hacia abajo, se extiende la muñeca con una mancuerna. Trabaja los extensores del antebrazo.",
+      "how_to": "Sentado, con el antebrazo apoyado sobre el muslo o un banco y la muñeca fuera del apoyo, palma hacia abajo. Dejá bajar la mancuerna flexionando la muñeca y subila extendiéndola, moviendo solo la muñeca. Usá poco peso: es un músculo chico.",
+      "aliases": [
+        "extensión de muñeca",
+        "wrist extension",
+        "reverse wrist curl",
+        "curl de muñeca inverso"
+      ]
+    },
+    {
+      "id": "curl_invertido_barra_z",
+      "name": "Curl invertido con barra Z",
+      "kind": "strength",
+      "region": "upper",
+      "direction": "pull",
+      "primary_muscle": "forearm",
+      "secondary_muscles": [
+        "biceps"
+      ],
+      "mechanic": "isolation",
+      "equipment": "barbell",
+      "level": "intermedio",
+      "description": "Curl de brazos con la barra tomada con las palmas hacia abajo. Trabaja el antebrazo (braquiorradial), con ayuda del bíceps.",
+      "how_to": "De pie, con la barra Z tomada con las palmas hacia abajo, a la altura de los muslos y los codos pegados al cuerpo. Subí la barra flexionando los codos, sin balancear el torso. Bajá controlado hasta estirar los brazos. Usá menos peso que en el curl común.",
+      "aliases": [
+        "curl inverso",
+        "curl invertido",
+        "reverse curl",
+        "curl inverso con barra"
+      ]
+    },
+    {
+      "id": "elevacion_puntas_pie",
+      "name": "Elevación de puntas de pie",
+      "kind": "strength",
+      "region": "lower",
+      "direction": "none",
+      "primary_muscle": "tibialis",
+      "secondary_muscles": [],
+      "mechanic": "isolation",
+      "equipment": "bodyweight",
+      "level": "principiante",
+      "description": "De pie, apoyado contra una pared, se levantan las puntas de los pies dejando los talones en el piso. Trabaja el tibial anterior, el músculo de la espinilla.",
+      "how_to": "De pie, con la espalda apoyada en una pared y los pies un paso adelante, a la altura de las caderas. Levantá las puntas de los pies lo más alto que puedas, con los talones en el piso. Bajá despacio hasta apoyar las puntas. Cuanto más lejos de la pared pongas los pies, más difícil es.",
+      "aliases": [
+        "elevación de puntas",
+        "elevación de punta de pie",
+        "tibial anterior",
+        "tibialis raise",
+        "toe raise"
       ]
     }
   ]

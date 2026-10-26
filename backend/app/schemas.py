@@ -585,7 +585,7 @@ class WeekMusclesOut(BaseModel):
     minimum: int  # R3: series semanales mínimas por grupo grande
     has_previous: bool
     muscles: list[MuscleSetsOut]
-    others: list[MuscleSetsOut] = []  # complementos (bíceps, tríceps, gemelos y core), para el mapa
+    others: list[MuscleSetsOut] = []  # complementos (bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial), para el mapa
 
 
 class PeriodBucketOut(BaseModel):
@@ -646,4 +646,4 @@ class PeriodMusclesOut(BaseModel):
     first_date: date | None  # el primer día entrenado de todos (hasta dónde se puede retroceder)
     minimum: int | None  # R3 escalado a los días que pasaron del período; nulo en el día
     muscles: list[MuscleSetsOut]  # previous_sets: el mismo cálculo en el período anterior
-    others: list[MuscleSetsOut] = []  # complementos (bíceps, tríceps, gemelos y core), para el mapa
+    others: list[MuscleSetsOut] = []  # complementos (bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial), para el mapa

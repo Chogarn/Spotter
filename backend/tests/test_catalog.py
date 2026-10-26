@@ -152,3 +152,12 @@ def test_hay_mas_de_un_ejercicio_por_grupo_y_nivel_para_que_la_ia_elija(ejercici
 def test_hay_variedad_de_equipamiento(ejercicios):
     for equipo in ("barbell", "dumbbell", "machine", "cable", "bodyweight", "band", "kettlebell"):
         assert any(e["equipment"] == equipo for e in ejercicios), equipo
+
+
+def test_aductores_antebrazo_y_tibial_tienen_ejercicios_y_son_complemento(ejercicios):
+    from app.ai.rules import COMPLEMENT
+    from app.enums import Muscle
+
+    for muscle in (Muscle.ADDUCTORS, Muscle.FOREARM, Muscle.TIBIALIS):
+        assert muscle in COMPLEMENT
+        assert any(e["primary_muscle"] == muscle.value for e in ejercicios), muscle.value

@@ -242,3 +242,13 @@ No son R1 a R36 (no salen de las fuentes): las eligió el usuario para que el vo
 | Series de un mismo grupo en un día | 9 como máximo (3 ejercicios de 3 series) |
 | Diferencia de series de grupos grandes entre el día con más y el con menos | 4 como máximo |
 | Complemento (bíceps, tríceps, gemelos y abdominales) | hasta 6 series por día; no cuenta para los grupos grandes ni completa un día |
+
+## Aductores, antebrazo y tibial (decisión 99, 2026-10-26)
+
+Las etiquetas de los 7 ejercicios nuevos tienen **fuentes débiles**; se dejan escritas para que la persona de educación física las revise.
+
+- **Aductores y sentadilla:** un estudio de hipertrofia encontró más crecimiento de los aductores con la sentadilla que con el hip thrust, y lo explica por la palanca del aductor mayor en el fondo de la sentadilla ([resumen en Sci-Sport](https://sci-sport.com/en/glutes-hypertrophy-hip-thrust-or-parallel-squat-239/); fuente secundaria, no se vio el paper original). Certeza media.
+- **Aductores y ejercicios de aducción:** Serner et al., 2014, *British Journal of Sports Medicine* 48(14):1108 (40 futbolistas, actividad del aductor largo en 8 ejercicios de aducción). Avala que la aducción trabaja el aductor; no compara la máquina con la sentadilla sumo. Certeza media.
+- **Antebrazo y curl invertido:** el braquiorradial se activa más con el agarre pronado, según Hatfield (1993) citado en [PeerJ 5165](https://peerj.com/articles/5165). Certeza media.
+- **Curl de muñeca, extensión de muñeca, elevación de puntas de pie y máquina de aductores:** no se encontró un estudio de entrenamiento. La fuente es la **anatomía funcional** (la acción del músculo es el movimiento del ejercicio). **Certeza baja.**
+- **Sin fuente, por eso sin etiqueta:** aductores en peso muerto e hip thrust (no hay medición del aductor mayor), y antebrazo en el curl martillo.

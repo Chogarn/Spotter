@@ -284,8 +284,8 @@ MIN_WEEKLY_SETS = 10
 
 
 def done_sets_by_muscle(db: Session, week: WeekPlan) -> dict:
-    """Series hechas en la semana por grupo grande y por complemento (bíceps, tríceps, gemelos y
-    core), con el músculo como principal (las indirectas no suman, como en el reparto de la
+    """Series hechas en la semana por grupo grande y por complemento (bíceps, tríceps, gemelos,
+    core, aductores, antebrazo y tibial), con el músculo como principal (las indirectas no suman, como en el reparto de la
     decisión 90). Una serie cuenta si tiene lo realizado."""
     counts = {muscle: 0 for muscle in BIG_GROUPS + COMPLEMENT}
     for day in week.days:

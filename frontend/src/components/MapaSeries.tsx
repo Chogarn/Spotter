@@ -18,6 +18,9 @@ const PIEZAS: Record<string, string[]> = {
   triceps: ["triceps"],
   calves: ["calves"],
   core: ["abs", "obliques"],
+  adductors: ["adductors"],
+  forearm: ["forearm"],
+  tibialis: ["tibialis"],
 };
 
 const CLAVE_CUERPO = "spotter_mapa_cuerpo";

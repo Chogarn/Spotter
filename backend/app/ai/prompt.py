@@ -84,7 +84,7 @@ def volume_text(minutes: int | None) -> str:
     return (
         "Si el volumen que pide el objetivo no entra en la referencia R18, no sumes días: la persona ya los eligió. "
         "Primero alargá la sesión y avisalo en `notices`. Solo como último recurso recortá series de menor prioridad: "
-        "accesorios y músculos chicos (bíceps, tríceps, gemelos y core). Avisá qué recortaste y que el volumen "
+        "accesorios y músculos chicos (bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial). Avisá qué recortaste y que el volumen "
         "quedó por debajo de lo recomendado."
     )
 

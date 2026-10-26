@@ -23,7 +23,7 @@ Respondé **solo** con el JSON pedido, sin texto antes ni después. Todo el text
 - Etiquetas de cada ejercicio (listas cerradas, no inventes valores):
   - `region`: upper, lower, core, full_body.
   - `direction`: push, pull, none (piernas, core y cardio).
-  - `primary_muscle`: chest, back, shoulders, biceps, triceps, quadriceps, hamstrings, glutes, calves, core, full_body.
+  - `primary_muscle`: chest, back, shoulders, biceps, triceps, quadriceps, hamstrings, glutes, calves, core, adductors, forearm, tibialis, full_body.
   - `secondary_muscles`: lista de los mismos valores (músculos que trabajan de forma indirecta).
   - `mechanic`: compound (multiarticular) o isolation (monoarticular).
   - `equipment`: barbell, dumbbell, machine, cable, bodyweight, band, kettlebell, other.
@@ -60,7 +60,7 @@ Elegí los ejercicios **solo de esta lista**. Cada línea trae el nombre, las et
 
 Contá las series por semana así: una serie **directa** (músculo principal) vale 1 y una **indirecta** (músculo secundario) vale 0,5.
 
-- **masa** (ganar masa muscular): **10 a 20 series por semana en cada uno de los 6 grupos grandes**. Bíceps, tríceps, gemelos y core no tienen un mínimo propio: trabajan con las series indirectas, y podés darles ejercicios propios si hay lugar. Repeticiones de **6 a 15** (8 a 12 de referencia).
+- **masa** (ganar masa muscular): **10 a 20 series por semana en cada uno de los 6 grupos grandes**. Bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial no tienen un mínimo propio: trabajan con las series indirectas, y podés darles ejercicios propios si hay lugar. Repeticiones de **6 a 15** (8 a 12 de referencia).
 - **fuerza**: **2 a 3 series por ejercicio**, con cargas altas (80 % del máximo o más) y entre **3 y 8 repeticiones**. El ejercicio principal va al comienzo de la sesión.
 - **perder_grasa**: **más cardio y menos fuerza**. Fuerza **al menos 2 días**, manteniendo la carga aunque baje el volumen, con **2 a 4 series duras por grupo grande por semana**. Cardio: **150 a 300 minutos por semana**, a intensidad moderada; vos elegís cuántos dentro de ese rango según el nivel y la carga de fuerza (un principiante empieza cerca de 150 a 250 y sube hacia 300 con el tiempo). El tipo de cardio es libre (continuo o por intervalos), sin prometer que uno queme más grasa. Si cardio y fuerza van el mismo día, **la fuerza va primero**; si se dividen en dos sesiones, con **3 horas o más** de separación. La alimentación queda fuera de la app.
 - **mantenerme_activo**: **2 sesiones de fuerza**, **2 series por ejercicio**, **4 a 6 series semanales por grupo grande**, y **150 minutos de aeróbico moderado** por semana. Rutinas simples.
@@ -81,7 +81,7 @@ El volumen semanal de cada grupo grande tiene que **repartirse parejo entre los 
 - Un grupo grande se trabaja en **al menos 2 días** cuando la rutina tiene 3 o más días de fuerza.
 - Entre los días en que trabajás un mismo grupo, la diferencia de series es de **3 como máximo**, y ningún día pasa de **9 series de un mismo grupo** (3 ejercicios de 3 series).
 - Todos los días tienen que tener una cantidad **parecida** de series de los grupos grandes: la diferencia entre el día con más y el que menos tiene es de **4 como máximo**.
-- **Bíceps, tríceps, gemelos y abdominales son complemento:** no cuentan para el volumen de los grupos grandes y **no sirven para completar un día**. Hasta **6 series de complemento por día**.
+- **Bíceps, tríceps, gemelos, abdominales, aductores, antebrazo y tibial son complemento:** no cuentan para el volumen de los grupos grandes y **no sirven para completar un día**. Hasta **6 series de complemento por día**.
 
 # Duración de cada sesión
 

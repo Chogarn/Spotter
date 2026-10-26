@@ -57,6 +57,9 @@ class Muscle(str, enum.Enum):
     GLUTES = "glutes"
     CALVES = "calves"
     CORE = "core"
+    ADDUCTORS = "adductors"
+    FOREARM = "forearm"
+    TIBIALIS = "tibialis"
     FULL_BODY = "full_body"  # cardio y ejercicios de cuerpo entero
 
 

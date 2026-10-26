@@ -81,7 +81,7 @@ def test_el_complemento_no_completa_un_dia_y_tiene_su_tope():
     )
     problemas = distribution_issues(rutina(relleno, dia()))
 
-    assert any("El Día 1 tiene 7 series de bíceps, tríceps, gemelos y abdominales" in p for p in problemas)
+    assert any("El Día 1 tiene 7 series de bíceps, tríceps, gemelos, abdominales, aductores, antebrazo y tibial" in p for p in problemas)
 
 
 def test_el_complemento_no_cuenta_como_grupo_grande():

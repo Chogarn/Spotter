@@ -36,6 +36,9 @@ MUSCLE_TEXT = {
     Muscle.GLUTES: "glúteos",
     Muscle.CALVES: "gemelos",
     Muscle.CORE: "core",
+    Muscle.ADDUCTORS: "aductores",
+    Muscle.FOREARM: "antebrazo",
+    Muscle.TIBIALIS: "tibial",
     Muscle.FULL_BODY: "cuerpo completo",
 }
 
