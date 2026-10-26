@@ -20,6 +20,7 @@ TABLAS_ESPERADAS = {
     "catalog_embeddings",
     "pending_registrations",
     "password_resets",
+    "email_changes",
     "email_log",
     "body_measurements",
 }

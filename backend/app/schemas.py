@@ -72,6 +72,15 @@ class ChangePasswordIn(BaseModel):
     new_password: str = Field(min_length=8, max_length=128)
 
 
+class ChangeEmailIn(BaseModel):
+    """Cambiar el correo estando con la sesión iniciada: el correo nuevo y la contraseña."""
+
+    new_email: str
+    password: str = Field(min_length=1, max_length=128)
+
+    _new_email = field_validator("new_email")(_clean_email)
+
+
 class DeleteAccountIn(BaseModel):
     """Borrar la cuenta: pide la contraseña para que nadie con el aparato desbloqueado la borre."""
 

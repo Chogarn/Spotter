@@ -660,6 +660,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** borrado inmediato, sin período de gracia; confirmar con la contraseña y no escribiendo "BORRAR"; sin correo de despedida; que `email_log` y la tabla compartida `exercises` no se toquen; el texto del recuadro.
 - **Ojo:** probado con tests del backend (582 pasan) y a mano contra PostgreSQL con un usuario descartable (el borrado en cascada y `ai_calls` sin dueño); **el recuadro no se vio en pantalla**. Respaldo previo a la migración en `backups/antes-0025.sql`.
 
+### 97. Cambiar el correo
+- **Fecha:** 2026-10-26
+- **Decisión:** el cambio se confirma desde el correo **nuevo**, como el registro. `POST /auth/change-email` (con sesión; pide el correo nuevo y la contraseña) guarda el pedido en `email_changes` (migración 0026, una fila por usuario: un pedido nuevo anula el anterior) y manda un enlace de 24 horas a la dirección nueva; la cuenta sigue con el correo viejo hasta que se toque. `POST /auth/confirm-email-change` (pública, con el código del enlace; sirve una sola vez) cambia el correo y **cierra todas las sesiones** con `password_changed_at` (decisión 80): se entra de nuevo con el correo nuevo. **No se avisa al correo viejo.** Valen los topes de correo de siempre (1 por minuto por dirección y el diario). En Cuenta la fila va debajo de Cambiar contraseña (`CambiarCorreo.tsx`) y la pantalla del enlace es `/confirmar-correo`.
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)*
+- **Decidió la IA sin preguntarte:** pedir la contraseña para iniciar el cambio; el vencimiento de 24 horas; que el correo nuevo ya registrado dé 409 al pedirlo (igual que el registro) y de nuevo al confirmar; que el mismo correo dé 400; los textos del correo y de las pantallas.
+- **Ojo:** probado con tests del backend (593 pasan) y a mano con un usuario descartable, con el correo real que llega a Mailpit; **las pantallas no se vieron**. Quien tenga el correo viejo no se entera del cambio.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.

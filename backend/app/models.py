@@ -476,6 +476,22 @@ class PasswordReset(Base):
     )
 
 
+class EmailChange(Base):
+    """Un cambio de correo que espera que se confirme el correo nuevo. Una fila por usuario: pedir
+    otro cambio reemplaza el anterior. Mientras no se toque el enlace, la cuenta sigue con el viejo."""
+
+    __tablename__ = "email_changes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), unique=True)
+    new_email: Mapped[str] = mapped_column(String(255))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class EmailLog(Base):
     """Una fila por cada correo que la app manda. Se escribe ANTES de enviar y los topes diario y
     por dirección se calculan contándolas (como `ai_calls` con Gemini)."""

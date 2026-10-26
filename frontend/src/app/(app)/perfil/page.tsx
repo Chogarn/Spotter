@@ -11,7 +11,7 @@ import { Franja } from "@/components/Franja";
 import { type DatosPerfil, type PasoPerfil, PerfilAsistente, SEXOS } from "@/components/PerfilAsistente";
 import { BorrarCuenta } from "@/components/BorrarCuenta";
 import { CambiarContrasena } from "@/components/CambiarContrasena";
-import { FilaProximamente } from "@/components/Proximamente";
+import { CambiarCorreo } from "@/components/CambiarCorreo";
 import { cn } from "cn";
 import { Cargando } from "@/components/Cargando";
 
@@ -263,10 +263,10 @@ export default function PerfilPage() {
           <p className="m-0 break-all">{usuario?.email ?? "—"}</p>
         </section>
 
-        {/* Todavía sin hacer (decisión 75): los botones están en su lugar y avisan al tocarlos. */}
+        {/* Cada fila se abre sola: contraseña, correo y borrar la cuenta (decisiones 75, 80 y 96). */}
         <section className="mb-3 rounded-2xl bg-card px-4 py-1">
-          <FilaProximamente texto="Cambiar correo" mensaje="Cambiar el correo todavía no está disponible." />
           <CambiarContrasena />
+          <CambiarCorreo />
           <BorrarCuenta />
         </section>
 

@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 // Nombre de la cookie de sesión que pone el backend (backend/app/security.py).
 const COOKIE = "spotter_session";
-const PUBLICAS = ["/bienvenida", "/login", "/registro", "/verificar", "/recuperar", "/restablecer"];
+const PUBLICAS = ["/bienvenida", "/login", "/registro", "/verificar", "/confirmar-correo", "/recuperar", "/restablecer"];
 
 // Chequeo OPTIMISTA: solo mira si hay cookie de sesión, sin validarla (eso lo hace la API, que
 // responde 401 si el token no sirve). Sirve para no mostrar pantallas protegidas a quien no

@@ -110,6 +110,16 @@ def verification_text(link: str) -> tuple[str, str]:
     )
 
 
+def change_email_text(link: str) -> tuple[str, str]:
+    return (
+        "Confirmá tu correo nuevo en Spotter",
+        "Hola. Pediste usar este correo en tu cuenta de Spotter. Confirmalo con este enlace:\n\n"
+        f"{link}\n\n"
+        "El enlace vale 24 horas. Al confirmarlo se cierran tus sesiones y entrás con este correo. "
+        "Si no fuiste vos, ignorá este correo: tu cuenta sigue igual.\n",
+    )
+
+
 def reset_text(link: str) -> tuple[str, str]:
     return (
         "Cambiá tu contraseña de Spotter",

@@ -10,8 +10,9 @@ from app import mailer
 
 from app.db import get_db
 from app.deps import get_current_user
-from app.models import PasswordReset, PendingRegistration, User
+from app.models import EmailChange, PasswordReset, PendingRegistration, User
 from app.schemas import (
+    ChangeEmailIn,
     ChangePasswordIn,
     DeleteAccountIn,
     EmailIn,
@@ -251,6 +252,65 @@ def change_password(
     # o después, y solo valen las emitidas desde ese segundo.
     user.password_changed_at = datetime.now(timezone.utc)
     start_session(response, user)
+    db.commit()
+
+
+@router.post("/change-email", response_model=MessageOut, status_code=202)
+def change_email(
+    data: ChangeEmailIn,
+    background: BackgroundTasks,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> MessageOut:
+    """Pide cambiar el correo: manda un enlace al correo NUEVO y la cuenta sigue con el viejo hasta
+    que se toque. Pide la contraseña. Responde 400 y no 401 si está mal: un 401 cerraría la sesión."""
+    require_mail()
+    if not verify_password(data.password, user.password_hash):
+        raise HTTPException(status_code=400, detail="La contraseña no es correcta")
+    if data.new_email == user.email:
+        raise HTTPException(status_code=400, detail="Ese ya es tu correo")
+    if db.scalar(select(User).where(User.email == data.new_email)) is not None:
+        raise HTTPException(status_code=409, detail="Ese email ya está registrado")
+    raw, hashed = new_token()
+    subject, body = mailer.change_email_text(f"{mailer.app_url()}/confirmar-correo?token={raw}")
+    why = queue_mail(background, db, "change_email", data.new_email, subject, body)
+    if why == "cooldown":
+        raise HTTPException(status_code=429, detail="Esperá un minuto antes de pedir otro correo")
+    if why == "daily":
+        raise HTTPException(
+            status_code=429, detail="Se llegó al tope de correos de hoy: probá de nuevo mañana"
+        )
+    # Un pedido nuevo anula el anterior sin confirmar.
+    db.execute(delete(EmailChange).where(EmailChange.user_id == user.id))
+    db.add(
+        EmailChange(
+            user_id=user.id,
+            new_email=data.new_email,
+            token_hash=hashed,
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=VERIFY_HOURS),
+        )
+    )
+    db.commit()
+    return MessageOut(message="Te mandamos un enlace al correo nuevo. Tu correo cambia cuando lo toques.")
+
+
+@router.post("/confirm-email-change", status_code=204)
+def confirm_email_change(data: TokenIn, db: Session = Depends(get_db)) -> None:
+    """Confirma el correo nuevo con el código del enlace. Sirve una sola vez, vence a las 24 horas y
+    cierra todas las sesiones (`password_changed_at`): se entra de nuevo con el correo nuevo."""
+    change = db.scalar(select(EmailChange).where(EmailChange.token_hash == hash_token(data.token)))
+    now = datetime.now(timezone.utc)
+    if change is None or aware(change.expires_at) < now:
+        raise HTTPException(status_code=400, detail=BAD_LINK)
+    if db.scalar(select(User).where(User.email == change.new_email)) is not None:
+        db.delete(change)
+        db.commit()
+        raise HTTPException(status_code=409, detail="Ese email ya está registrado")
+    user = db.get(User, change.user_id)
+    user.email = change.new_email
+    user.email_verified_at = now
+    user.password_changed_at = now
+    db.delete(change)
     db.commit()
 
 
