@@ -1,5 +1,6 @@
 "use client";
 
+import { tituloDia } from "@/lib/format";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
@@ -183,7 +184,7 @@ function CalendarioMes({ hoy }: { hoy: string }) {
                       className="block rounded-xl bg-muted px-3 py-2 no-underline hover:bg-border"
                     >
                       <span className="block font-heading text-lg leading-tight font-bold">
-                        Día {s.day_index} · {s.title}
+                        Día {s.day_index} · {tituloDia(s.title)}
                       </span>
                       <span className="block text-sm text-muted-foreground">
                         {s.routine_name} · semana {s.week_number}

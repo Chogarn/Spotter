@@ -1,4 +1,4 @@
-import { BicepsFlexed, Dumbbell, Flame, Footprints, HeartPulse, type LucideIcon } from "lucide-react";
+import { BicepsFlexed, Dumbbell, Flame, Footprints, type LucideIcon } from "lucide-react";
 
 import { cn } from "cn";
 
@@ -8,7 +8,6 @@ const ICONOS: Record<string, LucideIcon> = {
   masa: BicepsFlexed,
   fuerza: Dumbbell,
   perder_grasa: Flame,
-  condicion_general: HeartPulse,
   mantenerme_activo: Footprints,
 };
 

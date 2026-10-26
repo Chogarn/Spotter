@@ -18,6 +18,7 @@ export function Confirmar({
   titulo,
   texto,
   accion,
+  destructivo = true,
   onConfirmar,
   onCancelar,
 }: {
@@ -25,6 +26,8 @@ export function Confirmar({
   titulo: string;
   texto: string;
   accion: string;
+  // Rojo por defecto (borra lo registrado); false para una acción que no pierde nada.
+  destructivo?: boolean;
   onConfirmar: () => void;
   onCancelar: () => void;
 }) {
@@ -39,7 +42,7 @@ export function Confirmar({
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <Button
             type="button"
-            className="bg-destructive text-white hover:bg-destructive/85"
+            className={destructivo ? "bg-destructive text-white hover:bg-destructive/85" : undefined}
             onClick={onConfirmar}
           >
             {accion}

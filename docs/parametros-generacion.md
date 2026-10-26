@@ -33,7 +33,7 @@ No se manda a la IA el nombre ni el correo.
 
 | Dato | Opciones | Origen |
 |---|---|---|
-| **Objetivo** | masa · fuerza · perder grasa · condición general · mantenerme activo | Diseño |
+| **Objetivo** | masa · fuerza · perder grasa · mantenerme activo | Diseño |
 | **Nivel** | principiante · intermedio · avanzado | Diseño |
 | **Días por semana** | Principiante: 2 o 3. El resto: de 2 a 6 | Convención y decisión de producto (R11, R12): ninguna fuente prescribe una cantidad de días |
 | **Estructura (split)** | Cuerpo completo · torso/pierna · empuje/tirón/piernas (PPL), según las opciones compatibles | Decisión de producto 91; no hay una estructura prescrita por las fuentes |
@@ -73,14 +73,13 @@ La IA responde un JSON con la semana. El código lo valida y, si no cumple, pide
 | **Masa** | 10 a 20 | (no fija; ver nota) | 6 a 15 (8 a 12 de referencia) | — | No lleva | Evidencia (R3, ACSM 2026, certeza media) |
 | **Fuerza** | no fija | 2 a 3, con cargas de 80 % del máximo o más | 3 a 8; el ejercicio principal va primero | — | No lleva | Evidencia (R4, ACSM 2026) |
 | **Perder grasa** | 2 a 4 series duras | — | — | Al menos 2 días, manteniendo la carga | 150 a 300 min, a intensidad moderada | Cardio: evidencia (R17, OMS 2020). Series: síntesis del investigador, certeza baja (R20) |
-| **Mantenerme activo** | 4 a 6 | 2 | — | 2 sesiones | 150 min | Síntesis del investigador, certeza baja a moderada (R24; el piso de 2 días y 150 min viene de la OMS 2020) |
-| **Condición general** | 6 a 10 | 2 a 3 | 6 a 15 | 2 a 3 sesiones | 150 a 300 min | Síntesis del investigador, certeza baja a moderada (R25) |
+| **Mantenerme activo** | 6 a 10 | 2 a 3 | 6 a 15 | 2 a 3 sesiones | 150 a 300 min | Síntesis del investigador, certeza baja a moderada (R25; absorbió a "condición general", decisión 100) |
 
 Notas:
 - **Perder grasa:** si cardio y fuerza van el mismo día, la fuerza va primero; si se dividen, con 3 horas o más de separación. La alimentación queda fuera de la app. El código **rechaza** una rutina de perder grasa con cardio fuera de 150 a 300 min (R17).
 - **En todos los objetivos:** no hace falta llegar al fallo; la idea es dejar **2 o 3 repeticiones en reserva**.
 - Los **6 grupos grandes** son pecho, espalda, hombros, cuádriceps, isquios y glúteos. Bíceps, tríceps, gemelos y core no tienen un mínimo propio.
-- R3 (10 o más series) **vale también para principiantes**. R20, R24 y R25 son síntesis del investigador, no cifras publicadas.
+- R3 (10 o más series) **vale también para principiantes**. R20 y R25 son síntesis del investigador, no cifras publicadas.
 
 ---
 
@@ -139,13 +138,13 @@ Hasta 12 ejercicios por día, 10 series por ejercicio, hasta 4 músculos secunda
 | Orden dentro de la sesión | Grupos grandes antes que chicos; multiarticulares antes que monoarticulares | Diseño |
 | Descanso | Autorregulado. Guía: 2 a 3 min (120 a 180 s) en multiarticulares pesados; 1 a 2 min (60 a 120 s) en accesorios. Campo editable, de 0 a 600 s | Convención con apoyo parcial (R8): el ACSM 2026 no recomienda tiempos |
 | Movilidad y equilibrio | En 2 días por semana, un texto de 5 a 10 min, sin series | Convención, certeza baja (R26, ACSM 2011 en resumen) |
-| Series por ejercicio | Según el objetivo: 2 a 3 (fuerza, condición general), 2 (mantenerme activo). No se pide "3 a 4" | Fuente (decisión 59) |
+| Series por ejercicio | Según el objetivo: 2 a 3 (fuerza, mantenerme activo). No se pide "3 a 4" | Fuente (decisión 59) |
 
 ### 6.4 El catálogo y cómo se eligen los candidatos
 
 - La IA elige **solo** de un catálogo de **124 ejercicios** (`backend/app/ai/exercises.json`): 117 aprobados por el usuario el 2026-10-14 y 7 agregados el 2026-10-26 (decisión 99) que esperan su aprobación. **Falta la revisión de una persona de educación física.**
 - Cada ejercicio trae etiquetas obligatorias (R13): región (superior, inferior, core, cuerpo entero), dirección (empuje, tirón), músculo principal, músculos secundarios, mecánica (multiarticular o monoarticular), equipamiento y nivel.
-- **Filtro del código:** nunca ejercicios de un nivel más alto que el de la persona; cardio solo en perder grasa, condición general y mantenerme activo.
+- **Filtro del código:** nunca ejercicios de un nivel más alto que el de la persona; cardio solo en perder grasa y mantenerme activo.
 - **Orden por parecido (vectores):** se ordena por similitud con el objetivo y el nivel, y al prompt van **hasta 6 ejercicios por grupo muscular** (cifra de diseño).
 - **Las limitaciones NO entran en la búsqueda:** un vector mide parecido, no "evitar". Las limitaciones las razona la IA con el texto del perfil, y el código **no bloquea** ejercicios por una limitación escrita.
 - El código **rechaza** cualquier ejercicio que no esté en el catálogo (con sus nombres alternativos), y corrige el nombre y las etiquetas con las del catálogo.
@@ -182,7 +181,7 @@ Los 3 segundos por repetición salen de un resumen del ACSM 2009 (certeza baja);
 
 | Perfil | Referencia |
 |---|---|
-| Principiante, mantenerme activo, condición general | Cerca de 60 min |
+| Principiante y mantenerme activo | Cerca de 60 min |
 | Intermedio con masa o fuerza | 60 a 90 min |
 | Perder grasa | 60 min de fuerza, más el cardio |
 | Avanzado con masa o fuerza | No definida |
@@ -261,7 +260,7 @@ Si un peso propuesto sube **más de 10 %** sobre el último peso realizado, mues
 - Ejercicios fuera del catálogo o con el tipo equivocado.
 
 ### Solo avisa (se ve en la pestaña Avisos)
-- Volumen por objetivo fuera de rango (R3, R4, R20, R24, R25), por ejemplo "chest: 8 series por semana y debería haber de 10 a 20".
+- Volumen por objetivo fuera de rango (R3, R4, R20, R25), por ejemplo "chest: 8 series por semana y debería haber de 10 a 20".
 - Duración de un día lejos de la referencia (R34).
 - Un peso que sube más de 10 % (R9).
 - El reparto entre días (sección 7): primero pide un reintento y después avisa.

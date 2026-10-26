@@ -23,10 +23,13 @@ export function PasoAsistente({
   ocupado = false,
   error,
   nota,
+  sinAvance = false,
   children,
 }: {
   paso: number; // empieza en 1
   total: number;
+  // Oculta la barrita de avance (al editar un dato ya guardado no hay un "proceso" que avanzar).
+  sinAvance?: boolean;
   titulo: string;
   ayuda?: string;
   onAtras?: () => void;
@@ -54,21 +57,25 @@ export function PasoAsistente({
           >
             <ChevronLeft className="size-6" aria-hidden="true" />
           </button>
-          <div
-            role="progressbar"
-            aria-label="Avance"
-            aria-valuemin={1}
-            aria-valuemax={total}
-            aria-valuenow={paso}
-            className="flex flex-1 gap-1"
-          >
-            {Array.from({ length: total }, (_, i) => (
-              <span
-                key={i}
-                className={cn("h-1.5 flex-1 rounded-full", i < paso ? "bg-disco-rojo" : "bg-border")}
-              />
-            ))}
-          </div>
+          {sinAvance ? (
+            <div className="flex-1" aria-hidden="true" />
+          ) : (
+            <div
+              role="progressbar"
+              aria-label="Avance"
+              aria-valuemin={1}
+              aria-valuemax={total}
+              aria-valuenow={paso}
+              className="flex flex-1 gap-1"
+            >
+              {Array.from({ length: total }, (_, i) => (
+                <span
+                  key={i}
+                  className={cn("h-1.5 flex-1 rounded-full", i < paso ? "bg-disco-rojo" : "bg-border")}
+                />
+              ))}
+            </div>
+          )}
           {onCancelar ? (
             <button
               type="button"

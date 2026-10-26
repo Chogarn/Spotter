@@ -22,7 +22,7 @@ from app.ai.splits import compatible_splits
 # Los isométricos (plancha) cuentan como fuerza: suman días de fuerza y series por músculo.
 STRENGTH_KINDS = (ExerciseKind.STRENGTH, ExerciseKind.ISOMETRIC)
 
-# Los 6 grupos grandes (R1, R20, R24, R25).
+# Los 6 grupos grandes (R1, R20, R25).
 BIG_GROUPS = (
     Muscle.CHEST,
     Muscle.BACK,
@@ -256,7 +256,7 @@ def estimate_day_minutes(day: DayProposal) -> float:
 
 def reference_minutes(goal: Goal, level: Level) -> tuple[int, int] | None:
     """R18: duración de referencia (guía, no tope). None si R18 no define una."""
-    if goal in (Goal.PERDER_GRASA, Goal.MANTENERME_ACTIVO, Goal.CONDICION_GENERAL):
+    if goal in (Goal.PERDER_GRASA, Goal.MANTENERME_ACTIVO):
         return (60, 60)
     if level == Level.PRINCIPIANTE:
         return (60, 60)
@@ -397,7 +397,7 @@ def validate_routine(
 
 
 def _volume_warnings(routine, goal, n_strength, total_cardio, sets_by_muscle, warn) -> None:
-    """Volumen por objetivo (R3, R4, R20, R24, R25). Solo avisan."""
+    """Volumen por objetivo (R3, R4, R20, R25). Solo avisan."""
     strength_sets = [
         len(e.sets) for d in routine.days for e in d.exercises if e.kind in STRENGTH_KINDS
     ]
@@ -420,13 +420,7 @@ def _volume_warnings(routine, goal, n_strength, total_cardio, sets_by_muscle, wa
     elif goal == Goal.PERDER_GRASA:
         per_group("R20", 2, 4)
     elif goal == Goal.MANTENERME_ACTIVO:
-        if n_strength != 2:
-            warn("R24", f"Son 2 sesiones de fuerza y la rutina trae {n_strength}.")
-        per_exercise("R24", 2, 2)  # el ACSM 2026 pide al menos 2 series por ejercicio
-        per_group("R24", 4, 6)
-        if total_cardio < 150:
-            warn("R24", f"El aeróbico debería ser de 150 min por semana y trae {total_cardio}.")
-    elif goal == Goal.CONDICION_GENERAL:
+        # Antes eran dos objetivos (R24 y R25); desde la decisión 100 rige la regla de condición general.
         if not 2 <= n_strength <= 3:
             warn("R25", f"Son 2 o 3 sesiones de fuerza y la rutina trae {n_strength}.")
         per_exercise("R25", 2, 3)

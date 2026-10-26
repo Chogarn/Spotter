@@ -476,6 +476,7 @@ class WeekDetailOut(BaseModel):
     status: str
     week_start: date
     closing_note: str | None = None
+    split_type: RoutineSplit | None = None
     days: list[WeekDayItemOut]
 
 

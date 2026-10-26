@@ -275,6 +275,7 @@ export type WeekDetail = {
   number: number;
   status: "draft" | "active" | "closed";
   week_start: string;
+  split_type: "full_body" | "upper_lower" | "ppl" | null;
   days: {
     day_index: number;
     title: string;

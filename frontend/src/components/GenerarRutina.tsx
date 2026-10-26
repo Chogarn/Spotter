@@ -88,7 +88,6 @@ const OBJETIVOS = [
   ["masa", "masa"],
   ["fuerza", "fuerza"],
   ["perder_grasa", "perder grasa"],
-  ["condicion_general", "condición general"],
   ["mantenerme_activo", "mantenerme activo"],
 ];
 

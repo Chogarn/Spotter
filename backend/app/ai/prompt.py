@@ -20,8 +20,7 @@ GOAL_TEXT = {
     "masa": "masa (ganar masa muscular)",
     "fuerza": "fuerza (ganar fuerza)",
     "perder_grasa": "perder_grasa (más cardio y menos fuerza)",
-    "condicion_general": "condicion_general (mejorar la condición física general)",
-    "mantenerme_activo": "mantenerme_activo (rutinas simples y progresión suave)",
+    "mantenerme_activo": "mantenerme_activo (mantener la condición física general: rutinas equilibradas y progresión suave)",
 }
 
 

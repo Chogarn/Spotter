@@ -5,7 +5,7 @@ export type Cuerpo = "masculino" | "femenino";
 
 // Azules de menos a más series (0 = sin trabajar). El azul es la carga en Disco; el rojo queda
 // para "te falta" en el radar.
-const COLORES = ["#e6e9ec", "#b9d0f0", "#6f9ee0", "#1f5fbf", "#123a7a"];
+const COLORES = ["#ffffff", "#b9d0f0", "#6f9ee0", "#1f5fbf", "#123a7a"];
 
 const DIBUJOS = {
   masculino: { frente: FRENTE, espalda: ESPALDA, caja: { frente: "0 0 724 1448", espalda: "724 0 724 1448" } },
@@ -37,6 +37,14 @@ export function MapaMuscular({
       role="img"
       aria-label={descripcion}
     >
+      {/* El cuerpo: la silueta es una línea fina gris alrededor de todas las piezas juntas (un trazo
+          gris y otro blanco un poco más angosto encima); los músculos van adentro, en blanco o pintados. */}
+      <g fill="#b6bec8" stroke="#b6bec8" strokeWidth={66} strokeLinejoin="round" aria-hidden="true">
+        {dibujo[vista].map((p) => p.paths.map((d, i) => <path key={`${p.slug}-${i}`} d={d} />))}
+      </g>
+      <g fill="#ffffff" stroke="#ffffff" strokeWidth={60} strokeLinejoin="round" aria-hidden="true">
+        {dibujo[vista].map((p) => p.paths.map((d, i) => <path key={`${p.slug}-${i}`} d={d} />))}
+      </g>
       {dibujo[vista].map((p) => (
         <g
           key={p.slug}

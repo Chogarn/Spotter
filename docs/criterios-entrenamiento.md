@@ -178,14 +178,14 @@ Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and 
 | R22 | Si cardio y fuerza van el mismo día, **fuerza primero**; si se dividen en dos sesiones, **3 horas o más** de separación | Evidencia débil | Eddens 2018, Feng 2025, Schumann 2022 (solo resúmenes). Certeza baja-media | Gemini | Crear |
 | R23 | El cardio de un **principiante** empieza cerca de **150 a 250 minutos** y sube hacia 300 con el tiempo (dentro de R17) | Convención | Sin fuente específica. Certeza baja | Gemini | Crear y cerrar semana |
 
-### Condición general y mantenerse activo
+### Mantenerse activo (antes también "condición general")
 
-Las cifras de R24 y R25 son una **interpolación** del informe de investigación, no valores publicados.
+**Desde la decisión 100 (2026-10-26) "condición general" y "mantenerme activo" son un solo objetivo, "mantenerme activo", que usa R25; R24 queda reemplazada.** Las cifras de R25 son una **interpolación** del informe de investigación, no valores publicados.
 
 | # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
 |---|---|---|---|---|---|
-| R24 | **Mantenerse activo:** 2 sesiones de fuerza, **2 series por ejercicio**, 4 a 6 series semanales por grupo grande, y aeróbico de 150 minutos moderados. *(Modificada 2026-10-10: el piso de series pasó de 1 a 2 porque el ACSM 2026 recomienda al menos 2 por ejercicio; el tope de 2 se mantiene)* | Síntesis del investigador | OMS 2020 (el piso de 2 días y 150 min) y ACSM 2026 (al menos 2 series por ejercicio); el resto es interpolación. Certeza baja-moderada | Código | Crear |
-| R25 | **Condición general:** 2 a 3 sesiones de fuerza, 2 a 3 series por ejercicio, 6 a 10 series semanales por grupo grande, y aeróbico de 150 a 300 minutos | Síntesis del investigador | OMS 2020 y ACSM 2026 (2 a 3 series por ejercicio); el resto es interpolación. Certeza baja-moderada | Código | Crear |
+| R24 | **REEMPLAZADA por R25 (decisión 100, 2026-10-26): ya no se aplica.** Texto original, solo como referencia: **Mantenerse activo:** 2 sesiones de fuerza, **2 series por ejercicio**, 4 a 6 series semanales por grupo grande, y aeróbico de 150 minutos moderados. *(Modificada 2026-10-10: el piso de series pasó de 1 a 2 porque el ACSM 2026 recomienda al menos 2 por ejercicio; el tope de 2 se mantiene)* | Síntesis del investigador | OMS 2020 (el piso de 2 días y 150 min) y ACSM 2026 (al menos 2 series por ejercicio); el resto es interpolación. Certeza baja-moderada | Código | Crear |
+| R25 | **Mantenerse activo (antes "condición general"):** 2 a 3 sesiones de fuerza, 2 a 3 series por ejercicio, 6 a 10 series semanales por grupo grande, y aeróbico de 150 a 300 minutos | Síntesis del investigador | OMS 2020 y ACSM 2026 (2 a 3 series por ejercicio); el resto es interpolación. Certeza baja-moderada | Código | Crear |
 | R26 | **Movilidad y equilibrio:** 2 veces por semana, de 5 a 10 minutos, indicados como **texto** en el día (`mobility_notes`), sin series ni tilde | Convención | ACSM 2011 (resumen): flexibilidad 2 o más días y equilibrio 2 a 3 días. Certeza baja | Gemini | Crear |
 
 ### Repeticiones, progresión, esfuerzo y fatiga

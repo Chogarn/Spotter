@@ -17,7 +17,6 @@ class Goal(str, enum.Enum):
     MASA = "masa"
     FUERZA = "fuerza"
     PERDER_GRASA = "perder_grasa"
-    CONDICION_GENERAL = "condicion_general"
     MANTENERME_ACTIVO = "mantenerme_activo"
 
 

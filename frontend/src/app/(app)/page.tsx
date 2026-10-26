@@ -62,7 +62,6 @@ export default function Inicio() {
       .catch(() => {});
   }, [recarga]);
 
-  const hechos = semana ? semana.days.filter((d) => d.state === "completed").length : 0;
   const proximo = semana?.days.find((d) => d.state !== "completed");
   const nombre = usuario?.name?.trim();
 
@@ -83,34 +82,22 @@ export default function Inicio() {
           <section
             className={`mb-4 rounded-2xl border-2 bg-card p-5 ${proximo ? "border-disco-tinta" : "border-disco-amarillo"}`}
           >
-            {/* La semana en curso: la rutina, su número y los discos de los días. */}
-            <p className="m-0 text-sm text-muted-foreground">
-              {semana.routine_name} · semana {semana.number}
-            </p>
-            <div className="mt-2 mb-4 flex items-center gap-1.5">
+            {/* La semana en curso: solo los discos de los días. */}
+            <div className="mb-4 flex items-center gap-1.5">
               {semana.days.map((d) => (
                 <Disco key={d.day_index} estado={estadoDia[d.state]} hoy={d.day_index === proximo?.day_index} />
               ))}
-              <span className="ml-1.5 text-sm text-muted-foreground">
-                {hechos} de {semana.days.length} días
-              </span>
             </div>
             {proximo ? (
               <>
-                <p className="m-0 text-sm font-medium text-disco-azul">Próximo entrenamiento</p>
-                <h2 className="mt-0 mb-1 text-4xl">
-                  Día {proximo.day_index} · {proximo.title}
-                </h2>
-                <p className="mt-0 mb-4 text-sm text-muted-foreground">
-                  ~{proximo.minutes} min · {proximo.exercise_count} ejercicios
-                </p>
+                <h2 className="mt-0 mb-4 text-4xl">Día {proximo.day_index}</h2>
                 <Button
                   size="xl"
                   className="w-full"
                   nativeButton={false}
                   render={<Link href={`/semanas/${semana.id}/dia/${proximo.day_index}/entrenar`} />}
                 >
-                  Empezar día {proximo.day_index}
+                  Empezar
                 </Button>
               </>
             ) : (

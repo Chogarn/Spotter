@@ -245,7 +245,6 @@ export default function PerfilPage() {
           </h2>
           {lapiz("limitaciones", "tus limitaciones")}
         </div>
-        <p className="mt-0 mb-2 text-sm text-muted-foreground">La IA las tiene en cuenta al armar tu semana.</p>
         <p className="m-0 whitespace-pre-wrap">{form.limitations || "Ninguna indicada."}</p>
       </section>
 

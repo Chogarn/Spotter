@@ -78,7 +78,7 @@ export function RadarMusculos({ modo }: { modo: Modo }) {
   const [periodo, setPeriodo] = usePeriodo();
   return (
     <section className={cn("mb-3 rounded-2xl bg-card", modo === "radar" ? "mt-4 p-4" : "mt-2 p-3")}>
-      {modo === "radar" && <h3 className="mt-0 mb-2 font-heading text-xl font-bold">Series por músculo</h3>}
+      {modo === "radar" && <h3 className="mt-0 mb-2 font-heading text-xl font-bold">Radar de músculos</h3>}
       <SelectorPeriodo periodo={periodo} onElegir={setPeriodo} />
       {periodo === "week" ? <DeLaSemana modo={modo} /> : <DeUnPeriodo key={periodo} tramo={periodo} modo={modo} />}
     </section>
@@ -174,9 +174,6 @@ function Radar({ vista }: { vista: Vista }) {
   // El borde del hexágono: el mínimo con aire, o lo mayor que se haya hecho.
   const maximo = Math.max((minimo ?? 4) * 1.4, ...grupos.flatMap((g) => [g.sets, g.previous_sets ?? 0]));
   const fraccion = (v: number) => v / maximo;
-  const faltan = minimo === null ? [] : grupos.filter((g) => g.sets < minimo);
-  const verbo = vista.terminado ? "faltaron" : "faltan";
-  const corto = (g: MuscleSets) => minimo !== null && g.sets < minimo;
 
   const resumen = grupos
     .map(
@@ -192,7 +189,7 @@ function Radar({ vista }: { vista: Vista }) {
         viewBox="0 0 340 290"
         className="w-full"
         role="img"
-        aria-label={`Series hechas por músculo${minimo === null ? "" : ` contra el mínimo de ${minimo}`}. ${resumen}.`}
+        aria-label={`Series hechas por músculo. ${resumen}.`}
       >
         {[0.25, 0.5, 0.75, 1].map((f) => (
           <polygon
@@ -206,15 +203,6 @@ function Radar({ vista }: { vista: Vista }) {
           const [x, y] = punto(i, total, 1);
           return <line key={i} x1={CX} y1={CY} x2={x} y2={y} className="stroke-border" />;
         })}
-        {/* El mínimo de R3, a la vista (no hay en el día). */}
-        {minimo !== null && (
-          <polygon
-            points={poligono(grupos.map((_, i) => punto(i, total, fraccion(minimo))))}
-            className="fill-none stroke-disco-rojo"
-            strokeWidth={1.5}
-            strokeDasharray="5 4"
-          />
-        )}
         {vista.anterior !== null && (
           <polygon
             points={poligono(grupos.map((g, i) => punto(i, total, fraccion(g.previous_sets ?? 0))))}
@@ -237,7 +225,7 @@ function Radar({ vista }: { vista: Vista }) {
                 cx={px}
                 cy={py}
                 r={activo === i ? 6 : 4}
-                className={cn("stroke-background", corto(g) ? "fill-disco-rojo" : "fill-disco-azul")}
+                className="fill-disco-azul stroke-background"
                 strokeWidth={2}
               />
               <text
@@ -287,22 +275,7 @@ function Radar({ vista }: { vista: Vista }) {
             {vista.anterior}
           </span>
         )}
-        {minimo !== null && (
-          <span className="flex items-center gap-1.5">
-            <span className="w-3.5 border-t-2 border-dashed border-disco-rojo" aria-hidden="true" />
-            Mínimo {minimo} series
-          </span>
-        )}
       </div>
-      {minimo !== null && (
-        <p className="mt-3 mb-0 rounded-xl bg-background px-3 py-2.5 text-sm">
-          {faltan.length === 0
-            ? `Llegaste al mínimo de ${minimo} series en los seis grupos.`
-            : `Te ${verbo} series de ${faltan
-                .map((g) => `${(NOMBRE[g.muscle] ?? g.muscle).toLowerCase()} (${g.sets} de ${minimo})`)
-                .join(", ")}.`}
-        </p>
-      )}
     </>
   );
 }
@@ -317,8 +290,7 @@ function Globo({ vista, indice }: { vista: Vista; indice: number }) {
   const lineas = [
     `${g.sets} ${g.sets === 1 ? "serie" : "series"}`,
     ...(vista.anterior !== null && g.previous_sets !== null ? [`${vista.anterior}: ${g.previous_sets}`] : []),
-    ...(minimo !== null ? [`Mínimo: ${minimo}`] : []),
-  ];
+    ];
   const ancho = 128;
   const alto = 12 + lineas.length * 16;
   const x = Math.min(Math.max(px - ancho / 2, 4), 340 - ancho - 4);

@@ -379,6 +379,7 @@ def get_week(
         status=week.status.value,
         week_start=week.week_start,
         closing_note=week.closing_note,
+        split_type=week.routine.split_type,
         days=[
             WeekDayItemOut(
                 day_index=d.day_index,

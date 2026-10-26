@@ -48,8 +48,7 @@ La persona elige uno **al empezar cada rutina** (no está en el perfil). Sin obj
 | Ganar masa muscular | Volumen moderado-alto, rangos de repeticiones medios, progresión gradual de carga |
 | Ganar fuerza | Cargas altas con pocas repeticiones, ejercicios básicos, descansos largos |
 | Perder grasa | **Más cardio y menos fuerza**: la fuerza se mantiene en el mínimo (al menos 2 días por semana) y el resto se completa con cardio. La alimentación queda fuera de la app |
-| Mejorar condición física general | Rutinas equilibradas de cuerpo completo y variedad |
-| Mantenerme activo | Rutinas simples y progresión suave |
+| Mantenerme activo | Rutinas equilibradas de cuerpo completo y variedad, con progresión suave |
 
 Cada objetivo tiene su **ícono** (decisión 68) y cada nivel su dibujo de discos de pesas.
 
@@ -116,7 +115,7 @@ La semana no está atada al calendario: empieza cuando la persona la activa y te
 **Los elige la persona** (decisión 52): al generar, es obligatorio. La IA arma **exactamente** esa cantidad y el código lo comprueba (si no, reintenta). También se elige una estructura compatible (decisión 91) y el código comprueba que la propuesta la respete. Como la IA no puede sumar días, si el volumen no entra alarga la sesión y avisa, y como último recurso recorta accesorios (R35). El tiempo no se elige: R34 informa la duración estimada y R18 sirve de referencia (decisión 90). R1 (mínimo 2 días) y el máximo de 6 los valida el código.
 
 ### Duración de cada sesión
-La IA decide cuánto dura cada sesión, con una **referencia según el perfil** (una guía, no un tope): principiante y "mantenerme activo" cerca de **60 minutos**; "condición general" **60**; intermedio con masa o fuerza **60 a 90**; "perder grasa" **60 minutos de fuerza más el cardio**.
+La IA decide cuánto dura cada sesión, con una **referencia según el perfil** (una guía, no un tope): principiante y "mantenerme activo" cerca de **60 minutos**; intermedio con masa o fuerza **60 a 90**; "perder grasa" **60 minutos de fuerza más el cardio**.
 
 ### Días: "Día 1, Día 2"
 Los días se nombran por orden y no por día de la semana (no hay "lunes" ni "martes"): el Día 1 puede ser cualquier día de la semana. Cada día tiene un título con su foco ("Día 1 · Pecho y tríceps"). La app sugiere el siguiente: el primer día que todavía no se completó.

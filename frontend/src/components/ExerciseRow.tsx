@@ -29,13 +29,13 @@ export function ExerciseRow({
 }) {
   const idDetalle = `propuesta-${exercise.name}`;
   return (
-    <li className={cn("rounded-2xl border-2 border-transparent bg-card", cambio?.status === "nuevo" && "border-dashed border-disco-azul")}>
+    <li className={cn("relative rounded-2xl border-2 border-transparent bg-card", cambio?.status === "nuevo" && "border-dashed border-disco-azul")}>
       <button
         type="button"
         onClick={onAlternar}
         aria-expanded={abierta}
         aria-controls={idDetalle}
-        className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="relative flex min-h-[5.75rem] w-full items-center gap-3 rounded-2xl py-3 pr-14 pl-4 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <span className="min-w-0 flex-1">
           <span className="block font-heading text-[1.35rem] leading-tight font-bold">{exercise.name}</span>
@@ -44,12 +44,19 @@ export function ExerciseRow({
         </span>
         <ChevronDown
           className={cn(
-            "size-6 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none",
+            "absolute right-4 bottom-3 size-6 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none",
             abierta && "rotate-180",
           )}
           aria-hidden="true"
         />
       </button>
+      {/* El ⓘ va arriba a la derecha, fuera del botón de la tarjeta (un botón no va dentro de otro). */}
+      <InfoEjercicio
+        nombre={exercise.name}
+        comoHacerlo={exercise.execution_notes}
+        porQue={exercise.reason}
+        className="absolute top-2 right-3"
+      />
       {abierta && (
         <div id={idDetalle} className="px-4 pb-4">
           {exercise.rest_seconds !== null && (
@@ -60,19 +67,18 @@ export function ExerciseRow({
               <SetRow key={i} kind={exercise.kind} index={i} set={s} />
             ))}
           </ul>
-          <div className="flex items-center justify-between gap-2 border-t border-border pt-3">
-            <InfoEjercicio nombre={exercise.name} comoHacerlo={exercise.execution_notes} porQue={exercise.reason} />
-            {onCambiar && (
+          {onCambiar && (
+            <div className="flex justify-end border-t border-border pt-3">
               <button
                 type="button"
                 onClick={onCambiar}
-                className="inline-flex items-center gap-2 rounded-full border-2 border-disco-tinta px-4 py-2 font-medium outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="inline-flex items-center gap-1.5 rounded-full bg-disco-amarillo px-3.5 py-1.5 text-sm font-medium text-disco-tinta outline-none hover:bg-disco-amarillo/85 focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <ArrowLeftRight className="size-4" aria-hidden="true" />
                 Cambiar ejercicio
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </li>

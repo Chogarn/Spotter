@@ -684,6 +684,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** que el **Paseo del granjero** quede afuera (R13 pide que los isométricos sean core: hay que decidir cómo se etiqueta un acarreo); que la sentadilla sumo lleve cuádriceps como principal (con aductores como secundario) en vez de aductores; que **no** se etiqueten aductores como secundario en las otras sentadillas ni en los pesos muertos (el mapa cuenta solo series directas, así que no se verían; y para pesos muertos e hip thrust no hay fuente); que el curl martillo no lleve antebrazo (sin fuente). Los textos y las descripciones de los 7 ejercicios son un borrador mío: **faltan que los apruebes**.
 - **Ojo:** probado con tests del backend (los mismos 597 más uno nuevo; solo falla el que ya fallaba por falta de `google-genai`); **la pantalla no se vio** con los grupos nuevos pintados. Las fuentes son débiles: ver `docs/criterios-entrenamiento.md`. Los 7 ejercicios nuevos ya están indexados (2026-10-26, 7 textos del tope de embeddings, a nombre de la cuenta del usuario).
 
+### 100. Condición general y mantenerme activo, un solo objetivo
+- **Fecha:** 2026-10-26
+- **Decisión:** los objetivos pasan de 5 a 4: **masa, fuerza, perder grasa y mantenerme activo**. "Condición general" se une a "mantenerme activo", que usa las cifras de **R25** (2 a 3 sesiones de fuerza, 2 a 3 series por ejercicio, 6 a 10 series semanales por grupo grande, 150 a 300 minutos de aeróbico, repeticiones de 6 a 15); **R24 queda reemplazada**. Migración 0028: las rutinas y las propuestas con "condición general" pasan a "mantenerme activo" (también el nombre automático) y se cambia la restricción `ck_goal`.
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)* (se hablaron: dejar solo masa, fuerza y perder grasa; y quedarse con las cifras de R24 o con un rango que cubra a las dos)
+- **Decidió la IA sin preguntarte:** que el objetivo único conserve el nombre "Mantenerme activo" y el ícono de las zapatillas (la sugerencia no fue contestada) y que las cifras sean las de R25, la opción recomendada, porque dijiste "continuá" sin elegir entre las tres.
+- **Ojo:** el prompt nuevo **no se probó con Gemini real**. Respaldo previo en `backups/antes-unificar-objetivos-2026-10-26.sql`. Probado con tests del backend (597 pasan); la pantalla no se vio.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.

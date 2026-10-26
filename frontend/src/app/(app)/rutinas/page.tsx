@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { readError, type Routine, apiFetch } from "@/lib/api";
-import { goalText, nombreDiceElObjetivo } from "@/lib/format";
+import { nombreCorto } from "@/lib/format";
 import { DiscosSemana } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Franja } from "@/components/Franja";
@@ -50,23 +50,21 @@ export default function MisRutinasPage() {
               >
                 {/* El aro del ícono dice el estado: rojo = en curso, gris = lista para continuar (decisión 77). */}
                 <IconoObjetivo objetivo={r.goal} tamano="md" aro={r.has_active_week ? "rojo" : "gris"} />
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="line-clamp-2 font-heading text-2xl leading-tight font-bold break-words">{r.name}</span>
-                  <span className="truncate text-sm text-muted-foreground">
-                    {[
-                      !nombreDiceElObjetivo(r.name, r.goal) && goalText[r.goal],
-                      r.level,
-                      `${r.week_count} ${r.week_count === 1 ? "semana" : "semanas"}`,
-                      !r.has_active_week && "lista para continuar",
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
+                {/* Solo el nivel y los discos de la semana más nueva (la que está en curso, o la última cerrada).
+                    El nombre queda para lectores de pantalla; el detalle se ve al entrar a la rutina. */}
+                <span className="sr-only">
+                  {r.name}
+                  {r.has_active_week ? ", en curso" : ", lista para continuar"}
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col" aria-hidden="true">
+                  <span className="line-clamp-2 font-heading text-2xl leading-tight font-bold break-words">
+                    {nombreCorto(r.name)}
                   </span>
-                  {r.has_active_week && <span className="sr-only">en curso</span>}
-                  {/* Los discos son los de la semana más nueva: la que está en curso, o la última cerrada.
-                      Van debajo del texto: con seis días no entran al lado del nombre. */}
+                  <span className="truncate text-sm text-muted-foreground">
+                    {r.level}
+                  </span>
                   {r.last_week_day_states.length > 0 && (
-                    <span className="mt-1.5 block">
+                    <span className="mt-3 block">
                       <DiscosSemana estados={r.last_week_day_states} />
                     </span>
                   )}

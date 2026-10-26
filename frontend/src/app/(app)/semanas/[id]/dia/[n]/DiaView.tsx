@@ -1,19 +1,19 @@
 "use client";
 
-import { Check, ChevronDown, LockOpen } from "lucide-react";
+import { Check, ChevronDown, Lock, LockOpen } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import { Disco } from "@/components/Disco";
+import { Confirmar } from "@/components/Confirmar";
 import { InfoEjercicio } from "@/components/InfoEjercicio";
 import { DoneControl } from "@/components/DoneControl";
 import { Flecha } from "@/components/Flecha";
 import { Resumen } from "@/components/ExerciseRow";
-import { SemanaPasada } from "@/components/SemanaPasada";
 import { SetRow } from "@/components/SetRow";
 import { readError, type DayDetail, type ExerciseItem, type SetItem, type WeekDetail, apiFetch } from "@/lib/api";
-import { estaHecho, summarize } from "@/lib/format";
+import { estaHecho, summarize, tituloDia } from "@/lib/format";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -33,6 +33,7 @@ export default function DiaView({
   const [dia, setDia] = useState<DayDetail | null>(null);
   const [error, setError] = useState("");
   const [trabajando, setTrabajando] = useState(false);
+  const [confirmandoReapertura, setConfirmandoReapertura] = useState(false);
   // La tarjeta desplegada (una por vez), o null si están todas cerradas.
   const [abierta, setAbierta] = useState<number | null>(null);
   const router = useRouter();
@@ -127,7 +128,7 @@ export default function DiaView({
                   direccion="anterior"
                   que="Día"
                   visible={actual > 0}
-                  nombre={dias[actual - 1]?.title}
+                  nombre={dias[actual - 1] && tituloDia(dias[actual - 1].title)}
                   onClick={() => irAlDia(dias[actual - 1].day_index)}
                 />
                 {dias.map((d, i) => (
@@ -141,7 +142,7 @@ export default function DiaView({
                   direccion="siguiente"
                   que="Día"
                   visible={actual >= 0 && actual < dias.length - 1}
-                  nombre={dias[actual + 1]?.title}
+                  nombre={dias[actual + 1] && tituloDia(dias[actual + 1].title)}
                   onClick={() => irAlDia(dias[actual + 1].day_index)}
                 />
               </>
@@ -178,18 +179,35 @@ export default function DiaView({
           {editable && (
             <section className="mt-6">
               {completado ? (
-                <div className="flex items-center gap-3">
-                  <span className="flex-1 font-heading text-2xl font-bold">Día completado</span>
-                  <Button
-                    size="icon-lg"
-                    variant="outline"
-                    type="button"
-                    onClick={() => cambiarDia("reopen")}
-                    disabled={trabajando}
-                    aria-label={`Reabrir el día ${dia.day_index}`}
-                  >
-                    <LockOpen />
-                  </Button>
+                <div>
+                  <span className="flex items-center gap-2 font-heading text-2xl font-bold">
+                    <Lock className="size-5" aria-hidden="true" />
+                    Día completado
+                  </span>
+                  <p className="mt-3 mb-0">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => setConfirmandoReapertura(true)}
+                      disabled={trabajando}
+                    >
+                      <LockOpen className="size-4" aria-hidden="true" />
+                      Reabrir día
+                    </Button>
+                  </p>
+                  <Confirmar
+                    abierto={confirmandoReapertura}
+                    titulo={`¿Reabrir el día ${dia.day_index}?`}
+                    texto="Vuelve a estar en curso y podés cambiar lo que cargaste. No se borra nada."
+                    accion="Reabrir día"
+                    destructivo={false}
+                    onCancelar={() => setConfirmandoReapertura(false)}
+                    onConfirmar={() => {
+                      setConfirmandoReapertura(false);
+                      void cambiarDia("reopen");
+                    }}
+                  />
                 </div>
               ) : (
                 <Button
@@ -237,7 +255,6 @@ export default function DiaView({
         aros={desdeRutinas ? "rojo" : "amarillo"}
         volver={{ href: desdeRutinas ? `/semanas/${id}` : "/entrenar" }}
         titulo={`Día ${n}`}
-        subtitulo={dia ? `${dia.title} · ~${dia.minutes} min` : undefined}
       />
       <div className="mx-auto w-full max-w-xl px-4 pt-5">{cuerpo}</div>
     </main>
@@ -311,7 +328,7 @@ function TarjetaEjercicio({
   return (
     <li
       className={cn(
-        "rounded-2xl border-2 border-transparent bg-card",
+        "relative rounded-2xl border-2 border-transparent bg-card",
         enCurso && "border-disco-tinta",
         registra && hecho && !abierta && "bg-card/60",
       )}
@@ -321,7 +338,7 @@ function TarjetaEjercicio({
         onClick={onAlternar}
         aria-expanded={abierta}
         aria-controls={idDetalle}
-        className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="relative flex min-h-[5.75rem] w-full items-center gap-3 rounded-2xl py-3 pr-14 pl-4 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <span className="min-w-0 flex-1">
           <span className="block font-heading text-[1.35rem] leading-tight font-bold">{exercise.name}</span>
@@ -345,10 +362,17 @@ function TarjetaEjercicio({
           </Disco>
         )}
         <ChevronDown
-          className={cn("size-6 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none", abierta && "rotate-180")}
+          className={cn("absolute right-4 bottom-3 size-6 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none", abierta && "rotate-180")}
           aria-hidden="true"
         />
       </button>
+      {/* El ⓘ va arriba a la derecha, como en la propuesta (un botón no va dentro de otro). */}
+      <InfoEjercicio
+        nombre={exercise.name}
+        comoHacerlo={exercise.execution_notes}
+        porQue={exercise.reason}
+        className="absolute top-2 right-3"
+      />
 
       {abierta && (
         <div id={idDetalle} className="px-4 pb-4">
@@ -367,16 +391,14 @@ function TarjetaEjercicio({
               />
             ))}
           </ul>
-          <SemanaPasada ejercicio={exercise} />
-          <div className="mt-2 flex items-center justify-between gap-2">
-            <InfoEjercicio nombre={exercise.name} comoHacerlo={exercise.execution_notes} porQue={exercise.reason} />
-            {registra && (
+          {registra && (
+            <div className="mt-2 flex items-center justify-end gap-2">
               <DoneControl
                 exercise={exercise}
                 edit={{ weekId: dia.week_id, dayIndex: dia.day_index, onChanged: onEjercicioCambiado }}
               />
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </li>

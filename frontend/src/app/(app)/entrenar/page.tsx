@@ -1,5 +1,6 @@
 "use client";
 
+import { tituloDia } from "@/lib/format";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -82,7 +83,7 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
             <p className="m-0 text-sm text-muted-foreground">Te toca</p>
             <h2 className="m-0 text-6xl">Día {proximo.day_index}</h2>
             <p className="mt-1 mb-4 text-muted-foreground">
-              {proximo.title} · ~{proximo.minutes} min · {proximo.exercise_count} ejercicios
+              {tituloDia(proximo.title)} · ~{proximo.minutes} min · {proximo.exercise_count} ejercicios
             </p>
             <Button
               size="xl"
@@ -114,7 +115,7 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
             >
               <Disco estado={estadoDia[d.state]} hoy={d.day_index === proximo?.day_index} />
               <span className="flex-1">
-                <span className="font-medium">Día {d.day_index}</span> · {d.title}
+                <span className="font-medium">Día {d.day_index}</span> · {tituloDia(d.title)}
               </span>
               <span className="text-sm text-muted-foreground">~{d.minutes} min</span>
             </Link>

@@ -178,7 +178,7 @@ class Exercise(Base):
     name_normalized: Mapped[str] = mapped_column(String(150), unique=True)
     muscle_group: Mapped[str | None] = mapped_column(String(50))
     # Etiquetas cerradas (R13). Las asigna la IA y el código las valida; sirven para contar
-    # series por músculo (R3, R20, R24, R25), las indirectas a 0,5 (R5) y el equilibrio (R14).
+    # series por músculo (R3, R20, R25), las indirectas a 0,5 (R5) y el equilibrio (R14).
     region: Mapped[ExerciseRegion] = mapped_column(enum_column(ExerciseRegion))
     direction: Mapped[ExerciseDirection] = mapped_column(enum_column(ExerciseDirection))
     primary_muscle: Mapped[Muscle] = mapped_column(enum_column(Muscle))

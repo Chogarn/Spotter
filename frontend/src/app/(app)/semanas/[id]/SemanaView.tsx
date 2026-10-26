@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, LockOpen } from "lucide-react";
+import { ChevronRight, Lock, LockOpen } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { readError, type WeekDetail, apiFetch } from "@/lib/api";
-import { dayStateText, shortDate, statusText } from "@/lib/format";
+import { dayStateText, splitText, statusText, tituloDia } from "@/lib/format";
 import { cn } from "cn";
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -83,8 +83,10 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
             >
               {semana.status === "active" ? "En curso" : semana.status === "closed" ? "Completada" : statusText[semana.status]}
             </span>
-            <span className="rounded-full bg-card px-3 py-1 text-sm">Desde el {shortDate(semana.week_start)}</span>
             <span className="rounded-full bg-card px-3 py-1 text-sm">{semana.days.length} días</span>
+            {semana.split_type && (
+              <span className="rounded-full bg-card px-3 py-1 text-sm">{splitText[semana.split_type]}</span>
+            )}
           </div>
           {/* Cada día como las tarjetas de ejercicio del día; la flecha avisa que se entra tocándola. */}
           <ul className="m-0 mt-4 mb-4 grid list-none gap-2.5 p-0">
@@ -95,14 +97,11 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
                   className="flex items-center gap-3 rounded-2xl bg-card px-4 py-3.5 no-underline hover:bg-muted"
                 >
                   <Disco estado={estadoDia[d.state]} />
-                  <span className="flex-1">
-                    <span className="block font-heading text-[1.35rem] leading-tight font-bold">
-                      Día {d.day_index} · {d.title}
-                    </span>
-                    <span className="block font-heading text-lg leading-tight font-semibold text-muted-foreground">
-                      ~{d.minutes} min · {d.exercise_count} ejercicios
-                      {d.state !== "pending" && <> · {dayStateText[d.state]}</>}
-                    </span>
+                  <span className="flex-1 font-heading text-[1.35rem] leading-tight font-bold">
+                    Día {d.day_index}
+                    <span className="block text-lg font-medium text-muted-foreground">{tituloDia(d.title)}</span>
+                    {/* El estado lo dice el disco; el texto es para lectores de pantalla. */}
+                    <span className="sr-only">, {dayStateText[d.state]}</span>
                   </span>
                   <ChevronRight className="size-6 shrink-0 text-muted-foreground" aria-hidden />
                 </Link>
@@ -120,7 +119,10 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
           {semana.status === "closed" && (
             <>
               <section className="mt-6">
-                <span className="font-heading text-2xl font-bold">Semana completada</span>
+                <span className="flex items-center gap-2 font-heading text-2xl font-bold">
+                  <Lock className="size-5" aria-hidden="true" />
+                  Semana completada
+                </span>
               </section>
               {/* Reabrir (decisión 66): vuelve a estar en curso; el servidor avisa si no se puede. */}
               <p className="mb-2">

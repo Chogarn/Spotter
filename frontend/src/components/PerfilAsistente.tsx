@@ -220,10 +220,11 @@ export function PerfilAsistente({
     <PasoAsistente
       paso={indice + 1}
       total={pasos.length}
+      sinAvance={editando}
       titulo={TITULOS[paso]}
       ayuda={
         paso === "limitaciones"
-            ? "Es opcional. La IA lo tiene en cuenta al armar tu semana."
+            ? "Es opcional."
             : undefined
       }
       onAtras={indice > 0 ? () => setIndice(indice - 1) : onCancelar}

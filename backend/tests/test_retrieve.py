@@ -79,7 +79,7 @@ def test_masa_y_fuerza_no_llevan_cardio(db, monkeypatch, goal):
 
 
 @pytest.mark.parametrize(
-    "goal", [Goal.PERDER_GRASA, Goal.CONDICION_GENERAL, Goal.MANTENERME_ACTIVO]
+    "goal", [Goal.PERDER_GRASA, Goal.MANTENERME_ACTIVO]
 )
 def test_los_objetivos_con_aerobico_si_llevan_cardio(db, monkeypatch, goal):
     consulta(monkeypatch, "cinta_trote")

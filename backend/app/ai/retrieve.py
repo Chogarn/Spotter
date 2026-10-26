@@ -36,7 +36,7 @@ PER_GROUP = 6
 LEVEL_ORDER = {Level.PRINCIPIANTE: 0, Level.INTERMEDIO: 1, Level.AVANZADO: 2}
 
 # Objetivos que llevan cardio según `generar_rutina.md` (R17); masa y fuerza no.
-CARDIO_GOALS = {Goal.PERDER_GRASA, Goal.CONDICION_GENERAL, Goal.MANTENERME_ACTIVO}
+CARDIO_GOALS = {Goal.PERDER_GRASA, Goal.MANTENERME_ACTIVO}
 
 
 @dataclass

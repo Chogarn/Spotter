@@ -16,12 +16,8 @@ const QUE_MIDE: Record<ExerciseTimeline["unit"], string> = {
   min: "Minutos de la semana",
 };
 
-// Un fondo gris por rutina, alternando dos tonos, en el orden en que aparecen (decisión 69). Sin
-// colores: el rojo, el verde y el amarillo de la app significan estados (hecho, cumplido, aviso).
-const FONDOS = [
-  { banda: "fill-muted", pastilla: "bg-muted" },
-  { banda: "fill-border/30", pastilla: "bg-border/40" },
-];
+// El fondo del gráfico es blanco para todas las rutinas (antes alternaba dos grises, decisión 69).
+const FONDOS = [{ banda: "fill-transparent", pastilla: "bg-muted" }];
 
 type Periodo = "semana" | "mes" | "anio";
 const PERIODOS: { id: Periodo; nombre: string }[] = [
@@ -278,37 +274,33 @@ function Linea({ historial }: { historial: ExerciseTimeline }) {
             {textoMarca(t)}
           </text>
         ))}
+        {/* El área bajo la curva, hasta el eje X: da idea de algo completo. */}
+        {puntos.length > 1 && (
+          <path
+            d={`${curva(xs, ys)} L ${xs.at(-1)!.toFixed(1)} ${alto - abajo} L ${xs[0].toFixed(1)} ${alto - abajo} Z`}
+            className="fill-disco-verde/15 stroke-none"
+          />
+        )}
         {puntos.length > 1 && (
           <path
             d={curva(xs, ys)}
             fill="none"
-            className="stroke-disco-tinta"
-            strokeWidth="3"
+            className="stroke-disco-verde"
+            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         )}
         {/* Sin círculos en cada dato: solo el récord y el punto que estás mirando. */}
-        <circle cx={xs[indiceRecord]} cy={ys[indiceRecord]} r={6} className="fill-disco-azul stroke-disco-tinta" strokeWidth="2.5" />
+        <circle cx={xs[indiceRecord]} cy={ys[indiceRecord]} r={5} className="fill-disco-verde stroke-card" strokeWidth="2" />
         {mostrado !== indiceRecord && (
-          <circle cx={xs[mostrado]} cy={ys[mostrado]} r={5} className="fill-disco-rojo stroke-disco-tinta" strokeWidth="2.5" />
+          <circle cx={xs[mostrado]} cy={ys[mostrado]} r={4.5} className="fill-card stroke-disco-verde" strokeWidth="2.5" />
         )}
         <text x={xs[mostrado]} y={ys[mostrado] - 12} textAnchor={ancla} className="fill-foreground text-[11px] font-semibold">
           {numero(p.value)} {unidad}
           {mostrado === indiceRecord ? " · récord" : ""} · {p.etiqueta}
         </text>
       </svg>
-
-      {periodo === "semana" && (
-        <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          {rutinas.map((r) => (
-            <span key={r.id} className={`rounded-full px-2.5 py-0.5 text-xs ${colorDe(r.id).pastilla}`}>
-              {r.nombre}
-            </span>
-          ))}
-          {rutinas.length > 1 && <span className="text-xs text-muted-foreground">El fondo cambia con cada rutina</span>}
-        </div>
-      )}
 
       <div className="mt-3 grid grid-cols-3 gap-2">
         <Dato titulo="Récord" valor={`${numero(historial.record!)} ${unidad}`} />

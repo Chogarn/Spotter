@@ -28,7 +28,7 @@ export function InfoEjercicio({
         aria-label={`Más información de ${nombre}`}
         onClick={() => panel.current?.showModal()}
         className={
-          "inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 " +
+          "inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-disco-azul/40 bg-card text-disco-azul outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 " +
           (className ?? "")
         }
       >

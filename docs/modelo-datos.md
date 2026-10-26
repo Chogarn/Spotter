@@ -275,7 +275,7 @@ Una rutina agrupa las semanas que el usuario va sumando con un mismo objetivo, n
 | Campo | Detalle |
 |---|---|
 | name | Se arma solo ("Fuerza · desde el 9/10"; si ya existe uno igual, se le suma " 2", " 3") y el usuario lo puede cambiar |
-| goal | **Obligatorio.** `masa`, `fuerza`, `perder_grasa`, `condicion_general` o `mantenerme_activo` |
+| goal | **Obligatorio.** `masa`, `fuerza`, `perder_grasa` o `mantenerme_activo` |
 | level | **Obligatorio.** `principiante`, `intermedio` o `avanzado`. Queda fijo mientras sigue la rutina; para subir de nivel se empieza otra |
 | created_at | Cuándo se creó, al aceptar la primera semana |
 

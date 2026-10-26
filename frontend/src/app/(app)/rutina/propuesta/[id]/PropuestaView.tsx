@@ -1,5 +1,6 @@
 "use client";
 
+import { tituloDia } from "@/lib/format";
 import { Check, MessageSquare, Sparkles, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -219,7 +220,7 @@ export default function PropuestaView({
               direccion="anterior"
               que="Día"
               visible={diaActual > 0}
-              nombre={days[diaActual - 1]?.title}
+              nombre={days[diaActual - 1] && tituloDia(days[diaActual - 1].title)}
               onClick={() => irADia(diaActual - 1)}
             />
             {days.map((d, i) => (
@@ -227,7 +228,7 @@ export default function PropuestaView({
                 key={i}
                 type="button"
                 onClick={() => irADia(i)}
-                aria-label={`Día ${i + 1}: ${focoDelDia(propuesta.split, i) ?? d.title}`}
+                aria-label={`Día ${i + 1}: ${focoDelDia(propuesta.split, i) ?? tituloDia(d.title)}`}
                 aria-current={i === diaActual ? "step" : undefined}
                 className={cn(
                   "h-2 flex-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -239,15 +240,15 @@ export default function PropuestaView({
               direccion="siguiente"
               que="Día"
               visible={diaActual < days.length - 1}
-              nombre={days[diaActual + 1]?.title}
+              nombre={days[diaActual + 1] && tituloDia(days[diaActual + 1].title)}
               onClick={() => irADia(diaActual + 1)}
             />
           </div>
           <h2 className="mt-3 mb-0 text-4xl">Día {diaActual + 1}</h2>
           <p className="mt-0 text-muted-foreground">
-            {focoDelDia(propuesta.split, diaActual) ?? dia.title}
+            {focoDelDia(propuesta.split, diaActual) ?? tituloDia(dia.title)}
             {focoDelDia(propuesta.split, diaActual) && dia.title !== focoDelDia(propuesta.split, diaActual)
-              ? ` · ${dia.title}`
+              ? ` · ${tituloDia(dia.title)}`
               : null}
             {` · ~${propuesta.day_minutes[diaActual]} min`}
           </p>

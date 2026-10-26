@@ -65,9 +65,9 @@ function Barra({ pathname }: { pathname: string | null }) {
     } catch {}
   }, [pathname]);
 
-  // Entrenar vuelve a donde se estaba dentro de su sección; sin eso, al ejercicio activo si hay un
-  // día empezado y sin completar; y si no, a la semana. Estando ya dentro de la sección, lleva a la
-  // semana (como cualquier pestaña). Un clic con Ctrl o Cmd abre el enlace normal. Es solo un atajo:
+  // Con un día empezado y sin completar, Entrenar vuelve ahí (a donde se estaba dentro de ese día, o
+  // al ejercicio activo); si no hay, a la pantalla de inicio de Entrenar, nunca a un día que solo
+  // se estaba mirando. Estando ya dentro de la sección, lleva a la semana (como cualquier pestaña). Un clic con Ctrl o Cmd abre el enlace normal. Es solo un atajo:
   // si algo falla, va a la semana.
   async function irAEntrenar(e: React.MouseEvent<HTMLAnchorElement>) {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
@@ -80,16 +80,17 @@ function Barra({ pathname }: { pathname: string | null }) {
     try {
       ultimo = sessionStorage.getItem(ULTIMO_ENTRENAR);
     } catch {}
-    if (ultimo && recordable(ultimo)) {
-      router.push(ultimo);
-      return;
-    }
     let destino = "/entrenar";
     try {
       const res = await apiFetch(`/weeks/active`);
       if (res.ok) {
         const semana: Week = await res.json();
-        if (semana.in_progress_day) destino = `/semanas/${semana.id}/dia/${semana.in_progress_day}/entrenar`;
+        if (semana.in_progress_day) {
+          const dia = `/semanas/${semana.id}/dia/${semana.in_progress_day}`;
+          // Solo se vuelve a lo recordado si es el día empezado; un día que se estaba mirando
+          // sin haberlo empezado no cuenta.
+          destino = ultimo && recordable(ultimo) && (ultimo === dia || ultimo.startsWith(`${dia}/`)) ? ultimo : `${dia}/entrenar`;
+        }
       }
     } catch {}
     router.push(destino);

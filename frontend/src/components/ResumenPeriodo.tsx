@@ -1,5 +1,6 @@
 "use client";
 
+import { tituloDia } from "@/lib/format";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
@@ -311,7 +312,7 @@ function Dias({ datos }: { datos: PeriodSummary }) {
                   {Number(s.local_date.slice(8))}/{Number(s.local_date.slice(5, 7))}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-heading text-lg leading-tight font-semibold">{s.title}</span>
+                  <span className="block font-heading text-lg leading-tight font-semibold">{tituloDia(s.title)}</span>
                   <span className="block text-sm text-muted-foreground">
                     {s.routine_name} · semana {s.week_number}
                     {s.duration_minutes !== null && ` · ${s.duration_minutes} min`}

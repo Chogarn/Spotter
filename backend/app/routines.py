@@ -12,7 +12,6 @@ GOAL_LABEL = {
     Goal.MASA: "Masa",
     Goal.FUERZA: "Fuerza",
     Goal.PERDER_GRASA: "Perder grasa",
-    Goal.CONDICION_GENERAL: "Condición general",
     Goal.MANTENERME_ACTIVO: "Mantenerme activo",
 }
 

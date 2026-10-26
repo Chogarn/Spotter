@@ -91,7 +91,6 @@ export const goalText: Record<string, string> = {
   masa: "masa",
   fuerza: "fuerza",
   perder_grasa: "perder grasa",
-  condicion_general: "condición general",
   mantenerme_activo: "mantenerme activo",
 };
 
@@ -130,3 +129,23 @@ export function resumenDelDia(dia: DayDetail): { series: number; kg: number; min
   }
   return { series, kg, minutos };
 }
+
+// El nombre automático de una rutina ("Fuerza · desde el 9/10", con número si se repite) sin la
+// fecha; un nombre que la persona escribió se muestra tal cual.
+export function nombreCorto(nombre: string): string {
+  const m = nombre.match(/^(.*) · desde el \S+( \d+)?$/);
+  return m ? `${m[1]}${m[2] ?? ""}` : nombre;
+}
+
+// El nombre de un día sin la letra suelta del final ("Cuerpo Completo y Cardio A" → "... Cardio"):
+// la IA la agrega para distinguir días parecidos, pero el número del día ya los distingue.
+export function tituloDia(titulo: string): string {
+  return titulo.replace(/\s+[A-F]$/, "");
+}
+
+// El tipo de estructura de la rutina (split), con su nombre en pantalla.
+export const splitText = {
+  full_body: "Cuerpo completo",
+  upper_lower: "Torso y pierna",
+  ppl: "Empuje, tirón y piernas",
+} as const;

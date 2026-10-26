@@ -15,7 +15,7 @@ import { SemanaPasada } from "@/components/SemanaPasada";
 import { SetRow } from "@/components/SetRow";
 import { Button } from "@/components/ui/button";
 import { readError, type DayDetail, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
-import { differsFromPlan, estaHecho, realAsSet, resumenDelDia, setText, summarize } from "@/lib/format";
+import { differsFromPlan, estaHecho, realAsSet, resumenDelDia, setText, summarize, tituloDia } from "@/lib/format";
 import { cn } from "cn";
 import { Cargando } from "@/components/Cargando";
 
@@ -372,7 +372,7 @@ function CierreDelDia({ dia }: { dia: DayDetail }) {
     <>
       <h1 className="mt-0 mb-1 text-4xl">Día completado</h1>
       <p className="mt-0 mb-4 text-muted-foreground">
-        Día {dia.day_index} · {dia.title}
+        Día {dia.day_index} · {tituloDia(dia.title)}
       </p>
       <dl className="m-0 mb-4 grid grid-cols-2 gap-2">
         {cifras.map(({ titulo, valor }) => (
@@ -390,7 +390,7 @@ function CierreDelDia({ dia }: { dia: DayDetail }) {
       </dl>
       <div className="flex flex-col gap-2">
         <Button size="xl" className="w-full" nativeButton={false} render={<Link href="/progreso/musculos" />}>
-          Ver series por músculo
+          Ver radar de músculos
         </Button>
         <Button size="xl" variant="outline" className="w-full" nativeButton={false} render={<Link href="/" />}>
           Ir a Inicio

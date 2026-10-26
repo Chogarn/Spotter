@@ -12,7 +12,7 @@ export default function Progreso() {
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
         <nav aria-label="Tu progreso" className="grid grid-cols-1 gap-2.5">
           <TarjetaAcceso href="/progreso/resumenes" Icono={CalendarCheck} texto="Resúmenes de cada semana" />
-          <TarjetaAcceso href="/progreso/musculos" Icono={Radar} texto="Series por músculo" />
+          <TarjetaAcceso href="/progreso/musculos" Icono={Radar} texto="Radar de músculos" />
           <TarjetaAcceso href="/progreso/mapa" Icono={User} texto="Mapa muscular" />
           <TarjetaAcceso href="/progreso/ejercicios" Icono={ChartLine} texto="Evolución por ejercicio" />
           <TarjetaAcceso href="/progreso/calendario" Icono={CalendarDays} texto="Calendario" />
