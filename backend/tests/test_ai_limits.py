@@ -155,5 +155,7 @@ def test_con_el_tope_alcanzado_no_se_toca_a_gemini(db, monkeypatch):
 
 
 def test_el_modelo_de_ai_calls_no_borra_en_cascada():
-    fk = next(iter(Base.metadata.tables["ai_calls"].c.user_id.foreign_keys))
-    assert fk.ondelete == "RESTRICT"
+    columna = Base.metadata.tables["ai_calls"].c.user_id
+    fk = next(iter(columna.foreign_keys))
+    # Borrar la cuenta deja las llamadas sin dueño: nunca las borra.
+    assert fk.ondelete == "SET NULL" and columna.nullable

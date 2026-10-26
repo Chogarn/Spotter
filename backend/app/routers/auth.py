@@ -13,6 +13,7 @@ from app.deps import get_current_user
 from app.models import PasswordReset, PendingRegistration, User
 from app.schemas import (
     ChangePasswordIn,
+    DeleteAccountIn,
     EmailIn,
     LoginIn,
     MessageOut,
@@ -251,6 +252,26 @@ def change_password(
     user.password_changed_at = datetime.now(timezone.utc)
     start_session(response, user)
     db.commit()
+
+
+@router.delete("/account", status_code=204)
+def delete_account(
+    data: DeleteAccountIn,
+    response: Response,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> None:
+    """Borra la cuenta y todo lo suyo, al instante y sin vuelta atrás. Pide la contraseña.
+
+    Las filas de `ai_calls` quedan (cuentan para los topes de Gemini) sin dueño. Responde 400 y no
+    401 si la contraseña está mal: un 401 cerraría la sesión en pantalla.
+    """
+    if not verify_password(data.password, user.password_hash):
+        raise HTTPException(status_code=400, detail="La contraseña no es correcta")
+    db.execute(delete(PendingRegistration).where(PendingRegistration.email == user.email))
+    db.delete(user)
+    db.commit()
+    response.delete_cookie(COOKIE_NAME, path="/")
 
 
 @router.post("/logout", status_code=204)

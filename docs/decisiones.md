@@ -652,9 +652,17 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** los nombres de las tarjetas y sus íconos; que el mapa mida los complementos con la misma vara del mínimo de R3 (no tienen mínimo propio); que "otro" y el sexo vacío usen el selector; 4 niveles de intensidad (hasta el 150 % del mínimo).
 - **Ojo:** probado con tests del backend y chequeo de tipos; **no se vio en pantalla**. El dibujo no separa gemelos de sóleo ni core de oblicuos como el catálogo.
 
+### 96. Borrar la cuenta
+- **Fecha:** 2026-10-26
+- **Decisión:** `DELETE /auth/account` con la contraseña en el cuerpo. Borra al instante el usuario y, en cascada, su perfil, rutinas, semanas, entrenamientos, mediciones, propuestas y enlaces de recuperación; también un registro pendiente con su correo. Borra la cookie y el mismo correo se puede volver a registrar. **`ai_calls` sobrevive:** la migración 0025 deja `ai_calls.user_id` opcional y con `SET NULL` (antes `RESTRICT`, que impedía borrar a cualquiera que hubiera usado la IA), así los topes de Gemini siguen contando todas las llamadas. En la pestaña Cuenta, la fila abre un recuadro con la advertencia, el campo de contraseña y el botón rojo "Borrar mi cuenta" (`BorrarCuenta.tsx`).
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)*
+- **Decidió la IA sin preguntarte:** borrado inmediato, sin período de gracia; confirmar con la contraseña y no escribiendo "BORRAR"; sin correo de despedida; que `email_log` y la tabla compartida `exercises` no se toquen; el texto del recuadro.
+- **Ojo:** probado con tests del backend (582 pasan) y a mano contra PostgreSQL con un usuario descartable (el borrado en cascada y `ai_calls` sin dueño); **el recuadro no se vio en pantalla**. Respaldo previo a la migración en `backups/antes-0025.sql`.
+
 ## Decisiones abiertas
 
-Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.
+Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
 
 Ya resueltas: **el plan no se edita a mano** (decisión 35); los **botones Cerrar semana y Generar** (cerrar en la semana activa con aviso de los días sin completar, generar en la portada); el **login** se hizo en la semana 3 (decisión 39); **reabrir un día completado** se puede (decisión 33 y "Reabrir día"); la confirmación al cerrar con días sin hacer queda definida en la tarea #47.
 

@@ -72,6 +72,12 @@ class ChangePasswordIn(BaseModel):
     new_password: str = Field(min_length=8, max_length=128)
 
 
+class DeleteAccountIn(BaseModel):
+    """Borrar la cuenta: pide la contraseña para que nadie con el aparato desbloqueado la borre."""
+
+    password: str = Field(min_length=1, max_length=128)
+
+
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

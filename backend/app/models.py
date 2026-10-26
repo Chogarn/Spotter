@@ -502,8 +502,9 @@ class AiCall(Base):
     __table_args__ = (Index("ix_ai_calls_created_at", "created_at"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    # RESTRICT a propósito: borrar un usuario no puede borrar las llamadas ya hechas.
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"))
+    # SET NULL a propósito (decisión de borrar cuenta): borrar un usuario no puede borrar las
+    # llamadas ya hechas; solo pierden el vínculo con la persona.
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     kind: Mapped[AiCallKind] = mapped_column(enum_column(AiCallKind))
     model: Mapped[str] = mapped_column(String(64))
     # Vacío mientras la llamada está en curso (o si la app se cayó en el medio).

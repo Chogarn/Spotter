@@ -6,16 +6,16 @@ from datetime import datetime, timedelta, timezone
 import jwt
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, delete, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app import mailer, models  # noqa: F401
 from app.db import Base, get_db
 from app.deps import get_current_user
-from app.enums import Goal, Level
+from app.enums import AiCallKind, Goal, Level
 from app.main import app
-from app.models import Routine, User
+from app.models import AiCall, EmailLog, Routine, User
 from app.security import COOKIE_NAME
 
 SECRETO = "secreto-de-prueba-con-mas-de-32-bytes-de-largo"
@@ -171,6 +171,71 @@ def test_cerrar_sesion_borra_la_cookie(cliente):
     assert cliente.post("/auth/logout").status_code == 204
 
     assert cliente.get("/auth/me").status_code == 401
+
+
+# --- borrar la cuenta ---
+
+
+def borrar_cuenta(cliente, password):
+    return cliente.request("DELETE", "/auth/account", json={"password": password})
+
+
+def test_borrar_la_cuenta_con_la_contrasena_mala_da_400_y_no_borra_nada(cliente):
+    registrar(cliente)
+
+    respuesta = borrar_cuenta(cliente, "incorrecta-123")
+
+    assert respuesta.status_code == 400
+    assert cliente.get("/auth/me").status_code == 200  # un 400, no un 401: la sesión sigue
+    with cliente.session() as db:
+        assert db.scalar(select(User)) is not None
+
+
+def test_borrar_la_cuenta_borra_al_usuario_y_cierra_la_sesion(cliente):
+    registrar(cliente)
+    with cliente.session() as db:
+        db.add(Routine(user_id=db.scalar(select(User)).id, name="Fuerza", goal=Goal.MASA, level=Level.INTERMEDIO))
+        db.commit()
+
+    assert borrar_cuenta(cliente, ANA["password"]).status_code == 204
+
+    assert cliente.get("/auth/me").status_code == 401
+    with cliente.session() as db:
+        assert db.scalar(select(User)) is None
+        assert db.scalar(select(Routine)) is None
+    login = cliente.post("/auth/login", json={"email": ANA["email"], "password": ANA["password"]})
+    assert login.status_code == 401
+
+
+def test_borrar_la_cuenta_no_toca_a_los_demas_ni_borra_las_llamadas_a_la_ia(cliente):
+    registrar(cliente, BETO)
+    registrar(cliente, ANA)
+    with cliente.session() as db:
+        ana = db.scalar(select(User).where(User.email == ANA["email"]))
+        db.add(AiCall(user_id=ana.id, kind=AiCallKind.GENERATE, model="m", succeeded=True))
+        db.commit()
+
+    assert borrar_cuenta(cliente, ANA["password"]).status_code == 204
+
+    with cliente.session() as db:
+        assert [u.email for u in db.scalars(select(User))] == [BETO["email"]]
+        assert db.query(AiCall).count() == 1  # las llamadas cuentan para los topes: no se borran
+
+
+def test_borrar_la_cuenta_sin_sesion_da_401(cliente):
+    assert borrar_cuenta(cliente, "lo-que-sea-123").status_code == 401
+
+
+def test_borrar_la_cuenta_deja_volver_a_registrar_el_correo(cliente):
+    registrar(cliente)
+    assert borrar_cuenta(cliente, ANA["password"]).status_code == 204
+    with cliente.session() as db:  # el tope de 1 correo por minuto por dirección no es lo que se prueba
+        db.execute(delete(EmailLog))
+        db.commit()
+
+    registrar(cliente)
+
+    assert cliente.get("/auth/me").json()["email"] == ANA["email"]
 
 
 # --- la sesión ---

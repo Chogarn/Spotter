@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Franja } from "@/components/Franja";
 import { type DatosPerfil, type PasoPerfil, PerfilAsistente, SEXOS } from "@/components/PerfilAsistente";
+import { BorrarCuenta } from "@/components/BorrarCuenta";
 import { CambiarContrasena } from "@/components/CambiarContrasena";
 import { FilaProximamente } from "@/components/Proximamente";
 import { cn } from "cn";
@@ -266,7 +267,7 @@ export default function PerfilPage() {
         <section className="mb-3 rounded-2xl bg-card px-4 py-1">
           <FilaProximamente texto="Cambiar correo" mensaje="Cambiar el correo todavía no está disponible." />
           <CambiarContrasena />
-          <FilaProximamente texto="Borrar cuenta" mensaje="Borrar la cuenta todavía no está disponible." peligro />
+          <BorrarCuenta />
         </section>
 
         {/* Cerrar sesión vive en la Cuenta (decisiones 42 y 75), separado y en rojo para no tocarlo sin querer. */}
