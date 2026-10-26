@@ -257,3 +257,7 @@ def test_canonicalize_no_toca_lo_que_no_esta_en_el_catalogo():
     propuesta = RoutineProposal.model_validate(rutina_con({"Sentadilla con barra": inventado()}))
     nombres = [e.name for d in canonicalize(propuesta).days for e in d.exercises]
     assert "Sentadilla con tres patas" in nombres
+
+
+def test_todos_los_ejercicios_del_catalogo_tienen_como_hacerlo():
+    assert all(e.how_to.strip() for e in load_catalog())

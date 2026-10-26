@@ -17,6 +17,7 @@
       "equipment": "barbell",
       "level": "intermedio",
       "description": "Acostado en el banco, se baja la barra al pecho y se empuja hacia arriba. Trabaja sobre todo el pecho, con ayuda de tríceps y hombros.",
+      "how_to": "Acostado, con los pies firmes en el piso y los omóplatos juntos y hacia abajo. Bajá la barra controlada hasta rozar la parte media del pecho, con los codos a unos 45° del cuerpo. Empujá hacia arriba hasta estirar los brazos sin perder el apoyo de la espalda en el banco.",
       "aliases": [
         "press banca",
         "bench press",
@@ -38,6 +39,7 @@
       "equipment": "barbell",
       "level": "intermedio",
       "description": "Press con barra en un banco inclinado: carga más la parte alta del pecho y los hombros.",
+      "how_to": "Con el banco inclinado, acostado y con los omóplatos juntos. Bajá la barra controlada hacia la parte alta del pecho, con los codos a unos 45° del cuerpo. Empujá hasta estirar los brazos sin despegar la espalda del banco.",
       "aliases": [
         "press inclinado",
         "banca inclinada"
@@ -58,6 +60,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Press de pecho acostado con una mancuerna en cada mano; permite más recorrido y cada brazo trabaja por separado.",
+      "how_to": "Acostado, con una mancuerna en cada mano a la altura del pecho y los omóplatos juntos. Empujá hacia arriba hasta casi juntarlas, sin chocarlas. Bajá lento hasta sentir el estiramiento del pecho, con los codos algo separados del cuerpo.",
       "aliases": [
         "press plano con mancuernas",
         "banca con mancuernas"
@@ -78,6 +81,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "Press de pecho con mancuernas en banco inclinado, para la parte alta del pecho.",
+      "how_to": "En el banco inclinado, con las mancuernas a la altura de la parte alta del pecho. Empujá hacia arriba sin chocarlas y bajá lento, con los codos algo separados del cuerpo. Mantené la espalda apoyada en todo el movimiento.",
       "aliases": [
         "press inclinado con mancuernas"
       ]
@@ -97,6 +101,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Empuje horizontal sentado en una máquina guiada; es de las formas más simples de entrenar el pecho.",
+      "how_to": "Sentado, con la espalda apoyada y el asiento regulado para que las manijas queden a la altura del pecho. Empujá hasta estirar los brazos sin trabar los codos. Volvé lento, sin que las pesas apoyen entre repeticiones.",
       "aliases": [
         "press de pecho",
         "chest press",
@@ -117,6 +122,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "Con los brazos casi extendidos, se abren y se cierran las mancuernas en arco acostado en el banco. Aísla el pecho.",
+      "how_to": "Acostado, con las mancuernas arriba del pecho y los codos apenas flexionados. Abrí los brazos en arco hasta sentir el estiramiento del pecho, sin bajar más allá de los hombros. Volvé juntando las mancuernas como si abrazaras un árbol, manteniendo el codo con la misma flexión.",
       "aliases": [
         "aperturas",
         "flyes",
@@ -137,6 +143,7 @@
       "equipment": "cable",
       "level": "intermedio",
       "description": "De pie entre dos poleas altas, se juntan las manos al frente en arco. Mantiene tensión constante sobre el pecho.",
+      "how_to": "De pie, con una polea a cada lado y un paso al frente para estabilizarte. Con los codos apenas flexionados, llevá las manos al frente en arco hasta juntarlas a la altura del pecho. Volvé lento hasta sentir el estiramiento, sin dejar que el peso te tire los brazos hacia atrás.",
       "aliases": [
         "cruces en polea",
         "cable crossover",
@@ -157,6 +164,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Sentado en la máquina, se juntan los brazos al frente. Aísla el pecho con un movimiento guiado.",
+      "how_to": "Sentado, con la espalda apoyada y las manijas a la altura del pecho. Juntá los brazos al frente con los codos apenas flexionados, apretando el pecho. Volvé lento, sin pasar la línea de los hombros.",
       "aliases": [
         "peck deck",
         "contractora",
@@ -178,6 +186,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Con el cuerpo en línea y las manos en el suelo, se baja el pecho y se empuja hacia arriba. Usa el peso corporal.",
+      "how_to": "Con las manos algo más abiertas que los hombros y el cuerpo en línea recta de la cabeza a los talones. Bajá el pecho hacia el piso con los codos a unos 45° del cuerpo. Empujá hasta estirar los brazos sin que se hunda la cadera. Si cuesta, apoyá las rodillas.",
       "aliases": [
         "flexiones",
         "lagartijas",
@@ -200,6 +209,7 @@
       "equipment": "bodyweight",
       "level": "avanzado",
       "description": "Apoyado en dos barras paralelas, se baja el cuerpo flexionando los codos y se empuja hacia arriba. Exige fuerza de empuje con el peso corporal.",
+      "how_to": "Sostenete en las paralelas con los brazos estirados y el torso apenas inclinado hacia adelante. Bajá lento flexionando los codos hasta que los hombros queden cerca de la altura de los codos. Subí empujando hasta estirar los brazos, sin encoger los hombros.",
       "aliases": [
         "fondos",
         "dips",
@@ -220,6 +230,7 @@
       "equipment": "cable",
       "level": "principiante",
       "description": "Sentado, se tira de una barra ancha desde arriba hacia el pecho. Trabaja los dorsales.",
+      "how_to": "Sentado, con los muslos fijos bajo el apoyo y un agarre un poco más ancho que los hombros. Llevá la barra hacia la parte alta del pecho llevando los codos hacia abajo y atrás, con el pecho abierto. Volvé lento hasta estirar los brazos, sin balancear el torso.",
       "aliases": [
         "jalón al pecho",
         "lat pulldown",
@@ -240,6 +251,7 @@
       "equipment": "bodyweight",
       "level": "avanzado",
       "description": "Colgado de una barra, se sube el cuerpo hasta pasar el mentón. Trabaja dorsales y bíceps con el peso corporal.",
+      "how_to": "Colgado de la barra con las manos algo más abiertas que los hombros y los brazos estirados. Subí llevando los codos hacia abajo hasta pasar el mentón por encima de la barra, sin balancearte. Bajá lento hasta estirar los brazos del todo.",
       "aliases": [
         "pull ups",
         "dominadas pronas",
@@ -260,6 +272,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Dominadas en una máquina que descuenta parte del peso corporal; sirve para progresar hacia la dominada libre.",
+      "how_to": "Apoyá las rodillas o los pies en la plataforma y agarrá la barra algo más ancha que los hombros. Subí llevando los codos hacia abajo hasta pasar el mentón por encima de la barra. Bajá lento hasta estirar los brazos. Menos asistencia es más difícil.",
       "aliases": [
         "dominadas con asistencia",
         "dominadas en maquina"
@@ -279,6 +292,7 @@
       "equipment": "barbell",
       "level": "intermedio",
       "description": "Con el torso inclinado, se tira de la barra hacia el abdomen. Trabaja la espalda en su conjunto.",
+      "how_to": "De pie, con los pies al ancho de la cadera, las rodillas flexionadas y el torso inclinado con la espalda recta. Llevá la barra hacia el abdomen, juntando los omóplatos. Bajá controlado hasta estirar los brazos, sin redondear la espalda ni impulsarte con el cuerpo.",
       "aliases": [
         "remo con barra",
         "barbell row",
@@ -299,6 +313,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Apoyado en un banco, se tira de una mancuerna hacia la cadera con un brazo por vez.",
+      "how_to": "Apoyá una mano y la rodilla del mismo lado en un banco, con la espalda recta y paralela al piso. Con la otra mano, subí la mancuerna hacia la cadera llevando el codo hacia atrás. Bajá lento hasta estirar el brazo, sin girar el torso.",
       "aliases": [
         "remo unilateral",
         "remo a una mano",
@@ -319,6 +334,7 @@
       "equipment": "cable",
       "level": "principiante",
       "description": "Sentado frente a una polea baja, se tira del agarre hacia el abdomen. Movimiento guiado y estable.",
+      "how_to": "Sentado, con los pies apoyados y las rodillas apenas flexionadas, la espalda recta. Llevá el agarre hacia el abdomen juntando los omóplatos, con los codos cerca del cuerpo. Volvé lento hasta estirar los brazos sin que el torso se vaya hacia adelante.",
       "aliases": [
         "remo en polea",
         "seated cable row",
@@ -339,6 +355,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Sentado con el pecho apoyado, se tiran las manijas hacia atrás. Es una forma guiada y simple de entrenar la espalda.",
+      "how_to": "Sentado, con el pecho apoyado y el asiento regulado para que los brazos queden estirados al frente. Tirá de las manijas hacia atrás llevando los codos junto al cuerpo y juntando los omóplatos. Volvé lento, sin dejar que los hombros se adelanten.",
       "aliases": [
         "remo en maquina",
         "remo sentado en maquina"
@@ -358,6 +375,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Boca abajo sobre un banco inclinado, se tiran dos mancuernas hacia las costillas. El apoyo evita trabajar con balanceo.",
+      "how_to": "Acostado boca abajo en un banco inclinado, con el pecho apoyado y una mancuerna en cada mano. Subí las mancuernas hacia las costillas llevando los codos atrás y juntando los omóplatos. Bajá lento hasta estirar los brazos.",
       "aliases": [
         "remo en banco inclinado",
         "chest supported row"
@@ -375,6 +393,7 @@
       "equipment": "cable",
       "level": "intermedio",
       "description": "De pie frente a una polea alta, con los brazos casi extendidos, se lleva la barra o cuerda hacia los muslos. Aísla los dorsales.",
+      "how_to": "De pie frente a una polea alta, con los brazos casi estirados y el torso apenas inclinado hacia adelante. Bajá la barra o la cuerda en arco hacia los muslos, manteniendo los brazos rectos y trabajando con la espalda. Volvé lento hasta sentir el estiramiento.",
       "aliases": [
         "pullover en polea",
         "pullover polea alta"
@@ -394,6 +413,7 @@
       "equipment": "band",
       "level": "principiante",
       "description": "Sentado o de pie, se tira de una banda elástica hacia el abdomen. Opción liviana y fácil de llevar.",
+      "how_to": "Sentado o de pie, con la banda anclada al frente y los brazos estirados. Tirá de la banda hacia el abdomen juntando los omóplatos, con los codos cerca del cuerpo. Volvé lento sin soltar la tensión de golpe.",
       "aliases": [
         "remo con banda",
         "remo con elastico",
@@ -414,6 +434,7 @@
       "equipment": "cable",
       "level": "principiante",
       "description": "Jalón al pecho con un agarre en V o paralelo, con las palmas enfrentadas.",
+      "how_to": "Sentado, con los muslos fijos bajo el apoyo y el agarre con las palmas enfrentadas. Llevá el agarre hacia el pecho bajando los codos junto al cuerpo. Volvé lento hasta estirar los brazos, sin balancear el torso.",
       "aliases": [
         "jalón con agarre neutro",
         "jalon en v",
@@ -434,6 +455,7 @@
       "equipment": "barbell",
       "level": "intermedio",
       "description": "Con la barra fija en un extremo, se tira hacia el pecho con el torso inclinado. Permite cargas altas para la espalda.",
+      "how_to": "Parado sobre la barra con las rodillas flexionadas, el torso inclinado y la espalda recta. Subí el extremo de la barra hacia el pecho llevando los codos atrás y juntando los omóplatos. Bajá controlado, sin redondear la espalda.",
       "aliases": [
         "remo en t",
         "t-bar row"
@@ -453,6 +475,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Colgado debajo de una barra baja, con el cuerpo recto, se tira del pecho hacia la barra. Es una dominada horizontal.",
+      "how_to": "Acostado bajo una barra fija a la altura de la cintura, agarrándola con las manos algo más abiertas que los hombros. Con el cuerpo en línea recta, tirá del pecho hacia la barra juntando los omóplatos. Bajá lento hasta estirar los brazos. Con las rodillas flexionadas es más fácil.",
       "aliases": [
         "remo australiano",
         "remo en barra baja",
@@ -473,6 +496,7 @@
       "equipment": "barbell",
       "level": "intermedio",
       "description": "De pie o sentado, se empuja la barra desde los hombros hacia arriba. Trabaja los hombros con ayuda de tríceps.",
+      "how_to": "De pie o sentado, con la barra a la altura de los hombros y los abdominales firmes. Empujá la barra hacia arriba hasta estirar los brazos, pasando la cabeza apenas hacia adelante. Bajá controlado hasta la altura del mentón, sin arquear la zona lumbar.",
       "aliases": [
         "press militar",
         "overhead press",
@@ -493,6 +517,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Empuje vertical con una mancuerna en cada mano; cada brazo se mueve de forma independiente.",
+      "how_to": "Sentado con la espalda apoyada, con una mancuerna en cada mano a la altura de los hombros. Empujá hacia arriba hasta casi juntarlas, sin chocarlas. Bajá controlado hasta la altura de las orejas, sin arquear la espalda.",
       "aliases": [
         "press de hombros con mancuernas",
         "press militar con mancuernas"
@@ -512,6 +537,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Empuje vertical sentado en una máquina guiada. Es la forma más simple de entrenar el hombro con carga.",
+      "how_to": "Sentado, con la espalda apoyada y las manijas a la altura de los hombros. Empujá hacia arriba hasta estirar los brazos sin trabar los codos. Bajá lento, sin apoyar las pesas entre repeticiones.",
       "aliases": [
         "press de hombros en maquina",
         "shoulder press"
@@ -529,6 +555,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "De pie, se levantan las mancuernas hacia los costados hasta la altura de los hombros. Aísla la parte lateral del hombro.",
+      "how_to": "De pie, con una mancuerna en cada mano a los costados y los codos apenas flexionados. Subí los brazos hacia los costados hasta la altura de los hombros, como si vertieras una jarra. Bajá lento, sin balancear el cuerpo.",
       "aliases": [
         "vuelos laterales",
         "lateral raises",
@@ -547,6 +574,7 @@
       "equipment": "cable",
       "level": "intermedio",
       "description": "Igual que las elevaciones laterales pero con polea baja, que mantiene la tensión durante todo el movimiento.",
+      "how_to": "De pie, de costado a la polea baja, con el agarre en la mano más alejada. Subí el brazo hacia el costado hasta la altura del hombro con el codo apenas flexionado. Bajá lento, sin inclinar el torso.",
       "aliases": [
         "elevaciones laterales con polea",
         "vuelos laterales en polea"
@@ -564,6 +592,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "De pie, se levantan las mancuernas hacia el frente hasta la altura de los hombros. Trabaja la parte delantera del hombro.",
+      "how_to": "De pie, con una mancuerna en cada mano frente a los muslos. Subí un brazo estirado al frente hasta la altura del hombro, sin balancear el cuerpo. Bajá lento y alterná con el otro brazo o subí los dos a la vez.",
       "aliases": [
         "elevaciones frontales",
         "vuelos frontales"
@@ -583,6 +612,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "Con el torso inclinado, se abren las mancuernas hacia los costados. Trabaja la parte posterior del hombro.",
+      "how_to": "Inclinado hacia adelante desde la cadera, con la espalda recta y las mancuernas colgando. Abrí los brazos hacia los costados con los codos apenas flexionados, juntando los omóplatos. Bajá lento, sin impulsarte con el torso.",
       "aliases": [
         "vuelos posteriores",
         "pajaros",
@@ -604,6 +634,7 @@
       "equipment": "cable",
       "level": "intermedio",
       "description": "Con una cuerda en polea alta, se tira hacia la cara abriendo los codos. Trabaja el hombro posterior y la parte alta de la espalda.",
+      "how_to": "De pie frente a una polea a la altura de la cara, con la cuerda en ambas manos. Tirá hacia la cara llevando las manos a los lados de las orejas y abriendo los codos. Volvé lento, sin inclinar el torso hacia atrás.",
       "aliases": [
         "face pulls",
         "tirón a la cara"
@@ -621,6 +652,7 @@
       "equipment": "barbell",
       "level": "principiante",
       "description": "De pie, se flexionan los codos subiendo la barra hacia los hombros. Ejercicio base de bíceps.",
+      "how_to": "De pie, con la barra en las manos a la altura de los muslos y los codos pegados al cuerpo. Subí la barra flexionando los codos, sin balancear el torso. Bajá lento hasta estirar los brazos.",
       "aliases": [
         "curl con barra",
         "curl de biceps",
@@ -639,6 +671,7 @@
       "equipment": "barbell",
       "level": "principiante",
       "description": "Curl de bíceps con barra Z, cuyo agarre inclinado es más cómodo para las muñecas.",
+      "how_to": "De pie, con la barra Z agarrada en las curvas y los codos pegados al cuerpo. Subí la barra flexionando los codos, sin balancear el torso. Bajá lento hasta estirar los brazos.",
       "aliases": [
         "curl con barra z",
         "curl con barra ez"
@@ -656,6 +689,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "De pie o sentado, se flexionan los codos con una mancuerna en cada mano.",
+      "how_to": "De pie o sentado, con una mancuerna en cada mano y los codos pegados al cuerpo. Subí girando la palma hacia arriba, sin balancear el torso. Bajá lento hasta estirar los brazos.",
       "aliases": [
         "curl con mancuernas",
         "dumbbell curl"
@@ -673,6 +707,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Curl con mancuernas con las palmas enfrentadas. Trabaja bíceps y antebrazo.",
+      "how_to": "De pie, con una mancuerna en cada mano y las palmas enfrentadas, con los codos pegados al cuerpo. Subí la mancuerna sin girar la muñeca, como si martillaras. Bajá lento hasta estirar el brazo.",
       "aliases": [
         "martillo",
         "hammer curl",
@@ -691,6 +726,7 @@
       "equipment": "cable",
       "level": "principiante",
       "description": "Curl de bíceps con polea baja, que mantiene la tensión durante todo el recorrido.",
+      "how_to": "De pie frente a la polea baja, con la barra o la cuerda en las manos y los codos pegados al cuerpo. Subí flexionando los codos, sin balancear el torso. Bajá lento sin soltar la tensión del cable.",
       "aliases": [
         "curl en polea",
         "curl con polea"
@@ -708,6 +744,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Con los brazos apoyados en un banco Scott, se hace el curl en una máquina. El apoyo evita balancear el cuerpo.",
+      "how_to": "Sentado con los brazos apoyados en el banco Scott y los codos fijos. Subí el agarre flexionando los codos, sin despegar los brazos del apoyo. Bajá lento hasta estirar los brazos casi del todo.",
       "aliases": [
         "curl scott",
         "banco scott",
@@ -726,6 +763,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "Sentado en un banco inclinado, con los brazos colgando, se hace el curl. Estira el bíceps al inicio del movimiento.",
+      "how_to": "Sentado en un banco inclinado, con la espalda apoyada y los brazos colgando con una mancuerna en cada mano. Subí girando la palma hacia arriba, sin adelantar los codos. Bajá lento hasta estirar los brazos.",
       "aliases": [
         "curl inclinado",
         "curl en banco inclinado"
@@ -743,6 +781,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Sentado, con el codo apoyado en el muslo, se hace el curl con una mancuerna. Aísla el bíceps.",
+      "how_to": "Sentado, con el codo apoyado en la cara interna del muslo y la mancuerna colgando. Subí la mancuerna flexionando el codo sin mover el brazo. Bajá lento hasta estirarlo y repetí del otro lado.",
       "aliases": [
         "curl concentrado",
         "concentration curl"
@@ -760,6 +799,7 @@
       "equipment": "cable",
       "level": "principiante",
       "description": "De pie frente a la polea alta, se extienden los codos empujando una cuerda hacia abajo.",
+      "how_to": "De pie frente a la polea alta, con los codos pegados a las costillas y el agarre de cuerda. Estirá los codos llevando las manos hacia abajo y abriendo la cuerda al final. Volvé lento hasta que las manos lleguen a la altura del pecho, sin mover los codos.",
       "aliases": [
         "extensión de tríceps con cuerda",
         "jalón de tríceps",
@@ -778,6 +818,7 @@
       "equipment": "cable",
       "level": "principiante",
       "description": "De pie frente a la polea alta, se extienden los codos empujando una barra recta hacia abajo.",
+      "how_to": "De pie frente a la polea alta, con una barra recta o en V y los codos pegados a las costillas. Estirá los codos empujando la barra hacia abajo. Volvé lento hasta la altura del pecho, sin mover los codos ni inclinar el torso.",
       "aliases": [
         "extensión de tríceps con barra",
         "pushdown",
@@ -796,6 +837,7 @@
       "equipment": "barbell",
       "level": "intermedio",
       "description": "Acostado, se flexionan los codos bajando la barra Z hacia la frente y se extienden. Aísla el tríceps.",
+      "how_to": "Acostado, con la barra Z sostenida sobre el pecho y los brazos estirados hacia arriba. Flexioná solo los codos para llevar la barra hacia la frente o detrás de la cabeza, sin abrirlos. Estirá los brazos para volver arriba.",
       "aliases": [
         "press francés",
         "skull crusher",
@@ -814,6 +856,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Con una mancuerna sostenida sobre la cabeza, se flexionan y extienden los codos. Estira la cabeza larga del tríceps.",
+      "how_to": "De pie o sentado, con una mancuerna sostenida con las dos manos sobre la cabeza y los brazos estirados. Flexioná los codos bajando la mancuerna detrás de la cabeza, sin abrirlos. Estirá los brazos para volver arriba, sin arquear la espalda.",
       "aliases": [
         "extensión sobre la cabeza",
         "copa de tríceps",
@@ -832,6 +875,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Con el torso inclinado y el codo pegado al cuerpo, se extiende el brazo hacia atrás con una mancuerna.",
+      "how_to": "Inclinado hacia adelante con la espalda recta, con el codo pegado al cuerpo y flexionado a 90° con una mancuerna en la mano. Estirá el brazo hacia atrás sin mover el codo. Volvé lento hasta los 90°.",
       "aliases": [
         "patada de tríceps",
         "kickback",
@@ -853,6 +897,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Con las manos apoyadas en un banco detrás del cuerpo, se baja y se sube flexionando los codos.",
+      "how_to": "Con las manos apoyadas en el borde de un banco detrás de la cadera y las piernas estiradas al frente (o con las rodillas flexionadas para que sea más fácil). Bajá flexionando los codos hasta unos 90°, con la espalda cerca del banco. Subí empujando hasta estirar los brazos, sin encoger los hombros.",
       "aliases": [
         "fondos en banco",
         "fondos de triceps",
@@ -874,6 +919,7 @@
       "equipment": "barbell",
       "level": "intermedio",
       "description": "Press de banca con las manos más juntas, que carga más el tríceps.",
+      "how_to": "Acostado, con las manos al ancho de los hombros y los codos cerca del cuerpo. Bajá la barra controlada hacia la parte baja del pecho. Empujá hasta estirar los brazos, sin despegar la espalda del banco.",
       "aliases": [
         "press cerrado",
         "banca agarre cerrado",
@@ -894,6 +940,7 @@
       "equipment": "barbell",
       "level": "intermedio",
       "description": "Con la barra sobre la espalda alta, se baja flexionando cadera y rodillas y se vuelve a subir. Ejercicio base del tren inferior.",
+      "how_to": "De pie, con la barra apoyada en la parte alta de la espalda, los pies al ancho de los hombros y los abdominales firmes. Bajá llevando la cadera atrás y abajo, con la espalda recta y las rodillas siguiendo la línea de los pies. Subí empujando el piso con todo el pie.",
       "aliases": [
         "sentadilla",
         "sentadilla trasera",
@@ -915,6 +962,7 @@
       "equipment": "barbell",
       "level": "avanzado",
       "description": "Sentadilla con la barra apoyada al frente de los hombros. Pide más tronco erguido y carga más el cuádriceps.",
+      "how_to": "Con la barra apoyada en la parte delantera de los hombros y los codos altos, de pie con los pies al ancho de los hombros. Bajá con el torso erguido y las rodillas siguiendo la línea de los pies. Subí empujando el piso con todo el pie, sin dejar que caigan los codos.",
       "aliases": [
         "front squat",
         "sentadilla con barra al frente"
@@ -934,6 +982,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Sentadilla sosteniendo una mancuerna contra el pecho. Ayuda a aprender el patrón de sentadilla.",
+      "how_to": "De pie, con una mancuerna sostenida contra el pecho y los pies algo más abiertos que los hombros. Bajá con el torso erguido y los codos entre las rodillas. Subí empujando el piso con todo el pie.",
       "aliases": [
         "goblet squat",
         "sentadilla copa",
@@ -954,6 +1003,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "Con el pie de atrás apoyado en un banco, se baja y se sube con la pierna de adelante. Trabaja una pierna por vez.",
+      "how_to": "De pie, de espaldas a un banco, con el empeine de una pierna apoyado atrás y una mancuerna en cada mano. Bajá flexionando la rodilla adelantada, con el torso erguido y la rodilla alineada con el pie. Subí empujando con la pierna de adelante y repetí del otro lado.",
       "aliases": [
         "bulgarian split squat",
         "sentadilla bulgara",
@@ -974,6 +1024,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Sentado o reclinado, se empuja una plataforma con los pies. Carga las piernas con apoyo de espalda.",
+      "how_to": "Sentado en la máquina con la espalda y la cadera bien apoyadas, y los pies al ancho de los hombros en la plataforma. Bajá la plataforma flexionando las rodillas hasta donde la espalda baja siga apoyada. Empujá sin trabar las rodillas al estirar.",
       "aliases": [
         "prensa",
         "leg press",
@@ -994,6 +1045,7 @@
       "equipment": "machine",
       "level": "intermedio",
       "description": "Sentadilla en una máquina inclinada con la espalda apoyada. Carga el cuádriceps con un recorrido guiado.",
+      "how_to": "De pie en la máquina, con la espalda apoyada y los pies al ancho de los hombros en la plataforma. Bajá controlado flexionando las rodillas, sin despegar la espalda. Subí empujando el piso con todo el pie, sin trabar las rodillas.",
       "aliases": [
         "hack squat",
         "sentadilla hack"
@@ -1011,6 +1063,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Sentado en la máquina, se extienden las rodillas contra una resistencia. Aísla el cuádriceps.",
+      "how_to": "Sentado, con la espalda apoyada y el rodillo apoyado sobre los tobillos. Estirá las rodillas hasta subir las piernas, apretando los cuádriceps arriba. Bajá lento, sin dejar caer el peso.",
       "aliases": [
         "sillón de cuádriceps",
         "leg extension",
@@ -1031,6 +1084,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "Con una mancuerna en cada mano, se da un paso largo y se baja la rodilla de atrás hacia el suelo.",
+      "how_to": "De pie, con una mancuerna en cada mano. Dá un paso largo al frente y bajá la cadera hasta que ambas rodillas se flexionen cerca de 90°. Empujá con la pierna adelantada para volver y alterná los lados.",
       "aliases": [
         "zancadas",
         "lunges",
@@ -1051,6 +1105,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "Con mancuernas, se sube a un cajón o banco con una pierna y se baja con control.",
+      "how_to": "De pie frente a un cajón o banco firme, con una mancuerna en cada mano. Apoyá un pie completo arriba y subí empujando con esa pierna, sin impulsarte con la de abajo. Bajá lento y repetí del mismo lado antes de cambiar.",
       "aliases": [
         "step up",
         "subidas al banco",
@@ -1071,6 +1126,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Sentadilla sin carga externa. Sirve para aprender el movimiento o como ejercicio de inicio.",
+      "how_to": "De pie, con los pies al ancho de los hombros y los brazos al frente para equilibrarte. Bajá llevando la cadera atrás y abajo, con la espalda recta y las rodillas siguiendo la línea de los pies. Subí empujando el piso con todo el pie.",
       "aliases": [
         "sentadilla libre",
         "sentadilla sin peso",
@@ -1092,6 +1148,7 @@
       "equipment": "barbell",
       "level": "intermedio",
       "description": "Con la barra cerca del cuerpo, se lleva la cadera hacia atrás con las rodillas casi extendidas y se vuelve a subir. Trabaja isquios y glúteos.",
+      "how_to": "De pie, con la barra en las manos a la altura de los muslos y las rodillas apenas flexionadas. Llevá la cadera hacia atrás bajando la barra pegada a las piernas, con la espalda recta, hasta sentir el estiramiento atrás de los muslos. Subí empujando la cadera hacia adelante.",
       "aliases": [
         "peso muerto rumano",
         "rumano",
@@ -1113,6 +1170,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Peso muerto rumano con una mancuerna en cada mano; más simple de cargar y controlar que con barra.",
+      "how_to": "De pie, con una mancuerna en cada mano frente a los muslos y las rodillas apenas flexionadas. Llevá la cadera hacia atrás bajando las mancuernas pegadas a las piernas, con la espalda recta. Subí empujando la cadera hacia adelante.",
       "aliases": [
         "rumano con mancuernas",
         "peso muerto con mancuernas",
@@ -1133,6 +1191,7 @@
       "equipment": "barbell",
       "level": "avanzado",
       "description": "Se levanta la barra desde el suelo hasta quedar de pie. Trabaja la cadena posterior completa y exige mucha técnica.",
+      "how_to": "Con los pies al ancho de la cadera y la barra sobre la mitad del pie, agarrá la barra con la espalda recta y el pecho abierto. Empujá el piso con las piernas y estirá la cadera, con la barra pegada al cuerpo. Bajá llevando la cadera atrás, sin redondear la espalda.",
       "aliases": [
         "peso muerto",
         "deadlift"
@@ -1150,6 +1209,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Boca abajo en la máquina, se flexionan las rodillas llevando los talones hacia los glúteos. Aísla los isquios.",
+      "how_to": "Acostado boca abajo en la máquina, con el rodillo apoyado sobre la parte baja de las pantorrillas. Flexioná las rodillas llevando los talones hacia los glúteos, sin levantar la cadera. Volvé lento hasta estirar las piernas casi del todo.",
       "aliases": [
         "curl de isquios acostado",
         "leg curl acostado",
@@ -1168,6 +1228,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Sentado en la máquina, se flexionan las rodillas contra una resistencia. Aísla los isquios.",
+      "how_to": "Sentado en la máquina, con la espalda apoyada y el rodillo sobre la parte baja de las pantorrillas. Flexioná las rodillas llevando los talones hacia abajo y atrás. Volvé lento sin que el peso te arrastre.",
       "aliases": [
         "curl de isquios sentado",
         "leg curl sentado",
@@ -1188,6 +1249,7 @@
       "equipment": "bodyweight",
       "level": "avanzado",
       "description": "De rodillas con los pies sujetos, se baja el torso hacia adelante frenando con los isquios. Es muy exigente.",
+      "how_to": "De rodillas, con los tobillos fijos bajo un apoyo y el cuerpo recto de las rodillas a la cabeza. Inclinate hacia adelante lo más lento que puedas, frenando la caída con los músculos de atrás del muslo. Apoyá las manos en el piso y ayudate para volver a subir.",
       "aliases": [
         "nordic curl",
         "curl nordico",
@@ -1208,6 +1270,7 @@
       "equipment": "barbell",
       "level": "intermedio",
       "description": "Con la espalda apoyada en un banco, se empuja la cadera hacia arriba con una barra sobre la pelvis. Trabaja los glúteos.",
+      "how_to": "Con la espalda alta apoyada en un banco, la barra sobre la cadera (con una almohadilla) y los pies apoyados al ancho de la cadera. Empujá el piso con los pies y subí la cadera hasta alinear el torso con los muslos, apretando los glúteos. Bajá controlado.",
       "aliases": [
         "hip thrust",
         "empuje de cadera",
@@ -1228,6 +1291,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Acostado boca arriba con las rodillas flexionadas, se eleva la cadera apretando los glúteos. Se puede hacer sin carga.",
+      "how_to": "Acostado boca arriba, con las rodillas flexionadas y los pies apoyados en el piso. Empujá con los talones y subí la cadera apretando los glúteos hasta alinear hombros, cadera y rodillas. Bajá lento.",
       "aliases": [
         "puente de glúteos",
         "glute bridge",
@@ -1248,6 +1312,7 @@
       "equipment": "cable",
       "level": "principiante",
       "description": "De pie frente a una polea baja, con una tobillera, se lleva la pierna hacia atrás. Aísla el glúteo.",
+      "how_to": "De pie frente a la polea baja, con la tobillera en un pie y las manos apoyadas para equilibrarte. Llevá la pierna estirada hacia atrás apretando el glúteo, sin arquear la espalda. Volvé lento y repetí del otro lado.",
       "aliases": [
         "patada de glúteo",
         "patada de glúteo en polea",
@@ -1266,6 +1331,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Sentado en la máquina, se abren las piernas contra una resistencia. Trabaja el glúteo medio y la parte lateral de la cadera.",
+      "how_to": "Sentado en la máquina, con la espalda apoyada y las piernas contra las almohadillas. Abrí las piernas hacia los costados apretando los glúteos. Volvé lento, sin dejar que el peso te cierre de golpe.",
       "aliases": [
         "abductores",
         "abducción de cadera",
@@ -1284,6 +1350,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "De pie en la máquina, se suben los talones y se bajan con control. Trabaja los gemelos.",
+      "how_to": "De pie en la máquina, con los hombros bajo las almohadillas y la parte delantera del pie en el borde. Subí los talones lo más alto posible. Bajá lento hasta sentir el estiramiento de las pantorrillas.",
       "aliases": [
         "gemelos de pie",
         "elevación de talones de pie",
@@ -1302,6 +1369,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Sentado con las rodillas flexionadas, se suben los talones contra una resistencia. Carga más el sóleo.",
+      "how_to": "Sentado en la máquina, con las rodillas bajo las almohadillas y la parte delantera del pie en el borde. Subí los talones lo más alto posible. Bajá lento hasta sentir el estiramiento de las pantorrillas.",
       "aliases": [
         "gemelos sentado",
         "seated calf raise",
@@ -1320,6 +1388,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "En la prensa de piernas, se empuja la plataforma solo con la punta de los pies. Entrena los gemelos.",
+      "how_to": "Sentado en la prensa, con la parte delantera de los pies en el borde de la plataforma y las piernas estiradas (sin trabar las rodillas). Empujá con la punta de los pies. Volvé lento hasta sentir el estiramiento de las pantorrillas.",
       "aliases": [
         "gemelos en prensa",
         "talones en prensa"
@@ -1337,6 +1406,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Apoyado en antebrazos y puntas de pie, con el cuerpo en línea recta. Se sostiene la posición en el tiempo.",
+      "how_to": "Apoyado en los antebrazos y las puntas de los pies, con los codos bajo los hombros. Mantené el cuerpo en línea recta de la cabeza a los talones, con los abdominales y los glúteos firmes. Respirá con calma y no dejes que la cadera se hunda ni suba.",
       "aliases": [
         "plancha",
         "plank",
@@ -1356,6 +1426,7 @@
       "equipment": "bodyweight",
       "level": "intermedio",
       "description": "Apoyado en un antebrazo y el lateral del pie, con el cuerpo en línea. Trabaja los oblicuos.",
+      "how_to": "Acostado de costado, apoyado en un antebrazo con el codo bajo el hombro. Subí la cadera hasta alinear el cuerpo de la cabeza a los pies, con los abdominales firmes. Mantené la posición, respirando, y repetí del otro lado.",
       "aliases": [
         "side plank",
         "plancha de lado"
@@ -1373,6 +1444,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Acostado, se eleva el torso unos centímetros llevando las costillas hacia la pelvis.",
+      "how_to": "Acostado boca arriba, con las rodillas flexionadas y las manos al costado de la cabeza (sin tirar del cuello). Enrollá el torso levantando los hombros del piso, llevando las costillas hacia la cadera. Bajá lento sin soltar la tensión.",
       "aliases": [
         "abdominales",
         "crunch",
@@ -1391,6 +1463,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Acostado en un banco, se suben y bajan las piernas con control. Trabaja la parte baja del abdomen.",
+      "how_to": "Acostado en el banco, con las manos agarradas detrás de la cabeza o a los costados. Subí las piernas juntas, estiradas o con las rodillas apenas flexionadas, hasta que la cadera se despegue un poco. Bajá lento, sin arquear la zona lumbar.",
       "aliases": [
         "elevación de piernas",
         "leg raise",
@@ -1409,6 +1482,7 @@
       "equipment": "cable",
       "level": "intermedio",
       "description": "De rodillas frente a una polea alta, se flexiona el torso llevando los codos hacia las rodillas.",
+      "how_to": "De rodillas frente a la polea alta, con la cuerda a los lados de la cabeza. Enrollá el torso hacia adelante llevando los codos hacia las rodillas, con la cadera quieta. Volvé lento, sin sentarte hacia atrás.",
       "aliases": [
         "crunch en polea",
         "abdominales en polea",
@@ -1427,6 +1501,7 @@
       "equipment": "cable",
       "level": "intermedio",
       "description": "De pie al costado de una polea, se estira el agarre al frente sin dejar que el tronco rote. Entrena la resistencia a la rotación.",
+      "how_to": "De pie, de costado a la polea a la altura del pecho, con el agarre pegado al pecho y los pies al ancho de los hombros. Estirá los brazos al frente sin dejar que el peso te gire el torso. Volvé al pecho con control y repetí del otro lado.",
       "aliases": [
         "pallof",
         "press pallof",
@@ -1445,6 +1520,7 @@
       "equipment": "other",
       "level": "avanzado",
       "description": "De rodillas, se rueda hacia adelante estirando el cuerpo y se vuelve. Es un ejercicio de core muy exigente.",
+      "how_to": "De rodillas, con las manos en la rueda y los abdominales firmes. Rodá hacia adelante estirando el cuerpo hasta donde puedas sin que se arquee la espalda. Volvé a la posición inicial contrayendo el abdomen.",
       "aliases": [
         "rueda",
         "ab wheel",
@@ -1465,6 +1541,7 @@
       "equipment": "kettlebell",
       "level": "intermedio",
       "description": "Con la kettlebell entre las piernas, se la lanza hacia adelante con un empuje de cadera. Trabaja glúteos e isquios con ritmo.",
+      "how_to": "De pie, con los pies más abiertos que los hombros y la kettlebell en las dos manos. Llevá la cadera atrás (como un peso muerto), dejá que la pesa pase entre las piernas y empujá la cadera hacia adelante con fuerza. La pesa sube por el impulso de la cadera, con los brazos estirados y relajados, hasta la altura del pecho.",
       "aliases": [
         "swing con kettlebell",
         "swing",
@@ -1484,6 +1561,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Caminar en cinta a ritmo constante. Cardio de bajo impacto.",
+      "how_to": "Caminá a un ritmo constante, con el torso erguido y la mirada al frente. Balanceá los brazos con naturalidad y apoyá todo el pie. No te agarres de los apoyos. La intensidad y el tiempo los indica tu rutina.",
       "aliases": [
         "caminata",
         "caminar en cinta",
@@ -1502,6 +1580,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Trotar en cinta a ritmo constante o por intervalos. Cardio de más impacto que la caminata.",
+      "how_to": "Trotá a un ritmo constante, con el torso erguido y la mirada al frente. Balanceá los brazos y apoyá con pasos cortos y suaves. Elegí una velocidad en la que puedas respirar con calma. La intensidad y el tiempo los indica tu rutina.",
       "aliases": [
         "trote",
         "correr en cinta",
@@ -1521,6 +1600,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Pedalear en bicicleta fija a ritmo constante o por intervalos. Cardio de bajo impacto.",
+      "how_to": "Regulá el asiento para que la rodilla quede apenas flexionada con el pedal abajo. Pedaleá con la espalda recta y las manos sin apretar el manubrio. Elegí una resistencia que te permita mantener un ritmo constante. La intensidad y el tiempo los indica tu rutina.",
       "aliases": [
         "bici fija",
         "bicicleta estática",
@@ -1540,6 +1620,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Movimiento continuo de piernas y brazos en la elíptica. Cardio de bajo impacto.",
+      "how_to": "Subí con los pies bien apoyados y las manos en los agarres. Mové las piernas y los brazos de forma fluida, con el torso erguido. Elegí una resistencia que te permita mantener un ritmo constante. La intensidad y el tiempo los indica tu rutina.",
       "aliases": [
         "elíptica",
         "transport"
@@ -1557,6 +1638,7 @@
       "equipment": "machine",
       "level": "intermedio",
       "description": "Remo en máquina de ergómetro: piernas, espalda y brazos en un movimiento continuo. Cardio de cuerpo completo.",
+      "how_to": "Sentado, con los pies sujetos y el agarre en las manos. Empujá primero con las piernas, después inclinate hacia atrás y por último tirá con los brazos. Volvé en orden inverso: brazos, torso y piernas. La intensidad y el tiempo los indica tu rutina.",
       "aliases": [
         "remo en máquina de cardio",
         "remo concept",
@@ -1576,6 +1658,7 @@
       "equipment": "machine",
       "level": "intermedio",
       "description": "Subir escalones en una máquina continua. Cardio con foco en las piernas.",
+      "how_to": "Subí a la máquina con la espalda recta y las manos apenas apoyadas, sin cargar el peso en los brazos. Pisá con todo el pie en cada escalón, a un ritmo constante. La intensidad y el tiempo los indica tu rutina.",
       "aliases": [
         "escalera",
         "stairmaster",
@@ -1595,6 +1678,7 @@
       "equipment": "other",
       "level": "intermedio",
       "description": "Saltar la cuerda a ritmo constante o por intervalos. Cardio de impacto.",
+      "how_to": "Con la soga a la altura de la cadera, saltá con pequeños saltos, apenas separando los pies del piso. Girá la soga con las muñecas, no con los brazos, y aterrizá suave sobre la parte delantera del pie. La intensidad y el tiempo los indica tu rutina.",
       "aliases": [
         "saltar la soga",
         "salto de cuerda",
@@ -1617,6 +1701,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Flexiones con las manos apoyadas en un banco o una barra alta: el cuerpo queda inclinado y el ejercicio resulta más liviano que la flexión en el suelo.",
+      "how_to": "Con las manos apoyadas en un banco o una superficie firme, el cuerpo en línea recta de la cabeza a los talones. Bajá el pecho hacia el borde con los codos a unos 45° del cuerpo. Empujá hasta estirar los brazos. Es una versión más fácil que la del piso.",
       "aliases": [
         "flexiones inclinadas",
         "flexiones en banco",
@@ -1638,6 +1723,7 @@
       "equipment": "bodyweight",
       "level": "intermedio",
       "description": "Flexiones con los pies sobre un banco: el cuerpo queda en bajada y se carga más la parte alta del pecho y los hombros.",
+      "how_to": "Con los pies sobre un banco y las manos en el piso, algo más abiertas que los hombros, el cuerpo en línea recta. Bajá el pecho hacia el piso con los codos a unos 45° del cuerpo. Empujá hasta estirar los brazos, sin que se hunda la cadera.",
       "aliases": [
         "flexiones declinadas",
         "flexiones con pies en banco"
@@ -1658,6 +1744,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Acostado en el suelo, se empujan dos mancuernas hacia arriba. El suelo corta el recorrido y limita la carga en el hombro.",
+      "how_to": "Acostado en el piso, con las rodillas flexionadas y una mancuerna en cada mano. Empujá hacia arriba hasta estirar los brazos. Bajá lento hasta que los codos toquen el piso, sin dejarlos caer.",
       "aliases": [
         "floor press",
         "press de pecho en el suelo"
@@ -1678,6 +1765,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Empuje hacia arriba y adelante sentado en una máquina guiada. Carga la parte alta del pecho.",
+      "how_to": "Sentado, con la espalda apoyada y las manijas a la altura de la parte alta del pecho. Empujá hacia adelante y arriba hasta estirar los brazos sin trabar los codos. Volvé lento, sin apoyar las pesas entre repeticiones.",
       "aliases": [
         "press inclinado en maquina",
         "incline chest press"
@@ -1697,6 +1785,7 @@
       "equipment": "cable",
       "level": "intermedio",
       "description": "De pie o sentado, se tira de la polea baja con un brazo por vez. Permite corregir diferencias entre lados.",
+      "how_to": "De pie o sentado frente a la polea, con un agarre en una mano y el torso firme. Tirá de la manija hacia la cadera llevando el codo atrás y juntando el omóplato. Volvé lento hasta estirar el brazo, sin girar el torso.",
       "aliases": [
         "remo unilateral en polea",
         "remo con polea a una mano"
@@ -1714,6 +1803,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "Acostado en un banco, se lleva una mancuerna desde detrás de la cabeza hacia arriba con los brazos casi extendidos. Trabaja los dorsales.",
+      "how_to": "Acostado en el banco, sosteniendo una mancuerna con las dos manos sobre el pecho y los brazos casi estirados. Bajá la mancuerna en arco hacia atrás de la cabeza hasta sentir el estiramiento. Volvé al punto inicial con los brazos casi estirados.",
       "aliases": [
         "pullover",
         "pullover con mancuerna en banco"
@@ -1733,6 +1823,7 @@
       "equipment": "bodyweight",
       "level": "intermedio",
       "description": "Se sube con ayuda (salto o banco) hasta tener el mentón sobre la barra y se baja lento. Sirve para progresar hacia la dominada libre.",
+      "how_to": "Subí a la posición alta (con un banco o salto) con el mentón sobre la barra. Bajá lo más lento que puedas, llevando 3 a 5 segundos hasta estirar los brazos. Volvé a subir con ayuda y repetí.",
       "aliases": [
         "dominadas negativas",
         "negativas de dominada"
@@ -1752,6 +1843,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "Press de hombros con mancuernas que parte con las palmas hacia la cara y rota al subir.",
+      "how_to": "Sentado, con las mancuernas frente al pecho y las palmas hacia vos. Empujá hacia arriba girando las palmas hacia el frente hasta estirar los brazos. Bajá girando de vuelta y controlando el movimiento.",
       "aliases": [
         "arnold press",
         "press arnold"
@@ -1769,6 +1861,7 @@
       "equipment": "band",
       "level": "principiante",
       "description": "De pie sobre una banda elástica, se levantan los brazos hacia los costados. Opción liviana para el hombro lateral.",
+      "how_to": "De pie sobre la banda, con una punta agarrada en cada mano y los codos apenas flexionados. Subí los brazos hacia los costados hasta la altura de los hombros. Bajá lento, sin balancear el cuerpo.",
       "aliases": [
         "vuelos laterales con banda",
         "elevaciones laterales con elastico"
@@ -1788,6 +1881,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Sentado en la máquina de aperturas invertidas, se abren los brazos hacia atrás. Trabaja el hombro posterior.",
+      "how_to": "Sentado de frente al respaldo (o en la máquina de aperturas inversas), con los brazos al frente. Abrí los brazos hacia atrás con los codos apenas flexionados, juntando los omóplatos. Volvé lento, sin que el peso te adelante los hombros.",
       "aliases": [
         "peck deck inverso",
         "reverse peck deck",
@@ -1806,6 +1900,7 @@
       "equipment": "band",
       "level": "principiante",
       "description": "De pie sobre una banda elástica, se flexionan los codos tirando de ella hacia los hombros.",
+      "how_to": "De pie sobre la banda, con un extremo en cada mano y los codos pegados al cuerpo. Subí flexionando los codos, sin balancear el torso. Bajá lento sin soltar la tensión.",
       "aliases": [
         "curl con banda",
         "curl con elastico"
@@ -1823,6 +1918,7 @@
       "equipment": "band",
       "level": "principiante",
       "description": "Con una banda anclada arriba, se extienden los codos hacia abajo. Opción liviana para el tríceps.",
+      "how_to": "De pie, con la banda anclada arriba y los codos pegados a las costillas. Estirá los codos llevando las manos hacia abajo. Volvé lento hasta la altura del pecho, sin mover los codos.",
       "aliases": [
         "extension de triceps con elastico",
         "pushdown con banda"
@@ -1842,6 +1938,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Sentadilla con la barra guiada por rieles. Da estabilidad y permite concentrarse en la bajada y la subida.",
+      "how_to": "De pie bajo la barra de la máquina, con los pies un poco adelantados respecto del cuerpo. Bajá flexionando las rodillas, con la espalda recta, hasta donde puedas sin despegar los talones. Subí empujando el piso con todo el pie.",
       "aliases": [
         "smith",
         "sentadilla smith",
@@ -1862,6 +1959,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Zancadas sin carga externa. Sirve para aprender el movimiento y ganar equilibrio antes de usar mancuernas.",
+      "how_to": "De pie, con las manos en la cintura o al frente. Dá un paso largo al frente y bajá la cadera hasta que ambas rodillas se flexionen cerca de 90°. Empujá con la pierna adelantada para volver y alterná los lados.",
       "aliases": [
         "estocadas sin peso",
         "lunges sin peso",
@@ -1882,6 +1980,7 @@
       "equipment": "kettlebell",
       "level": "principiante",
       "description": "Sentadilla sosteniendo una kettlebell contra el pecho.",
+      "how_to": "De pie, con una kettlebell sostenida contra el pecho y los pies algo más abiertos que los hombros. Bajá con el torso erguido y los codos entre las rodillas. Subí empujando el piso con todo el pie.",
       "aliases": [
         "goblet con kettlebell",
         "sentadilla con pesa rusa"
@@ -1901,6 +2000,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "Se da un paso hacia atrás y se baja la rodilla hacia el suelo. Suele ser más estable que la zancada hacia adelante.",
+      "how_to": "De pie, con una mancuerna en cada mano. Dá un paso largo hacia atrás y bajá la rodilla de atrás hacia el piso, con el torso erguido. Empujá con la pierna de adelante para volver y alterná los lados.",
       "aliases": [
         "zancada hacia atras",
         "reverse lunge",
@@ -1921,6 +2021,7 @@
       "equipment": "machine",
       "level": "intermedio",
       "description": "Prensa de piernas empujando con una sola pierna por vez.",
+      "how_to": "Sentado en la prensa con la espalda y la cadera apoyadas, un pie en el centro de la plataforma y la otra pierna fuera. Bajá la plataforma flexionando la rodilla controlada. Empujá sin trabar la rodilla al estirar y repetí del otro lado.",
       "aliases": [
         "prensa unilateral",
         "prensa a una pierna",
@@ -1941,6 +2042,7 @@
       "equipment": "kettlebell",
       "level": "principiante",
       "description": "Peso muerto rumano sosteniendo una kettlebell con las dos manos frente al cuerpo.",
+      "how_to": "De pie, con una kettlebell frente a los muslos y las rodillas apenas flexionadas. Llevá la cadera hacia atrás bajando la pesa pegada a las piernas, con la espalda recta. Subí empujando la cadera hacia adelante.",
       "aliases": [
         "rumano con kettlebell",
         "rdl con kettlebell"
@@ -1960,6 +2062,7 @@
       "equipment": "dumbbell",
       "level": "intermedio",
       "description": "De pie sobre una pierna, se inclina el torso llevando la otra pierna hacia atrás mientras se baja la mancuerna.",
+      "how_to": "De pie sobre una pierna, con una mancuerna en la mano del lado contrario. Inclinate hacia adelante desde la cadera, llevando la otra pierna hacia atrás, con la espalda recta. Volvé a la posición inicial apretando el glúteo. Repetí del otro lado.",
       "aliases": [
         "peso muerto unilateral",
         "single leg rdl",
@@ -1978,6 +2081,7 @@
       "equipment": "bodyweight",
       "level": "intermedio",
       "description": "Acostado boca arriba con los talones sobre deslizadores o una toalla, se eleva la cadera y se flexionan las rodillas.",
+      "how_to": "Acostado boca arriba, con los talones sobre deslizadores o toallas y la cadera elevada. Estirá las piernas deslizando los talones hacia afuera, sin bajar la cadera. Volvé flexionando las rodillas para traer los talones hacia los glúteos.",
       "aliases": [
         "curl femoral con toalla",
         "curl de isquios en el suelo",
@@ -1998,6 +2102,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Acostado boca arriba con los pies sobre un banco, se eleva la cadera. Carga más los isquios que el puente con pies en el suelo.",
+      "how_to": "Acostado boca arriba, con los talones sobre un banco o cajón y las rodillas flexionadas. Empujá con los talones y subí la cadera hasta alinear hombros, cadera y rodillas. Bajá lento.",
       "aliases": [
         "puente con pies en banco",
         "puente de isquios"
@@ -2017,6 +2122,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "Con la espalda apoyada en un banco, se empuja la cadera hacia arriba con una mancuerna sobre la pelvis.",
+      "how_to": "Con la espalda alta apoyada en un banco, una mancuerna sobre la cadera y los pies apoyados al ancho de la cadera. Empujá el piso con los pies y subí la cadera hasta alinear el torso con los muslos, apretando los glúteos. Bajá controlado.",
       "aliases": [
         "hip thrust con mancuerna",
         "puente con mancuerna"
@@ -2036,6 +2142,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Empuje de cadera en una máquina guiada con cinturón o almohadilla sobre la pelvis.",
+      "how_to": "Sentado en la máquina, con la espalda alta apoyada y la almohadilla sobre la cadera. Empujá con los pies y subí la cadera apretando los glúteos arriba. Bajá controlado.",
       "aliases": [
         "hip thrust en maquina",
         "glute drive"
@@ -2055,6 +2162,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Apoyado en manos y rodillas, se extiende una pierna hacia atrás y arriba. Se puede hacer sin carga.",
+      "how_to": "En cuatro apoyos, con las manos bajo los hombros y las rodillas bajo la cadera. Llevá una pierna flexionada hacia atrás y arriba, apretando el glúteo, sin arquear la espalda. Volvé lento y repetí del otro lado.",
       "aliases": [
         "patada de glúteo en cuatro apoyos",
         "donkey kick",
@@ -2073,6 +2181,7 @@
       "equipment": "band",
       "level": "principiante",
       "description": "Con una banda elástica en las piernas y las rodillas levemente flexionadas, se camina de costado. Trabaja el glúteo medio.",
+      "how_to": "De pie, con la banda en las piernas (arriba de las rodillas o los tobillos) y las rodillas apenas flexionadas. Da pasos laterales manteniendo la tensión de la banda, sin juntar los pies del todo. Repetí en el otro sentido.",
       "aliases": [
         "caminata lateral",
         "monster walk",
@@ -2091,6 +2200,7 @@
       "equipment": "dumbbell",
       "level": "principiante",
       "description": "De pie, con una mancuerna en la mano, se suben y bajan los talones. Se puede hacer apoyado en un escalón.",
+      "how_to": "De pie, con una mancuerna en una mano y la otra apoyada en una pared. Subí los talones lo más alto posible. Bajá lento hasta sentir el estiramiento de las pantorrillas. Podés hacerlo sobre un escalón.",
       "aliases": [
         "gemelos con mancuerna",
         "talones con mancuerna"
@@ -2108,6 +2218,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "De pie, se suben y bajan los talones sin carga externa, en el suelo o en un escalón.",
+      "how_to": "De pie, con las manos en una pared o apoyo para equilibrarte. Subí los talones lo más alto posible. Bajá lento hasta sentir el estiramiento de las pantorrillas. Podés hacerlo sobre un escalón.",
       "aliases": [
         "gemelos sin peso",
         "talones en escalón",
@@ -2126,6 +2237,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "Acostado boca arriba con brazos y piernas elevados, se bajan brazo y pierna contrarios sin despegar la zona lumbar del suelo.",
+      "how_to": "Acostado boca arriba, con los brazos estirados hacia el techo y las rodillas flexionadas a 90° sobre la cadera. Bajá un brazo y la pierna contraria hacia el piso, sin despegar la zona lumbar. Volvé al centro y alterná.",
       "aliases": [
         "dead bug",
         "bicho muerto"
@@ -2143,6 +2255,7 @@
       "equipment": "bodyweight",
       "level": "principiante",
       "description": "En cuatro apoyos, se extienden a la vez un brazo y la pierna contraria manteniendo el torso quieto.",
+      "how_to": "En cuatro apoyos, con las manos bajo los hombros y las rodillas bajo la cadera. Estirá un brazo al frente y la pierna contraria atrás, sin girar la cadera ni arquear la espalda. Volvé al centro y alterná.",
       "aliases": [
         "perro de caza",
         "cuadrupedia con extension",
@@ -2161,6 +2274,7 @@
       "equipment": "bodyweight",
       "level": "intermedio",
       "description": "Colgado de una barra, se suben las rodillas hacia el pecho con control. Trabaja el abdomen.",
+      "how_to": "Colgado de una barra con los brazos estirados y el cuerpo quieto. Subí las rodillas hacia el pecho enrollando la cadera, sin balancearte. Bajá lento sin soltar la tensión.",
       "aliases": [
         "elevación de rodillas en barra",
         "knee raise",
@@ -2179,6 +2293,7 @@
       "equipment": "cable",
       "level": "intermedio",
       "description": "Con una polea alta, se baja el agarre en diagonal rotando el torso. Trabaja oblicuos y rotación del tronco.",
+      "how_to": "De pie, de costado a la polea alta, con el agarre en las dos manos. Tirá en diagonal hacia abajo y al otro lado del cuerpo, girando el torso y los brazos juntos. Volvé lento y repetí del otro lado.",
       "aliases": [
         "woodchop",
         "leñador",
@@ -2197,6 +2312,7 @@
       "equipment": "bodyweight",
       "level": "intermedio",
       "description": "Acostado boca arriba, se elevan hombros y piernas del suelo con la zona lumbar pegada, y se sostiene la posición.",
+      "how_to": "Acostado boca arriba, con los brazos estirados sobre la cabeza y las piernas estiradas. Despegá hombros y piernas del piso, con la zona lumbar pegada al suelo, formando una forma de banana. Mantené la posición, respirando.",
       "aliases": [
         "hollow",
         "hollow body hold",
@@ -2215,6 +2331,7 @@
       "equipment": "machine",
       "level": "principiante",
       "description": "Caminar en la cinta con pendiente. Sube la exigencia sin aumentar el impacto.",
+      "how_to": "Subí la inclinación de la cinta a una pendiente moderada y caminá a un ritmo constante, con el torso erguido. No te agarres de los apoyos, o hacelo apenas con la mano. La intensidad y el tiempo los indica tu rutina.",
       "aliases": [
         "caminata con inclinacion",
         "cinta inclinada",

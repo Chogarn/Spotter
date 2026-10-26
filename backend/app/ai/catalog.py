@@ -71,6 +71,7 @@ class CatalogExercise(BaseModel):
     equipment: ExerciseEquipment
     level: Level
     description: str
+    how_to: str = ""
     aliases: list[str] = Field(default_factory=list)
 
 
@@ -93,6 +94,16 @@ def _by_name() -> dict[str, CatalogExercise]:
 def find(name: str) -> CatalogExercise | None:
     """Busca por nombre o alias, sin importar mayúsculas ni tildes. None si no está."""
     return _by_name().get(normalize_name(name))
+
+
+def how_to_text(exercise: CatalogExercise, ai_note: str | None) -> str | None:
+    """El "Cómo hacerlo" que se guarda: el del catálogo, fijo para cada ejercicio.
+
+    Lo que la IA escriba solo se conserva en el cardio, donde indica la intensidad de la semana.
+    """
+    if exercise.kind != ExerciseKind.CARDIO or not ai_note:
+        return exercise.how_to or None
+    return f"{exercise.how_to} {ai_note.strip()}".strip()
 
 
 def canonicalize(routine: RoutineProposal) -> RoutineProposal:
@@ -119,6 +130,7 @@ def canonicalize(routine: RoutineProposal) -> RoutineProposal:
                         "mechanic": found.mechanic,
                         "equipment": found.equipment,
                         "level": found.level,
+                        "execution_notes": how_to_text(found, item.execution_notes),
                     }
                 )
             exercises.append(item)

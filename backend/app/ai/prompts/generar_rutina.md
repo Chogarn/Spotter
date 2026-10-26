@@ -28,7 +28,7 @@ Respondé **solo** con el JSON pedido, sin texto antes ni después. Todo el text
   - `mechanic`: compound (multiarticular) o isolation (monoarticular).
   - `equipment`: barbell, dumbbell, machine, cable, bodyweight, band, kettlebell, other.
   - `level`: principiante, intermedio o avanzado (el nivel del ejercicio).
-- `execution_notes`: indicaciones breves de ejecución ("bajar lento, pausa de 2 segundos arriba"). `reason`: en una frase, por qué este ejercicio.
+- `execution_notes`: déjalo vacío en fuerza e isométricos (la técnica de cada ejercicio viene del catálogo); solo en el cardio, indica la intensidad. `reason`: en una frase, por qué este ejercicio.
 - `mobility_notes`: ver movilidad más abajo. Vacío en los días que no la llevan.
 - `notices`: avisos para el usuario (ver "Si el volumen no entra").
 - Límites técnicos: hasta 12 ejercicios por día, 10 series por ejercicio, 50 repeticiones por serie, 600 segundos por serie isométrica y 180 minutos por serie de cardio.

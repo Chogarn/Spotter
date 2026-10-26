@@ -5,7 +5,7 @@ mecánico. Se aplica a **todas** las apariciones del ejercicio en la semana, y l
 repeticiones se copian del ejercicio reemplazado (el peso queda en blanco: se ajusta al entrenar).
 """
 
-from app.ai.catalog import CatalogExercise, find, load_catalog
+from app.ai.catalog import CatalogExercise, find, how_to_text, load_catalog
 from app.ai.plan_writer import normalize_name
 from app.ai.retrieve import LEVEL_ORDER, allowed
 from app.ai.routine import ExerciseProposal, RoutineProposal
@@ -69,8 +69,8 @@ def _replace(item: ExerciseProposal, target: CatalogExercise, old_name: str) -> 
         mechanic=target.mechanic,
         equipment=target.equipment,
         level=target.level,
-        # Las indicaciones y el motivo eran del ejercicio anterior: no valen para el nuevo.
-        execution_notes=None,
+        # El motivo era del ejercicio anterior; el "cómo hacerlo" sale del catálogo.
+        execution_notes=how_to_text(target, None),
         reason=f"Lo elegiste vos en lugar de {old_name}.",
     )
     # Mismas series y repeticiones; el peso del ejercicio nuevo no se conoce.

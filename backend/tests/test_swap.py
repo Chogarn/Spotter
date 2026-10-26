@@ -103,8 +103,8 @@ def test_el_ejercicio_nuevo_trae_las_etiquetas_del_catalogo_y_copia_las_series(
     assert [s["reps"] for s in nuevo["sets"]] == [s["reps"] for s in viejo["sets"]]
     assert all(s["target_weight_kg"] is None for s in nuevo["sets"])
     assert nuevo["rest_seconds"] == viejo["rest_seconds"]
-    # Las indicaciones del anterior no valen para el nuevo.
-    assert nuevo["execution_notes"] is None
+    # El "cómo hacerlo" es el del catálogo para el ejercicio nuevo, no el del anterior.
+    assert nuevo["execution_notes"] == c.how_to
     assert PRESS in nuevo["reason"]
 
 
