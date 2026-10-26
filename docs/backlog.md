@@ -67,6 +67,8 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 - [x] Radar de series por músculo en Estadísticas y mini barra de entrenamiento en curso unida al reloj de descanso (decisión 92, 2026-10-26) `backend` `frontend` (#70)
   - **Pendiente de las referencias, sin decidir:** mapa del cuerpo, informe mensual y cabecera del día con ejercicios y músculos.
 - [x] Pantalla de cierre del día con duración, series y volumen y botones a estadísticas e Inicio (decisión 93, 2026-10-26) `frontend` (#71)
+- [x] R36 con el peso sugerido calculado por el código y la estructura del día como aviso en vez de rechazo (decisión 101, 2026-10-26) `ia` `backend`
+  - **Pendiente:** el volumen y la duración de las semanas nuevas salieron bajos en las pruebas (29 a 37 min, avisos R3); ver si es el prompt o variación de Gemini.
 - [x] Publicación extra de LinkedIn: "Tercer avance de Spotter" (estructura y días elegibles, reparto parejo de series, seguimiento del peso, interfaz renovada y cuenta más segura), publicada el 2026-10-25 `docs`
 
 > **Para la Semana 4 (idea, sin definir):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
@@ -80,7 +82,7 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 ## S5: Calidad y despliegue
 - [x] Explicación por ejercicio ("¿por qué esto?"): cubierta con el campo `reason` que trae cada ejercicio y se muestra plegado en el modo entrenar; sin botón que llame a la IA `ia` `complementaria` (#42)
 - [x] Sustitución de ejercicios en la propuesta: botón "Cambiar ejercicio" con las alternativas del catálogo, en todos los días donde aparece y sin IA (decisión 65, 2026-10-15) `backend` `frontend`. Cambiar un ejercicio ya aceptado en la semana activa **no se hace** (2026-10-26: sería anular el plan, no generarlo).
-- [ ] Animación de carga mientras se genera la rutina (hoy aparece solo un texto) `frontend`
+- [x] Animación de carga mientras se genera la rutina: pantalla completa con el disco que gira y frases (decisiones 67 y 85) `frontend`
 - [x] Cambiar la contraseña desde la pestaña Cuenta: pide la actual y cierra las sesiones de los demás aparatos (decisión 80, 2026-10-16) `backend` `frontend` (#64)
 - [ ] Aviso legal visible en la app `frontend` (#34). **En espera por decisión del usuario (2026-10-16):** la app muestra solo lo que ya tiene (tilde del paso 7, letra chica en el día y la propuesta, aviso de dolor fuerte). El borrador del texto completo y la maqueta están en [docs/aviso-legal-borrador.md](aviso-legal-borrador.md); faltan decidir el borrado de cuenta, el contacto y la revisión legal
 - [ ] Más tests y revisión de errores `backend`

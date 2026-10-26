@@ -32,6 +32,7 @@ def routine_summary(db: Session, user: User, routine: Routine) -> RoutineSummary
         days_per_week=routine.days_per_week,
         session_minutes=routine.session_minutes,
         split_type=routine.split_type,
+        created_at=routine.created_at.date(),
         last_week_day_states=week_day_states(db, user, weeks[-1]) if weeks else [],
     )
 

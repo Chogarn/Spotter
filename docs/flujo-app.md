@@ -1,6 +1,6 @@
 # Flujo de Spotter
 
-**Última revisión: 2026-10-26** (radar de series por músculo y mini barra de entrenamiento en curso; antes: split elegido, duración informativa y reparto actual de las series; antes: franja oscura, Perfil con pestaña Cuenta, logo nuevo, Entrenar con franja amarilla, asistentes de una pregunta, navegación con tres botones, Inicio con "Hoy te toca", Progreso con calendario y fecha de nacimiento).
+**Última revisión: 2026-10-26** (R36 con el peso sugerido calculado por el código y la estructura del día como aviso; antes: radar de series por músculo y mini barra de entrenamiento en curso; antes: split elegido, duración informativa y reparto actual de las series; antes: franja oscura, Perfil con pestaña Cuenta, logo nuevo, Entrenar con franja amarilla, asistentes de una pregunta, navegación con tres botones, Inicio con "Hoy te toca", Progreso con calendario y fecha de nacimiento).
 
 Este documento describe cómo se usa la aplicación de principio a fin. Es la base para definir las pantallas, la API y el modelo de datos. Las decisiones de producto reflejadas acá las tomó el usuario; lo que se descartó figura marcado y los puntos abiertos están al final.
 
@@ -112,7 +112,7 @@ La llamada a Gemini puede tardar de 10 a 90 segundos. Una **pantalla completa de
 La semana no está atada al calendario: empieza cuando la persona la activa y termina cuando la cierra con el botón. Si tarda más de siete días, sigue siendo la misma semana. Solo hay **una semana activa a la vez**; las anteriores se conservan como historial.
 
 ### Cuántos días tiene la semana
-**Los elige la persona** (decisión 52): al generar, es obligatorio. La IA arma **exactamente** esa cantidad y el código lo comprueba (si no, reintenta). También se elige una estructura compatible (decisión 91) y el código comprueba que la propuesta la respete. Como la IA no puede sumar días, si el volumen no entra alarga la sesión y avisa, y como último recurso recorta accesorios (R35). El tiempo no se elige: R34 informa la duración estimada y R18 sirve de referencia (decisión 90). R1 (mínimo 2 días) y el máximo de 6 los valida el código.
+**Los elige la persona** (decisión 52): al generar, es obligatorio. La IA arma **exactamente** esa cantidad y el código lo comprueba (si no, reintenta). También se elige una estructura compatible (decisión 91) y el código comprueba la compatibilidad; si un día no trabaja los grupos de su foco, pide la rutina de nuevo una vez y después la muestra con un aviso "Split". Como la IA no puede sumar días, si el volumen no entra alarga la sesión y avisa, y como último recurso recorta accesorios (R35). El tiempo no se elige: R34 informa la duración estimada y R18 sirve de referencia (decisión 90). R1 (mínimo 2 días) y el máximo de 6 los valida el código.
 
 ### Duración de cada sesión
 La IA decide cuánto dura cada sesión, con una **referencia según el perfil** (una guía, no un tope): principiante y "mantenerme activo" cerca de **60 minutos**; intermedio con masa o fuerza **60 a 90**; "perder grasa" **60 minutos de fuerza más el cardio**.
@@ -205,7 +205,7 @@ Toda propuesta se guarda primero y se escribe en el plan **solo al aceptarla**, 
 El cierre es siempre **manual**, con un botón. Nunca se genera la semana siguiente por fecha.
 
 1. Se toca **Cerrar semana** (al final de Entrenar). Puede hacerse aunque falten días: la app avisa cuáles faltan y esos días **cuentan como no hechos**. En el mismo recuadro hay un **comentario opcional** ("¿Cómo te sentiste esta semana?", hasta 1.000 caracteres): queda fijo y la IA lo lee.
-2. Con **Generar la semana siguiente**, la IA recibe la última semana cerrada: por ejercicio, lo planificado y lo realizado serie por serie, y una **señal** que calcula el código (superó, cumplió, no llegó o sin registrar). Aplica R9, R10 y R28: si superó sube la carga de 2 % a 10 % partiendo del peso realmente levantado; si no llegó, mantiene; si hubo dolor, no sube. Mantiene los mismos ejercicios y escribe un **resumen** que se ve arriba de la vista previa. El código avisa si un peso sube más de 10 %.
+2. Con **Generar la semana siguiente**, la IA recibe la última semana cerrada: por ejercicio, lo planificado y lo realizado serie por serie, y una **señal** que calcula el código (superó, cumplió, no llegó o sin registrar). Aplica R9, R10, R28 y R36: si superó sube la carga de 2 % a 10 % partiendo del peso realmente levantado; si no llegó, mantiene, salvo que el comentario cuente fatiga o cargas altas: ahí baja al peso sugerido que calcula el código (el planificado menos un escalón del equipo, o lo levantado si fue más bajo); si hubo dolor, no sube. Mantiene los mismos ejercicios y escribe un **resumen** que se ve arriba de la vista previa. El código avisa si un peso sube más de 10 %.
 3. La propuesta muestra **antes y después** (tarea #49): una etiqueta en cada ejercicio (↑ o ↓ antes X kg, antes 3 × 10, nuevo o sin cambios) y la pestaña "Cambios". Se acepta o se descarta.
 
 Una llamada a la IA por cierre: el gasto es predecible.

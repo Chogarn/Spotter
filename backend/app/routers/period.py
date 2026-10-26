@@ -9,10 +9,22 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_current_user
-from app.models import PlanDay, User, WorkoutSession
+from app.ai.history import signal
+from app.models import PlanDay, PlanExercise, PlanSet, SetEntry, User, WorkoutSession
 from app.ai.rules import BIG_GROUPS, COMPLEMENT
 from app.routers.weeks import MIN_WEEKLY_SETS, day_entries, measured_minutes, routine_weeks
-from app.schemas import MuscleSetsOut, PeriodBucketOut, PeriodMusclesOut, PeriodExerciseOut, PeriodSessionOut, PeriodSummaryOut
+from app.schemas import (
+    ExerciseResultOut,
+    MuscleSetsOut,
+    PlannedValuesOut,
+    RealSetOut,
+    ResultSetOut,
+    PeriodBucketOut,
+    PeriodMusclesOut,
+    PeriodExerciseOut,
+    PeriodSessionOut,
+    PeriodSummaryOut,
+)
 
 router = APIRouter(prefix="/progress", tags=["progress"])
 
@@ -63,6 +75,9 @@ def get_period_summary(
     exercises: dict[int, dict] = {}
     # Por barra (día del mes o mes del año): días entrenados, series y kilos.
     buckets: dict[date, dict] = {}
+    # Solo el día: las series de cada ejercicio, planificadas y realizadas, para la señal.
+    pairs_by_exercise: dict[int, list[tuple[PlanSet, SetEntry | None]]] = {}
+    plan_exercises: dict[int, PlanExercise] = {}
 
     for session in finished:
         if session.plan_day_id is None:
@@ -100,9 +115,12 @@ def get_period_summary(
 
         entries = day_entries(db, day)
         for plan_exercise in day.exercises:
+            plan_exercises.setdefault(plan_exercise.exercise_id, plan_exercise)
             for plan_set in plan_exercise.sets:
                 sets_planned += 1
                 entry = entries.get(plan_set.id)
+                if period == "day":
+                    pairs_by_exercise.setdefault(plan_exercise.exercise_id, []).append((plan_set, entry))
                 if entry is None:
                     continue
                 sets_done += 1
@@ -172,6 +190,35 @@ def get_period_summary(
                 best_weight_kg=float(e["weight"]) if e["weight"] is not None else None,
             )
             for e in sorted(exercises.values(), key=lambda e: (-e["sets"], e["name"]))
+        ],
+        results=[
+            ExerciseResultOut(
+                name=plan_exercises[exercise_id].exercise.name,
+                kind=plan_exercises[exercise_id].exercise.kind.value,
+                signal=signal(pairs),
+                sets=[
+                    ResultSetOut(
+                        planned=PlannedValuesOut(
+                            reps=plan_set.reps,
+                            duration_minutes=plan_set.duration_minutes,
+                            duration_seconds=plan_set.duration_seconds,
+                            weight_kg=float(plan_set.target_weight_kg)
+                            if plan_set.target_weight_kg is not None
+                            else None,
+                        ),
+                        real=RealSetOut(
+                            reps=entry.reps,
+                            duration_minutes=entry.duration_minutes,
+                            duration_seconds=entry.duration_seconds,
+                            weight_kg=float(entry.weight_kg) if entry.weight_kg is not None else None,
+                        )
+                        if entry is not None
+                        else None,
+                    )
+                    for plan_set, entry in pairs
+                ],
+            )
+            for exercise_id, pairs in pairs_by_exercise.items()
         ],
     )
 

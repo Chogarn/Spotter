@@ -213,7 +213,7 @@ Más peso con menos repeticiones cuenta como progresión (decisión 73).
 |---|---|---|
 | Superó | Sube la carga **entre 2 % y 10 %**, redondeada al salto de peso del equipo y nunca menos de un salto. Parte del **peso que realmente levantó** | Convención (R9, R28; ACSM 2009, que el ACSM 2026 reemplazó) |
 | Cumplió | Mantiene la carga y las repeticiones | Fuente |
-| No llegó | **Mantiene** la carga. Baja **un escalón respecto del peso planificado** (el salto mínimo del equipo, sin porcentaje; si lo levantado ya fue más bajo, usa lo levantado) y lo cuenta como una baja en el resumen, solo si el comentario cuenta fatiga o cargas demasiado altas (o hay una marca vieja de "muy pesada") | Diseño (R36) |
+| No llegó | **Mantiene** la carga. Baja **un escalón respecto del peso planificado** (el peso lo calcula el código y se lo pasa a la IA; decisión 101) (el salto mínimo del equipo, sin porcentaje; si lo levantado ya fue más bajo, usa lo levantado) y lo cuenta como una baja en el resumen, solo si el comentario cuenta fatiga o cargas demasiado altas (o hay una marca vieja de "muy pesada") | Diseño (R36) |
 | Sin registrar | Es información, no un error: no lo castiga ni lo rellena | Diseño |
 
 Un dato aislado no decide: una sola serie rara no cambia la carga de todo el ejercicio. Mantiene los **mismos ejercicios** de la semana anterior (solo cambia uno si hay dolor o una limitación que lo pida).

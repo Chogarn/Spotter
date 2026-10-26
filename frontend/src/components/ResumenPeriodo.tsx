@@ -1,10 +1,10 @@
 "use client";
 
-import { tituloDia } from "@/lib/format";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
+import { ComoTeFueResumen } from "@/components/ComoTeFueResumen";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { CargandoDiscos } from "@/components/Cargando";
 import { apiFetch, readError, type PeriodBucket, type PeriodSummary } from "@/lib/api";
@@ -100,6 +100,12 @@ export function ResumenPeriodo({ tramo }: { tramo: Tramo }) {
         </section>
       ) : (
         <>
+          {tramo === "day" && (
+            <>
+              <h2 className="mt-3 mb-0 text-4xl">{datos.sessions.map((s) => `Día ${s.day_index}`).join(" · ")}</h2>
+              <p className="mt-0 text-muted-foreground">Completado · lo que hiciste este día</p>
+            </>
+          )}
           <div
             className={cn(
               "mb-4 grid gap-2",
@@ -113,9 +119,15 @@ export function ResumenPeriodo({ tramo }: { tramo: Tramo }) {
             {datos.duration_minutes !== null && <Numero valor={String(datos.duration_minutes)} texto="min entrenando" />}
           </div>
 
-          {datos.buckets.length > 0 && <Barras datos={datos} tramo={tramo} />}
-          <Dias datos={datos} />
-          <Ejercicios datos={datos} />
+          {tramo === "day" ? (
+            <ComoTeFueResumen ejercicios={datos.results} vacio="Este día no registraste series." />
+          ) : (
+            <>
+              {datos.buckets.length > 0 && <Barras datos={datos} tramo={tramo} />}
+              <Dias datos={datos} />
+              <Ejercicios datos={datos} />
+            </>
+          )}
         </>
       )}
     </>
@@ -299,7 +311,7 @@ function ListaPlegable({
 // Los días que se completaron: cada uno enlaza al día, para mirarlo.
 function Dias({ datos }: { datos: PeriodSummary }) {
   return (
-    <ListaPlegable titulo={datos.period === "day" ? "Lo que entrenaste" : "Días entrenados"} total={datos.sessions.length}>
+    <ListaPlegable titulo={datos.period === "day" ? "Rutina" : "Días entrenados"} total={datos.sessions.length}>
       {(visibles) => (
         <ul className="m-0 list-none p-0">
           {datos.sessions.slice(0, visibles).map((s) => (
@@ -311,12 +323,8 @@ function Dias({ datos }: { datos: PeriodSummary }) {
                 <span className="w-10 shrink-0 font-heading text-lg font-semibold text-muted-foreground">
                   {Number(s.local_date.slice(8))}/{Number(s.local_date.slice(5, 7))}
                 </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block font-heading text-lg leading-tight font-semibold">{tituloDia(s.title)}</span>
-                  <span className="block text-sm text-muted-foreground">
-                    {s.routine_name} · semana {s.week_number}
-                    {s.duration_minutes !== null && ` · ${s.duration_minutes} min`}
-                  </span>
+                <span className="min-w-0 flex-1 font-heading text-lg leading-tight font-semibold">
+                  Día {s.day_index}
                 </span>
                 <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               </Link>

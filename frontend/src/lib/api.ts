@@ -122,6 +122,7 @@ export type Routine = {
   days_per_week: number | null; // cuántos días por semana entrena (decisión 52)
   session_minutes: number | null; // cuánto dura cada sesión (decisión 82)
   split_type: "full_body" | "upper_lower" | "ppl" | null;
+  created_at: string; // cuándo se creó la rutina, "2026-10-26"
   last_week_day_states: DayState[]; // los días de la semana más nueva, en orden
 };
 
@@ -344,4 +345,5 @@ export type PeriodSummary = {
   buckets: PeriodBucket[]; // una barra por día (mes) o por mes (año); vacío en el día
   sessions: PeriodSession[];
   exercises: PeriodExercise[];
+  results: WeekSummaryDetail["exercises"]; // solo el día: cómo le fue en cada ejercicio
 };

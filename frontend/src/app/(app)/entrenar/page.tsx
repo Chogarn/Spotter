@@ -1,6 +1,7 @@
 "use client";
 
-import { tituloDia } from "@/lib/format";
+import { nombreCorto } from "@/lib/format";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -57,7 +58,7 @@ export default function Entrenar() {
       <Franja
         titulo="Entrenar"
         aros="amarillo"
-        subtitulo={semana ? `${semana.routine_name} · semana ${semana.number}` : undefined}
+        subtitulo={semana ? `${nombreCorto(semana.routine_name)} · semana ${semana.number}` : undefined}
       />
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
         {error && <ErrorMessage>{error}</ErrorMessage>}
@@ -81,17 +82,14 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
         {proximo ? (
           <>
             <p className="m-0 text-sm text-muted-foreground">Te toca</p>
-            <h2 className="m-0 text-6xl">Día {proximo.day_index}</h2>
-            <p className="mt-1 mb-4 text-muted-foreground">
-              {tituloDia(proximo.title)} · ~{proximo.minutes} min · {proximo.exercise_count} ejercicios
-            </p>
+            <h2 className="mt-0 mb-4 text-6xl">Día {proximo.day_index}</h2>
             <Button
               size="xl"
               className="w-full"
               nativeButton={false}
               render={<Link href={`/semanas/${semana.id}/dia/${proximo.day_index}/entrenar`} />}
             >
-              Empezar día {proximo.day_index}
+              Empezar
             </Button>
           </>
         ) : (
@@ -114,10 +112,8 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
               className="flex items-center gap-3 rounded-xl bg-card px-4 py-3 no-underline hover:bg-muted"
             >
               <Disco estado={estadoDia[d.state]} hoy={d.day_index === proximo?.day_index} />
-              <span className="flex-1">
-                <span className="font-medium">Día {d.day_index}</span> · {tituloDia(d.title)}
-              </span>
-              <span className="text-sm text-muted-foreground">~{d.minutes} min</span>
+              <span className="flex-1 font-medium">Día {d.day_index}</span>
+              <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
             </Link>
           </li>
         ))}

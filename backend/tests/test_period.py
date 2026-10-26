@@ -74,6 +74,21 @@ def test_el_dia_trae_lo_hecho_ese_dia(api):
     assert periodo(api, "day", "2026-10-08")["days_trained"] == 0
 
 
+def test_el_dia_trae_como_le_fue_en_cada_ejercicio(api):
+    semana = crear_semana(api, date(2026, 10, 5), PlanStatus.ACTIVE)
+    entrenar(api, semana, 1, utc(2026, 10, 7), reps=10, peso=50)
+
+    dia = periodo(api, "day", "2026-10-07")
+    mes = periodo(api, "month", "2026-10-07")
+
+    press = next(r for r in dia["results"] if r["name"] == "Press de banca con barra")
+    assert press["signal"] in ("superó", "cumplió", "no llegó", "sin registrar")
+    assert press["sets"][0]["real"] == {
+        "reps": 10, "duration_minutes": None, "duration_seconds": None, "weight_kg": 50
+    }
+    assert mes["results"] == []  # solo el día trae el detalle por ejercicio
+
+
 def test_el_mes_suma_los_dias_y_da_una_barra_por_dia(api):
     semana = crear_semana(api, date(2026, 10, 5), PlanStatus.ACTIVE)
     entrenar(api, semana, 1, utc(2026, 10, 7), reps=10, peso=50)

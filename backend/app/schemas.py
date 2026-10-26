@@ -264,6 +264,7 @@ class RoutineSummaryOut(BaseModel):
     days_per_week: int | None
     session_minutes: int | None = None
     split_type: RoutineSplit | None = None
+    created_at: date  # cuándo se creó la rutina (la muestra el ⓘ de la lista)
     # Estado de cada día de la semana más nueva ("completed", "partial" o "pending"), en orden;
     # la lista "Tus rutinas" lo muestra como discos. Vacía si la rutina no tiene semanas.
     last_week_day_states: list[str] = []
@@ -636,6 +637,8 @@ class PeriodSummaryOut(BaseModel):
     buckets: list[PeriodBucketOut]  # vacío para el día
     sessions: list[PeriodSessionOut]
     exercises: list[PeriodExerciseOut]
+    # Solo para el día: cómo le fue en cada ejercicio (la misma señal que el resumen de la semana).
+    results: list[ExerciseResultOut] = []
 
 
 class PeriodMusclesOut(BaseModel):

@@ -10,6 +10,7 @@ import { DiscosSemana } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Franja } from "@/components/Franja";
 import { IconoObjetivo } from "@/components/IconoObjetivo";
+import { InfoRutina } from "@/components/InfoRutina";
 import { NuevaRutina } from "@/components/NuevaRutina";
 import { Button } from "@/components/ui/button";
 import { CargandoDiscos } from "@/components/Cargando";
@@ -43,10 +44,10 @@ export default function MisRutinasPage() {
       {rutinas && rutinas.length > 0 && (
         <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0">
           {rutinas.map((r) => (
-            <li key={r.id} className="min-w-0">
+            <li key={r.id} className="relative min-w-0">
               <Link
                 href={`/rutinas/${r.id}`}
-                className="flex items-center gap-3 rounded-2xl bg-card p-3 no-underline hover:bg-muted"
+                className="flex min-h-[5.75rem] items-center gap-3 rounded-2xl bg-card py-3 pr-14 pl-3 no-underline hover:bg-muted"
               >
                 {/* El aro del ícono dice el estado: rojo = en curso, gris = lista para continuar (decisión 77). */}
                 <IconoObjetivo objetivo={r.goal} tamano="md" aro={r.has_active_week ? "rojo" : "gris"} />
@@ -69,8 +70,10 @@ export default function MisRutinasPage() {
                     </span>
                   )}
                 </span>
-                <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <ChevronRight className="absolute right-4 bottom-4 size-5 text-muted-foreground" aria-hidden="true" />
               </Link>
+              {/* El ⓘ va arriba a la derecha, fuera del enlace, y abre todos los datos de la rutina. */}
+              <InfoRutina rutina={r} className="absolute top-2 right-3" />
             </li>
           ))}
         </ul>

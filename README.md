@@ -30,8 +30,8 @@ El proyecto se construye por etapas. Hoy funciona de punta a punta:
 - **Perfil** en dos pestañas (Perfil y Cuenta): cada dato se edita por separado.
 - **Generar rutina** con vista previa, avisos de las reglas, aceptar o descartar, y cambiar un ejercicio sin IA. Una sola generación a la vez, con topes de uso de la IA que se aplican antes de cada llamada.
 - **Inicio, Entrenar y Rutinas:** la semana en curso, el modo entrenar con reloj de descanso, las rutinas con sus semanas y días (mirar sin registrar) y reabrir semanas o días cerrados.
-- **Semana nueva:** al continuar una rutina, la IA lee lo planificado frente a lo real (con una señal por ejercicio: superó, cumplió o no llegó) y el comentario de cierre, y propone la siguiente. Sube la carga si superaste lo planificado, la mantiene si no llegaste y baja un escalón si el comentario cuenta fatiga o cargas altas.
-- **Progreso:** resúmenes de cada semana, radar de músculos, mapa muscular sobre el cuerpo, evolución por ejercicio, calendario y seguimiento del peso con IMC.
+- **Semana nueva:** al continuar una rutina, la IA lee lo planificado frente a lo real (con una señal por ejercicio: superó, cumplió o no llegó) y el comentario de cierre, y propone la siguiente. Sube la carga si superaste lo planificado, la mantiene si no llegaste y, si el comentario cuenta fatiga o cargas altas, baja un escalón: el peso lo calcula el código, no la IA.
+- **Progreso:** resúmenes por día y por semana (con "Cómo te fue": superaste, cumpliste o no llegaste en cada ejercicio), radar de músculos, mapa muscular sobre el cuerpo, evolución por ejercicio, calendario y seguimiento del peso con IMC.
 - **Interfaz** con el estilo "Disco" (inspirado en los discos de pesas) sobre shadcn/ui y Tailwind; ver [docs/sistema-de-diseno.md](docs/sistema-de-diseno.md).
 
 **Todavía no está:** el despliegue en producción, las capturas de pantalla en este archivo y la revisión de los criterios y del catálogo por una persona con formación en educación física.

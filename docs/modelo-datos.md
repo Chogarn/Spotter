@@ -31,6 +31,10 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0022` tiempo de la sesión | Agrega `routines.session_minutes` (30 a 120; dato guardado y apagado desde decisión 90) y `workout_sessions.started_at`: cuándo tocó "Empezar día" (decisión 82) | Implementada |
 | `0024` estructura de entrenamiento | Agrega `routines.split_type` para guardar Full Body, torso/pierna o PPL (decisión 91) | Implementada |
 | `0023` mediciones de cuerpo | Crea `body_measurements`: el peso (y la grasa corporal, opcional) de cada día, cargados a mano; parte del peso actual de cada perfil (decisión 87) | Implementada |
+| `0025` borrar cuenta | `ai_calls.user_id` pasa a opcional con `SET NULL`: al borrar un usuario sus llamadas a la IA quedan sin dueño y siguen contando para los topes (decisión 96) | Implementada |
+| `0026` cambiar correo | Crea `email_changes` (un pedido de cambio de correo por usuario, con el código en hash y vencimiento de 24 horas; decisión 97) | Implementada |
+| `0027` aductores, antebrazo y tibial | Suma `adductors`, `forearm` y `tibialis` al enum de músculos (grupos complemento; decisión 99) | Implementada |
+| `0028` objetivos unificados | "Condición general" pasa a "mantenerme activo" en rutinas y propuestas; el objetivo queda en 4 valores (decisión 100) | Implementada |
 | `0020` cambio de contraseña | Suma `users.password_changed_at` (nula): al cambiar la contraseña se cierran las sesiones de los demás aparatos (decisión 80) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
@@ -214,6 +218,16 @@ Un registro que espera que se verifique el correo (decisión 81). **El usuario t
 | token_hash | Hash (SHA-256) del código del enlace; el código nunca se guarda. Único |
 | expires_at | A las 24 horas |
 
+### email_changes
+Un pedido de cambio de correo (decisión 97). **El correo del usuario no cambia hasta que se toca el enlace**, que llega a la dirección nueva. Una fila por usuario: un pedido nuevo reemplaza al anterior.
+
+| Campo | Detalle |
+|---|---|
+| user_id | Dueño del pedido (se borra con el usuario) |
+| new_email | El correo nuevo |
+| token_hash | Hash (SHA-256) del código del enlace; el código nunca se guarda. Único |
+| expires_at | A las 24 horas |
+
 ### password_resets
 Un enlace para elegir una contraseña nueva. De un solo uso: `used_at` se llena al usarlo, y pedir otro anula los anteriores sin usar.
 
@@ -261,7 +275,7 @@ Ejercicios conocidos por la app. La tabla se completa al guardar un plan. Desde 
 | kind | `strength` (series y repeticiones), `cardio` (minutos) o `isometric` (segundos, como la plancha). Por defecto `strength` |
 | region | `upper`, `lower`, `core` o `full_body` (cardio y cuerpo entero) |
 | direction | `push`, `pull` o `none` (piernas, core y cardio) |
-| primary_muscle | `chest`, `back`, `shoulders`, `biceps`, `triceps`, `quadriceps`, `hamstrings`, `glutes`, `calves`, `core` o `full_body` |
+| primary_muscle | `chest`, `back`, `shoulders`, `biceps`, `triceps`, `quadriceps`, `hamstrings`, `glutes`, `calves`, `core`, `adductors`, `forearm`, `tibialis` o `full_body` |
 | secondary_muscles | Lista de músculos secundarios (los mismos valores). Vacía por defecto. Se cuenta a 0,5 (R5). La valida Pydantic, no la base |
 | mechanic | `compound` (multiarticular) o `isolation` (monoarticular) |
 | equipment | `barbell`, `dumbbell`, `machine`, `cable`, `bodyweight`, `band`, `kettlebell` u `other` |
@@ -275,7 +289,10 @@ Una rutina agrupa las semanas que el usuario va sumando con un mismo objetivo, n
 | Campo | Detalle |
 |---|---|
 | name | Se arma solo ("Fuerza · desde el 9/10"; si ya existe uno igual, se le suma " 2", " 3") y el usuario lo puede cambiar |
-| goal | **Obligatorio.** `masa`, `fuerza`, `perder_grasa` o `mantenerme_activo` |
+| goal | **Obligatorio.** `masa`, `fuerza`, `perder_grasa` o `mantenerme_activo` (desde la migración 0028; antes también `condicion_general`) |
+| days_per_week | Días que entrena por semana (2 a 6), elegidos por la persona; se pueden cambiar al continuar (decisión 52) |
+| split_type | Estructura: `full_body`, `upper_lower` o `ppl` (decisión 91); nula en rutinas anteriores |
+| session_minutes | Dato histórico apagado desde la decisión 90 |
 | level | **Obligatorio.** `principiante`, `intermedio` o `avanzado`. Queda fijo mientras sigue la rutina; para subir de nivel se empieza otra |
 | created_at | Cuándo se creó, al aceptar la primera semana |
 
@@ -395,7 +412,7 @@ Lo que propone la IA antes de aplicarse.
 | resolved_at | Cuándo el usuario aceptó o descartó |
 
 ### ai_calls
-Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan contando estas filas.
+Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan contando estas filas. `user_id` es opcional: al borrar una cuenta las filas quedan sin dueño (migración 0025) y no se borran nunca.
 
 ### catalog_embeddings
 El vector de cada ejercicio del catálogo (`backend/app/ai/exercises.json`), para recuperarlo por similitud (RAG, decisión 58). Es un dato **derivado**: se puede borrar y volver a generar con `python -m app.scripts.index_catalog`.
@@ -415,7 +432,7 @@ En `ai_calls`, una llamada de embeddings ocupa **una fila por texto** (Google cu
 1. **Los ejercicios salen de un catálogo** (decisión 58). La IA elige de la lista que recupera `retrieve.py` y el código rechaza lo que no esté. Al guardar un plan se busca el ejercicio por `name_normalized`; si no existe, se crea. Así "Press banca" y "press de banca" son el mismo ejercicio y el historial queda comparable.
 2. **Planificado y real van separados.** `plan_exercises` guarda lo que toca y `set_entries` lo que se hizo. Esa diferencia es la base del análisis semanal.
 3. **La IA propone y el usuario decide.** Los cambios se guardan primero en `plan_proposals` con estado `pending` y solo se escriben en `week_plans` cuando el usuario acepta.
-4. **`ai_calls` no se borra.** Igual que el tope diario de Gemini, depende de contar filas; borrarlas permitiría saltearse el límite. Por eso no hay endpoint para eliminarlas.
+4. **`ai_calls` no se borra.** Igual que el tope diario de Gemini, depende de contar filas; borrarlas permitiría saltearse el límite. Por eso no hay endpoint para eliminarlas, y borrar un usuario las deja sin dueño en vez de arrastrarlas.
 5. **Historial de semanas.** Cada semana es un `week_plan` propio con su estado; al cerrarla pasa a `closed` y se conserva.
 6. **El plan no se edita a mano.** Antes `edited_by_user` iba a evitar que la IA pisara ediciones del usuario; como el plan solo lo cambia la IA (decisión 35), la columna quedó sin uso. Lo que el usuario edita es lo realizado (`set_entries`).
 7. **La semana es un ciclo que el usuario cierra.** `closed_at` queda vacío hasta que el usuario toca "Cerrar semana". Se puede cerrar con días sin hacer: esos días se cuentan como no hechos y viajan a la IA como información.
