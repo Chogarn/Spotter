@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.ai.history import signal
 from app.ai.plan_writer import active_week
-from app.ai.rules import estimate_day_minutes
+from app.ai.rules import BIG_GROUPS, estimate_day_minutes
 from app.db import get_db
 from app.deps import get_current_user
 from app.enums import ExerciseKind, LoadFeel, PainLevel, PlanStatus, ProposalKind, ProposalStatus
@@ -32,12 +32,14 @@ from app.schemas import (
     DayStatusOut,
     ExerciseFeelIn,
     ExerciseResultOut,
+    MuscleSetsOut,
     PlannedValuesOut,
     RealSetOut,
     ResultSetOut,
     SetEntryIn,
     WeekDayItemOut,
     WeekDetailOut,
+    WeekMusclesOut,
     WeekOut,
     WeekSummaryDetailOut,
     WeekSummaryOut,
@@ -277,7 +279,24 @@ def exercise_out(
     )
 
 
-# /active va antes que /{week_id}, si no "active" se tomaría como un id.
+# R3: series semanales mínimas por grupo grande.
+MIN_WEEKLY_SETS = 10
+
+
+def done_sets_by_muscle(db: Session, week: WeekPlan) -> dict:
+    """Series hechas en la semana por grupo grande, con el músculo como principal (las indirectas
+    no suman, como en el reparto de la decisión 90). Una serie cuenta si tiene lo realizado."""
+    counts = {muscle: 0 for muscle in BIG_GROUPS}
+    for day in week.days:
+        entries = day_entries(db, day)
+        for exercise in day.exercises:
+            muscle = exercise.exercise.primary_muscle
+            if muscle in counts:
+                counts[muscle] += sum(1 for s in exercise.sets if s.id in entries)
+    return counts
+
+
+# /active y /muscles van antes que /{week_id}, si no se tomarían como un id.
 @router.get("/active", response_model=WeekOut)
 def get_active_week(
     user: User = Depends(get_current_user), db: Session = Depends(get_db)
@@ -300,6 +319,41 @@ def get_active_week(
             ),
             None,
         ),
+    )
+
+
+@router.get("/muscles", response_model=WeekMusclesOut)
+def get_latest_week_muscles(
+    user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> WeekMusclesOut:
+    """Series hechas por grupo muscular en la última semana (la activa o, si no hay, la última
+    cerrada), junto a las de la semana cerrada anterior de su rutina. Para el radar."""
+    week = active_week(db, user.id) or db.scalar(
+        select(WeekPlan)
+        .where(WeekPlan.user_id == user.id, WeekPlan.status == PlanStatus.CLOSED)
+        .order_by(WeekPlan.week_start.desc(), WeekPlan.id.desc())
+    )
+    if week is None:
+        raise HTTPException(status_code=404, detail="Todavía no tenés semanas")
+    _, number = get_own_week(db, user, week.id)
+    current = done_sets_by_muscle(db, week)
+    before = previous_week(db, week)
+    previous = None if before is None else done_sets_by_muscle(db, before)
+    return WeekMusclesOut(
+        week_id=week.id,
+        number=number,
+        routine_name=week.routine.name,
+        status=week.status.value,
+        minimum=MIN_WEEKLY_SETS,
+        has_previous=previous is not None,
+        muscles=[
+            MuscleSetsOut(
+                muscle=muscle.value,
+                sets=current[muscle],
+                previous_sets=None if previous is None else previous[muscle],
+            )
+            for muscle in BIG_GROUPS
+        ],
     )
 
 

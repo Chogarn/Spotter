@@ -206,6 +206,18 @@ export type CalendarMonth = {
 };
 
 // El resumen de una semana para Progreso (#28): se calcula en el backend, no se guarda.
+// Series hechas por grupo grande en la última semana, para el radar de Estadísticas.
+export type MuscleSets = { muscle: string; sets: number; previous_sets: number | null };
+export type WeekMuscles = {
+  week_id: number;
+  number: number;
+  routine_name: string;
+  status: "active" | "closed";
+  minimum: number; // R3: series semanales mínimas por grupo grande
+  has_previous: boolean;
+  muscles: MuscleSets[];
+};
+
 export type WeekSummaryDetail = {
   week_id: number;
   routine_id: number;

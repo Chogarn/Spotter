@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
+import { MiniBarraEntreno } from "@/components/MiniBarraEntreno";
 import { type Week, apiFetch } from "@/lib/api";
 import { cn } from "cn";
 
@@ -95,6 +96,9 @@ function Barra({ pathname }: { pathname: string | null }) {
   }
 
   return (
+    <>
+      {/* "Entrenando ahora": en toda pantalla que no sea de la sección Entrenar. */}
+      <MiniBarraEntreno visible={pathname !== null && !SECCIONES[1].activa(pathname)} />
     <nav
       aria-label="Secciones"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]"
@@ -128,5 +132,6 @@ function Barra({ pathname }: { pathname: string | null }) {
         })}
       </ul>
     </nav>
+    </>
   );
 }

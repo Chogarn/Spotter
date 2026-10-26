@@ -1,6 +1,6 @@
 # Flujo de Spotter
 
-**Última revisión: 2026-10-23** (split elegido, duración informativa y reparto actual de las series; antes: franja oscura, Perfil con pestaña Cuenta, logo nuevo, Entrenar con franja amarilla, asistentes de una pregunta, navegación con tres botones, Inicio con "Hoy te toca", Progreso con calendario y fecha de nacimiento).
+**Última revisión: 2026-10-26** (radar de series por músculo y mini barra de entrenamiento en curso; antes: split elegido, duración informativa y reparto actual de las series; antes: franja oscura, Perfil con pestaña Cuenta, logo nuevo, Entrenar con franja amarilla, asistentes de una pregunta, navegación con tres botones, Inicio con "Hoy te toca", Progreso con calendario y fecha de nacimiento).
 
 Este documento describe cómo se usa la aplicación de principio a fin. Es la base para definir las pantallas, la API y el modelo de datos. Las decisiones de producto reflejadas acá las tomó el usuario; lo que se descartó figura marcado y los puntos abiertos están al final.
 
@@ -124,7 +124,7 @@ Los días se nombran por orden y no por día de la semana (no hay "lunes" ni "ma
 ## Dónde está cada cosa
 
 ### La barra de abajo
-Fija, siempre, también en la computadora. Tiene **tres lugares**: **Inicio**, **Entrenar** (al centro, redondo y elevado) y **Perfil**. Rutinas y Progreso se abren desde Inicio, y mientras se está en ellos Inicio queda marcado.
+Fija, siempre, también en la computadora. **Mini barra "entrenando ahora"** (decisión 92): mientras haya un día empezado y sin completar, una píldora oscura encima de la barra, fuera de la sección Entrenar, con el día, el contador y el ejercicio activo; "Seguir" vuelve al modo entrenar. Si corre el reloj de descanso, la misma píldora muestra la cuenta atrás y al terminar vuelve el contador. Tiene **tres lugares**: **Inicio**, **Entrenar** (al centro, redondo y elevado) y **Perfil**. Rutinas y Progreso se abren desde Inicio, y mientras se está en ellos Inicio queda marcado.
 
 ### Inicio (`/`)
 - **Franja oscura** (decisiones 78 y 79: todas las pantallas la llevan, menos el modo entrenar; Entrenar y el día llevan aro amarillo) con el logo, "Hola, nombre" y dos aros asomando (el rojo grande y uno azul, como en la bienvenida; decisión 77). Sin fecha: no aportaba, porque los días del plan son "Día 1, Día 2" (a pedido del usuario, 2026-10-16).
@@ -147,7 +147,7 @@ Tres pestañas:
 | Pestaña | Qué muestra |
 |---|---|
 | **Resúmenes** | La semana elegida de una rutina: días y series hechas, kilos movidos y minutos de cardio; "Cómo te fue" (un disco por estado: superaste, cumpliste, no llegaste, sin registrar, con el detalle ejercicio por ejercicio plegado, donde cada ejercicio dice "Hiciste … / Tocaba …" cuando difiere de lo planificado); lo que dijo la IA y el comentario que se escribió al cerrar |
-| **Estadísticas** | La evolución de un ejercicio por fecha, **acumulando todas las rutinas** (decisión 69), con el récord marcado |
+| **Estadísticas** | Arriba, el **radar de series por músculo** (decisión 92): las series hechas en la última semana en los 6 grupos grandes, contra el mínimo de 10 (R3) y la semana pasada. Debajo, la evolución de un ejercicio por fecha, **acumulando todas las rutinas** (decisión 69), con el récord marcado |
 | **Calendario** | Un mes en cuadrícula con un disco en cada día entrenado, hoy con aro azul; histórico, desde el primer entrenamiento. Tocar un día muestra qué se hizo |
 
 ## Entrenar un día
@@ -157,7 +157,7 @@ Tres pestañas:
 
 - **Entrada en calor:** si el día tiene movilidad, es el primer paso (decisión 56). No tiene series ni cuenta como ejercicio hecho.
 - **Serie hecha:** guarda lo planificado; se corrige con el lápiz.
-- **Reloj de descanso:** un botón redondo lo arranca, nunca solo, con el descanso del ejercicio; −15 s, +15 s y Saltar. Al llegar a cero vibra, y si se sale a otra pantalla una franja arriba de la barra lo muestra (decisión 48).
+- **Reloj de descanso:** un botón redondo lo arranca, nunca solo, con el descanso del ejercicio; −15 s, +15 s y Saltar. Al llegar a cero vibra, y si se sale a otra pantalla lo muestra la mini barra "entrenando ahora" (decisiones 48 y 92); si no hay un día en curso, una franja arriba de la barra.
 - Al terminar las series del ejercicio, lo marca y sigue con el próximo sin hacer; si se sale, retoma donde quedó. Flechas ‹ › para pasar de ejercicio.
 - Al terminar los ejercicios aparece **Día completado**, que cierra el día y **lleva a Inicio**, donde ya figura lo que toca después.
 

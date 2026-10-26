@@ -32,6 +32,9 @@ type Descanso = {
   olvidarAviso: () => void;
   // El ejercicio que muestra el círculo avisa que está a la vista, para no repetirlo en la franja.
   setMostrando: (mostrando: boolean) => void;
+  // La mini barra de "entrenando ahora" avisa que está a la vista: ella muestra la cuenta atrás,
+  // así que la franja del descanso no se repite.
+  setMiniBarra: (visible: boolean) => void;
 };
 
 const Contexto = createContext<Descanso | null>(null);
@@ -69,6 +72,7 @@ export function DescansoProvider({ children }: { children: React.ReactNode }) {
   const [ahora, setAhora] = useState(0);
   const [terminado, setTerminado] = useState<string | null>(null);
   const [mostrando, setMostrandoEstado] = useState(false);
+  const [miniBarra, setMiniBarraEstado] = useState(false);
 
   // Recupera un descanso que seguía corriendo antes de recargar. Va en un callback (y no en el
   // render) porque el almacenamiento solo existe en el navegador, no al prerenderizar.
@@ -137,15 +141,16 @@ export function DescansoProvider({ children }: { children: React.ReactNode }) {
 
   const olvidarAviso = useCallback(() => setTerminado(null), []);
   const setMostrando = useCallback((valor: boolean) => setMostrandoEstado(valor), []);
+  const setMiniBarra = useCallback((valor: boolean) => setMiniBarraEstado(valor), []);
 
   const restanteMs = corriendo ? Math.max(corriendo.fin - ahora, 0) : 0;
 
   return (
     <Contexto.Provider
-      value={{ corriendo, restanteMs, terminado, iniciar, ajustar, saltar, olvidarAviso, setMostrando }}
+      value={{ corriendo, restanteMs, terminado, iniciar, ajustar, saltar, olvidarAviso, setMostrando, setMiniBarra }}
     >
       {children}
-      {corriendo && !mostrando && <FranjaDescanso corriendo={corriendo} restanteMs={restanteMs} />}
+      {corriendo && !mostrando && !miniBarra && <FranjaDescanso corriendo={corriendo} restanteMs={restanteMs} />}
     </Contexto.Provider>
   );
 }
@@ -157,7 +162,7 @@ export function reloj(ms: number): string {
 }
 
 // Para lectores de pantalla: "1 minuto 24 segundos".
-function relojEnPalabras(ms: number): string {
+export function relojEnPalabras(ms: number): string {
   const segundos = Math.ceil(ms / 1000);
   const m = Math.floor(segundos / 60);
   const s = segundos % 60;

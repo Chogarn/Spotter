@@ -23,7 +23,7 @@ function formato(total: number): string {
 // El contador de la sesión (decisión 82): cuenta desde la hora en que se tocó "Empezar día"
 // (`desde`, ISO). Se calcula con esa hora y no sumando segundos, así sigue bien si se bloquea la
 // pantalla. Es solo un dato: no hace nada al llegar a ningún tiempo.
-export function ContadorSesion({ desde }: { desde: string }) {
+export function ContadorSesion({ desde, className }: { desde: string; className?: string }) {
   const ahora = useSyncExternalStore(suscribirse, segundosAhora, sinHora);
   if (ahora === null) return null;
   const segundos = Math.max(0, ahora - Math.floor(new Date(desde).getTime() / 1000));
@@ -31,7 +31,7 @@ export function ContadorSesion({ desde }: { desde: string }) {
     <span
       role="timer"
       aria-label="Tiempo de la sesión"
-      className="font-heading text-lg font-bold tabular-nums text-foreground"
+      className={className ?? "font-heading text-lg font-bold tabular-nums text-foreground"}
     >
       {formato(segundos)}
     </span>

@@ -549,3 +549,21 @@ class CalendarOut(BaseModel):
     total_days: int  # días entrenados en total
     month_days: int  # días entrenados en el mes pedido
     sessions: list[CalendarSessionOut]
+
+
+class MuscleSetsOut(BaseModel):
+    muscle: str  # uno de los 6 grupos grandes (R3)
+    sets: int  # series hechas esta semana, con el músculo como principal
+    previous_sets: int | None  # lo mismo en la semana cerrada anterior de la rutina
+
+
+class WeekMusclesOut(BaseModel):
+    """Series hechas por grupo muscular en la última semana, para el radar de Estadísticas."""
+
+    week_id: int
+    number: int  # dentro de su rutina
+    routine_name: str
+    status: str
+    minimum: int  # R3: series semanales mínimas por grupo grande
+    has_previous: bool
+    muscles: list[MuscleSetsOut]
