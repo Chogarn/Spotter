@@ -1,12 +1,12 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { CargandoDiscos } from "@/components/Cargando";
-import { apiFetch, readError, type PeriodSummary } from "@/lib/api";
+import { apiFetch, readError, type PeriodBucket, type PeriodSummary } from "@/lib/api";
 import { cn } from "cn";
 
 export type Tramo = "day" | "month" | "year";
@@ -160,29 +160,81 @@ export function Navegador({
   );
 }
 
-// Una barra por día (mes) o por mes (año): las series hechas.
+// Una barra por día (mes) o por mes (año): las series hechas. Con referencia: líneas guía con su
+// valor a la izquierda y, al pasar el mouse o tocar una barra, el día y la cantidad arriba.
 function Barras({ datos, tramo }: { datos: PeriodSummary; tramo: Tramo }) {
-  const maximo = Math.max(1, ...datos.buckets.map((b) => b.sets_done));
+  const [activo, setActivo] = useState<number | null>(null);
+  const mayor = Math.max(1, ...datos.buckets.map((b) => b.sets_done));
+  // El tope del gráfico: un número redondo por encima de la barra más alta.
+  const paso = mayor <= 10 ? 5 : mayor <= 40 ? 10 : mayor <= 100 ? 20 : 50;
+  const tope = Math.ceil(mayor / paso) * paso;
+  const guias = [tope, tope / 2, 0];
   const cada = tramo === "month" ? 5 : 1;
   const resumen = datos.buckets
     .filter((b) => b.sets_done > 0)
     .map((b) => `${b.label}: ${b.sets_done} series`)
     .join(", ");
+  const elegido = activo === null ? null : datos.buckets[activo];
+  const nombre = (b: PeriodBucket) =>
+    tramo === "month"
+      ? new Date(`${b.start}T00:00:00Z`).toLocaleDateString("es-AR", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          timeZone: "UTC",
+        })
+      : new Date(`${b.start}T00:00:00Z`).toLocaleDateString("es-AR", { month: "long", timeZone: "UTC" });
+
   return (
     <section className="mb-3 rounded-2xl bg-card p-4">
-      <h3 className="mt-0 mb-3 font-heading text-xl font-bold">Series hechas {tramo === "month" ? "por día" : "por mes"}</h3>
+      <h3 className="mt-0 mb-1 font-heading text-xl font-bold">Series hechas {tramo === "month" ? "por día" : "por mes"}</h3>
+      <p className="mt-0 mb-3 min-h-5 text-sm text-muted-foreground" aria-live="polite">
+        {elegido
+          ? `${nombre(elegido).replace(/^./, (c) => c.toUpperCase())}: ${elegido.sets_done} ${elegido.sets_done === 1 ? "serie" : "series"}${
+              elegido.days_trained > 0 && tramo === "year" ? ` en ${elegido.days_trained} ${elegido.days_trained === 1 ? "día" : "días"}` : ""
+            }`
+          : "Tocá una barra para ver el detalle"}
+      </p>
       <div role="img" aria-label={`Series hechas ${tramo === "month" ? "por día" : "por mes"}. ${resumen}.`}>
-        <div className="flex h-28 items-end gap-[3px]">
-          {datos.buckets.map((b) => (
-            <div key={b.start} className="flex h-full flex-1 items-end" title={`${b.label}: ${b.sets_done} series`}>
+        <div className="flex">
+          {/* Los valores de las líneas guía. */}
+          <div className="relative mr-2 h-32 w-8 shrink-0 text-right text-[11px] text-muted-foreground" aria-hidden="true">
+            {guias.map((g, i) => (
+              <span key={i} className="absolute right-0 -translate-y-1/2" style={{ top: `${(i / 2) * 100}%` }}>
+                {g}
+              </span>
+            ))}
+          </div>
+          <div className="relative h-32 flex-1">
+            {guias.map((g, i) => (
               <div
-                className={cn("w-full rounded-t-sm", b.sets_done > 0 ? "bg-disco-azul" : "bg-border")}
-                style={{ height: b.sets_done > 0 ? `${Math.max(6, (b.sets_done / maximo) * 100)}%` : "3px" }}
+                key={i}
+                className="absolute inset-x-0 border-t border-border"
+                style={{ top: `${(i / 2) * 100}%` }}
+                aria-hidden="true"
               />
+            ))}
+            <div className="absolute inset-0 flex items-end gap-[3px]" onPointerLeave={() => setActivo(null)}>
+              {datos.buckets.map((b, i) => (
+                <div
+                  key={b.start}
+                  className="flex h-full flex-1 cursor-pointer items-end"
+                  onPointerEnter={() => setActivo(i)}
+                  onClick={() => setActivo(activo === i ? null : i)}
+                >
+                  <div
+                    className={cn(
+                      "w-full rounded-t-sm",
+                      b.sets_done === 0 ? "bg-transparent" : activo === i ? "bg-disco-rojo" : "bg-disco-azul",
+                    )}
+                    style={{ height: `${(b.sets_done / tope) * 100}%` }}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
-        <div className="mt-1 flex gap-[3px] text-[11px] text-muted-foreground" aria-hidden="true">
+        <div className="mt-1 ml-10 flex gap-[3px] text-[11px] text-muted-foreground" aria-hidden="true">
           {datos.buckets.map((b, i) => (
             <span key={b.start} className="flex-1 text-center">
               {i % cada === 0 || tramo === "year" ? b.label : ""}
@@ -194,66 +246,106 @@ function Barras({ datos, tramo }: { datos: PeriodSummary; tramo: Tramo }) {
   );
 }
 
+// Una sección de lista que se pliega tocando el título y, abierta, muestra las primeras filas y
+// "Ver todos" para el resto.
+function ListaPlegable({
+  titulo,
+  total,
+  limite = 5,
+  abiertaAlInicio = false,
+  children,
+}: {
+  titulo: string;
+  total: number;
+  limite?: number;
+  abiertaAlInicio?: boolean;
+  children: (visibles: number) => React.ReactNode;
+}) {
+  const [abierta, setAbierta] = useState(abiertaAlInicio);
+  const [todos, setTodos] = useState(false);
+  const visibles = todos ? total : Math.min(total, limite);
+  return (
+    <section className="mb-3 rounded-2xl bg-card p-4">
+      <button
+        type="button"
+        onClick={() => setAbierta((a) => !a)}
+        aria-expanded={abierta}
+        className="flex w-full items-center justify-between text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      >
+        <h3 className="m-0 font-heading text-xl font-bold">
+          {titulo} <span className="text-base font-normal text-muted-foreground">({total})</span>
+        </h3>
+        <ChevronDown className={cn("size-5 transition-transform", abierta && "rotate-180")} aria-hidden="true" />
+      </button>
+      {abierta && (
+        <>
+          <div className="mt-2">{children(visibles)}</div>
+          {total > limite && (
+            <button
+              type="button"
+              onClick={() => setTodos((t) => !t)}
+              className="mt-2 w-full rounded-xl bg-muted px-3 py-2 text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              {todos ? "Ver menos" : `Ver todos (${total})`}
+            </button>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
 // Los días que se completaron: cada uno enlaza al día, para mirarlo.
 function Dias({ datos }: { datos: PeriodSummary }) {
   return (
-    <section className="mb-3 rounded-2xl bg-card p-4">
-      <h3 className="mt-0 mb-2 font-heading text-xl font-bold">{datos.period === "day" ? "Lo que entrenaste" : "Días entrenados"}</h3>
-      <ul className="m-0 list-none p-0">
-        {datos.sessions.map((s) => (
-          <li key={`${s.week_id}-${s.day_index}`} className="border-t border-border first:border-t-0">
-            <Link
-              href={`/semanas/${s.week_id}/dia/${s.day_index}?desde=rutinas`}
-              className="flex items-center gap-3 py-2 text-foreground no-underline"
-            >
-              <span className="w-10 shrink-0 font-heading text-lg font-semibold text-muted-foreground">
-                {Number(s.local_date.slice(8))}/{Number(s.local_date.slice(5, 7))}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block font-heading text-lg leading-tight font-semibold">{s.title}</span>
-                <span className="block text-sm text-muted-foreground">
-                  {s.routine_name} · semana {s.week_number}
-                  {s.duration_minutes !== null && ` · ${s.duration_minutes} min`}
+    <ListaPlegable titulo={datos.period === "day" ? "Lo que entrenaste" : "Días entrenados"} total={datos.sessions.length}>
+      {(visibles) => (
+        <ul className="m-0 list-none p-0">
+          {datos.sessions.slice(0, visibles).map((s) => (
+            <li key={`${s.week_id}-${s.day_index}`} className="border-t border-border first:border-t-0">
+              <Link
+                href={`/semanas/${s.week_id}/dia/${s.day_index}?desde=rutinas`}
+                className="flex items-center gap-3 py-2 text-foreground no-underline"
+              >
+                <span className="w-10 shrink-0 font-heading text-lg font-semibold text-muted-foreground">
+                  {Number(s.local_date.slice(8))}/{Number(s.local_date.slice(5, 7))}
                 </span>
-              </span>
-              <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-heading text-lg leading-tight font-semibold">{s.title}</span>
+                  <span className="block text-sm text-muted-foreground">
+                    {s.routine_name} · semana {s.week_number}
+                    {s.duration_minutes !== null && ` · ${s.duration_minutes} min`}
+                  </span>
+                </span>
+                <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </ListaPlegable>
   );
 }
 
 // Los ejercicios con más series del período, con su mejor peso.
 function Ejercicios({ datos }: { datos: PeriodSummary }) {
-  const [todos, setTodos] = useState(false);
-  const lista = todos ? datos.exercises : datos.exercises.slice(0, 5);
   if (datos.exercises.length === 0) return null;
   return (
-    <section className="mb-3 rounded-2xl bg-card p-4">
-      <h3 className="mt-0 mb-2 font-heading text-xl font-bold">Ejercicios</h3>
-      <ul className="m-0 list-none p-0">
-        {lista.map((e) => (
-          <li key={e.name} className="flex items-baseline gap-3 border-t border-border py-2 first:border-t-0">
-            <span className="min-w-0 flex-1 font-heading text-lg leading-tight font-semibold">{e.name}</span>
-            <span className="shrink-0 text-sm text-muted-foreground">
-              {e.sets_done} {e.sets_done === 1 ? "serie" : "series"}
-              {e.best_weight_kg !== null && ` · hasta ${num(e.best_weight_kg)} kg`}
-            </span>
-          </li>
-        ))}
-      </ul>
-      {datos.exercises.length > 5 && (
-        <button
-          type="button"
-          onClick={() => setTodos((t) => !t)}
-          className="mt-2 w-full rounded-xl bg-muted px-3 py-2 text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          {todos ? "Ver menos" : `Ver todos (${datos.exercises.length})`}
-        </button>
+    <ListaPlegable titulo="Ejercicios" total={datos.exercises.length}>
+      {(visibles) => (
+        <ul className="m-0 list-none p-0">
+          {datos.exercises.slice(0, visibles).map((e) => (
+            <li key={e.name} className="flex items-baseline gap-3 border-t border-border py-2 first:border-t-0">
+              <span className="min-w-0 flex-1 font-heading text-lg leading-tight font-semibold">{e.name}</span>
+              <span className="shrink-0 text-sm text-muted-foreground">
+                {e.sets_done} {e.sets_done === 1 ? "serie" : "series"}
+                {e.best_weight_kg !== null && ` · hasta ${num(e.best_weight_kg)} kg`}
+              </span>
+            </li>
+          ))}
+        </ul>
       )}
-    </section>
+    </ListaPlegable>
   );
 }
 

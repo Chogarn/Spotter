@@ -38,9 +38,9 @@ export function FraseDeCarga() {
     <p
       key={i}
       aria-live="off"
-      className="mx-auto mt-8 mb-0 max-w-xs font-heading text-2xl leading-tight font-bold text-foreground animate-in fade-in duration-500 motion-reduce:animate-none"
+      className="mx-auto mt-0 mb-10 max-w-xs text-lg leading-snug font-normal text-muted-foreground italic animate-in fade-in duration-500 motion-reduce:animate-none"
     >
-      {FRASES[i]}
+      “{FRASES[i]}”
     </p>
   );
 }

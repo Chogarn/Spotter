@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { InlineError } from "@/components/ErrorMessage";
 import { inicioDe, Navegador, useHoy, type Tramo } from "@/components/ResumenPeriodo";
 import { SelectorPeriodo, usePeriodo } from "@/components/SelectorPeriodo";
+import { cn } from "cn";
 import { apiFetch, readError, type MuscleSets, type PeriodMuscles, type WeekMuscles } from "@/lib/api";
 
 const NOMBRE: Record<string, string> = {
@@ -151,6 +152,7 @@ function Vacio() {
 }
 
 function Radar({ vista }: { vista: Vista }) {
+  const [activo, setActivo] = useState<number | null>(null);
   const grupos = vista.muscles;
   const total = grupos.length;
   const minimo = vista.minimum;
@@ -216,27 +218,48 @@ function Radar({ vista }: { vista: Vista }) {
           const ancla = Math.abs(lx - CX) < 5 ? "middle" : lx > CX ? "start" : "end";
           return (
             <g key={g.muscle}>
-              <circle cx={px} cy={py} r={4} className="fill-disco-azul stroke-background" strokeWidth={2} />
-              <text x={lx} y={ly - 3} textAnchor={ancla} fontSize={12} className="fill-muted-foreground">
-                {NOMBRE[g.muscle] ?? g.muscle}
-              </text>
+              <circle
+                cx={px}
+                cy={py}
+                r={activo === i ? 6 : 4}
+                className={cn("stroke-background", corto(g) ? "fill-disco-rojo" : "fill-disco-azul")}
+                strokeWidth={2}
+              />
               <text
                 x={lx}
-                y={ly + 13}
+                y={ly + 4}
                 textAnchor={ancla}
-                fontSize={15}
-                fontWeight={600}
-                className={corto(g) ? "fill-disco-rojo" : "fill-disco-azul"}
+                fontSize={13}
+                className={cn("fill-foreground", activo === i && "font-semibold")}
               >
-                {g.sets}
-                <tspan fontSize={11} fontWeight={400} className="fill-muted-foreground">
-                  {" "}
-                  {g.sets === 1 ? "serie" : "series"}
-                </tspan>
+                {NOMBRE[g.muscle] ?? g.muscle}
               </text>
+              {/* Zona para pasar el mouse o tocar: el punto y el nombre del músculo. */}
+              <circle
+                cx={px}
+                cy={py}
+                r={16}
+                fill="transparent"
+                className="cursor-pointer"
+                onPointerEnter={() => setActivo(i)}
+                onPointerLeave={() => setActivo(null)}
+                onClick={() => setActivo(activo === i ? null : i)}
+              />
+              <rect
+                x={ancla === "start" ? lx - 2 : ancla === "end" ? lx - 78 : lx - 40}
+                y={ly - 12}
+                width={80}
+                height={22}
+                fill="transparent"
+                className="cursor-pointer"
+                onPointerEnter={() => setActivo(i)}
+                onPointerLeave={() => setActivo(null)}
+                onClick={() => setActivo(activo === i ? null : i)}
+              />
             </g>
           );
         })}
+        {activo !== null && <Globo vista={vista} indice={activo} />}
       </svg>
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
@@ -266,5 +289,42 @@ function Radar({ vista }: { vista: Vista }) {
         </p>
       )}
     </>
+  );
+}
+
+// El globo con la cantidad de series del músculo que se está mirando, cerca de su punto.
+function Globo({ vista, indice }: { vista: Vista; indice: number }) {
+  const g = vista.muscles[indice];
+  const total = vista.muscles.length;
+  const minimo = vista.minimum;
+  const maximo = Math.max((minimo ?? 4) * 1.4, ...vista.muscles.flatMap((m) => [m.sets, m.previous_sets ?? 0]));
+  const [px, py] = punto(indice, total, g.sets / maximo);
+  const lineas = [
+    `${g.sets} ${g.sets === 1 ? "serie" : "series"}`,
+    ...(vista.anterior !== null && g.previous_sets !== null ? [`${vista.anterior}: ${g.previous_sets}`] : []),
+    ...(minimo !== null ? [`Mínimo: ${minimo}`] : []),
+  ];
+  const ancho = 128;
+  const alto = 12 + lineas.length * 16;
+  const x = Math.min(Math.max(px - ancho / 2, 4), 340 - ancho - 4);
+  // Arriba del punto; si no entra, abajo.
+  const y = py - alto - 12 < 4 ? py + 12 : py - alto - 12;
+  return (
+    <g pointerEvents="none" role="tooltip">
+      <rect x={x} y={y} width={ancho} height={alto} rx={8} className="fill-disco-tinta" />
+      {lineas.map((t, i) => (
+        <text
+          key={i}
+          x={x + ancho / 2}
+          y={y + 18 + i * 16}
+          textAnchor="middle"
+          fontSize={i === 0 ? 13 : 11}
+          fontWeight={i === 0 ? 600 : 400}
+          className="fill-white"
+        >
+          {t}
+        </text>
+      ))}
+    </g>
   );
 }

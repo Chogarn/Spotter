@@ -4,6 +4,7 @@ import { CalendarCheck, CalendarDays, ChartLine, Lightbulb, ListChecks, Scale, S
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { CerrarSemana } from "@/components/CerrarSemana";
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Franja } from "@/components/Franja";
@@ -79,7 +80,9 @@ export default function Inicio() {
         {cargando && <CargandoDiscos />}
 
         {!cargando && semana && (
-          <section className="mb-4 rounded-2xl border-2 border-disco-tinta bg-card p-5">
+          <section
+            className={`mb-4 rounded-2xl border-2 bg-card p-5 ${proximo ? "border-disco-tinta" : "border-disco-amarillo"}`}
+          >
             {/* La semana en curso: la rutina, su número y los discos de los días. */}
             <p className="m-0 text-sm text-muted-foreground">
               {semana.routine_name} · semana {semana.number}
@@ -112,13 +115,15 @@ export default function Inicio() {
               </>
             ) : (
               <>
-                <h2 className="mt-0 mb-1 text-4xl">Completaste los {semana.days.length} días</h2>
-                <p className="mt-0 mb-4 text-sm text-muted-foreground">
-                  Cerrá la semana en Entrenar para que la IA arme la siguiente.
+                {/* Todos los días hechos: lo que falta es cerrar la semana, y se hace desde acá. */}
+                <p className="m-0 text-sm font-medium text-disco-tinta">
+                  <span className="mr-1.5 rounded-full bg-disco-amarillo px-2 py-0.5">Falta cerrar la semana</span>
                 </p>
-                <Button size="xl" className="w-full" nativeButton={false} render={<Link href="/entrenar" />}>
-                  Ir a Entrenar
-                </Button>
+                <h2 className="mt-2 mb-1 text-4xl">Completaste los {semana.days.length} días</h2>
+                <p className="mt-0 mb-4 text-sm text-muted-foreground">
+                  Cerrala para que la IA arme la siguiente con lo que hiciste.
+                </p>
+                <CerrarSemana weekId={semana.id} pendientes={[]} destacado onCerrada={() => setRecarga((n) => n + 1)} />
               </>
             )}
           </section>

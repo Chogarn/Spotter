@@ -42,6 +42,7 @@ export function SeguimientoCuerpo() {
   // Qué se está editando: una medición, "nueva" o nada.
   const [formulario, setFormulario] = useState<Measurement | "nueva" | null>(null);
   const [aBorrar, setABorrar] = useState<Measurement | null>(null);
+  const [pestana, setPestana] = useState<"resumen" | "lista">("resumen");
 
   const cargar = useCallback(() => {
     apiFetch(`/measurements`)
@@ -78,6 +79,27 @@ export function SeguimientoCuerpo() {
   return (
     <>
       {error && <ErrorMessage>{error}</ErrorMessage>}
+      <div className="mb-3 flex gap-1 rounded-full bg-muted p-1" role="group" aria-label="Qué ver">
+        {(
+          [
+            ["resumen", "Resumen"],
+            ["lista", "Lista"],
+          ] as const
+        ).map(([id, texto]) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={pestana === id}
+            onClick={() => setPestana(id)}
+            className={`flex-1 rounded-full px-3 py-1.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 ${
+              pestana === id ? "bg-disco-tinta font-medium text-white" : "text-muted-foreground"
+            }`}
+          >
+            {texto}
+          </button>
+        ))}
+      </div>
+      {pestana === "resumen" && (
       <section className="mb-3 rounded-2xl bg-card p-4">
         <div className="grid grid-cols-2 gap-2">
           <Dato titulo="Peso actual" valor={ultima ? `${numero(ultima.weight_kg)} kg` : "—"} azul />
@@ -96,7 +118,9 @@ export function SeguimientoCuerpo() {
         </p>
         <GraficoCuerpo filas={filas} />
       </section>
+      )}
 
+      {pestana === "lista" && (
       <section className="mb-3 rounded-2xl bg-card p-4">
         <h2 className="mt-0 mb-1 text-xl">Mediciones</h2>
         {filas.length === 0 ? (
@@ -141,6 +165,7 @@ export function SeguimientoCuerpo() {
           </ul>
         )}
       </section>
+      )}
 
       <Button type="button" size="xl" className="w-full" onClick={() => setFormulario("nueva")}>
         Cargar peso
