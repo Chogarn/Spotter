@@ -2,8 +2,7 @@
 
 import { Pencil, X } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { use, useEffect, useState, useTransition } from "react";
+import { use, useEffect, useState } from "react";
 
 import { ContadorSesion } from "@/components/ContadorSesion";
 import { BotonDescanso, RelojCircular, useDescanso } from "@/components/Descanso";
@@ -16,7 +15,7 @@ import { SemanaPasada } from "@/components/SemanaPasada";
 import { SetRow } from "@/components/SetRow";
 import { Button } from "@/components/ui/button";
 import { readError, type DayDetail, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
-import { differsFromPlan, estaHecho, realAsSet, setText, summarize } from "@/lib/format";
+import { differsFromPlan, estaHecho, realAsSet, resumenDelDia, setText, summarize } from "@/lib/format";
 import { cn } from "cn";
 import { Cargando } from "@/components/Cargando";
 
@@ -104,9 +103,6 @@ export default function EntrenarView({
   const [pos, setPos] = useState<Posicion | null>(null);
   const [error, setError] = useState("");
   const [trabajando, setTrabajando] = useState(false);
-  const router = useRouter();
-  // Al cerrar el día se va a Inicio; con la transición la pantalla no queda "trabajando" al volver.
-  const [yendoAInicio, startTransition] = useTransition();
   const [corrigiendo, setCorrigiendo] = useState(false);
 
   useEffect(() => {
@@ -228,9 +224,8 @@ export default function EntrenarView({
     try {
       const estado = await llamar<{ finished_at: string | null }>(`/complete`);
       if (estado) {
+        // Día cerrado: se queda en la pantalla de cierre, que ofrece ver las estadísticas o ir a Inicio.
         setDia({ ...actual, finished_at: estado.finished_at });
-        // Día cerrado: se vuelve a Inicio, donde aparece lo que toca después.
-        startTransition(() => router.push("/"));
       }
     } catch {
       setError("No se pudo conectar con el servidor");
@@ -260,7 +255,8 @@ export default function EntrenarView({
         <span>
           Día {actual.day_index}
           {pos && (pos.ej === CALOR ? " · entrada en calor" : ` · ejercicio ${pos.ej + 1} de ${total}`)}
-          {!registra && " · solo lectura"}
+          {/* Un día recién completado de una semana activa queda en lectura, pero no hace falta decirlo. */}
+          {!registra && !(actual.week_status === "active" && actual.finished_at !== null) && " · solo lectura"}
         </span>
         {registra && actual.started_at && <ContadorSesion desde={actual.started_at} />}
         <Button size="icon-lg" variant="ghost" nativeButton={false} render={<Link href={volver} />} aria-label="Volver al día">
@@ -352,21 +348,55 @@ export default function EntrenarView({
             <>
               <h1 className="mt-0 text-4xl">Terminaste los {total} ejercicios</h1>
               <p className="text-muted-foreground">Cerrá el día para que cuente como hecho.</p>
-              <Button size="xl" className="w-full" type="button" onClick={completarDia} disabled={trabajando || yendoAInicio}>
+              <Button size="xl" className="w-full" type="button" onClick={completarDia} disabled={trabajando}>
                 Día completado
               </Button>
             </>
           ) : (
-            <>
-              <h1 className="mt-0 text-4xl">Día completado</h1>
-              <Button size="xl" className="w-full" nativeButton={false} render={<Link href="/entrenar" />}>
-                Ir a Entrenar
-              </Button>
-            </>
+            <CierreDelDia dia={actual} />
           )}
         </section>
       )}
     </main>
+  );
+}
+
+// Lo que se ve al cerrar el día (y al volver a un día ya completado): cómo fue y adónde seguir.
+function CierreDelDia({ dia }: { dia: DayDetail }) {
+  const { series, kg, minutos } = resumenDelDia(dia);
+  const cifras = [
+    { titulo: "Duración", valor: minutos === null ? "Sin medir" : `${minutos} min` },
+    { titulo: "Series", valor: String(series) },
+  ];
+  return (
+    <>
+      <h1 className="mt-0 mb-1 text-4xl">Día completado</h1>
+      <p className="mt-0 mb-4 text-muted-foreground">
+        Día {dia.day_index} · {dia.title}
+      </p>
+      <dl className="m-0 mb-4 grid grid-cols-2 gap-2">
+        {cifras.map(({ titulo, valor }) => (
+          <div key={titulo} className="rounded-xl bg-background px-3 py-2.5">
+            <dt className="text-xs text-muted-foreground">{titulo}</dt>
+            <dd className="m-0 font-heading text-2xl font-bold">{valor}</dd>
+          </div>
+        ))}
+        <div className="col-span-2 rounded-xl bg-background px-3 py-2.5">
+          <dt className="text-xs text-muted-foreground">Volumen</dt>
+          <dd className="m-0 font-heading text-2xl font-bold">
+            {kg > 0 ? `${kg.toLocaleString("es-AR", { maximumFractionDigits: 0 })} kg` : "—"}
+          </dd>
+        </div>
+      </dl>
+      <div className="flex flex-col gap-2">
+        <Button size="xl" className="w-full" nativeButton={false} render={<Link href="/progreso/estadisticas" />}>
+          Ver estadísticas
+        </Button>
+        <Button size="xl" variant="outline" className="w-full" nativeButton={false} render={<Link href="/" />}>
+          Ir a Inicio
+        </Button>
+      </div>
+    </>
   );
 }
 

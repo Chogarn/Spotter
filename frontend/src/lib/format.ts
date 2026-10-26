@@ -1,4 +1,4 @@
-import type { ExerciseItem, RealSet, SetItem } from "./api";
+import type { DayDetail, ExerciseItem, RealSet, SetItem } from "./api";
 
 const number = (n: number) => n.toLocaleString("es-AR");
 
@@ -108,4 +108,25 @@ export const statusText = { active: "activa", closed: "cerrada", draft: "borrado
 export function shortDate(iso: string): string {
   const [y, m, d] = iso.split("-");
   return `${Number(d)}/${Number(m)}/${y}`;
+}
+
+// Lo que se hizo en un día, para la pantalla de "Día completado": series con algo registrado, kilos
+// movidos (repeticiones × kilos de las series con las dos cosas) y cuánto tardó (de "Empezar día" a
+// "Día completado"; nulo si falta alguno de los dos momentos).
+export function resumenDelDia(dia: DayDetail): { series: number; kg: number; minutos: number | null } {
+  let series = 0;
+  let kg = 0;
+  for (const ejercicio of dia.exercises) {
+    for (const serie of ejercicio.sets) {
+      if (!serie.real) continue;
+      series += 1;
+      if (serie.real.reps !== null && serie.real.weight_kg !== null) kg += serie.real.reps * serie.real.weight_kg;
+    }
+  }
+  let minutos: number | null = null;
+  if (dia.started_at && dia.finished_at) {
+    const ms = new Date(dia.finished_at).getTime() - new Date(dia.started_at).getTime();
+    if (ms >= 0) minutos = Math.round(ms / 60000);
+  }
+  return { series, kg, minutos };
 }

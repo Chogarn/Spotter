@@ -159,7 +159,7 @@ Tres pestañas:
 - **Serie hecha:** guarda lo planificado; se corrige con el lápiz.
 - **Reloj de descanso:** un botón redondo lo arranca, nunca solo, con el descanso del ejercicio; −15 s, +15 s y Saltar. Al llegar a cero vibra, y si se sale a otra pantalla lo muestra la mini barra "entrenando ahora" (decisiones 48 y 92); si no hay un día en curso, una franja arriba de la barra.
 - Al terminar las series del ejercicio, lo marca y sigue con el próximo sin hacer; si se sale, retoma donde quedó. Flechas ‹ › para pasar de ejercicio.
-- Al terminar los ejercicios aparece **Día completado**, que cierra el día y **lleva a Inicio**, donde ya figura lo que toca después.
+- Al terminar los ejercicios aparece **Día completado**, que cierra el día y **muestra una pantalla de cierre** (decisión 93) con la duración, las series y el volumen del día, y dos botones: **Ver estadísticas** (Progreso › Estadísticas) e **Ir a Inicio**, donde ya figura lo que toca después.
 
 ### La lista del día
 Además del modo entrenar, el día (`/semanas/{id}/dia/{n}`) se puede ver como lista: cada ejercicio es una tarjeta con el nombre grande, los números debajo y los discos del que está en curso; tocarla la despliega (una por vez) con las series, "Semana pasada", "Cómo hacerlo" y "Por qué está en tu rutina" (decisión 47). Hay barritas y flechas para pasar al día anterior o siguiente.

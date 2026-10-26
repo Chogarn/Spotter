@@ -66,6 +66,7 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 - [x] Publicación LinkedIn 3: cómo la IA arma tu semana, publicada el 2026-10-16 como "Segundo avance de Spotter" `docs` (#32)
 - [x] Radar de series por músculo en Estadísticas y mini barra de entrenamiento en curso unida al reloj de descanso (decisión 92, 2026-10-26) `backend` `frontend` (#70)
   - **Pendiente de las referencias, sin decidir:** mapa del cuerpo, informe mensual y cabecera del día con ejercicios y músculos.
+- [x] Pantalla de cierre del día con duración, series y volumen y botones a estadísticas e Inicio (decisión 93, 2026-10-26) `frontend` (#71)
 - [x] Publicación extra de LinkedIn: "Tercer avance de Spotter" (estructura y días elegibles, reparto parejo de series, seguimiento del peso, interfaz renovada y cuenta más segura), publicada el 2026-10-25 `docs`
 
 > **Para la Semana 4 (idea, sin definir):** pasar la lectura de datos a Server Components de Next (cookie del usuario reenviada al backend, invalidación por etiquetas tras cada acción) y que los componentes reciban los datos como propiedades. Reemplaza la tarea #17, cerrada como "no se hace por ahora".
