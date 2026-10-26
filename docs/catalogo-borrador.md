@@ -2,7 +2,7 @@
 
 > Generada desde `backend/app/ai/exercises.json` (versión 2). **No se edita a mano**: se corrige el JSON y se vuelve a generar. Aprobado por el usuario. Pendiente, más adelante: revisión por una persona con formación en educación física.
 
-117 ejercicios. Para corregir, anotá el `id` y qué cambia (nombre, músculo principal, secundarios, nivel, descripción o alias).
+117 ejercicios (el 2026-10-26 se sumaron 7 más, ver la decisión 99). Para corregir, anotá el `id` y qué cambia (nombre, músculo principal, secundarios, nivel, descripción o alias).
 
 ## Pecho (14)
 

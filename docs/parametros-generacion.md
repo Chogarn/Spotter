@@ -143,7 +143,7 @@ Hasta 12 ejercicios por día, 10 series por ejercicio, hasta 4 músculos secunda
 
 ### 6.4 El catálogo y cómo se eligen los candidatos
 
-- La IA elige **solo** de un catálogo de **117 ejercicios** (`backend/app/ai/exercises.json`), aprobado por el usuario el 2026-10-14. **Falta la revisión de una persona de educación física.**
+- La IA elige **solo** de un catálogo de **124 ejercicios** (`backend/app/ai/exercises.json`): 117 aprobados por el usuario el 2026-10-14 y 7 agregados el 2026-10-26 (decisión 99) que esperan su aprobación. **Falta la revisión de una persona de educación física.**
 - Cada ejercicio trae etiquetas obligatorias (R13): región (superior, inferior, core, cuerpo entero), dirección (empuje, tirón), músculo principal, músculos secundarios, mecánica (multiarticular o monoarticular), equipamiento y nivel.
 - **Filtro del código:** nunca ejercicios de un nivel más alto que el de la persona; cardio solo en perder grasa, condición general y mantenerme activo.
 - **Orden por parecido (vectores):** se ordena por similitud con el objetivo y el nivel, y al prompt van **hasta 6 ejercicios por grupo muscular** (cifra de diseño).
@@ -299,7 +299,7 @@ Hasta **2 intentos** por generación (la llamada inicial y uno más). Cada inten
 
 ## 14. Pendientes reales
 
-- Revisión del catálogo de 117 ejercicios por una persona con formación en educación física.
+- Revisión del catálogo de 124 ejercicios por una persona con formación en educación física.
 - Consulta al profesor sobre si la recuperación con pgvector cumple lo que espera para el proyecto (decisión 58).
 - Las restricciones motrices siguen en un borrador separado y no son reglas aprobadas. No agregar nuevos bloqueos hasta que se cierren esas decisiones.
 

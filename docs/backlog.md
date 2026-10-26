@@ -48,7 +48,7 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 - [x] ~~Nota de cómo me sentí al terminar la sesión (botones y texto)~~ **No se hace** (decisiones 71, 74 y 85): cómo se sintió el entrenamiento y el dolor se cuentan en el **comentario al cerrar la semana** (#50). Los datos viejos de #63 quedan guardados, pero ya no se piden ni se envían en nuevas generaciones `backend` `frontend` (#46)
 - [x] Comentario escrito del usuario al cerrar la semana (cómo se sintió), que la IA lee al armar la semana siguiente `backend` `ia` `frontend` (#50)
 - [x] ~~Esfuerzo por serie (1 a 10) al editar lo realizado~~ **No se hace** (decisión 74): el esfuerzo se deduce comparando peso y repeticiones; el dolor va en el comentario al cerrar la semana `backend` `frontend` (#48)
-- [x] Catálogo de ejercicios para la IA (RAG): la IA arma la semana solo con los **117 ejercicios** de `backend/app/ai/exercises.json` (aprobados el 2026-10-14). Embeddings de Gemini en PostgreSQL con pgvector, recuperación por nivel y similitud, y el código rechaza lo que no esté en el catálogo. Decisión 58. El profesor dio el OK (2026-10-26): solo preguntó qué se usaba; hay que saber decir que se usan los embeddings de Google `backend` `ia` (#52)
+- [x] Catálogo de ejercicios para la IA (RAG): la IA arma la semana solo con los **124 ejercicios** de `backend/app/ai/exercises.json` (117 aprobados el 2026-10-14 y 7 de aductores, antebrazo y tibial del 2026-10-26, que esperan su aprobación). Embeddings de Gemini en PostgreSQL con pgvector, recuperación por nivel y similitud, y el código rechaza lo que no esté en el catálogo. Decisión 58. El profesor dio el OK (2026-10-26): solo preguntó qué se usaba; hay que saber decir que se usan los embeddings de Google `backend` `ia` (#52)
 - [x] ~~Semáforo de dolor (R31): zona y gravedad de 0 a 10 en la nota del día~~ **No se hace** (decisiones 71, 74 y 85): el dolor se informa en el comentario al cerrar la semana. Las marcas viejas de #63 se conservan en la base, pero R31 ya no recibe esos valores `backend` `frontend` `ia` (#51)
 - ~~Elegir camino A o B al empezar (#43) y formulario de rutina actual, camino B (#44)~~ **No se hacen**: se descartó el camino B (decisión 40); el nivel y el objetivo se eligen al generar
 - [x] Refactor y mejoras de UX: shadcn/ui y Tailwind en versión básica (sin estilos propios todavía), con componentes compartidos para el error y el recuadro de confirmación. Decisión 38; probado en una copia temporal `frontend` (#31)
@@ -120,7 +120,7 @@ La definición completa de cada una está en su issue de GitHub.
 
 ## Hecho el 2026-10-14 y 15 (fuera de los issues, con su decisión)
 
-- [x] Catálogo con RAG: 117 ejercicios, pgvector, recuperación y validación (decisión 58, #52).
+- [x] Catálogo con RAG: 124 ejercicios, pgvector, recuperación y validación (decisión 58, #52).
 - [x] Cambiar un ejercicio de la propuesta por otro del catálogo (decisión 65).
 - [x] Reabrir una semana cerrada, y dos opciones claras al terminar la semana, en Entrenar e Inicio (decisión 66).
 - [x] Una sola generación a la vez, pantalla de carga completa y pantalla de "aceptado" (decisión 67).

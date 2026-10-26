@@ -682,7 +682,7 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Por qué:** *(completar)*
 - **Descartaste:** el cuello (ejercicios y pieza); una vista lateral; separar el hombro en cabezas por ahora (queda en `docs/mapa-muscular-detalle-borrador.md`).
 - **Decidió la IA sin preguntarte:** que el **Paseo del granjero** quede afuera (R13 pide que los isométricos sean core: hay que decidir cómo se etiqueta un acarreo); que la sentadilla sumo lleve cuádriceps como principal (con aductores como secundario) en vez de aductores; que **no** se etiqueten aductores como secundario en las otras sentadillas ni en los pesos muertos (el mapa cuenta solo series directas, así que no se verían; y para pesos muertos e hip thrust no hay fuente); que el curl martillo no lleve antebrazo (sin fuente). Los textos y las descripciones de los 7 ejercicios son un borrador mío: **faltan que los apruebes**.
-- **Ojo:** probado con tests del backend (los mismos 597 más uno nuevo; solo falla el que ya fallaba por falta de `google-genai`); **la pantalla no se vio** con los grupos nuevos pintados. Las fuentes son débiles: ver `docs/criterios-entrenamiento.md`. **Falta indexar los 7 ejercicios nuevos** (`python -m app.scripts.index_catalog --email ...`); hasta entonces van al final de la lista que ve la IA.
+- **Ojo:** probado con tests del backend (los mismos 597 más uno nuevo; solo falla el que ya fallaba por falta de `google-genai`); **la pantalla no se vio** con los grupos nuevos pintados. Las fuentes son débiles: ver `docs/criterios-entrenamiento.md`. Los 7 ejercicios nuevos ya están indexados (2026-10-26, 7 textos del tope de embeddings, a nombre de la cuenta del usuario).
 
 ## Decisiones abiertas
 
