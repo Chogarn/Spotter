@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { Calendario } from "@/components/Calendario";
 import { CargandoDiscos } from "@/components/Cargando";
 import { Franja } from "@/components/Franja";
-import { PestanasProgreso } from "@/components/PestanasProgreso";
 
 // Calendario: los días en que se entrenó, desde el primero y juntando todas las rutinas. Solo lectura.
 // El calendario lee la fecha de hoy (cambia con cada visita): por eso va dentro de un <Suspense>,
@@ -11,9 +10,8 @@ import { PestanasProgreso } from "@/components/PestanasProgreso";
 export default function CalendarioPage() {
   return (
     <main className="flex flex-1 flex-col">
-      <Franja titulo="Progreso" aros="azul" />
+      <Franja titulo="Calendario" aros="azul" volver={{ href: "/progreso" }} compacta />
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
-      <PestanasProgreso actual="/progreso/calendario" />
       <Suspense fallback={<CargandoDiscos />}>
         <Calendario />
       </Suspense>

@@ -13,7 +13,7 @@ Este documento describe cómo se usa la aplicación de principio a fin. Es la ba
 5. La semana se organiza en días: **Día 1, Día 2, Día 3**... La persona entrena a su ritmo: desde Inicio o Entrenar toca **"Empezar día N"** y avanza un ejercicio a la vez.
 6. En cada día marca lo que hizo (o corrige lo realizado) y cierra con **"Día completado"**, que la lleva a Inicio.
 7. Cuando ella decide, toca **"Cerrar semana"**: la IA compara lo planificado con lo real y propone la semana siguiente, que ella acepta o descarta.
-8. Vuelve al paso 5. Puede ver cómo le fue en **Progreso** (resúmenes, estadísticas y calendario).
+8. Vuelve al paso 5. Puede ver cómo le fue en **Progreso** (resúmenes, series por músculo, mapa muscular, evolución por ejercicio, calendario y cuerpo).
 
 ## Diagrama
 
@@ -36,7 +36,7 @@ flowchart TD
     P -->|Sí, botón| Q[Cerrar semana<br/>aunque falten días,<br/>con comentario opcional]
     Q --> R[La IA compara lo planificado<br/>con lo real y propone]
     R --> J
-    H --> G[Progreso<br/>resúmenes, estadísticas, calendario]
+    H --> G[Progreso<br/>un índice y una pantalla por estadística]
 ```
 
 ## Objetivos
@@ -131,7 +131,7 @@ Fija, siempre, también en la computadora. **Mini barra "entrenando ahora"** (de
 - **"Hoy te toca":** la tarjeta principal. Con semana activa muestra la rutina, el número de semana, los discos de los días (el que toca hoy con aro azul), "N de M días", el próximo día con su duración y **Empezar día N**. Con todos los días completados invita a cerrar la semana. Sin semana activa muestra las opciones de Generar.
 - **Aviso** de propuesta de la IA pendiente.
 - **Tus rutinas:** "Tus rutinas" y "Nueva rutina" (abre el asistente o avisa).
-- **Tu progreso:** "Resúmenes", "Estadísticas" y "Calendario". Las cinco tarjetas de acceso llevan el ícono y un texto corto en una sola línea.
+- **Tu progreso:** una sola tarjeta, "Ver mi progreso", que abre el índice de Progreso (decisión 95). Las tarjetas de acceso llevan el ícono y un texto corto en una sola línea.
 
 ### Entrenar (`/entrenar`)
 La semana en curso: "Te toca Día N" con su botón, la lista de días con su estado y, al final, **Cerrar semana**. Sin semana activa ofrece generar o empezar una rutina nueva.
@@ -147,7 +147,9 @@ Tres pestañas:
 | Pestaña | Qué muestra |
 |---|---|
 | **Resúmenes** | Un selector **Día · Semana · Mes · Año** (decisión 94; se recuerda y vale para las demás pantallas de Progreso). **Semana**: la semana elegida de una rutina: días y series hechas, kilos movidos y minutos de cardio; "Cómo te fue" (un disco por estado: superaste, cumpliste, no llegaste, sin registrar, con el detalle ejercicio por ejercicio plegado, donde cada ejercicio dice "Hiciste … / Tocaba …" cuando difiere de lo planificado); lo que dijo la IA y el comentario que se escribió al cerrar. **Día, Mes y Año**: juntan todas las rutinas y se recorren con flechas; muestran los números, un gráfico de barras de series (por día o por mes, con referencia y detalle al tocar) y las listas plegables de días entrenados y ejercicios |
-| **Estadísticas** | Dos secciones: **Músculos** y **Ejercicios**. **Músculos**: el **radar de series por músculo** (decisión 92) con el selector Día · Semana · Mes · Año: las series hechas en los 6 grupos grandes, contra el mínimo de 10 por semana (R3, escalado al período) y el período anterior; la cantidad de cada músculo sale en un globo al pasar el mouse o tocar. **Ejercicios**: la evolución de un ejercicio por fecha, **acumulando todas las rutinas** (decisión 69), como una **curva continua** con fechas reales y selector Semana · Mes · Año |
+| **Series por músculo** | `/progreso/musculos`: el **radar** (decisión 92) con el selector Día · Semana · Mes · Año: las series hechas en los 6 grupos grandes, contra el mínimo de 10 por semana (R3, escalado al período) y el período anterior; la cantidad de cada músculo sale en un globo al pasar el mouse o tocar |
+| **Mapa muscular** | `/progreso/mapa`: las mismas series, pintadas sobre el cuerpo (frente y espalda) en 4 tonos de azul; incluye bíceps, tríceps, gemelos y core. El dibujo sale del sexo del perfil; con "otro" se elige (decisión 95) |
+| **Evolución por ejercicio** | `/progreso/ejercicios`: la evolución de un ejercicio por fecha, **acumulando todas las rutinas** (decisión 69), como una **curva continua** con fechas reales y selector Semana · Mes · Año |
 | **Cuerpo** | Dos pestañas: **Resumen** (peso, IMC, grasa y una curva continua de la evolución con selector Mes · Año · Todo y medida Peso · Grasa · IMC) y **Lista** (las mediciones, para corregir o borrar); "Cargar peso" en las dos |
 | **Calendario** | Un mes en cuadrícula con un disco en cada día entrenado, hoy con aro azul; histórico, desde el primer entrenamiento. Tocar un día muestra qué se hizo |
 
@@ -160,7 +162,7 @@ Tres pestañas:
 - **Serie hecha:** guarda lo planificado; se corrige con el lápiz.
 - **Reloj de descanso:** un botón redondo lo arranca, nunca solo, con el descanso del ejercicio; −15 s, +15 s y Saltar. Al llegar a cero vibra, y si se sale a otra pantalla lo muestra la mini barra "entrenando ahora" (decisiones 48 y 92); si no hay un día en curso, una franja arriba de la barra.
 - Al terminar las series del ejercicio, lo marca y sigue con el próximo sin hacer; si se sale, retoma donde quedó. Flechas ‹ › para pasar de ejercicio.
-- Al terminar los ejercicios aparece **Día completado**, que cierra el día y **muestra una pantalla de cierre** (decisión 93) con la duración, las series y el volumen del día, y dos botones: **Ver estadísticas** (Progreso › Estadísticas) e **Ir a Inicio**, donde ya figura lo que toca después.
+- Al terminar los ejercicios aparece **Día completado**, que cierra el día y **muestra una pantalla de cierre** (decisión 93) con la duración, las series y el volumen del día, y dos botones: **Ver series por músculo** (Progreso › Series por músculo) e **Ir a Inicio**, donde ya figura lo que toca después.
 
 ### La lista del día
 Además del modo entrenar, el día (`/semanas/{id}/dia/{n}`) se puede ver como lista: cada ejercicio es una tarjeta con el nombre grande, los números debajo y los discos del que está en curso; tocarla la despliega (una por vez) con las series, "Semana pasada", "Cómo hacerlo" y "Por qué está en tu rutina" (decisión 47). Hay barritas y flechas para pasar al día anterior o siguiente.

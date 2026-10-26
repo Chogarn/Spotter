@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.ai.history import signal
 from app.ai.plan_writer import active_week
-from app.ai.rules import BIG_GROUPS, estimate_day_minutes
+from app.ai.rules import BIG_GROUPS, COMPLEMENT, estimate_day_minutes
 from app.db import get_db
 from app.deps import get_current_user
 from app.enums import ExerciseKind, LoadFeel, PainLevel, PlanStatus, ProposalKind, ProposalStatus
@@ -284,9 +284,10 @@ MIN_WEEKLY_SETS = 10
 
 
 def done_sets_by_muscle(db: Session, week: WeekPlan) -> dict:
-    """Series hechas en la semana por grupo grande, con el músculo como principal (las indirectas
-    no suman, como en el reparto de la decisión 90). Una serie cuenta si tiene lo realizado."""
-    counts = {muscle: 0 for muscle in BIG_GROUPS}
+    """Series hechas en la semana por grupo grande y por complemento (bíceps, tríceps, gemelos y
+    core), con el músculo como principal (las indirectas no suman, como en el reparto de la
+    decisión 90). Una serie cuenta si tiene lo realizado."""
+    counts = {muscle: 0 for muscle in BIG_GROUPS + COMPLEMENT}
     for day in week.days:
         entries = day_entries(db, day)
         for exercise in day.exercises:
@@ -353,6 +354,14 @@ def get_latest_week_muscles(
                 previous_sets=None if previous is None else previous[muscle],
             )
             for muscle in BIG_GROUPS
+        ],
+        others=[
+            MuscleSetsOut(
+                muscle=muscle.value,
+                sets=current[muscle],
+                previous_sets=None if previous is None else previous[muscle],
+            )
+            for muscle in COMPLEMENT
         ],
     )
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarCheck, CalendarDays, ChartLine, Lightbulb, ListChecks, Scale, Sparkles } from "lucide-react";
+import { ChartLine, Lightbulb, ListChecks, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -172,11 +172,8 @@ export default function Inicio() {
             </NuevaRutina>
           </div>
           <h2 className="mt-0 mb-2 text-xl">Tu progreso</h2>
-          <div className="grid grid-cols-2 gap-2.5">
-            <TarjetaAcceso href="/progreso" Icono={CalendarCheck} texto="Resúmenes" />
-            <TarjetaAcceso href="/progreso/estadisticas" Icono={ChartLine} texto="Estadísticas" />
-            <TarjetaAcceso href="/progreso/calendario" Icono={CalendarDays} texto="Calendario" />
-            <TarjetaAcceso href="/progreso/cuerpo" Icono={Scale} texto="Cuerpo" />
+          <div className="grid grid-cols-1 gap-2.5">
+            <TarjetaAcceso href="/progreso" Icono={ChartLine} texto="Ver mi progreso" />
           </div>
         </nav>
       </div>

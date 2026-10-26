@@ -552,7 +552,7 @@ class CalendarOut(BaseModel):
 
 
 class MuscleSetsOut(BaseModel):
-    muscle: str  # uno de los 6 grupos grandes (R3)
+    muscle: str  # uno de los 6 grupos grandes (R3) o un complemento
     sets: int  # series hechas esta semana, con el músculo como principal
     previous_sets: int | None  # lo mismo en la semana cerrada anterior de la rutina
 
@@ -567,6 +567,7 @@ class WeekMusclesOut(BaseModel):
     minimum: int  # R3: series semanales mínimas por grupo grande
     has_previous: bool
     muscles: list[MuscleSetsOut]
+    others: list[MuscleSetsOut] = []  # complementos (bíceps, tríceps, gemelos y core), para el mapa
 
 
 class PeriodBucketOut(BaseModel):
@@ -627,3 +628,4 @@ class PeriodMusclesOut(BaseModel):
     first_date: date | None  # el primer día entrenado de todos (hasta dónde se puede retroceder)
     minimum: int | None  # R3 escalado a los días que pasaron del período; nulo en el día
     muscles: list[MuscleSetsOut]  # previous_sets: el mismo cálculo en el período anterior
+    others: list[MuscleSetsOut] = []  # complementos (bíceps, tríceps, gemelos y core), para el mapa

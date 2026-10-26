@@ -389,8 +389,8 @@ function CierreDelDia({ dia }: { dia: DayDetail }) {
         </div>
       </dl>
       <div className="flex flex-col gap-2">
-        <Button size="xl" className="w-full" nativeButton={false} render={<Link href="/progreso/estadisticas" />}>
-          Ver estadísticas
+        <Button size="xl" className="w-full" nativeButton={false} render={<Link href="/progreso/musculos" />}>
+          Ver series por músculo
         </Button>
         <Button size="xl" variant="outline" className="w-full" nativeButton={false} render={<Link href="/" />}>
           Ir a Inicio

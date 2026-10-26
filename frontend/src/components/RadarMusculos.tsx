@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { InlineError } from "@/components/ErrorMessage";
+import { MapaSeries } from "@/components/MapaSeries";
 import { inicioDe, Navegador, useHoy, type Tramo } from "@/components/ResumenPeriodo";
 import { SelectorPeriodo, usePeriodo } from "@/components/SelectorPeriodo";
 import { cn } from "cn";
@@ -38,6 +39,7 @@ type Vista = {
   actual: string;
   terminado: boolean; // si el período ya pasó (cambia "faltan" por "faltaron")
   muscles: MuscleSets[];
+  others: MuscleSets[]; // los complementos, solo para el mapa
 };
 
 const ANTERIOR = { day: "Día anterior", month: "Mes anterior", year: "Año anterior" } as const;
@@ -51,6 +53,7 @@ function deLaSemana(d: WeekMuscles): Vista {
     actual: "Esta semana",
     terminado: d.status !== "active",
     muscles: d.muscles,
+    others: d.others,
   };
 }
 
@@ -62,24 +65,36 @@ function deUnPeriodo(d: PeriodMuscles, hoy: string | null): Vista {
     actual: ACTUAL[d.period],
     terminado: hoy !== null && d.end < hoy,
     muscles: d.muscles,
+    others: d.others,
   };
 }
 
 // Progreso › Estadísticas: las series hechas por cada grupo grande, contra el mínimo de R3 (10 por
 // semana, escalado al período) y contra el período anterior. Solo cuenta series directas. La
 // semana es la última (con la anterior de su rutina); día, mes y año se recorren con las flechas.
-export function RadarMusculos() {
+export type Modo = "radar" | "mapa";
+
+export function RadarMusculos({ modo }: { modo: Modo }) {
   const [periodo, setPeriodo] = usePeriodo();
   return (
-    <section className="mt-4 mb-3 rounded-2xl bg-card p-4">
-      <h3 className="mt-0 mb-2 font-heading text-xl font-bold">Series por músculo</h3>
+    <section className={cn("mb-3 rounded-2xl bg-card", modo === "radar" ? "mt-4 p-4" : "mt-2 p-3")}>
+      {modo === "radar" && <h3 className="mt-0 mb-2 font-heading text-xl font-bold">Series por músculo</h3>}
       <SelectorPeriodo periodo={periodo} onElegir={setPeriodo} />
-      {periodo === "week" ? <DeLaSemana /> : <DeUnPeriodo key={periodo} tramo={periodo} />}
+      {periodo === "week" ? <DeLaSemana modo={modo} /> : <DeUnPeriodo key={periodo} tramo={periodo} modo={modo} />}
     </section>
   );
 }
 
-function DeLaSemana() {
+// El gráfico de la sección: el radar o el mapa sobre el cuerpo, con los mismos datos.
+function Grafico({ vista, modo }: { vista: Vista; modo: Modo }) {
+  return modo === "radar" ? (
+    <Radar vista={vista} />
+  ) : (
+    <MapaSeries muscles={[...vista.muscles, ...vista.others]} minimum={vista.minimum} />
+  );
+}
+
+function DeLaSemana({ modo }: { modo: Modo }) {
   const [datos, setDatos] = useState<WeekMuscles | null>(null);
   const [vacio, setVacio] = useState(false);
   const [error, setError] = useState("");
@@ -97,10 +112,10 @@ function DeLaSemana() {
   if (error) return <InlineError>{error}</InlineError>;
   if (vacio) return <Vacio />;
   if (!datos) return null;
-  return <Radar vista={deLaSemana(datos)} />;
+  return <Grafico vista={deLaSemana(datos)} modo={modo} />;
 }
 
-function DeUnPeriodo({ tramo }: { tramo: Tramo }) {
+function DeUnPeriodo({ tramo, modo }: { tramo: Tramo; modo: Modo }) {
   const hoy = useHoy();
   const [ancla, setAncla] = useState<string | null>(null);
   const [datos, setDatos] = useState<PeriodMuscles | null>(null);
@@ -134,7 +149,7 @@ function DeUnPeriodo({ tramo }: { tramo: Tramo }) {
       {datos.muscles.every((m) => m.sets === 0 && !m.previous_sets) ? (
         <Vacio />
       ) : (
-        <Radar vista={deUnPeriodo(datos, hoy)} />
+        <Grafico vista={deUnPeriodo(datos, hoy)} modo={modo} />
       )}
     </>
   );

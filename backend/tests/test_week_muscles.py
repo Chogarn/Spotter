@@ -49,6 +49,10 @@ def test_cuenta_solo_las_series_hechas_de_los_seis_grupos_grandes(api):
     }
     assert cuerpo["has_previous"] is False
     assert all(m["previous_sets"] is None for m in cuerpo["muscles"])
+    # Los complementos van aparte (para el mapa muscular): la plancha cuenta como core.
+    assert {m["muscle"]: m["sets"] for m in cuerpo["others"]} == {
+        "biceps": 0, "triceps": 0, "calves": 0, "core": 1,
+    }
 
 
 def test_compara_con_la_semana_cerrada_anterior_de_la_rutina(api):

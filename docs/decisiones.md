@@ -644,6 +644,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** que el período de Estadísticas se abra en Semana; que las barras de Mes y Año midan series y no kilos; que la ventana de Cuerpo termine en la última medición y no en hoy; que "Semana" del radar muestre solo la última semana; los textos y el color amarillo de la marca de cierre.
 - **Ojo:** probado con tests del backend (`test_period.py`) y chequeo de tipos; **no se vio en pantalla con datos reales**. Los "min entrenando" de un mes pueden dar de más si un día quedó empezado mucho antes de completarse.
 
+### 95. Cada estadística tiene su pantalla y aparece el mapa muscular
+- **Fecha:** 2026-10-26
+- **Decisión:** (1) **Progreso es un índice** (`/progreso`) con una pantalla propia por estadística, sin pestañas dentro de pestañas: Resúmenes (`/progreso/resumenes`), Series por músculo (`/progreso/musculos`), Mapa muscular (`/progreso/mapa`), Evolución por ejercicio (`/progreso/ejercicios`), Calendario y Cuerpo y peso. Estadísticas deja de ser una pantalla; Inicio tiene una sola tarjeta, "Ver mi progreso". (2) **Mapa muscular:** las mismas series del radar, pintadas sobre una silueta de frente y de espalda, en 4 tonos de azul (el azul es la carga en Disco; el rojo queda para "te falta" en el radar), sobre fondo blanco y con contorno. Incluye los complementos (bíceps, tríceps, gemelos y core), que el backend devuelve aparte en `others` sin tocar el radar. (3) **El dibujo sale del sexo del perfil** (hombre o mujer); solo con "otro" o sin dato se elige a mano, y se recuerda en el navegador. (4) Los dibujos se copiaron de react-native-body-highlighter 3.2.0 (MIT, sin el pelo) a `frontend/src/lib/cuerpoMusculos.ts`, sin dependencia nueva; la librería probada antes (react-body-highlighter) se descartó por angulosa.
+- **Por qué:** *(completar)*
+- **Descartaste:** el mapa dentro de Estadísticas debajo del radar; el panel oscuro y el rojo; un dibujo neutro; la pestaña "Mapa" y el interruptor dentro de la tarjeta del radar.
+- **Decidió la IA sin preguntarte:** los nombres de las tarjetas y sus íconos; que el mapa mida los complementos con la misma vara del mínimo de R3 (no tienen mínimo propio); que "otro" y el sexo vacío usen el selector; 4 niveles de intensidad (hasta el 150 % del mínimo).
+- **Ojo:** probado con tests del backend y chequeo de tipos; **no se vio en pantalla**. El dibujo no separa gemelos de sóleo ni core de oblicuos como el catálogo.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. Sigue pendiente, fuera de las decisiones de producto, consultar al profesor si el RAG con pgvector de la tarea #52 es lo que se espera.

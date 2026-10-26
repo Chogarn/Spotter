@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.deps import get_current_user
 from app.models import PlanDay, User, WorkoutSession
-from app.ai.rules import BIG_GROUPS
+from app.ai.rules import BIG_GROUPS, COMPLEMENT
 from app.routers.weeks import MIN_WEEKLY_SETS, day_entries, measured_minutes, routine_weeks
 from app.schemas import MuscleSetsOut, PeriodBucketOut, PeriodMusclesOut, PeriodExerciseOut, PeriodSessionOut, PeriodSummaryOut
 
@@ -190,8 +190,8 @@ def get_period_muscles(
     en el día no hay mínimo."""
     start, end = _range(period, on)
     before_start, before_end = _range(period, start - timedelta(days=1))
-    current = {muscle: 0 for muscle in BIG_GROUPS}
-    previous = {muscle: 0 for muscle in BIG_GROUPS}
+    current = {muscle: 0 for muscle in BIG_GROUPS + COMPLEMENT}
+    previous = {muscle: 0 for muscle in BIG_GROUPS + COMPLEMENT}
     all_days: set[date] = set()
     finished = db.scalars(
         select(WorkoutSession).where(
@@ -226,5 +226,8 @@ def get_period_muscles(
         minimum=minimum,
         muscles=[
             MuscleSetsOut(muscle=m.value, sets=current[m], previous_sets=previous[m]) for m in BIG_GROUPS
+        ],
+        others=[
+            MuscleSetsOut(muscle=m.value, sets=current[m], previous_sets=previous[m]) for m in COMPLEMENT
         ],
     )
