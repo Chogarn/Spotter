@@ -19,6 +19,7 @@ from app.models import (
     PlanExercise,
     PlanProposal,
     PlanSet,
+    Routine,
     SetEntry,
     User,
     WeekPlan,
@@ -56,6 +57,17 @@ def routine_weeks(db: Session, routine_id: int) -> list[WeekPlan]:
             .where(WeekPlan.routine_id == routine_id)
             .order_by(WeekPlan.week_start, WeekPlan.id)
         )
+    )
+
+
+def current_routine_id(db: Session, user_id: int) -> int | None:
+    """La rutina que se está haciendo: la más reciente con semanas (la misma que ofrece Inicio para
+    continuar). Las anteriores quedan terminadas: el cuerpo de la persona ya cambió y no se continúan."""
+    return db.scalar(
+        select(Routine.id)
+        .where(Routine.user_id == user_id, Routine.id.in_(select(WeekPlan.routine_id)))
+        .order_by(Routine.created_at.desc(), Routine.id.desc())
+        .limit(1)
     )
 
 
@@ -534,6 +546,10 @@ def reopen_week(
     if routine_weeks(db, week.routine_id)[-1].id != week.id:
         raise HTTPException(
             status_code=409, detail="Solo se puede reabrir la última semana de la rutina"
+        )
+    if week.routine_id != current_routine_id(db, user.id):
+        raise HTTPException(
+            status_code=409, detail="Esa rutina ya terminó: solo se reabre la rutina más reciente"
         )
     if active_week(db, user.id) is not None:
         raise HTTPException(

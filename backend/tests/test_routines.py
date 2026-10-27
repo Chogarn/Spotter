@@ -241,3 +241,33 @@ def test_la_propuesta_pendiente_se_puede_volver_a_ver_hasta_que_se_resuelve(api,
 
     api.post(f"/proposals/{propuesta['id']}/discard")
     assert api.get("/proposals/pending").status_code == 404
+
+
+def test_una_rutina_vieja_no_se_continua(api, entorno, monkeypatch):
+    con_perfil(api)
+    generar_y_aceptar(api, monkeypatch)
+    cerrar_activa(api)
+    vieja = api.get("/routines").json()[0]["id"]
+    generar_y_aceptar(api, monkeypatch, {"goal": "masa", "level": "intermedio", "days": 2, "minutes": 60})
+    cerrar_activa(api)
+    usar_gemini(monkeypatch, rutina())
+
+    res = api.post("/proposals/generate", json={"routine_id": vieja, "days": 2, "minutes": 60})
+
+    assert res.status_code == 409
+    assert "ya terminó" in res.json()["detail"]
+
+
+def test_la_ultima_semana_de_una_rutina_vieja_no_se_reabre(api, entorno, monkeypatch):
+    con_perfil(api)
+    generar_y_aceptar(api, monkeypatch)
+    cerrar_activa(api)
+    vieja = api.get("/routines").json()[0]["id"]
+    semana_vieja = api.get(f"/routines/{vieja}").json()["weeks"][0]["id"]
+    generar_y_aceptar(api, monkeypatch, {"goal": "masa", "level": "intermedio", "days": 2, "minutes": 60})
+    cerrar_activa(api)
+
+    res = api.post(f"/weeks/{semana_vieja}/reopen")
+
+    assert res.status_code == 409
+    assert "ya terminó" in res.json()["detail"]

@@ -1,16 +1,28 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
+import { Check, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 
 import { readError, type RoutineDetail, apiFetch } from "@/lib/api";
-import { goalText, nombreCorto, nombreDiceElObjetivo, statusText } from "@/lib/format";
+import { goalText, nombreCorto, nombreDiceElObjetivo } from "@/lib/format";
 import { DiscosSemana } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Franja } from "@/components/Franja";
 import { cn } from "cn";
 import { CargandoDiscos } from "@/components/Cargando";
+
+// "26 oct": el día y el mes corto, sin pasar por la zona horaria.
+function corta(iso: string): string {
+  return new Date(`${iso.slice(0, 10)}T00:00:00Z`)
+    .toLocaleDateString("es-AR", { day: "numeric", month: "short", timeZone: "UTC" })
+    .replace(".", "");
+}
+
+// "26 oct – 1 nov" si ya cerró, o "Desde el 26 oct" si sigue abierta.
+function fechas(inicio: string, cierre: string | null): string {
+  return cierre ? `${corta(inicio)} – ${corta(cierre)}` : `Desde el ${corta(inicio)}`;
+}
 
 export default function RutinaView({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -52,33 +64,45 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
                 </span>
               ))}
           </div>
-          {/* Las semanas como tarjetas, de la más nueva a la más vieja. El estado lo dice el borde (oscuro
-              = en curso) y los discos; el texto es para lectores de pantalla. */}
+          {/* Las semanas como tarjetas, de la más nueva a la más vieja: el título con su etiqueta de estado, las fechas, la etiqueta de estado y los discos de los días. */}
           <ul className="m-0 mt-5 grid list-none gap-2.5 p-0">
-            {rutina.weeks.map((s) => (
-              <li key={s.id}>
-                <Link
-                  href={`/semanas/${s.id}`}
-                  className={cn(
-                    "flex items-center gap-3 rounded-2xl border-2 border-transparent bg-card px-4 py-3 no-underline hover:bg-muted",
-                    s.status === "active" && "border-disco-tinta",
-                  )}
-                >
-                  <span className="flex-1">
-                    <span className="block font-heading text-[1.35rem] leading-tight font-bold">
-                      Semana {s.number}
-                      <span className="sr-only">
-                        , {s.status === "active" ? "en curso" : s.status === "closed" ? "completada" : statusText[s.status]}
+            {rutina.weeks.map((s) => {
+              const enCurso = s.status === "active";
+              const completada = s.status === "closed";
+              return (
+                <li key={s.id}>
+                  <Link
+                    href={`/semanas/${s.id}`}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl border-2 border-transparent bg-card px-4 py-3.5 no-underline hover:bg-muted",
+                      enCurso && "border-disco-tinta",
+                    )}
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="font-heading text-[1.35rem] leading-tight font-bold">Semana {s.number}</span>
+                        {(enCurso || completada) && (
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
+                              enCurso ? "bg-disco-amarillo text-disco-tinta" : "bg-disco-verde/15 text-disco-verde-texto",
+                            )}
+                          >
+                            {completada && <Check className="size-3.5" aria-hidden="true" />}
+                            {enCurso ? "En curso" : "Completada"}
+                          </span>
+                        )}
+                      </span>
+                      <span className="mt-0.5 block text-sm text-muted-foreground">{fechas(s.week_start, s.closed_at)}</span>
+                      <span className="mt-2 block">
+                        <DiscosSemana estados={s.day_states} />
                       </span>
                     </span>
-                    <span className="mt-2 block">
-                      <DiscosSemana estados={s.day_states} />
-                    </span>
-                  </span>
-                  <ChevronRight className="size-6 shrink-0 text-muted-foreground" aria-hidden />
-                </Link>
-              </li>
-            ))}
+                    <ChevronRight className="size-6 shrink-0 text-muted-foreground" aria-hidden />
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </>
       )}

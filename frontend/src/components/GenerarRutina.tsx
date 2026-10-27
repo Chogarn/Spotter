@@ -216,7 +216,9 @@ export function GenerarRutina({
     try {
       const res = await apiFetch(`/routines`);
       if (!res.ok) throw new Error(await readError(res));
-      const lista: Routine[] = await res.json();
+      // Solo se continúa la rutina más reciente (la lista viene de la más nueva a la más vieja): las
+      // anteriores terminaron y el servidor las rechaza.
+      const lista: Routine[] = (await res.json()).filter((r: Routine) => r.week_count > 0).slice(0, 1);
       setRutinas(lista);
       if (continuar !== undefined) {
         const rutina = lista.find((r) => r.id === continuar);

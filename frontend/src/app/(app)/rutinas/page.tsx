@@ -1,22 +1,23 @@
 "use client";
 
-import { ChevronRight, Plus } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { cn } from "cn";
 import { useEffect, useState } from "react";
 
 import { readError, type Routine, apiFetch } from "@/lib/api";
 import { nombreCorto } from "@/lib/format";
-import { DiscosSemana } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Franja } from "@/components/Franja";
 import { IconoObjetivo } from "@/components/IconoObjetivo";
 import { InfoRutina } from "@/components/InfoRutina";
-import { NuevaRutina } from "@/components/NuevaRutina";
-import { Button } from "@/components/ui/button";
 import { CargandoDiscos } from "@/components/Cargando";
 
 export default function MisRutinasPage() {
   const [rutinas, setRutinas] = useState<Routine[] | null>(null);
+  // La rutina "activa" es la que se está haciendo: la más reciente con semanas, aunque su semana ya
+  // esté cerrada (es la que se continúa, como en Inicio).
+  const actualId = rutinas?.find((r) => r.week_count > 0)?.id ?? null;
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -37,8 +38,7 @@ export default function MisRutinasPage() {
       {!rutinas && !error && <CargandoDiscos />}
       {rutinas && rutinas.length === 0 && (
         <p className="text-muted-foreground">
-          Todavía no tenés rutinas. Creá la primera con el botón «+» de abajo: la IA la arma según tu nivel y tu
-          objetivo.
+          Todavía no tenés rutinas. Creá la primera desde Inicio: la IA la arma según tu nivel y tu objetivo.
         </p>
       )}
       {rutinas && rutinas.length > 0 && (
@@ -47,55 +47,43 @@ export default function MisRutinasPage() {
             <li key={r.id} className="relative min-w-0">
               <Link
                 href={`/rutinas/${r.id}`}
-                className="flex min-h-[5.75rem] items-center gap-3 rounded-2xl bg-card py-3 pr-14 pl-3 no-underline hover:bg-muted"
+                className={cn(
+                  "flex min-h-[5.75rem] items-center gap-3 rounded-2xl border-2 border-transparent bg-card py-3 pr-14 pl-3 no-underline hover:bg-muted",
+                  r.id === actualId && "border-disco-tinta",
+                )}
               >
-                {/* El aro del ícono dice el estado: rojo = en curso, gris = lista para continuar (decisión 77). */}
+                {/* El aro del ícono dice el estado: rojo = con semana en curso, gris = sin semana en curso (decisión 77). */}
                 <IconoObjetivo objetivo={r.goal} tamano="md" aro={r.has_active_week ? "rojo" : "gris"} />
-                {/* Solo el nivel y los discos de la semana más nueva (la que está en curso, o la última cerrada).
-                    El nombre queda para lectores de pantalla; el detalle se ve al entrar a la rutina. */}
+                {/* El nombre y el nivel: el estado lo dice el aro del ícono y el resto (días, estructura) se ve en
+                    el ⓘ o al entrar a la rutina. */}
                 <span className="sr-only">
                   {r.name}
-                  {r.has_active_week ? ", en curso" : ", lista para continuar"}
+                  {r.id === actualId ? ", activa" : ", terminada"}
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col" aria-hidden="true">
                   <span className="line-clamp-2 font-heading text-2xl leading-tight font-bold break-words">
                     {nombreCorto(r.name)}
                   </span>
-                  <span className="truncate text-sm text-muted-foreground">
-                    {r.level}
+                  <span className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
+                    <span className="truncate">{r.level}</span>
+                    {r.id === actualId ? (
+                      <span className="shrink-0 rounded-full bg-disco-amarillo px-2.5 py-0.5 text-xs font-medium text-disco-tinta">
+                        Activa
+                      </span>
+                    ) : (
+                      <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">Terminada</span>
+                    )}
                   </span>
-                  {r.last_week_day_states.length > 0 && (
-                    <span className="mt-3 block">
-                      <DiscosSemana estados={r.last_week_day_states} />
-                    </span>
-                  )}
                 </span>
                 <ChevronRight className="absolute right-4 bottom-4 size-5 text-muted-foreground" aria-hidden="true" />
               </Link>
               {/* El ⓘ va arriba a la derecha, fuera del enlace, y abre todos los datos de la rutina. */}
-              <InfoRutina rutina={r} className="absolute top-2 right-3" />
+              <InfoRutina rutina={r} activa={r.id === actualId} className="absolute top-2 right-3" />
             </li>
           ))}
         </ul>
       )}
 
-      {/* "Nueva rutina": botón redondo flotante abajo a la derecha, sobre la barra de navegación (su alto
-          más su borde), siempre a la vista y a mano del pulgar. */}
-      {rutinas && (
-        <NuevaRutina hayActiva={rutinas.some((r) => r.has_active_week)}>
-          {(abrir) => (
-            <Button
-              type="button"
-              size="icon-lg"
-              onClick={abrir}
-              aria-label="Nueva rutina"
-              className="fixed right-4 bottom-[calc(var(--alto-barra)+1px+1rem+env(safe-area-inset-bottom))] z-30 size-14 rounded-full shadow-lg"
-            >
-              <Plus className="size-6" aria-hidden="true" />
-            </Button>
-          )}
-        </NuevaRutina>
-      )}
       </div>
     </main>
   );

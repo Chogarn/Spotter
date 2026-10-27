@@ -26,7 +26,7 @@ from app.deps import get_current_user
 from app.enums import Goal, Level, ProposalKind, ProposalStatus, RoutineSplit
 from app.models import PlanProposal, Routine, User
 from app.routines import create_routine
-from app.routers.weeks import routine_weeks
+from app.routers.weeks import current_routine_id, routine_weeks
 from app.schemas import (
     AlternativeOut,
     ExerciseChangeOut,
@@ -80,6 +80,11 @@ def generate(
         routine = db.get(Routine, data.routine_id)
         if routine is None or routine.user_id != user.id:
             raise HTTPException(status_code=404, detail="No existe esa rutina")
+        if routine.id != current_routine_id(db, user.id):
+            raise HTTPException(
+                status_code=409,
+                detail="Esa rutina ya terminó: solo se continúa la más reciente. Empezá una rutina nueva.",
+            )
         goal, level = routine.goal, routine.level  # el nivel queda fijo mientras sigue la rutina
     else:
         if goal is None or level is None:

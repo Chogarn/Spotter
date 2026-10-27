@@ -9,7 +9,7 @@ import { goalText, shortDate, splitText } from "@/lib/format";
 // El ícono ⓘ de una rutina de la lista: abre un panel con todo lo que la tarjeta no muestra (el
 // nombre completo, el objetivo, los días, la estructura, las semanas y cuándo se creó). Mismo
 // formato que el ⓘ de un ejercicio. Va fuera del enlace de la tarjeta (un botón no va dentro de un enlace).
-export function InfoRutina({ rutina, className }: { rutina: Routine; className?: string }) {
+export function InfoRutina({ rutina, activa, className }: { rutina: Routine; activa: boolean; className?: string }) {
   const panel = useRef<HTMLDialogElement>(null);
   const filas: [string, string][] = [
     ["Objetivo", goalText[rutina.goal] ?? rutina.goal],
@@ -18,7 +18,7 @@ export function InfoRutina({ rutina, className }: { rutina: Routine; className?:
     ["Estructura", rutina.split_type ? splitText[rutina.split_type] : "—"],
     ["Lleva", `${rutina.week_count} ${rutina.week_count === 1 ? "semana" : "semanas"}`],
     ["Creada el", shortDate(rutina.created_at)],
-    ["Estado", rutina.has_active_week ? "En curso" : "Lista para continuar"],
+    ["Estado", activa ? (rutina.has_active_week ? "Activa · semana en curso" : "Activa") : "Terminada"],
   ];
 
   return (
