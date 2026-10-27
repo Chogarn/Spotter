@@ -1,3 +1,7 @@
+"use client";
+
+import { useLayoutEffect, useRef, useState } from "react";
+
 import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER } from "@/lib/cuerpoMusculos";
 
 export type Vista = "frente" | "espalda";
@@ -30,21 +34,27 @@ export function MapaMuscular({
   descripcion: string;
 }) {
   const dibujo = DIBUJOS[cuerpo];
+  // La caja de cada dibujo trae aire de sobra: se mide el cuerpo real y se recorta a él (con un margen
+  // chico) para que no quede un hueco arriba ni abajo. Mientras se mide vale la caja de siempre.
+  const grupo = useRef<SVGGElement>(null);
+  const [recorte, setRecorte] = useState<{ clave: string; caja: string } | null>(null);
+  const clave = `${cuerpo}-${vista}`;
+  useLayoutEffect(() => {
+    const b = grupo.current?.getBBox();
+    if (!b || b.width === 0) return;
+    const m = 20;
+    setRecorte({ clave, caja: `${b.x - m} ${b.y - m} ${b.width + 2 * m} ${b.height + 2 * m}` });
+  }, [clave]);
   return (
     <svg
-      viewBox={dibujo.caja[vista]}
+      viewBox={recorte?.clave === clave ? recorte.caja : dibujo.caja[vista]}
       className="mx-auto block h-auto w-full max-w-80"
       role="img"
       aria-label={descripcion}
     >
-      {/* El cuerpo: la silueta es una línea fina gris alrededor de todas las piezas juntas (un trazo
-          gris y otro blanco un poco más angosto encima); los músculos van adentro, en blanco o pintados. */}
-      <g fill="#b6bec8" stroke="#b6bec8" strokeWidth={66} strokeLinejoin="round" aria-hidden="true">
-        {dibujo[vista].map((p) => p.paths.map((d, i) => <path key={`${p.slug}-${i}`} d={d} />))}
-      </g>
-      <g fill="#ffffff" stroke="#ffffff" strokeWidth={60} strokeLinejoin="round" aria-hidden="true">
-        {dibujo[vista].map((p) => p.paths.map((d, i) => <path key={`${p.slug}-${i}`} d={d} />))}
-      </g>
+      {/* Cada músculo va pintado según su intensidad (en blanco si no se trabajó), con un borde fino. Sin
+          contorno aparte alrededor del cuerpo. */}
+      <g ref={grupo}>
       {dibujo[vista].map((p) => (
         <g
           key={p.slug}
@@ -58,6 +68,7 @@ export function MapaMuscular({
           ))}
         </g>
       ))}
+      </g>
     </svg>
   );
 }

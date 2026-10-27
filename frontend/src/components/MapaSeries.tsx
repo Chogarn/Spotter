@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { InfoMapa } from "@/components/InfoMapa";
 import { MapaMuscular, type Cuerpo, type Vista } from "@/components/MapaMuscular";
 import { apiFetch, type MuscleSets } from "@/lib/api";
 import { cn } from "cn";
@@ -107,24 +108,17 @@ export function MapaSeries({ muscles, minimum }: { muscles: MuscleSets[]; minimu
           intensidad={intensidad}
           descripcion={`Series por músculo, vista de ${vista}. ${resumen}.`}
         />
-        <button
-          type="button"
-          onClick={() => setVista(vista === "frente" ? "espalda" : "frente")}
-          className="mx-auto mt-3 block rounded-full bg-muted px-4 py-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          Ver {vista === "frente" ? "espalda" : "frente"}
-        </button>
+        <div className="relative mt-3 flex items-center justify-center">
+          <button
+            type="button"
+            onClick={() => setVista(vista === "frente" ? "espalda" : "frente")}
+            className="rounded-full bg-muted px-4 py-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            Ver {vista === "frente" ? "espalda" : "frente"}
+          </button>
+          <InfoMapa className="absolute right-0" />
+        </div>
       </div>
-      <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-        <span>Menos</span>
-        {["#b9d0f0", "#6f9ee0", "#1f5fbf", "#123a7a"].map((c) => (
-          <span key={c} className="size-3 rounded-full" style={{ background: c }} aria-hidden="true" />
-        ))}
-        <span>más series</span>
-      </div>
-      <p className="mt-1 mb-0 text-xs text-muted-foreground">
-        Cuenta el músculo principal de cada ejercicio; en gris, lo que no trabajaste.
-      </p>
     </div>
   );
 }
