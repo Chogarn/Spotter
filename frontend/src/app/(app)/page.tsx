@@ -1,19 +1,22 @@
 "use client";
 
-import { ChartLine, Lightbulb, ListChecks, Sparkles } from "lucide-react";
+import { CalendarCheck, CalendarDays, ChartLine, Lightbulb, ListChecks, Scale, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { CerrarSemana } from "@/components/CerrarSemana";
 import { Disco, estadoDia } from "@/components/Disco";
+import { Festejo } from "@/components/Festejo";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { Formulario } from "@/components/SeguimientoCuerpo";
 import { Franja } from "@/components/Franja";
 import { Logo } from "@/components/Logo";
 import { NuevaRutina } from "@/components/NuevaRutina";
-import { OpcionesSiguiente, ResumenUltimaSemana, useUltimaSemana } from "@/components/SiguienteSemana";
+import { OpcionesSiguiente, useUltimaSemana } from "@/components/SiguienteSemana";
 import { TarjetaAcceso } from "@/components/TarjetaAcceso";
 import { Button } from "@/components/ui/button";
 import { readError, apiFetch, type SessionUser, type WeekDetail } from "@/lib/api";
+import { tituloDia } from "@/lib/format";
 import { CargandoDiscos } from "@/components/Cargando";
 
 // Inicio (#60, decisión 51): la portada para quien inició sesión. Saluda, muestra cómo va la
@@ -27,6 +30,8 @@ export default function Inicio() {
   const [semana, setSemana] = useState<WeekDetail | null>(null);
   const [pendiente, setPendiente] = useState<number | null>(null);
   const [error, setError] = useState("");
+  // El recuadro para cargar el peso del día, sin salir de Inicio.
+  const [cargandoPeso, setCargandoPeso] = useState(false);
   // Subir `recarga` vuelve a pedir todo (por ejemplo, si al generar ya había una semana activa).
   const [recarga, setRecarga] = useState(0);
 
@@ -90,7 +95,8 @@ export default function Inicio() {
             </div>
             {proximo ? (
               <>
-                <h2 className="mt-0 mb-4 text-4xl">Día {proximo.day_index}</h2>
+                <h2 className="mt-0 mb-0 text-4xl">Día {proximo.day_index}</h2>
+                <p className="mt-0 mb-4 text-lg text-muted-foreground">{tituloDia(proximo.title)}</p>
                 <Button
                   size="xl"
                   className="w-full"
@@ -120,18 +126,12 @@ export default function Inicio() {
           <section className="mb-4 rounded-2xl border-2 border-disco-tinta bg-card p-5">
             {ultima ? (
               <>
-                <p className="m-0 text-sm text-muted-foreground">{ultima.rutina.name}</p>
-                <h2 className="mt-0 mb-2 text-4xl">Semana {ultima.semana.number} completada</h2>
-                <div className="mb-3">
-                  <ResumenUltimaSemana ultima={ultima} />
-                </div>
+                <Festejo />
+                <h2 className="mt-0 mb-4 text-4xl">Semana {ultima.semana.number} completada</h2>
               </>
             ) : (
-              <h2 className="mt-0 mb-1 text-4xl">Armá tu próxima semana</h2>
+              <h2 className="mt-0 mb-4 text-4xl">Armá tu próxima semana</h2>
             )}
-            <p className="mt-0 mb-4 text-sm text-muted-foreground">
-              La IA mira lo que hiciste y propone la semana siguiente. Nada se guarda hasta que la aceptes.
-            </p>
             {ultima !== undefined && (
               <OpcionesSiguiente ultima={ultima} onConflict={() => setRecarga((n) => n + 1)} conRutinaNueva={false} />
             )}
@@ -159,11 +159,17 @@ export default function Inicio() {
             </NuevaRutina>
           </div>
           <h2 className="mt-0 mb-2 text-xl">Tu progreso</h2>
-          <div className="grid grid-cols-1 gap-2.5">
-            <TarjetaAcceso href="/progreso" Icono={ChartLine} texto="Ver mi progreso" />
+          <div className="grid grid-cols-2 gap-2.5">
+            <TarjetaAcceso href="/progreso/resumenes" Icono={CalendarCheck} texto="Resúmenes" />
+            <TarjetaAcceso href="/progreso/calendario" Icono={CalendarDays} texto="Calendario" />
+            <TarjetaAcceso href="/progreso" Icono={ChartLine} texto="Estadísticas" />
+            <TarjetaAcceso onClick={() => setCargandoPeso(true)} Icono={Scale} texto="Cargar peso" />
           </div>
         </nav>
       </div>
+      {cargandoPeso && (
+        <Formulario medicion={null} onCerrar={() => setCargandoPeso(false)} onGuardada={() => setCargandoPeso(false)} />
+      )}
     </main>
   );
 }

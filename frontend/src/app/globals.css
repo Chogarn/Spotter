@@ -260,3 +260,28 @@ html {
     animation: none;
   }
 }
+
+/* Festejo (Festejo.tsx): cada pieza de confeti cae desde arriba, se pasa un poco y se acomoda girada. */
+.confeti {
+  transform: rotate(var(--giro, 0deg));
+  /* Cae al aparecer y después flota sin parar, cada pieza a su ritmo (--ritmo). */
+  animation:
+    confeti-cae 0.9s cubic-bezier(0.22, 1, 0.36, 1) both,
+    confeti-flota var(--ritmo, 2.6s) ease-in-out 0.9s infinite;
+}
+@keyframes confeti-cae {
+  0% { opacity: 0; transform: translateY(-48px) rotate(calc(var(--giro, 0deg) - 200deg)) scale(0.6); }
+  60% { opacity: 1; transform: translateY(6px) rotate(calc(var(--giro, 0deg) + 20deg)) scale(1); }
+  100% { opacity: 1; transform: translateY(0) rotate(var(--giro, 0deg)) scale(1); }
+}
+@keyframes confeti-flota {
+  0%, 100% { transform: translate(0, 0) rotate(var(--giro, 0deg)); }
+  25% { transform: translate(3px, -5px) rotate(calc(var(--giro, 0deg) + 40deg)); }
+  50% { transform: translate(0, -8px) rotate(calc(var(--giro, 0deg) + 70deg)); }
+  75% { transform: translate(-3px, -4px) rotate(calc(var(--giro, 0deg) + 30deg)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .confeti {
+    animation: none;
+  }
+}

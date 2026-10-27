@@ -1,13 +1,14 @@
 "use client";
 
-import { nombreCorto } from "@/lib/format";
+import { nombreCorto, tituloDia } from "@/lib/format";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { CerrarSemana } from "@/components/CerrarSemana";
 import { Disco, estadoDia } from "@/components/Disco";
-import { OpcionesSiguiente, ResumenUltimaSemana, useUltimaSemana } from "@/components/SiguienteSemana";
+import { Festejo } from "@/components/Festejo";
+import { OpcionesSiguiente, useUltimaSemana } from "@/components/SiguienteSemana";
 import { readError, apiFetch, type WeekDetail } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -82,7 +83,8 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
         {proximo ? (
           <>
             <p className="m-0 text-sm text-muted-foreground">Te toca</p>
-            <h2 className="mt-0 mb-4 text-6xl">Día {proximo.day_index}</h2>
+            <h2 className="mt-0 mb-0 text-6xl">Día {proximo.day_index}</h2>
+            <p className="mt-0 mb-4 text-xl text-muted-foreground">{tituloDia(proximo.title)}</p>
             <Button
               size="xl"
               className="w-full"
@@ -112,7 +114,10 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
               className="flex items-center gap-3 rounded-xl bg-card px-4 py-3 no-underline hover:bg-muted"
             >
               <Disco estado={estadoDia[d.state]} hoy={d.day_index === proximo?.day_index} />
-              <span className="flex-1 font-medium">Día {d.day_index}</span>
+              <span className="flex-1">
+                <span className="block font-medium">Día {d.day_index}</span>
+                <span className="block text-sm text-muted-foreground">{tituloDia(d.title)}</span>
+              </span>
               <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
             </Link>
           </li>
@@ -141,18 +146,12 @@ function SinSemana({ pendiente, onConflict }: { pendiente: number | null; onConf
     <>
       {ultima ? (
         <>
-          <p className="text-sm text-muted-foreground">{ultima.rutina.name}</p>
-          <h2 className="mt-0 mb-2 text-4xl">Semana {ultima.semana.number} completada</h2>
-          <div className="mb-4">
-            <ResumenUltimaSemana ultima={ultima} />
-          </div>
+          <Festejo />
+          <h2 className="mt-0 mb-4 text-4xl">Semana {ultima.semana.number} completada</h2>
         </>
       ) : (
         <h2 className="mt-0 text-4xl">Armá tu próxima semana</h2>
       )}
-      <p className="text-muted-foreground">
-        La IA mira lo que hiciste y propone la semana siguiente. Nada se guarda hasta que la aceptes.
-      </p>
       {pendiente !== null && (
         <section className="my-4 rounded-2xl border-2 border-disco-amarillo bg-card p-4">
           <p className="m-0 font-medium">Tenés una propuesta sin revisar</p>
