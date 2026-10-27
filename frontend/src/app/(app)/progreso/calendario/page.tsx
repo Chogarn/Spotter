@@ -10,7 +10,7 @@ import { Franja } from "@/components/Franja";
 export default function CalendarioPage() {
   return (
     <main className="flex flex-1 flex-col">
-      <Franja titulo="Calendario" aros="azul" volver={{ href: "/progreso" }} compacta />
+      <Franja titulo="Calendario" aros="azul" volver={{ href: "/" }} compacta />
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
       <Suspense fallback={<CargandoDiscos />}>
         <Calendario />

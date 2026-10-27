@@ -598,6 +598,8 @@ class PeriodBucketOut(BaseModel):
     days_trained: int
     sets_done: int
     kg_moved: float
+    cardio_minutes: int = 0
+    duration_minutes: int = 0  # lo que tardó, en minutos; 0 si no se midió
 
 
 class PeriodSessionOut(BaseModel):
@@ -624,7 +626,7 @@ class PeriodExerciseOut(BaseModel):
 class PeriodSummaryOut(BaseModel):
     """Resumen de un día, un mes o un año (histórico, de todas las rutinas)."""
 
-    period: str  # day, month o year
+    period: str  # day, week, month o year
     start: date
     end: date  # incluido
     first_date: date | None  # el primer día entrenado de todos (hasta dónde se puede retroceder)
@@ -644,7 +646,7 @@ class PeriodSummaryOut(BaseModel):
 class PeriodMusclesOut(BaseModel):
     """Series hechas por grupo grande en un día, un mes o un año, para el radar de Estadísticas."""
 
-    period: str  # day, month o year
+    period: str  # day, week, month o year
     start: date
     end: date  # incluido
     first_date: date | None  # el primer día entrenado de todos (hasta dónde se puede retroceder)

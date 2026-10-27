@@ -2,6 +2,7 @@
 
 import { Pencil, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import { ContadorSesion } from "@/components/ContadorSesion";
@@ -12,10 +13,11 @@ import { Flecha } from "@/components/Flecha";
 import { DoneControl } from "@/components/DoneControl";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { SemanaPasada } from "@/components/SemanaPasada";
+import { usePeriodo } from "@/components/SelectorPeriodo";
 import { SetRow } from "@/components/SetRow";
 import { Button } from "@/components/ui/button";
 import { readError, type DayDetail, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
-import { differsFromPlan, estaHecho, realAsSet, resumenDelDia, setText, summarize, tituloDia } from "@/lib/format";
+import { differsFromPlan, estaHecho, realAsSet, setText, summarize } from "@/lib/format";
 import { cn } from "cn";
 import { Cargando } from "@/components/Cargando";
 
@@ -353,7 +355,7 @@ export default function EntrenarView({
               </Button>
             </>
           ) : (
-            <CierreDelDia dia={actual} />
+            <CierreDelDia />
           )}
         </section>
       )}
@@ -361,43 +363,16 @@ export default function EntrenarView({
   );
 }
 
-// Lo que se ve al cerrar el día (y al volver a un día ya completado): cómo fue y adónde seguir.
-function CierreDelDia({ dia }: { dia: DayDetail }) {
-  const { series, kg, minutos } = resumenDelDia(dia);
-  const cifras = [
-    { titulo: "Duración", valor: minutos === null ? "Sin medir" : `${minutos} min` },
-    { titulo: "Series", valor: String(series) },
-  ];
-  return (
-    <>
-      <h1 className="mt-0 mb-1 text-4xl">Día completado</h1>
-      <p className="mt-0 mb-4 text-muted-foreground">
-        Día {dia.day_index} · {tituloDia(dia.title)}
-      </p>
-      <dl className="m-0 mb-4 grid grid-cols-2 gap-2">
-        {cifras.map(({ titulo, valor }) => (
-          <div key={titulo} className="rounded-xl bg-background px-3 py-2.5">
-            <dt className="text-xs text-muted-foreground">{titulo}</dt>
-            <dd className="m-0 font-heading text-2xl font-bold">{valor}</dd>
-          </div>
-        ))}
-        <div className="col-span-2 rounded-xl bg-background px-3 py-2.5">
-          <dt className="text-xs text-muted-foreground">Volumen</dt>
-          <dd className="m-0 font-heading text-2xl font-bold">
-            {kg > 0 ? `${kg.toLocaleString("es-AR", { maximumFractionDigits: 0 })} kg` : "—"}
-          </dd>
-        </div>
-      </dl>
-      <div className="flex flex-col gap-2">
-        <Button size="xl" className="w-full" nativeButton={false} render={<Link href="/progreso/musculos" />}>
-          Ver radar de músculos
-        </Button>
-        <Button size="xl" variant="outline" className="w-full" nativeButton={false} render={<Link href="/" />}>
-          Ir a Inicio
-        </Button>
-      </div>
-    </>
-  );
+// Al cerrar el día (y al volver a un día ya completado) se va al Resumen del día, en Resúmenes: es
+// la misma pantalla que se ve después desde Inicio.
+function CierreDelDia() {
+  const router = useRouter();
+  const [, setPeriodo] = usePeriodo();
+  useEffect(() => {
+    setPeriodo("day");
+    router.replace("/progreso/resumenes");
+  }, [router, setPeriodo]);
+  return <Cargando />;
 }
 
 // La entrada en calor en grande, como un ejercicio más pero sin series: el texto y un botón para

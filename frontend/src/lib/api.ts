@@ -320,7 +320,15 @@ export async function readError(res: Response): Promise<string> {
 }
 
 // El resumen de un día, un mes o un año (`GET /progress/period`): histórico, de todas las rutinas.
-export type PeriodBucket = { label: string; start: string; days_trained: number; sets_done: number; kg_moved: number };
+export type PeriodBucket = {
+  label: string;
+  start: string;
+  days_trained: number;
+  sets_done: number;
+  kg_moved: number;
+  cardio_minutes: number;
+  duration_minutes: number;
+};
 export type PeriodSession = {
   local_date: string;
   title: string;
@@ -332,7 +340,7 @@ export type PeriodSession = {
 };
 export type PeriodExercise = { name: string; kind: ExerciseItem["kind"]; sets_done: number; best_weight_kg: number | null };
 export type PeriodSummary = {
-  period: "day" | "month" | "year";
+  period: "day" | "week" | "month" | "year";
   start: string; // AAAA-MM-DD
   end: string;
   first_date: string | null; // el primer día entrenado (hasta dónde se puede retroceder)
@@ -345,5 +353,5 @@ export type PeriodSummary = {
   buckets: PeriodBucket[]; // una barra por día (mes) o por mes (año); vacío en el día
   sessions: PeriodSession[];
   exercises: PeriodExercise[];
-  results: WeekSummaryDetail["exercises"]; // solo el día: cómo le fue en cada ejercicio
+  results: WeekSummaryDetail["exercises"]; // solo el día y la semana: cómo le fue en cada ejercicio
 };

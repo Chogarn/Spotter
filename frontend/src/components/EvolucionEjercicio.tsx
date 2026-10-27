@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectorChip } from "@/components/SelectorPeriodo";
 import { useEffect, useState } from "react";
 
 import { BuscarEjercicio } from "@/components/BuscarEjercicio";
@@ -214,28 +215,21 @@ function Linea({ historial }: { historial: ExerciseTimeline }) {
 
   return (
     <>
-      <div className="mb-2 flex gap-1 rounded-full bg-muted p-1" role="group" aria-label="Período">
-        {PERIODOS.map((o) => (
-          <button
-            key={o.id}
-            type="button"
-            aria-pressed={periodo === o.id}
-            onClick={() => {
-              setPeriodo(o.id);
-              setActivo(null);
-            }}
-            className={`flex-1 rounded-full px-3 py-1 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50 ${
-              periodo === o.id ? "bg-disco-tinta font-medium text-white" : "text-muted-foreground"
-            }`}
-          >
-            {o.nombre}
-          </button>
-        ))}
+      <div className="mb-1 flex items-start gap-3">
+        <p className="mt-1 mb-0 flex-1 text-sm text-muted-foreground">
+          {QUE_MIDE[historial.unit]}
+          {periodo !== "semana" && ` · el mejor de cada ${periodo === "mes" ? "mes" : "año"}`}
+        </p>
+        <SelectorChip
+          opciones={PERIODOS.map((o) => ({ id: o.id, texto: o.nombre }))}
+          valor={periodo}
+          etiqueta="Período"
+          onElegir={(id) => {
+            setPeriodo(id);
+            setActivo(null);
+          }}
+        />
       </div>
-      <p className="mt-0 mb-1 text-sm text-muted-foreground">
-        {QUE_MIDE[historial.unit]}
-        {periodo !== "semana" && ` · el mejor de cada ${periodo === "mes" ? "mes" : "año"}`}
-      </p>
       <svg
         viewBox={`0 0 ${ancho} ${alto}`}
         className="w-full touch-pan-y"

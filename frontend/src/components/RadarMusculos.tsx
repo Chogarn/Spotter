@@ -76,11 +76,18 @@ export type Modo = "radar" | "mapa";
 
 export function RadarMusculos({ modo }: { modo: Modo }) {
   const [periodo, setPeriodo] = usePeriodo();
+  const selector = <SelectorPeriodo periodo={periodo} onElegir={setPeriodo} />;
   return (
     <section className={cn("mb-3 rounded-2xl bg-card", modo === "radar" ? "mt-4 p-4" : "mt-2 p-3")}>
       {modo === "radar" && <h3 className="mt-0 mb-2 font-heading text-xl font-bold">Radar de músculos</h3>}
-      <SelectorPeriodo periodo={periodo} onElegir={setPeriodo} />
-      {periodo === "week" ? <DeLaSemana modo={modo} /> : <DeUnPeriodo key={periodo} tramo={periodo} modo={modo} />}
+      {periodo === "week" ? (
+        <>
+          <div className="mb-2 flex">{selector}</div>
+          <DeLaSemana modo={modo} />
+        </>
+      ) : (
+        <DeUnPeriodo key={periodo} tramo={periodo} modo={modo} selector={selector} />
+      )}
     </section>
   );
 }
@@ -115,7 +122,7 @@ function DeLaSemana({ modo }: { modo: Modo }) {
   return <Grafico vista={deLaSemana(datos)} modo={modo} />;
 }
 
-function DeUnPeriodo({ tramo, modo }: { tramo: Tramo; modo: Modo }) {
+function DeUnPeriodo({ tramo, modo, selector }: { tramo: Tramo; modo: Modo; selector: React.ReactNode }) {
   const hoy = useHoy();
   const [ancla, setAncla] = useState<string | null>(null);
   const [datos, setDatos] = useState<PeriodMuscles | null>(null);
@@ -135,7 +142,9 @@ function DeUnPeriodo({ tramo, modo }: { tramo: Tramo; modo: Modo }) {
   }, [fecha, tramo]);
 
   if (error) return <InlineError>{error}</InlineError>;
-  if (fecha === null || datos === null || datos.start !== inicioDe(fecha, tramo)) return null;
+  if (fecha === null || datos === null || datos.start !== inicioDe(fecha, tramo)) {
+    return <Navegador tramo={tramo} fecha={fecha} puedeRetroceder={false} puedeAvanzar={false} onIr={setAncla} selector={selector} />;
+  }
 
   return (
     <>
@@ -145,6 +154,7 @@ function DeUnPeriodo({ tramo, modo }: { tramo: Tramo; modo: Modo }) {
         puedeRetroceder={datos.first_date !== null && inicioDe(fecha, tramo) > inicioDe(datos.first_date, tramo)}
         puedeAvanzar={hoy !== null && inicioDe(fecha, tramo) < inicioDe(hoy, tramo)}
         onIr={setAncla}
+        selector={selector}
       />
       {datos.muscles.every((m) => m.sets === 0 && !m.previous_sets) ? (
         <Vacio />
