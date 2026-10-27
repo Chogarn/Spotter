@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GraficoCuerpo } from "@/components/GraficoCuerpo";
 import { Confirmar } from "@/components/Confirmar";
+import { sumar } from "@/components/ResumenPeriodo";
 import { ErrorMessage, InlineError } from "@/components/ErrorMessage";
 import { errorText, readError, apiFetch, type Measurement } from "@/lib/api";
 import { shortDate } from "@/lib/format";
@@ -208,7 +209,7 @@ function Dato({ titulo, valor, azul = false }: { titulo: string; valor: string; 
 }
 
 // Cargar o corregir una medición, en un recuadro como el de cerrar la semana.
-function Formulario({
+export function Formulario({
   medicion,
   onCerrar,
   onGuardada,
@@ -267,8 +268,27 @@ function Formulario({
         </AlertDialogHeader>
         <div className="grid gap-3">
           <div>
-            <Label htmlFor="med-fecha">Fecha</Label>
-            <Input id="med-fecha" type="date" max={hoy} value={fecha} onChange={(e) => setFecha(e.target.value)} />
+            <Label>Fecha</Label>
+            <div id="med-fecha" className="flex items-center gap-1 rounded-full border border-input bg-background px-1">
+              <button
+                type="button"
+                aria-label="Día anterior"
+                onClick={() => setFecha(sumar(fecha, "day", -1))}
+                className="grid size-9 place-items-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                <ChevronLeft className="size-5" aria-hidden="true" />
+              </button>
+              <span className="flex-1 text-center font-heading text-xl">{fecha.split("-").reverse().join("/")}</span>
+              <button
+                type="button"
+                aria-label="Día siguiente"
+                disabled={fecha >= hoy}
+                onClick={() => setFecha(sumar(fecha, "day", 1))}
+                className="grid size-9 place-items-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-25"
+              >
+                <ChevronRight className="size-5" aria-hidden="true" />
+              </button>
+            </div>
           </div>
           <div>
             <Label htmlFor="med-peso">Peso (kg)</Label>

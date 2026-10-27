@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { SelectorChip } from "@/components/SelectorPeriodo";
 import { type Measurement } from "@/lib/api";
 import { curva } from "@/lib/curva";
 import { shortDate } from "@/lib/format";
@@ -121,45 +122,36 @@ export function GraficoCuerpo({ filas }: { filas: Measurement[] }) {
 
   return (
     <>
-      {medidas.length > 1 && (
-        <div className="mb-2 flex gap-1.5" role="group" aria-label="Qué medida ver">
-          {medidas.map((id) => (
-            <button
-              key={id}
-              type="button"
-              aria-pressed={m === id}
-              onClick={() => {
-                setMedida(id);
-                setActivo(null);
-              }}
-              className={cn(
-                "rounded-full px-3 py-1 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-                m === id ? "bg-disco-tinta font-medium text-white" : "bg-muted text-muted-foreground",
-              )}
-            >
-              {MEDIDAS[id].texto}
-            </button>
-          ))}
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="flex gap-1.5" role="group" aria-label="Qué medida ver">
+          {medidas.length > 1 &&
+            medidas.map((id) => (
+              <button
+                key={id}
+                type="button"
+                aria-pressed={m === id}
+                onClick={() => {
+                  setMedida(id);
+                  setActivo(null);
+                }}
+                className={cn(
+                  "rounded-full px-3 py-1 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                  m === id ? "bg-disco-tinta font-medium text-white" : "bg-muted text-muted-foreground",
+                )}
+              >
+                {MEDIDAS[id].texto}
+              </button>
+            ))}
         </div>
-      )}
-      <div className="mb-2 flex gap-1 rounded-full bg-muted p-1" role="group" aria-label="Cuánto tiempo mirar">
-        {RANGOS.map((o) => (
-          <button
-            key={o.id}
-            type="button"
-            aria-pressed={rango === o.id}
-            onClick={() => {
-              setRango(o.id);
-              setActivo(null);
-            }}
-            className={cn(
-              "flex-1 rounded-full px-3 py-1 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-              rango === o.id ? "bg-disco-tinta font-medium text-white" : "text-muted-foreground",
-            )}
-          >
-            {o.texto}
-          </button>
-        ))}
+        <SelectorChip
+          opciones={RANGOS}
+          valor={rango}
+          etiqueta="Cuánto tiempo mirar"
+          onElegir={(id) => {
+            setRango(id);
+            setActivo(null);
+          }}
+        />
       </div>
       <p className="mt-0 mb-1 text-sm text-muted-foreground">
         {cambio === null
@@ -196,12 +188,19 @@ export function GraficoCuerpo({ filas }: { filas: Measurement[] }) {
             {textoMarca(t)}
           </text>
         ))}
+        {/* El área bajo la curva, hasta el eje X, como en la evolución por ejercicio. */}
+        {puntos.length > 1 && (
+          <path
+            d={`${curva(xs, ys)} L ${xs.at(-1)!.toFixed(1)} ${alto - abajo} L ${xs[0].toFixed(1)} ${alto - abajo} Z`}
+            className="fill-disco-verde/15 stroke-none"
+          />
+        )}
         {puntos.length > 1 && (
           <path
             d={curva(xs, ys)}
             fill="none"
-            className="stroke-disco-tinta"
-            strokeWidth="3"
+            className="stroke-disco-verde"
+            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -210,12 +209,12 @@ export function GraficoCuerpo({ filas }: { filas: Measurement[] }) {
         <circle
           cx={xs.at(-1)}
           cy={ys.at(-1)}
-          r={6}
-          className="fill-disco-azul stroke-disco-tinta"
-          strokeWidth="2.5"
+          r={5}
+          className="fill-disco-verde stroke-card"
+          strokeWidth="2"
         />
         {mostrado !== puntos.length - 1 && (
-          <circle cx={xs[mostrado]} cy={ys[mostrado]} r={5} className="fill-disco-rojo stroke-disco-tinta" strokeWidth="2.5" />
+          <circle cx={xs[mostrado]} cy={ys[mostrado]} r={4.5} className="fill-card stroke-disco-verde" strokeWidth="2.5" />
         )}
         <text x={xs[mostrado]} y={ys[mostrado] - 12} textAnchor={ancla} className="fill-foreground text-[11px] font-semibold">
           {numero(puntos[mostrado].v)} {unidad} · {shortDate(puntos[mostrado].dia)}
