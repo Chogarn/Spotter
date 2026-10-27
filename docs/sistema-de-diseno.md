@@ -170,3 +170,8 @@ señal, no la diferencia. Lo que sigue es lo que falta:
 - Cómo se ve en tu celular real: solo en el navegador del panel y en el emulador.
 - Si los lectores de pantalla anuncian bien las ruedas y la regla del asistente.
 - Si el amarillo sobre fondo claro cumple lo que querés; es decisión tuya. El logo es definitivo desde el 2026-10-16 (decisión 76): SPOTTER con la O hecha un disco rojo, sin amarillo ni azul.
+
+
+## Botón con menú (2026-10-27)
+
+`SelectorChip` (en `SelectorPeriodo.tsx`) es un botón redondo con una flecha ▾ que abre un menú corto debajo; se cierra al elegir, al tocar afuera o con Escape. Reemplaza a las barras de pestañas (Día · Semana · Mes · Año, Semana · Mes · Año, Mes · Año · Todo) para elegir el período o el rango de un gráfico: va a la derecha de la fila, en la misma línea que la fecha o el texto del gráfico, y deja más lugar al contenido. `Festejo.tsx` es el confeti animado de la semana completada (sin movimiento si el aparato pide reducirlo) y `InfoMapa.tsx`, el ⓘ del mapa muscular, con el formato del ⓘ de un ejercicio.

@@ -701,6 +701,31 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** la base del escalón (planificado y no levantado); los escalones de las máquinas (2,5 kg en prensa, hack y Smith, 5 kg en el resto); que el ejercicio sin peso (peso corporal, banda) no lleve sugerencia; relajar el chequeo en vez de eliminarlo.
 - **Ojo:** probado con 4 corridas de Gemini real (2 de torso/pierna con semana nueva con fatiga y 2 intentos previos que fallaron antes del cambio) y 602 tests. Sin el comentario de fatiga no se probó. Las semanas nuevas salieron con pocos ejercicios (de 29 a 37 minutos) y avisos de R3: no se sabe si es el prompt o variación de Gemini.
 
+### 102. Solo se continúa la rutina más reciente
+- **Fecha:** 2026-10-27
+- **Decisión:** la rutina que se puede **continuar o reabrir** es solo la más reciente con semanas (`current_routine_id` en `routers/weeks.py`). `POST /proposals/generate` con una rutina anterior y `POST /weeks/{id}/reopen` sobre una semana de una rutina anterior responden **409** ("Esa rutina ya terminó…"). El asistente de Generar ofrece continuar solo la última. En Rutinas, la más reciente lleva el borde oscuro y la etiqueta **"Activa"** (aunque su semana ya esté cerrada) y las demás **"Terminada"**; se pueden mirar (semanas, días, ejercicios) pero no continuar. Reemplaza al "lista para continuar" de la decisión 66 para las rutinas viejas. El botón «+» flotante de Rutinas se sacó: "Nueva rutina" queda en Inicio y en Entrenar. El historial (Resúmenes, Calendario, evolución) sigue sumando todas las rutinas.
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)*
+- **Decidió la IA sin preguntarte:** que "la más reciente" sea la de creación más nueva entre las que tienen semanas (la misma que ofrece Inicio); que el botón "Reabrir" de una semana vieja siga visible y muestre el mensaje del servidor en vez de esconderse.
+- **Ojo:** probado con 2 tests nuevos (605 pasan); las pantallas no se vieron en un celular.
+
+### 103. Resúmenes por fecha: la semana es de calendario y el período se elige con un botón
+- **Fecha:** 2026-10-27
+- **Decisión:** en Progreso › Resúmenes, **Semana** pasa a ser por fecha como Día, Mes y Año: la semana de calendario (lunes a domingo), sumando todas las rutinas (`GET /progress/period?period=week`). Ya no hay desplegable de rutinas ni barritas de semanas; **"Lo que dijo la IA" y el comentario de cierre salen de esa pantalla** (siguen guardados). Las tarjetas de números (días entrenados, series, kg, cardio y min entrenando) **se tocan y cambian el gráfico de abajo** (por día o por mes; cada barra trae también cardio y minutos), y se sacaron las listas de días y de ejercicios de Mes y Año. "Cómo te fue" queda solo en Día, con una barra de búsqueda dentro del detalle. El período se elige con un **botón "Día ▾" con menú** en la misma fila que las flechas y la fecha (`dd/mm/aaaa`, opción A de la maqueta del 2026-10-27); lo mismo en Radar, Mapa, Evolución por ejercicio y Cuerpo y peso (`SelectorChip`). Resúmenes y Calendario se abren desde Inicio y Progreso queda con Radar, Mapa, Evolución y Cuerpo en cuatro botones grandes. Al tocar "Día completado" se va a Resúmenes › Día.
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)* (se hablaron: dejar Semana por rutina; el calendario al tocar la fecha; deslizar entre días)
+- **Decidió la IA sin preguntarte:** que la semana de calendario empiece el lunes; el aspecto de las tarjetas (la primera ancha, la última ancha si queda impar) y los textos del menú.
+- **Ojo:** la pantalla no se vio en un celular. Una semana de rutina que cruza dos semanas de calendario queda partida en dos.
+
+### 104. Lo que se muestra en "Cómo te fue" se separa de la señal que va a la IA
+- **Fecha:** 2026-10-27
+- **Decisión:** la señal por ejercicio de `signal()` (mayoría estricta de series, decisión 73) **no cambia**: es la que recibe la IA. Lo que se **muestra** en pantalla se calcula aparte (`senalVisible` en `ComoTeFueResumen.tsx`): alcanza con **una** serie distinta de lo planificado. "Superaste" si alguna pasó y ninguna quedó abajo, "No llegaste" si alguna quedó abajo y ninguna pasó, y **"Mixto"** ("subiste y bajaste", disco medio lleno) si hubo de las dos.
+- **Origen:** tuya (2026-10-27): "una cosa es la señal a la IA y otra es que me marque que hice más".
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)* (se hablaron: dejarlo como estaba; cambiar también la señal a la IA)
+- **Decidió la IA sin preguntarte:** el nombre "Mixto" y el disco `parcial` para dibujarlo.
+- **Ojo:** el disco "mixto" no se vio en pantalla.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
