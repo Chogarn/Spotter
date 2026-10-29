@@ -1,6 +1,6 @@
 # Restricciones motrices: plan (borrador)
 
-**Estado:** borrador para decidir, sin construir (2026-10-16). Nada de esto está en la app. Las reglas que aparecen acá son **propuestas** y necesitan tu aprobación, como todas (hoy están aprobadas solo R1 a R36).
+**Estado: DESCARTADO, fuera del alcance de la app (decisión 105, 2026-10-29).** Queda solo como referencia. Texto original: borrador para decidir, sin construir (2026-10-16). Nada de esto está en la app. Las reglas que aparecen acá son **propuestas** y necesitan tu aprobación, como todas (hoy están aprobadas solo R1 a R36).
 
 **Por qué hace falta.** Hoy lo que la persona escribe en "limitaciones" viaja a la IA como texto y el prompt le pide "evitá los ejercicios que las carguen". Pero el mismo prompt le exige cubrir los 6 grupos grandes (cuádriceps, isquios y glúteos incluidos) con 10 a 20 series por grupo. Las dos órdenes chocan y el código no tiene cómo resolverlo: la búsqueda del catálogo ignora las limitaciones a propósito. Resultado posible: alguien en silla de ruedas recibe prensa de piernas.
 

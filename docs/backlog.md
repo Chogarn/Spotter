@@ -75,7 +75,7 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 
 ## En construcción (se está definiendo, sin código todavía)
 
-- [ ] **Restricciones motrices en el perfil** `backend` `frontend` `ia` — el casillero "No puedo usar las piernas" (y después brazo, mano, de pie, articulaciones y equilibrio) que el código hace cumplir: bloquea ejercicios en el prompt, en la validación y en "Cambiar ejercicio", y los grupos bloqueados dejan de contar para los mínimos. **Plan, reglas propuestas (R37 a R42), fases y decisiones abiertas: [docs/restricciones-motrices-borrador.md](restricciones-motrices-borrador.md).** Hoy, quien escribe una limitación como "silla de ruedas" depende de que la IA la respete y puede recibir ejercicios de piernas.
+- [x] ~~**Restricciones motrices en el perfil**~~ — **fuera del alcance** (decisión 105, 2026-10-29): no se hace. El borrador queda como referencia en [docs/restricciones-motrices-borrador.md](restricciones-motrices-borrador.md).
   - **Fase 1:** solo "No puedo usar las piernas", sobre las etiquetas que ya tiene el catálogo.
   - **Falta decidir:** el alcance de la fase 1, qué pasa con el cardio sin piernas, si va como paso del asistente o como tarjeta del Perfil, fuentes para brazo y mano, el texto de los casilleros y quién revisa las reglas y el catálogo.
 

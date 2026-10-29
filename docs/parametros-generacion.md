@@ -245,7 +245,7 @@ Si un peso propuesto sube **más de 10 %** sobre el último peso realizado, mues
   - de **3 a 5**: bajar la carga o el recorrido, o cambiar el ejercicio;
   - **más de 5**, o dolor articular, punzante, persistente, en reposo o con hormigueo: no incluir ejercicios que lo comprometan y agregar un aviso para que consulte a un profesional.
 - Ante dolor en el comentario de cierre, no sube la carga de ese ejercicio.
-- Una limitación como "silla de ruedas" solo llega a la IA como texto: el código **no la hace cumplir** (hay un plan de restricciones motrices en borrador, sin construir).
+- Una limitación como "silla de ruedas" solo llega a la IA como texto: el código **no la hace cumplir** (las restricciones motrices quedaron fuera del alcance, decisión 105).
 
 ---
 
@@ -301,6 +301,6 @@ Hasta **2 intentos** por generación (la llamada inicial y uno más). Cada inten
 
 - Revisión del catálogo de 124 ejercicios por una persona con formación en educación física.
 - Consulta al profesor sobre si la recuperación con pgvector cumple lo que espera para el proyecto (decisión 58).
-- Las restricciones motrices siguen en un borrador separado y no son reglas aprobadas. No agregar nuevos bloqueos hasta que se cierren esas decisiones.
+- Las restricciones motrices están fuera del alcance (decisión 105): no hay reglas R37 a R42 ni bloqueos nuevos.
 
 Las reglas R1 a R36, el reparto de la decisión 90 y las tres estructuras de la decisión 91 ya están decididos. No volver a presentarlos como preguntas abiertas.

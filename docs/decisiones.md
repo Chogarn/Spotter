@@ -726,6 +726,15 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** el nombre "Mixto" y el disco `parcial` para dibujarlo.
 - **Ojo:** el disco "mixto" no se vio en pantalla.
 
+### 105. Las restricciones motrices quedan fuera del alcance de la app
+- **Fecha:** 2026-10-29
+- **Decisión:** no se construye el casillero de restricciones motrices en el perfil ni las reglas R37 a R42 (que nunca se aprobaron). Lo que la persona escribe en "limitaciones" sigue viajando a la IA solo como texto. El borrador `restricciones-motrices-borrador.md` queda como referencia, sin vigencia.
+- **Origen:** tuya (2026-10-29): "las restricciones motrices no las vamos a aplicar, las dejamos afuera del alcance de la App".
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)* (el plan de casilleros que el código hace cumplir, en fases)
+- **Decidió la IA sin preguntarte:** nada de código; solo se sacó de los pendientes en `CLAUDE.md`, `AGENTS.md`, `backlog.md` y `parametros-generacion.md`.
+- **Ojo:** una limitación como "silla de ruedas" sigue chocando con la exigencia de cubrir cuádriceps, isquios y glúteos; el aviso legal es lo que cubre ese límite.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
