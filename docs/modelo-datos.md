@@ -35,6 +35,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0026` cambiar correo | Crea `email_changes` (un pedido de cambio de correo por usuario, con el código en hash y vencimiento de 24 horas; decisión 97) | Implementada |
 | `0027` aductores, antebrazo y tibial | Suma `adductors`, `forearm` y `tibialis` al enum de músculos (grupos complemento; decisión 99) | Implementada |
 | `0028` objetivos unificados | "Condición general" pasa a "mantenerme activo" en rutinas y propuestas; el objetivo queda en 4 valores (decisión 100) | Implementada |
+| `0029` intentos de login | Crea `login_attempts` (correo, IP y hora de cada intento fallido) para el límite de intentos del login (decisión 106) | Implementada |
 | `0020` cambio de contraseña | Suma `users.password_changed_at` (nula): al cambiar la contraseña se cierran las sesiones de los demás aparatos (decisión 80) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
@@ -245,6 +246,15 @@ Una fila por cada correo que la app manda, escrita **antes** de enviarlo (como `
 |---|---|
 | kind | `verify` o `reset` |
 | to_email | A quién |
+| created_at | Cuándo |
+
+### login_attempts
+Una fila por cada intento de login **fallido** (decisión 106). De ahí sale el límite: 5 fallos por correo o 20 por IP en 15 minutos dan un 429. Un login correcto borra los fallos de ese correo y cada fallo nuevo borra los de más de 15 minutos.
+
+| Campo | Detalle |
+|---|---|
+| email | El correo con el que se probó (exista o no) |
+| ip | Desde dónde |
 | created_at | Cuándo |
 
 ### profiles

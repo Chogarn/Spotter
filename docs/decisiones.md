@@ -735,6 +735,15 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** nada de código; solo se sacó de los pendientes en `CLAUDE.md`, `AGENTS.md`, `backlog.md` y `parametros-generacion.md`.
 - **Ojo:** una limitación como "silla de ruedas" sigue chocando con la exigencia de cubrir cuádriceps, isquios y glúteos; el aviso legal es lo que cubre ese límite.
 
+### 106. Límite de intentos del login, secreto largo y cookie segura obligatoria
+- **Fecha:** 2026-10-30
+- **Decisión:** (1) el login se bloquea con un 429 después de **5 fallos por correo o 20 por IP en 15 minutos**; los fallos se anotan en la tabla `login_attempts` (migración 0029), como `email_log` con los correos; el correo que no existe también cuenta, para no delatar qué cuentas hay. (2) `JWT_SECRET` tiene que tener **32 caracteres o más**; el `.env.example` ya no trae un valor de ejemplo. (3) En producción, `COOKIE_SECURE` es **obligatorio** en el `.env` (con HTTPS, `true`).
+- **Origen:** de la IA, de la revisión de seguridad del 2026-10-29; vos elegiste hacer los tres de backend y dejaste a la IA las decisiones de diseño ("si lo que vos creas que es mejor").
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)* (se habló: un contador en memoria, que se pierde al reiniciar)
+- **Decidió la IA sin preguntarte:** los números (5, 20 y 15 minutos, sin fuente); leer la IP de `request.client.host` y no de un encabezado; el mensaje del 429; no rechazar el valor de ejemplo de `JWT_SECRET` (rompería tu `.env` de desarrollo, que todavía lo usa).
+- **Ojo:** (1) detrás de un proxy en producción todos llegan con la IP del proxy y el tope de 20 por IP frenaría a todos juntos: al desplegar hay que leer la IP real. (2) Tu `.env` de desarrollo todavía tiene el valor de ejemplo como secreto: cambialo antes de producción. (3) Reemplaza el "poner un límite de intentos" que descartaste en la decisión 80.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
