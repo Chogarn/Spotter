@@ -116,7 +116,13 @@ def register(
         raise HTTPException(
             status_code=429, detail="Se llegó al tope de correos de hoy: probá de nuevo mañana"
         )
-    db.execute(delete(PendingRegistration).where(PendingRegistration.email == data.email))
+    # De paso, los pedidos que nadie confirmó y ya vencieron (así la tabla no crece).
+    db.execute(
+        delete(PendingRegistration).where(
+            (PendingRegistration.email == data.email)
+            | (PendingRegistration.expires_at < datetime.now(timezone.utc))
+        )
+    )
     db.add(
         PendingRegistration(
             email=data.email,

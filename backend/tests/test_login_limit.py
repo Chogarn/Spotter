@@ -106,3 +106,42 @@ def test_con_secreto_corto_no_hay_sesion(cliente, monkeypatch):
     monkeypatch.setenv("JWT_SECRET", SECRETO[:20])
 
     assert intentar(cliente, password=ANA["password"]).status_code == 503
+
+
+# --- limpieza de registros vencidos y /docs en producción ---
+
+
+def test_pedir_un_registro_borra_los_pedidos_vencidos_de_otros(cliente):
+    from app.models import PendingRegistration
+
+    ayer = datetime.now(timezone.utc) - timedelta(days=1)
+    with cliente.session() as db:
+        db.add(
+            PendingRegistration(
+                email="viejo@example.com", name="Viejo", password_hash="x",
+                token_hash="a" * 64, expires_at=ayer,
+            )
+        )
+        db.commit()
+
+    assert cliente.post("/auth/register", json=ANA).status_code == 202
+
+    with cliente.session() as db:
+        assert set(db.scalars(select(PendingRegistration.email))) == {ANA["email"]}
+
+
+def test_en_produccion_no_se_publica_el_mapa_de_la_api():
+    import subprocess
+    import sys
+
+    codigo = (
+        "from app.main import app; "
+        "print(app.docs_url, app.redoc_url, app.openapi_url)"
+    )
+    for entorno, esperado in (("production", "None None None"), ("", "/docs /redoc /openapi.json")):
+        salida = subprocess.run(
+            [sys.executable, "-c", codigo],
+            env={**__import__("os").environ, "APP_ENV": entorno},
+            capture_output=True, text=True, check=True,
+        )
+        assert salida.stdout.strip() == esperado

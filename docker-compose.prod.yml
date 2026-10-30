@@ -44,6 +44,8 @@ services:
       # true cuando se sirve por HTTPS: la cookie de sesión viaja solo cifrada. Obligatorio: sin
       # HTTPS (por ejemplo, probando producción en tu PC) hay que poner false a propósito.
       COOKIE_SECURE: ${COOKIE_SECURE:?Falta COOKIE_SECURE en el archivo .env (true con HTTPS)}
+      # Apaga /docs y /openapi.json: no publicar el mapa de la API.
+      APP_ENV: production
       # Correos (decisión 81). Sin valores por defecto: si falta alguno, la app no manda correos y
       # las pantallas de registro y recuperación avisan que el envío no está configurado.
       SMTP_HOST: ${SMTP_HOST:-}

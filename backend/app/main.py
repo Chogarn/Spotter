@@ -5,7 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import auth, calendar, exercises, measurements, period, profile, proposals, routines, weeks
 
-app = FastAPI(title="Spotter API")
+# En producción (APP_ENV=production) no se publica el mapa de la API en /docs, /redoc ni /openapi.json.
+_produccion = os.environ.get("APP_ENV", "").lower() == "production"
+app = FastAPI(
+    title="Spotter API",
+    docs_url=None if _produccion else "/docs",
+    redoc_url=None if _produccion else "/redoc",
+    openapi_url=None if _produccion else "/openapi.json",
+)
 
 # El navegador (frontend en otro puerto) llama directo a la API.
 app.add_middleware(
