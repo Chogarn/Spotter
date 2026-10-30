@@ -22,6 +22,7 @@ TABLAS_ESPERADAS = {
     "password_resets",
     "email_changes",
     "email_log",
+    "login_attempts",
     "body_measurements",
 }
 

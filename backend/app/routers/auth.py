@@ -10,6 +10,7 @@ from app import mailer
 
 from app.db import get_db
 from app.deps import get_current_user
+from app.login_limit import clear_failures, client_ip, record_failure, too_many_failures
 from app.models import EmailChange, PasswordReset, PendingRegistration, User
 from app.schemas import (
     ChangeEmailIn,
@@ -38,6 +39,7 @@ from app.security import (
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 BAD_LOGIN = "Email o contraseña incorrectos"
+TOO_MANY_LOGINS = "Demasiados intentos. Probá de nuevo en unos minutos"
 VERIFY_HOURS = 24
 RESET_MINUTES = 60
 SENT = "Si el correo corresponde, te mandamos un enlace. Mirá también en la carpeta de spam."
@@ -221,13 +223,22 @@ def reset_password(data: ResetPasswordIn, db: Session = Depends(get_db)) -> None
 
 
 @router.post("/login", response_model=UserOut)
-def login(data: LoginIn, response: Response, db: Session = Depends(get_db)) -> User:
+def login(
+    data: LoginIn, request: Request, response: Response, db: Session = Depends(get_db)
+) -> User:
+    ip = client_ip(request)
+    # Antes de verificar nada: quien ya se pasó de intentos no gasta el hash lento ni sigue probando.
+    if too_many_failures(db, data.email, ip):
+        raise HTTPException(status_code=429, detail=TOO_MANY_LOGINS)
     user = db.scalar(select(User).where(User.email == data.email))
     if user is None:
         burn_time()
+        record_failure(db, data.email, ip)
         raise HTTPException(status_code=401, detail=BAD_LOGIN)
     if not verify_password(data.password, user.password_hash):
+        record_failure(db, data.email, ip)
         raise HTTPException(status_code=401, detail=BAD_LOGIN)
+    clear_failures(db, data.email)
     start_session(response, user, data.remember)
     return user
 

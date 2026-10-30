@@ -1,7 +1,8 @@
 """Contraseñas y sesión: hash de la contraseña y token JWT que viaja en una cookie httpOnly.
 
 - La contraseña nunca se guarda: solo su hash (argon2, con sal propia y lento a propósito).
-- La sesión es un JWT firmado con `JWT_SECRET` (sin valor por defecto: si falta, no hay sesión).
+- La sesión es un JWT firmado con `JWT_SECRET` (sin valor por defecto: si falta o
+  tiene menos de 32 caracteres, no hay sesión).
 - El token vive en una cookie `httpOnly`: el JavaScript de la página no puede leerlo.
 """
 
@@ -18,6 +19,8 @@ COOKIE_NAME = "spotter_session"
 REMEMBER_DAYS = 30
 SHORT_HOURS = 12
 ALGORITHM = "HS256"
+# Un secreto corto se puede adivinar y con él cualquiera fabrica sesiones.
+MIN_SECRET_LENGTH = 32
 
 _hasher = PasswordHasher()
 # Para que "el email no existe" tarde lo mismo que "la contraseña es incorrecta".
@@ -25,12 +28,12 @@ _DUMMY_HASH = _hasher.hash("no-es-la-contraseña-de-nadie")
 
 
 class SessionConfigError(Exception):
-    """Falta JWT_SECRET: no se puede firmar ni leer una sesión."""
+    """Falta JWT_SECRET o tiene menos de 32 caracteres: no se puede firmar ni leer una sesión."""
 
 
 def jwt_secret() -> str:
     secret = os.environ.get("JWT_SECRET", "")
-    if not secret:
+    if len(secret) < MIN_SECRET_LENGTH:
         raise SessionConfigError
     return secret
 

@@ -25,7 +25,7 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-spotter}:${POSTGRES_PASSWORD:-spotter_dev}@db:5432/${POSTGRES_DB:-spotter}
-      JWT_SECRET: ${JWT_SECRET:-solo-para-desarrollo-local}
+      JWT_SECRET: ${JWT_SECRET:-solo-para-desarrollo-local-no-usar-en-produccion}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-}

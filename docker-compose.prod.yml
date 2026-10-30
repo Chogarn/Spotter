@@ -41,8 +41,9 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-spotter}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-spotter}
       JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el archivo .env}
-      # true cuando se sirve por HTTPS: la cookie de sesión viaja solo cifrada.
-      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      # true cuando se sirve por HTTPS: la cookie de sesión viaja solo cifrada. Obligatorio: sin
+      # HTTPS (por ejemplo, probando producción en tu PC) hay que poner false a propósito.
+      COOKIE_SECURE: ${COOKIE_SECURE:?Falta COOKIE_SECURE en el archivo .env (true con HTTPS)}
       # Correos (decisión 81). Sin valores por defecto: si falta alguno, la app no manda correos y
       # las pantallas de registro y recuperación avisan que el envío no está configurado.
       SMTP_HOST: ${SMTP_HOST:-}

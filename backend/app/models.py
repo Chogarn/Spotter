@@ -507,6 +507,24 @@ class EmailLog(Base):
     )
 
 
+class LoginAttempt(Base):
+    """Un intento de login fallido (correo y dirección IP). Los topes de `login_limit.py` salen de
+    contar estas filas de los últimos 15 minutos; un login correcto borra las del correo."""
+
+    __tablename__ = "login_attempts"
+    __table_args__ = (
+        Index("ix_login_attempts_email_created_at", "email", "created_at"),
+        Index("ix_login_attempts_ip_created_at", "ip", "created_at"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    email: Mapped[str] = mapped_column(String(255))
+    ip: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class AiCall(Base):
     """Una fila por cada llamada a Gemini. NUNCA se borra: los topes se calculan contándolas.
 
