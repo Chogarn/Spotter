@@ -744,6 +744,15 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** los números (5, 20 y 15 minutos, sin fuente); leer la IP de `request.client.host` y no de un encabezado; el mensaje del 429; no rechazar el valor de ejemplo de `JWT_SECRET` (rompería tu `.env` de desarrollo, que todavía lo usa).
 - **Ojo:** (1) detrás de un proxy en producción todos llegan con la IP del proxy y el tope de 20 por IP frenaría a todos juntos: al desplegar hay que leer la IP real. (2) Tu `.env` de desarrollo todavía tiene el valor de ejemplo como secreto: cambialo antes de producción. (3) Reemplaza el "poner un límite de intentos" que descartaste en la decisión 80.
 
+### 107. Encabezados de seguridad, /docs apagado en producción y registros vencidos
+- **Fecha:** 2026-10-30
+- **Decisión:** (1) Next manda `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy` (sin cámara, micrófono ni ubicación) y, solo en producción, HSTS; **sin Content-Security-Policy**. (2) Con `APP_ENV=production` (lo pone el compose de producción) el backend no publica `/docs`, `/redoc` ni `/openapi.json`. (3) Cada pedido de registro borra los pedidos pendientes vencidos de cualquiera.
+- **Origen:** de la IA, de la revisión de seguridad; vos dijiste "sí, los tres".
+- **Por qué:** *(completar)*
+- **Descartaste:** *(completar)* (se habló: una CSP estricta con nonces, que obliga a renderizar todo de forma dinámica y choca con `cacheComponents`)
+- **Decidió la IA sin preguntarte:** la lista de encabezados y sus valores, el nombre `APP_ENV`, y el año de vigencia de HSTS (31536000 s, sin `includeSubDomains`).
+- **Ojo:** sin CSP, un XSS (hoy no hay `dangerouslySetInnerHTML`) no tendría esa segunda barrera. Queda como mejora para después del despliegue.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
