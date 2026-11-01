@@ -55,6 +55,20 @@ export const GLUTEO_MEDIO: Record<"masculino" | "femenino", number[]> = {
   femenino: [0, 3],
 };
 
+// Cuáles trazos de `triceps` (en la espalda) son la cabeza larga: el más grande de cada brazo. Los demás
+// (lateral y medial) y el trazo de la vista de frente se pintan como "lateral y medial".
+export const TRICEPS_LARGO: Record<"masculino" | "femenino", number[]> = {
+  masculino: [1, 4],
+  femenino: [2, 3],
+};
+
+// Cuáles trazos de `calves` (en la espalda) son el sóleo: las piezas finas de abajo. Los demás y los de la
+// vista de frente se pintan como gastrocnemio.
+export const GEMELO_SOLEO: Record<"masculino" | "femenino", number[]> = {
+  masculino: [1, 3, 6, 7],
+  femenino: [1, 3, 5, 6],
+};
+
 export const FRENTE: Pieza[] = [
   { slug: "chest", paths: [
     "M272.91 422.84c-18.95-17.19-22-57-12.64-78.79 5.57-12.99 26.54-24.37 39.97-25.87q20.36-2.26 37.02.75c9.74 1.76 16.13 15.64 18.41 25.04 3.99 16.48 3.23 31.38 1.67 48.06q-1.35 14.35-2.05 16.89c-6.52 23.5-38.08 29.23-58.28 24.53-9.12-2.12-17.24-4.38-24.1-10.61z",

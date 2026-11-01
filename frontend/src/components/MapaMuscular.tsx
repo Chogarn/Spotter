@@ -2,7 +2,7 @@
 
 import { useId, useLayoutEffect, useRef, useState } from "react";
 
-import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER, DELTOIDE_MEDIAL, DORSAL_ANCHO, GLUTEO_MEDIO, PECHO_ALTO } from "@/lib/cuerpoMusculos";
+import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER, DELTOIDE_MEDIAL, DORSAL_ANCHO, GEMELO_SOLEO, GLUTEO_MEDIO, PECHO_ALTO, TRICEPS_LARGO } from "@/lib/cuerpoMusculos";
 
 export type Vista = "frente" | "espalda";
 export type Cuerpo = "masculino" | "femenino";
@@ -49,6 +49,9 @@ export function MapaMuscular({
   // El glúteo, igual: mayor (las piezas grandes) y medio (las chicas de arriba).
   const gluteoPartido =
     vista === "espalda" && intensidad.glute_max !== undefined && intensidad.glute_med !== undefined;
+  // El tríceps (cabeza larga, y lateral y medial) y los gemelos (gastrocnemio y sóleo), igual.
+  const tricepsPartido = intensidad.triceps_long !== undefined && intensidad.triceps_side !== undefined;
+  const gemelosPartidos = intensidad.calf_gastro !== undefined && intensidad.calf_soleus !== undefined;
   const pechoPartido = vista === "frente" && intensidad.chest_upper !== undefined && intensidad.chest_lower !== undefined;
   // La caja de cada dibujo trae aire de sobra: se mide el cuerpo real y se recorta a él (con un margen
   // chico) para que no quede un hueco arriba ni abajo. Mientras se mide vale la caja de siempre.
@@ -90,7 +93,21 @@ export function MapaMuscular({
         </defs>
       )}
       {dibujo[vista].map((p) =>
-        gluteoPartido && p.slug === "gluteal" ? (
+        (p.slug === "triceps" && tricepsPartido) || (p.slug === "calves" && gemelosPartidos) ? (
+          <g key={p.slug} stroke="#7d8794" strokeWidth={3} strokeLinejoin="round">
+            {p.paths.map((d, i) => {
+              const parte =
+                p.slug === "triceps"
+                  ? vista === "espalda" && TRICEPS_LARGO[cuerpo].includes(i)
+                    ? intensidad.triceps_long
+                    : intensidad.triceps_side
+                  : vista === "espalda" && GEMELO_SOLEO[cuerpo].includes(i)
+                    ? intensidad.calf_soleus
+                    : intensidad.calf_gastro;
+              return <path key={i} d={d} fill={COLORES[Math.min(4, parte)]} />;
+            })}
+          </g>
+        ) : gluteoPartido && p.slug === "gluteal" ? (
           <g key={p.slug} stroke="#7d8794" strokeWidth={3} strokeLinejoin="round">
             {p.paths.map((d, i) => (
               <path
