@@ -2,7 +2,7 @@
 
 import { useId, useLayoutEffect, useRef, useState } from "react";
 
-import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER, PECHO_ALTO } from "@/lib/cuerpoMusculos";
+import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER, DELTOIDE_MEDIAL, PECHO_ALTO } from "@/lib/cuerpoMusculos";
 
 export type Vista = "frente" | "espalda";
 export type Cuerpo = "masculino" | "femenino";
@@ -36,6 +36,10 @@ export function MapaMuscular({
   const dibujo = DIBUJOS[cuerpo];
   const idRecorte = useId().replace(/:/g, "");
   // El pecho se pinta en dos (alta y baja) cuando llegan las series de cada parte, solo de frente.
+  // El hombro, igual: de frente la cabeza anterior y la lateral, de espalda la posterior y la lateral.
+  const hombroPartido =
+    intensidad.delt_side !== undefined &&
+    (vista === "frente" ? intensidad.delt_front !== undefined : intensidad.delt_rear !== undefined);
   const pechoPartido = vista === "frente" && intensidad.chest_upper !== undefined && intensidad.chest_lower !== undefined;
   // La caja de cada dibujo trae aire de sobra: se mide el cuerpo real y se recorta a él (con un margen
   // chico) para que no quede un hueco arriba ni abajo. Mientras se mide vale la caja de siempre.
@@ -67,8 +71,36 @@ export function MapaMuscular({
           </clipPath>
         </defs>
       )}
+      {hombroPartido && (
+        <defs>
+          <clipPath id={`${idRecorte}-hombro`}>
+            {DELTOIDE_MEDIAL[cuerpo][vista].map((d, i) => (
+              <path key={i} d={d} />
+            ))}
+          </clipPath>
+        </defs>
+      )}
       {dibujo[vista].map((p) =>
-        p.slug === "chest" && pechoPartido ? (
+        p.slug === "deltoids" && hombroPartido ? (
+          // La cabeza lateral es el hombro entero; encima va la mitad del lado del cuerpo (anterior o posterior).
+          <g key={p.slug} stroke="#7d8794" strokeWidth={3} strokeLinejoin="round">
+            {p.paths.map((d, i) => (
+              <path key={i} d={d} fill={COLORES[Math.min(4, intensidad.delt_side)]} />
+            ))}
+            <g clipPath={`url(#${idRecorte}-hombro)`} stroke="none">
+              {p.paths.map((d, i) => (
+                <path
+                  key={i}
+                  d={d}
+                  fill={COLORES[Math.min(4, vista === "frente" ? intensidad.delt_front : intensidad.delt_rear)]}
+                />
+              ))}
+            </g>
+            {p.paths.map((d, i) => (
+              <path key={`b${i}`} d={d} fill="none" />
+            ))}
+          </g>
+        ) : p.slug === "chest" && pechoPartido ? (
           // La parte baja es el pectoral entero; encima va la parte alta, recortada con una curva.
           <g key={p.slug} stroke="#7d8794" strokeWidth={3} strokeLinejoin="round">
             {p.paths.map((d, i) => (

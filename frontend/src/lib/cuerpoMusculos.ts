@@ -17,6 +17,31 @@ export const PECHO_ALTO: Record<"masculino" | "femenino", string[]> = {
   ],
 };
 
+// Mitad del deltoides del lado del cuerpo, un trazo por hombro: de frente es la cabeza anterior y de
+// espalda la posterior. La cabeza lateral es el resto del hombro. Es un corte curvo por la mitad.
+export const DELTOIDE_MEDIAL: Record<"masculino" | "femenino", Record<"frente" | "espalda", string[]>> = {
+  masculino: {
+    frente: [
+      "M236.5 294C244.9 336 226.5 364 234.8 406.1L286.8 406.1L286.8 294Z",
+      "M491.5 294.1C483.2 336.1 501.6 364.1 493.2 406.2L441.3 406.2L441.3 294.1Z",
+    ],
+    espalda: [
+      "M947.8 301.9C954.5 341 939.7 367.1 946.4 406.3L988.2 406.3L988.2 301.9Z",
+      "M1219.2 302C1212.5 341.2 1227.2 367.3 1220.5 406.4L1178.9 406.4L1178.9 302Z",
+    ],
+  },
+  femenino: {
+    frente: [
+      "M202.5 276.5C209.6 315 194 340.7 201.1 379.2L244.9 379.2L244.9 276.5Z",
+      "M438.7 276.2C431.6 314.8 447.2 340.6 440.1 379.2L396 379.2L396 276.2Z",
+    ],
+    espalda: [
+      "M1024.4 279.7C1031.1 317.4 1016.3 342.5 1023 380.2L1064.7 380.2L1064.7 279.7Z",
+      "M1262.1 279.7C1255.9 317.5 1269.6 342.6 1263.4 380.4L1224.8 380.4L1224.8 279.7Z",
+    ],
+  },
+};
+
 export const FRENTE: Pieza[] = [
   { slug: "chest", paths: [
     "M272.91 422.84c-18.95-17.19-22-57-12.64-78.79 5.57-12.99 26.54-24.37 39.97-25.87q20.36-2.26 37.02.75c9.74 1.76 16.13 15.64 18.41 25.04 3.99 16.48 3.23 31.38 1.67 48.06q-1.35 14.35-2.05 16.89c-6.52 23.5-38.08 29.23-58.28 24.53-9.12-2.12-17.24-4.38-24.1-10.61z",
