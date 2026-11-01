@@ -8,7 +8,7 @@ import hashlib
 import json
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import Literal, get_args
 
 from pydantic import BaseModel, Field
 
@@ -61,9 +61,15 @@ KIND_TEXT = {
 }
 
 
-# Partes finas de un músculo, solo para pintar el mapa (borrador de `docs/mapa-muscular-detalle-borrador.md`).
-# El pecho en dos (alta o clavicular y baja o esternal) y el hombro en sus tres cabezas (decisiones 108 y 109).
-DETAIL_MUSCLES = ("chest_upper", "chest_lower", "delt_front", "delt_side", "delt_rear")
+# Partes finas de un músculo, solo para pintar el mapa (`docs/mapa-muscular-detalle-borrador.md`): el pecho en
+# alta (clavicular) y baja (esternal), el hombro en sus tres cabezas y la espalda en dorsal, media y alta, y
+# lumbar (decisiones 108, 109 y 110).
+DetailMuscle = Literal[
+    "chest_upper", "chest_lower",
+    "delt_front", "delt_side", "delt_rear",
+    "back_lats", "back_mid", "back_low",
+]
+DETAIL_MUSCLES: tuple[DetailMuscle, ...] = get_args(DetailMuscle)
 
 
 class CatalogExercise(BaseModel):
@@ -76,7 +82,7 @@ class CatalogExercise(BaseModel):
     direction: ExerciseDirection
     primary_muscle: Muscle
     secondary_muscles: list[Muscle] = Field(default_factory=list)
-    detail_muscles: list[Literal["chest_upper", "chest_lower", "delt_front", "delt_side", "delt_rear"]] = Field(default_factory=list)
+    detail_muscles: list[DetailMuscle] = Field(default_factory=list)
     mechanic: ExerciseMechanic
     equipment: ExerciseEquipment
     level: Level

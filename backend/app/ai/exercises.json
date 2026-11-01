@@ -1,5 +1,5 @@
 {
-  "_estado": "Aprobado por el usuario el 2026-10-14 (nombres, músculos, niveles, descripciones y alias), salvo los 7 ejercicios de aductores, antebrazo y tibial agregados el 2026-10-26, que esperan su aprobación. Pendiente, más adelante: revisión por una persona con formación en educación física.",
+  "_estado": "Aprobado por el usuario el 2026-10-14 (nombres, músculos, niveles, descripciones y alias), salvo los 7 ejercicios de aductores, antebrazo y tibial agregados el 2026-10-26, que esperan su aprobación, y los 3 de espalda (hiperextensiones, Superman y encogimientos) agregados el 2026-11-01 con el visto bueno del usuario. Pendiente, más adelante: revisión por una persona con formación en educación física.",
   "version": 2,
   "exercises": [
     {
@@ -253,6 +253,9 @@
       "secondary_muscles": [
         "biceps"
       ],
+      "detail_muscles": [
+        "back_lats"
+      ],
       "mechanic": "compound",
       "equipment": "cable",
       "level": "principiante",
@@ -273,6 +276,9 @@
       "primary_muscle": "back",
       "secondary_muscles": [
         "biceps"
+      ],
+      "detail_muscles": [
+        "back_lats"
       ],
       "mechanic": "compound",
       "equipment": "bodyweight",
@@ -295,6 +301,9 @@
       "secondary_muscles": [
         "biceps"
       ],
+      "detail_muscles": [
+        "back_lats"
+      ],
       "mechanic": "compound",
       "equipment": "machine",
       "level": "principiante",
@@ -314,6 +323,9 @@
       "primary_muscle": "back",
       "secondary_muscles": [
         "biceps"
+      ],
+      "detail_muscles": [
+        "back_mid"
       ],
       "mechanic": "compound",
       "equipment": "barbell",
@@ -336,6 +348,9 @@
       "secondary_muscles": [
         "biceps"
       ],
+      "detail_muscles": [
+        "back_mid"
+      ],
       "mechanic": "compound",
       "equipment": "dumbbell",
       "level": "principiante",
@@ -356,6 +371,9 @@
       "primary_muscle": "back",
       "secondary_muscles": [
         "biceps"
+      ],
+      "detail_muscles": [
+        "back_mid"
       ],
       "mechanic": "compound",
       "equipment": "cable",
@@ -378,6 +396,9 @@
       "secondary_muscles": [
         "biceps"
       ],
+      "detail_muscles": [
+        "back_mid"
+      ],
       "mechanic": "compound",
       "equipment": "machine",
       "level": "principiante",
@@ -398,6 +419,9 @@
       "secondary_muscles": [
         "biceps"
       ],
+      "detail_muscles": [
+        "back_mid"
+      ],
       "mechanic": "compound",
       "equipment": "dumbbell",
       "level": "principiante",
@@ -416,6 +440,9 @@
       "direction": "pull",
       "primary_muscle": "back",
       "secondary_muscles": [],
+      "detail_muscles": [
+        "back_lats"
+      ],
       "mechanic": "isolation",
       "equipment": "cable",
       "level": "intermedio",
@@ -435,6 +462,9 @@
       "primary_muscle": "back",
       "secondary_muscles": [
         "biceps"
+      ],
+      "detail_muscles": [
+        "back_mid"
       ],
       "mechanic": "compound",
       "equipment": "band",
@@ -457,6 +487,9 @@
       "secondary_muscles": [
         "biceps"
       ],
+      "detail_muscles": [
+        "back_lats"
+      ],
       "mechanic": "compound",
       "equipment": "cable",
       "level": "principiante",
@@ -478,6 +511,9 @@
       "secondary_muscles": [
         "biceps"
       ],
+      "detail_muscles": [
+        "back_mid"
+      ],
       "mechanic": "compound",
       "equipment": "barbell",
       "level": "intermedio",
@@ -497,6 +533,9 @@
       "primary_muscle": "back",
       "secondary_muscles": [
         "biceps"
+      ],
+      "detail_muscles": [
+        "back_mid"
       ],
       "mechanic": "compound",
       "equipment": "bodyweight",
@@ -1844,6 +1883,9 @@
       "secondary_muscles": [
         "biceps"
       ],
+      "detail_muscles": [
+        "back_mid"
+      ],
       "mechanic": "compound",
       "equipment": "cable",
       "level": "intermedio",
@@ -1862,6 +1904,9 @@
       "direction": "pull",
       "primary_muscle": "back",
       "secondary_muscles": [],
+      "detail_muscles": [
+        "back_lats"
+      ],
       "mechanic": "isolation",
       "equipment": "dumbbell",
       "level": "intermedio",
@@ -1881,6 +1926,9 @@
       "primary_muscle": "back",
       "secondary_muscles": [
         "biceps"
+      ],
+      "detail_muscles": [
+        "back_lats"
       ],
       "mechanic": "compound",
       "equipment": "bodyweight",
@@ -2552,6 +2600,81 @@
         "tibial anterior",
         "tibialis raise",
         "toe raise"
+      ]
+    },
+    {
+      "id": "hiperextensiones_banco",
+      "name": "Hiperextensiones en banco",
+      "kind": "strength",
+      "region": "lower",
+      "direction": "none",
+      "primary_muscle": "back",
+      "secondary_muscles": [
+        "glutes",
+        "hamstrings"
+      ],
+      "detail_muscles": [
+        "back_low"
+      ],
+      "mechanic": "isolation",
+      "equipment": "bodyweight",
+      "level": "principiante",
+      "description": "Boca abajo en un banco de hiperextensiones, se baja el torso y se sube hasta quedar en línea recta. Trabaja la zona lumbar, con ayuda de glúteos e isquios.",
+      "how_to": "Apoyá la cadera en el almohadón del banco, con los pies firmes bajo los rodillos y los brazos cruzados sobre el pecho. Bajá el torso con la espalda recta hasta sentir el estiramiento atrás de los muslos y subí hasta que el cuerpo quede en línea recta. No te pases de esa línea ni arquees la espalda al subir.",
+      "aliases": [
+        "hiperextensiones",
+        "hiperextensión",
+        "extensiones lumbares en banco",
+        "back extension",
+        "banco romano"
+      ]
+    },
+    {
+      "id": "superman_suelo",
+      "name": "Extensión lumbar en el piso (Superman)",
+      "kind": "strength",
+      "region": "lower",
+      "direction": "none",
+      "primary_muscle": "back",
+      "secondary_muscles": [
+        "glutes"
+      ],
+      "detail_muscles": [
+        "back_low"
+      ],
+      "mechanic": "isolation",
+      "equipment": "bodyweight",
+      "level": "principiante",
+      "description": "Boca abajo en el piso, se elevan a la vez brazos y piernas y se baja con control. Trabaja la zona lumbar con poca carga.",
+      "how_to": "Acostado boca abajo, con los brazos estirados hacia adelante y las piernas juntas. Elevá brazos y piernas del piso al mismo tiempo, sin forzar el cuello, y sostené un segundo arriba. Bajá lento.",
+      "aliases": [
+        "superman",
+        "extensión lumbar",
+        "extensiones lumbares en el piso",
+        "extensión de espalda en el suelo"
+      ]
+    },
+    {
+      "id": "encogimientos_mancuernas",
+      "name": "Encogimientos de hombros con mancuernas",
+      "kind": "strength",
+      "region": "upper",
+      "direction": "pull",
+      "primary_muscle": "back",
+      "secondary_muscles": [],
+      "detail_muscles": [
+        "back_mid"
+      ],
+      "mechanic": "isolation",
+      "equipment": "dumbbell",
+      "level": "principiante",
+      "description": "De pie con una mancuerna en cada mano, se suben los hombros hacia las orejas y se bajan con control. Trabaja la parte alta de la espalda (trapecio).",
+      "how_to": "De pie, con una mancuerna en cada mano a los costados y los brazos estirados. Subí los hombros hacia las orejas sin doblar los codos ni girarlos, pausá un segundo arriba y bajá lento.",
+      "aliases": [
+        "encogimientos",
+        "encogimientos de hombros",
+        "shrugs",
+        "elevación de hombros"
       ]
     }
   ]

@@ -64,6 +64,7 @@ def test_el_pecho_se_cuenta_tambien_por_partes_segun_el_catalogo(api):
     # El press de banca está etiquetado como pecho bajo; el pecho alto queda en cero.
     assert {m["muscle"]: m["sets"] for m in cuerpo["details"]} == {
         "chest_upper": 0, "chest_lower": 3, "delt_front": 0, "delt_side": 0, "delt_rear": 0,
+        "back_lats": 0, "back_mid": 0, "back_low": 0,
     }
 
 
@@ -87,9 +88,17 @@ def test_las_partes_finas_del_catalogo_son_las_aprobadas():
         "elevaciones_laterales_mancuernas", "elevaciones_laterales_polea", "elevaciones_laterales_banda",
     }
     assert con("delt_rear") == {"pajaros_mancuernas", "pajaros_maquina", "face_pull"}
-    assert len(etiquetados) == 24
+    assert con("back_lats") == {
+        "jalon_pecho_polea", "jalon_agarre_neutro", "dominadas", "dominadas_asistidas", "dominadas_negativas",
+        "pullover_polea", "pullover_mancuerna",
+    }
+    assert len(con("back_mid")) == 10  # los 9 remos y los encogimientos
+    assert con("back_low") == {"hiperextensiones_banco", "superman_suelo"}
+    assert len(etiquetados) == 43
     # Cada parte pertenece a su músculo; el cruce de poleas queda sin etiqueta a propósito.
-    musculo = {"chest_upper": "chest", "chest_lower": "chest", "delt_front": "shoulders", "delt_side": "shoulders", "delt_rear": "shoulders"}
+    musculo = {"chest_upper": "chest", "chest_lower": "chest", "delt_front": "shoulders", "delt_side": "shoulders", "delt_rear": "shoulders",
+        "back_lats": "back", "back_mid": "back", "back_low": "back",
+    }
     assert all(
         musculo[parte] == e.primary_muscle.value for e in load_catalog() for parte in e.detail_muscles
     )
