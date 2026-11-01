@@ -10,6 +10,8 @@ import { cn } from "cn";
 // Qué piezas del dibujo pinta cada grupo de las estadísticas.
 const PIEZAS: Record<string, string[]> = {
   chest: ["chest"],
+  chest_upper: ["chest_upper"],
+  chest_lower: ["chest_lower"],
   back: ["upper-back", "trapezius", "lower-back"],
   shoulders: ["deltoids"],
   quadriceps: ["quadriceps"],

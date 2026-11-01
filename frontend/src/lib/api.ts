@@ -218,6 +218,7 @@ export type WeekMuscles = {
   has_previous: boolean;
   muscles: MuscleSets[];
   others: MuscleSets[]; // complementos (bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial): no van al radar, sí al mapa
+  details?: MuscleSets[]; // partes finas (pecho alto y bajo): solo para pintar el mapa
 };
 
 // Series por grupo grande en un día, un mes o un año (`GET /progress/muscles`), para el radar.
@@ -229,6 +230,7 @@ export type PeriodMuscles = {
   minimum: number | null; // R3 escalado a los días que pasaron del período; nulo en el día
   muscles: MuscleSets[]; // previous_sets: el período anterior
   others: MuscleSets[]; // complementos (bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial): no van al radar, sí al mapa
+  details?: MuscleSets[]; // partes finas (pecho alto y bajo): solo para pintar el mapa
 };
 
 export type WeekSummaryDetail = {

@@ -40,6 +40,7 @@ type Vista = {
   terminado: boolean; // si el período ya pasó (cambia "faltan" por "faltaron")
   muscles: MuscleSets[];
   others: MuscleSets[]; // los complementos, solo para el mapa
+  details: MuscleSets[]; // las partes finas (pecho alto y bajo), solo para el mapa
 };
 
 const ANTERIOR = { day: "Día anterior", month: "Mes anterior", year: "Año anterior" } as const;
@@ -54,6 +55,7 @@ function deLaSemana(d: WeekMuscles): Vista {
     terminado: d.status !== "active",
     muscles: d.muscles,
     others: d.others,
+    details: d.details ?? [],
   };
 }
 
@@ -66,6 +68,7 @@ function deUnPeriodo(d: PeriodMuscles, hoy: string | null): Vista {
     terminado: hoy !== null && d.end < hoy,
     muscles: d.muscles,
     others: d.others,
+    details: d.details ?? [],
   };
 }
 
@@ -97,7 +100,7 @@ function Grafico({ vista, modo }: { vista: Vista; modo: Modo }) {
   return modo === "radar" ? (
     <Radar vista={vista} />
   ) : (
-    <MapaSeries muscles={[...vista.muscles, ...vista.others]} minimum={vista.minimum} />
+    <MapaSeries muscles={[...vista.muscles, ...vista.others, ...vista.details]} minimum={vista.minimum} />
   );
 }
 

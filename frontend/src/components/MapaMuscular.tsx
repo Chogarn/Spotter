@@ -1,8 +1,8 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 
-import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER } from "@/lib/cuerpoMusculos";
+import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER, PECHO_ALTO } from "@/lib/cuerpoMusculos";
 
 export type Vista = "frente" | "espalda";
 export type Cuerpo = "masculino" | "femenino";
@@ -34,6 +34,9 @@ export function MapaMuscular({
   descripcion: string;
 }) {
   const dibujo = DIBUJOS[cuerpo];
+  const idRecorte = useId().replace(/:/g, "");
+  // El pecho se pinta en dos (alta y baja) cuando llegan las series de cada parte, solo de frente.
+  const pechoPartido = vista === "frente" && intensidad.chest_upper !== undefined && intensidad.chest_lower !== undefined;
   // La caja de cada dibujo trae aire de sobra: se mide el cuerpo real y se recorta a él (con un margen
   // chico) para que no quede un hueco arriba ni abajo. Mientras se mide vale la caja de siempre.
   const grupo = useRef<SVGGElement>(null);
@@ -55,7 +58,32 @@ export function MapaMuscular({
       {/* Cada músculo va pintado según su intensidad (en blanco si no se trabajó), con un borde fino. Sin
           contorno aparte alrededor del cuerpo. */}
       <g ref={grupo}>
-      {dibujo[vista].map((p) => (
+      {pechoPartido && (
+        <defs>
+          <clipPath id={`${idRecorte}-alto`}>
+            {PECHO_ALTO[cuerpo].map((d, i) => (
+              <path key={i} d={d} />
+            ))}
+          </clipPath>
+        </defs>
+      )}
+      {dibujo[vista].map((p) =>
+        p.slug === "chest" && pechoPartido ? (
+          // La parte baja es el pectoral entero; encima va la parte alta, recortada con una curva.
+          <g key={p.slug} stroke="#7d8794" strokeWidth={3} strokeLinejoin="round">
+            {p.paths.map((d, i) => (
+              <path key={i} d={d} fill={COLORES[Math.min(4, intensidad.chest_lower)]} />
+            ))}
+            <g clipPath={`url(#${idRecorte}-alto)`} stroke="none">
+              {p.paths.map((d, i) => (
+                <path key={i} d={d} fill={COLORES[Math.min(4, intensidad.chest_upper)]} />
+              ))}
+            </g>
+            {p.paths.map((d, i) => (
+              <path key={`b${i}`} d={d} fill="none" />
+            ))}
+          </g>
+        ) : (
         <g
           key={p.slug}
           fill={COLORES[Math.min(4, intensidad[p.slug] ?? 0)]}
@@ -67,7 +95,8 @@ export function MapaMuscular({
             <path key={i} d={d} />
           ))}
         </g>
-      ))}
+        ),
+      )}
       </g>
     </svg>
   );

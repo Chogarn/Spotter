@@ -4,6 +4,19 @@
 
 export type Pieza = { slug: string; paths: string[] };
 
+// Recorte de la parte alta del pecho (clavicular) en la vista de frente, un trazo por pectoral: una curva
+// suave que sube hacia el brazo. La parte baja (esternal) es el resto del pectoral.
+export const PECHO_ALTO: Record<"masculino" | "femenino", string[]> = {
+  masculino: [
+    "M250 352.5C286.2 390.2 329.6 394.9 363.8 366.7L363.8 305.4L250 305.4Z",
+    "M478.1 352.7C441.9 390.3 398.4 395 364.2 366.8L364.2 305.7L478.1 305.7Z",
+  ],
+  femenino: [
+    "M210.2 353.4C245.9 389.8 288.7 394.3 322.3 367L322.3 307.8L210.2 307.8Z",
+    "M430.8 353.3C395.1 389.7 352.2 394.3 318.6 367L318.6 307.9L430.8 307.9Z",
+  ],
+};
+
 export const FRENTE: Pieza[] = [
   { slug: "chest", paths: [
     "M272.91 422.84c-18.95-17.19-22-57-12.64-78.79 5.57-12.99 26.54-24.37 39.97-25.87q20.36-2.26 37.02.75c9.74 1.76 16.13 15.64 18.41 25.04 3.99 16.48 3.23 31.38 1.67 48.06q-1.35 14.35-2.05 16.89c-6.52 23.5-38.08 29.23-58.28 24.53-9.12-2.12-17.24-4.38-24.1-10.61z",
