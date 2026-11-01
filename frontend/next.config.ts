@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   cacheComponents: true,
   partialPrefetching: true,
+  // En desarrollo se entra por 127.0.0.1 (localhost puede ser otro proyecto): sin esto Next
+  // bloquea los scripts y los formularios no funcionan.
+  allowedDevOrigins: ["127.0.0.1"],
   // Encabezados de seguridad en todas las respuestas. Sin CSP a propósito: una estricta pide
   // nonces y renderizado dinámico, y choca con cacheComponents.
   async headers() {
