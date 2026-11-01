@@ -35,12 +35,12 @@ export function FraseDeCarga() {
   return (
     // `key` hace que el texto se vuelva a dibujar y repita la entrada suave; con "reducir movimiento"
     // el cambio es directo. La región avisa a un lector de pantalla sin interrumpirlo.
-    <p
+    <h2
       key={i}
       aria-live="off"
-      className="mx-auto mt-0 mb-10 max-w-xs text-lg leading-snug font-normal text-muted-foreground italic animate-in fade-in duration-500 motion-reduce:animate-none"
+      className="mx-auto mt-0 mb-10 max-w-xs text-3xl animate-in fade-in duration-500 motion-reduce:animate-none"
     >
       “{FRASES[i]}”
-    </p>
+    </h2>
   );
 }

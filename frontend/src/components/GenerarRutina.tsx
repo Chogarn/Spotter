@@ -390,14 +390,16 @@ export function GenerarRutina({
           aria-live="polite"
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background px-6 text-center"
         >
-          {/* La frase va arriba del disco y con otro estilo (cursiva y gris), para que no parezca parte del disco. */}
+          {/* La frase va arriba del disco con el estilo de título, y "Armando tu semana" abajo en cursiva y gris. */}
           <FraseDeCarga />
           <div className="relative size-24" aria-hidden="true">
             <div className="absolute inset-0 animate-[spin_1.1s_linear_infinite] rounded-full border-8 border-border border-t-disco-rojo motion-reduce:animate-none" />
             <div className="absolute inset-[26px] rounded-full bg-disco-tinta" />
             <div className="absolute inset-[42px] rounded-full bg-background" />
           </div>
-          <h2 className="mt-6 mb-0 text-3xl">Armando tu semana</h2>
+          <p className="mt-6 mb-0 text-lg leading-snug font-normal text-muted-foreground italic">
+            Armando tu semana
+          </p>
           {/* La leyenda del tiempo, fija abajo. */}
           <p className="absolute inset-x-0 bottom-0 m-0 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-sm text-muted-foreground">
             La IA está pensando tu rutina. Puede tardar hasta 2 minutos. No cierres esta página.
