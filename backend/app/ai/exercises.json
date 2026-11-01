@@ -13,6 +13,9 @@
         "triceps",
         "shoulders"
       ],
+      "detail_muscles": [
+        "chest_lower"
+      ],
       "mechanic": "compound",
       "equipment": "barbell",
       "level": "intermedio",
@@ -35,6 +38,9 @@
         "shoulders",
         "triceps"
       ],
+      "detail_muscles": [
+        "chest_upper"
+      ],
       "mechanic": "compound",
       "equipment": "barbell",
       "level": "intermedio",
@@ -55,6 +61,9 @@
       "secondary_muscles": [
         "triceps",
         "shoulders"
+      ],
+      "detail_muscles": [
+        "chest_lower"
       ],
       "mechanic": "compound",
       "equipment": "dumbbell",
@@ -77,6 +86,9 @@
         "shoulders",
         "triceps"
       ],
+      "detail_muscles": [
+        "chest_upper"
+      ],
       "mechanic": "compound",
       "equipment": "dumbbell",
       "level": "intermedio",
@@ -96,6 +108,9 @@
       "secondary_muscles": [
         "triceps",
         "shoulders"
+      ],
+      "detail_muscles": [
+        "chest_lower"
       ],
       "mechanic": "compound",
       "equipment": "machine",
@@ -117,6 +132,9 @@
       "primary_muscle": "chest",
       "secondary_muscles": [
         "shoulders"
+      ],
+      "detail_muscles": [
+        "chest_lower"
       ],
       "mechanic": "isolation",
       "equipment": "dumbbell",
@@ -160,6 +178,9 @@
       "secondary_muscles": [
         "shoulders"
       ],
+      "detail_muscles": [
+        "chest_lower"
+      ],
       "mechanic": "isolation",
       "equipment": "machine",
       "level": "principiante",
@@ -181,6 +202,9 @@
       "secondary_muscles": [
         "triceps",
         "shoulders"
+      ],
+      "detail_muscles": [
+        "chest_lower"
       ],
       "mechanic": "compound",
       "equipment": "bodyweight",
@@ -204,6 +228,9 @@
       "secondary_muscles": [
         "triceps",
         "shoulders"
+      ],
+      "detail_muscles": [
+        "chest_lower"
       ],
       "mechanic": "compound",
       "equipment": "bodyweight",
@@ -1697,6 +1724,9 @@
         "triceps",
         "shoulders"
       ],
+      "detail_muscles": [
+        "chest_lower"
+      ],
       "mechanic": "compound",
       "equipment": "bodyweight",
       "level": "principiante",
@@ -1719,6 +1749,9 @@
         "shoulders",
         "triceps"
       ],
+      "detail_muscles": [
+        "chest_upper"
+      ],
       "mechanic": "compound",
       "equipment": "bodyweight",
       "level": "intermedio",
@@ -1740,6 +1773,9 @@
         "triceps",
         "shoulders"
       ],
+      "detail_muscles": [
+        "chest_lower"
+      ],
       "mechanic": "compound",
       "equipment": "dumbbell",
       "level": "principiante",
@@ -1760,6 +1796,9 @@
       "secondary_muscles": [
         "shoulders",
         "triceps"
+      ],
+      "detail_muscles": [
+        "chest_upper"
       ],
       "mechanic": "compound",
       "equipment": "machine",

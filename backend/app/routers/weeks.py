@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from app.ai.catalog import DETAIL_MUSCLES, detail_muscles_of
 from app.ai.history import signal
 from app.ai.plan_writer import active_week
 from app.ai.rules import BIG_GROUPS, COMPLEMENT, estimate_day_minutes
@@ -309,6 +310,19 @@ def done_sets_by_muscle(db: Session, week: WeekPlan) -> dict:
     return counts
 
 
+def done_sets_by_detail(db: Session, week: WeekPlan) -> dict[str, int]:
+    """Lo mismo que `done_sets_by_muscle`, por partes finas (pecho alto y bajo): se saca del catálogo
+    por el nombre del ejercicio, así sirve también para las semanas ya guardadas."""
+    counts = {detail: 0 for detail in DETAIL_MUSCLES}
+    for day in week.days:
+        entries = day_entries(db, day)
+        for exercise in day.exercises:
+            done = sum(1 for s in exercise.sets if s.id in entries)
+            for detail in detail_muscles_of(exercise.exercise.name):
+                counts[detail] += done
+    return counts
+
+
 # /active y /muscles van antes que /{week_id}, si no se tomarían como un id.
 @router.get("/active", response_model=WeekOut)
 def get_active_week(
@@ -352,6 +366,8 @@ def get_latest_week_muscles(
     current = done_sets_by_muscle(db, week)
     before = previous_week(db, week)
     previous = None if before is None else done_sets_by_muscle(db, before)
+    detail_now = done_sets_by_detail(db, week)
+    detail_before = None if before is None else done_sets_by_detail(db, before)
     return WeekMusclesOut(
         week_id=week.id,
         number=number,
@@ -374,6 +390,14 @@ def get_latest_week_muscles(
                 previous_sets=None if previous is None else previous[muscle],
             )
             for muscle in COMPLEMENT
+        ],
+        details=[
+            MuscleSetsOut(
+                muscle=detail,
+                sets=detail_now[detail],
+                previous_sets=None if detail_before is None else detail_before[detail],
+            )
+            for detail in DETAIL_MUSCLES
         ],
     )
 

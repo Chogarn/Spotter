@@ -8,6 +8,7 @@ import hashlib
 import json
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -60,6 +61,11 @@ KIND_TEXT = {
 }
 
 
+# Partes finas de un músculo, solo para pintar el mapa (borrador de `docs/mapa-muscular-detalle-borrador.md`).
+# Por ahora, el pecho en dos: la parte alta (clavicular) y la baja (esternal).
+DETAIL_MUSCLES = ("chest_upper", "chest_lower")
+
+
 class CatalogExercise(BaseModel):
     """Un ejercicio del catálogo. Las etiquetas son las cerradas de R13."""
 
@@ -70,6 +76,7 @@ class CatalogExercise(BaseModel):
     direction: ExerciseDirection
     primary_muscle: Muscle
     secondary_muscles: list[Muscle] = Field(default_factory=list)
+    detail_muscles: list[Literal["chest_upper", "chest_lower"]] = Field(default_factory=list)
     mechanic: ExerciseMechanic
     equipment: ExerciseEquipment
     level: Level
@@ -97,6 +104,12 @@ def _by_name() -> dict[str, CatalogExercise]:
 def find(name: str) -> CatalogExercise | None:
     """Busca por nombre o alias, sin importar mayúsculas ni tildes. None si no está."""
     return _by_name().get(normalize_name(name))
+
+
+def detail_muscles_of(name: str) -> list[str]:
+    """Las partes finas que trabaja un ejercicio por su nombre ([] si no está o no tiene)."""
+    found = find(name)
+    return list(found.detail_muscles) if found is not None else []
 
 
 def how_to_text(exercise: CatalogExercise, ai_note: str | None) -> str | None:

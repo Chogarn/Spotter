@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_current_user
+from app.ai.catalog import DETAIL_MUSCLES, detail_muscles_of
 from app.ai.history import signal
 from app.models import PlanDay, PlanExercise, PlanSet, SetEntry, User, WorkoutSession
 from app.ai.rules import BIG_GROUPS, COMPLEMENT
@@ -263,6 +264,8 @@ def get_period_muscles(
     before_start, before_end = _range(period, start - timedelta(days=1))
     current = {muscle: 0 for muscle in BIG_GROUPS + COMPLEMENT}
     previous = {muscle: 0 for muscle in BIG_GROUPS + COMPLEMENT}
+    detail_current = {detail: 0 for detail in DETAIL_MUSCLES}
+    detail_previous = {detail: 0 for detail in DETAIL_MUSCLES}
     all_days: set[date] = set()
     finished = db.scalars(
         select(WorkoutSession).where(
@@ -275,14 +278,19 @@ def get_period_muscles(
             continue
         local = _local_date(session.finished_at, tz)
         all_days.add(local)
-        counts = current if start <= local <= end else previous if before_start <= local <= before_end else None
+        in_current = start <= local <= end
+        counts = current if in_current else previous if before_start <= local <= before_end else None
         if counts is None:
             continue
+        detail_counts = detail_current if in_current else detail_previous
         entries = day_entries(db, day)
         for plan_exercise in day.exercises:
             muscle = plan_exercise.exercise.primary_muscle
+            done = sum(1 for s in plan_exercise.sets if s.id in entries)
             if muscle in counts:
-                counts[muscle] += sum(1 for s in plan_exercise.sets if s.id in entries)
+                counts[muscle] += done
+            for detail in detail_muscles_of(plan_exercise.exercise.name):
+                detail_counts[detail] += done
 
     minimum = None
     if period != "day":
@@ -300,5 +308,9 @@ def get_period_muscles(
         ],
         others=[
             MuscleSetsOut(muscle=m.value, sets=current[m], previous_sets=previous[m]) for m in COMPLEMENT
+        ],
+        details=[
+            MuscleSetsOut(muscle=d, sets=detail_current[d], previous_sets=detail_previous[d])
+            for d in DETAIL_MUSCLES
         ],
     )

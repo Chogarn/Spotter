@@ -55,6 +55,29 @@ def test_cuenta_solo_las_series_hechas_de_los_seis_grupos_grandes(api):
     }
 
 
+def test_el_pecho_se_cuenta_tambien_por_partes_segun_el_catalogo(api):
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+    hacer_press(api, semana, 3)
+
+    cuerpo = musculos(api)
+
+    # El press de banca está etiquetado como pecho bajo; el pecho alto queda en cero.
+    assert {m["muscle"]: m["sets"] for m in cuerpo["details"]} == {"chest_upper": 0, "chest_lower": 3}
+
+
+def test_las_partes_finas_del_catalogo_son_las_aprobadas():
+    from app.ai.catalog import load_catalog
+
+    etiquetados = {e.id: e.detail_muscles for e in load_catalog() if e.detail_muscles}
+    assert {i for i, d in etiquetados.items() if d == ["chest_upper"]} == {
+        "press_inclinado_barra", "press_inclinado_mancuernas", "press_inclinado_maquina", "flexiones_declinadas",
+    }
+    assert len(etiquetados) == 13
+    # Todos son ejercicios de pecho; el cruce de poleas queda sin etiqueta a propósito.
+    assert all(e.primary_muscle.value == "chest" for e in load_catalog() if e.detail_muscles)
+    assert "cruce_poleas" not in etiquetados
+
+
 def test_compara_con_la_semana_cerrada_anterior_de_la_rutina(api):
     primera = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
     hacer_press(api, primera, 4)
