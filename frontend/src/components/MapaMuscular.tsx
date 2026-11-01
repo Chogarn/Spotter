@@ -2,7 +2,7 @@
 
 import { useId, useLayoutEffect, useRef, useState } from "react";
 
-import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER, DELTOIDE_MEDIAL, PECHO_ALTO } from "@/lib/cuerpoMusculos";
+import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER, DELTOIDE_MEDIAL, DORSAL_ANCHO, PECHO_ALTO } from "@/lib/cuerpoMusculos";
 
 export type Vista = "frente" | "espalda";
 export type Cuerpo = "masculino" | "femenino";
@@ -40,6 +40,12 @@ export function MapaMuscular({
   const hombroPartido =
     intensidad.delt_side !== undefined &&
     (vista === "frente" ? intensidad.delt_front !== undefined : intensidad.delt_rear !== undefined);
+  // La espalda, igual: dorsal ancho, espalda media y alta (trapecio, redondos) y lumbar.
+  const espaldaPartida =
+    vista === "espalda" &&
+    intensidad.back_lats !== undefined &&
+    intensidad.back_mid !== undefined &&
+    intensidad.back_low !== undefined;
   const pechoPartido = vista === "frente" && intensidad.chest_upper !== undefined && intensidad.chest_lower !== undefined;
   // La caja de cada dibujo trae aire de sobra: se mide el cuerpo real y se recorta a él (con un margen
   // chico) para que no quede un hueco arriba ni abajo. Mientras se mide vale la caja de siempre.
@@ -81,7 +87,19 @@ export function MapaMuscular({
         </defs>
       )}
       {dibujo[vista].map((p) =>
-        p.slug === "deltoids" && hombroPartido ? (
+        espaldaPartida && (p.slug === "upper-back" || p.slug === "trapezius" || p.slug === "lower-back") ? (
+          <g key={p.slug} stroke="#7d8794" strokeWidth={3} strokeLinejoin="round">
+            {p.paths.map((d, i) => {
+              const parte =
+                p.slug === "lower-back"
+                  ? intensidad.back_low
+                  : p.slug === "upper-back" && DORSAL_ANCHO[cuerpo].includes(i)
+                    ? intensidad.back_lats
+                    : intensidad.back_mid;
+              return <path key={i} d={d} fill={COLORES[Math.min(4, parte)]} />;
+            })}
+          </g>
+        ) : p.slug === "deltoids" && hombroPartido ? (
           // La cabeza lateral es el hombro entero; encima va la mitad del lado del cuerpo (anterior o posterior).
           <g key={p.slug} stroke="#7d8794" strokeWidth={3} strokeLinejoin="round">
             {p.paths.map((d, i) => (
