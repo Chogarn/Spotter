@@ -1,6 +1,6 @@
 # Mapa muscular con más detalle: borrador por fases
 
-Estado: la fase 1 se hizo (decisión 99) y el **pecho alto y bajo** (decisión 108) y el **hombro en tres cabezas** (decisión 109) de la fase 2 también (2026-11-01); el resto sigue como borrador sin aprobar (2026-10-26). Pedido del usuario: que el mapa pueda pintar todas las piezas y las partes de cada músculo, sin vista lateral. Se resuelve en el backend (catálogo y estadísticas) y en el dibujo.
+Estado: la fase 1 se hizo (decisión 99) y el **pecho alto y bajo** (decisión 108) el **hombro en tres cabezas** (decisión 109) y la **espalda en tres partes** (decisión 110) de la fase 2 también (2026-11-01); el resto sigue como borrador sin aprobar (2026-10-26). Pedido del usuario: que el mapa pueda pintar todas las piezas y las partes de cada músculo, sin vista lateral. Se resuelve en el backend (catálogo y estadísticas) y en el dibujo.
 
 ## Qué falta pintar hoy
 
