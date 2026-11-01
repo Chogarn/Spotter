@@ -753,6 +753,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** la lista de encabezados y sus valores, el nombre `APP_ENV`, y el año de vigencia de HSTS (31536000 s, sin `includeSubDomains`).
 - **Ojo:** sin CSP, un XSS (hoy no hay `dangerouslySetInnerHTML`) no tendría esa segunda barrera. Queda como mejora para después del despliegue.
 
+### 108. El pecho del mapa muscular se divide en alto y bajo (Fase 2, primer paso)
+- **Fecha:** 2026-11-01
+- **Decisión:** el mapa pinta el pecho en **dos partes**, alta (clavicular) y baja (esternal), con un corte curvo que sube hacia el brazo. Cada ejercicio del catálogo gana `detail_muscles` (`chest_upper` o `chest_lower`; solo 13 de los 14 de pecho: el cruce de poleas queda sin etiqueta porque depende del ángulo). Alto: press inclinado (barra, mancuernas y máquina) y flexiones con pies elevados. Bajo: el resto (press plano, press en el suelo, flexiones, fondos en paralelas y aperturas). Las series de cada parte salen del catálogo por el nombre del ejercicio (sin migración, sirve para semanas ya guardadas) y llegan en `details` de `GET /weeks/muscles` y `GET /period/muscles`. **Solo sirve para pintar el mapa:** el radar, R3, la IA y el catálogo embebido no cambian (`detail_muscles` no entra en el texto de los vectores: no hay que reindexar).
+- **Por qué:** *(completar)*
+- **Descartaste:** dividir el pecho en tres partes (alto, medio y bajo): la parte media sale de una convención de entrenamiento y no tiene respaldo anatómico directo.
+- **Decidió la IA sin preguntarte:** el corte curvo (variante que sube hacia el brazo), que el cruce de poleas quede sin etiqueta, que los ejercicios sin etiqueta cuenten solo para el pecho completo y que las partes se midan con la misma vara que los demás músculos del mapa.
+- **Ojo:** las etiquetas son de mi conocimiento de anatomía y **no verifiqué fuentes** (EMG de press inclinado contra plano); las aprobaste igual, así que quedan pendientes de fuentes y de la revisión de una persona de educación física. Probado con tests del backend (618) y mirado en el navegador con un usuario descartable (ya borrado) en la vista de frente de hombre; **no se vio la de mujer ni en un celular**. Faltan hombro y espalda (fase 2) y las piernas y brazos (fase 3).
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
