@@ -1356,6 +1356,9 @@
       "secondary_muscles": [
         "hamstrings"
       ],
+      "detail_muscles": [
+        "glute_max"
+      ],
       "mechanic": "compound",
       "equipment": "barbell",
       "level": "intermedio",
@@ -1376,6 +1379,9 @@
       "primary_muscle": "glutes",
       "secondary_muscles": [
         "hamstrings"
+      ],
+      "detail_muscles": [
+        "glute_max"
       ],
       "mechanic": "compound",
       "equipment": "bodyweight",
@@ -1398,6 +1404,9 @@
       "secondary_muscles": [
         "hamstrings"
       ],
+      "detail_muscles": [
+        "glute_max"
+      ],
       "mechanic": "isolation",
       "equipment": "cable",
       "level": "principiante",
@@ -1417,6 +1426,9 @@
       "direction": "none",
       "primary_muscle": "glutes",
       "secondary_muscles": [],
+      "detail_muscles": [
+        "glute_med"
+      ],
       "mechanic": "isolation",
       "equipment": "machine",
       "level": "principiante",
@@ -1626,6 +1638,9 @@
       "primary_muscle": "glutes",
       "secondary_muscles": [
         "hamstrings"
+      ],
+      "detail_muscles": [
+        "glute_max"
       ],
       "mechanic": "compound",
       "equipment": "kettlebell",
@@ -2238,6 +2253,9 @@
       "secondary_muscles": [
         "hamstrings"
       ],
+      "detail_muscles": [
+        "glute_max"
+      ],
       "mechanic": "compound",
       "equipment": "dumbbell",
       "level": "principiante",
@@ -2257,6 +2275,9 @@
       "primary_muscle": "glutes",
       "secondary_muscles": [
         "hamstrings"
+      ],
+      "detail_muscles": [
+        "glute_max"
       ],
       "mechanic": "compound",
       "equipment": "machine",
@@ -2278,6 +2299,9 @@
       "secondary_muscles": [
         "hamstrings"
       ],
+      "detail_muscles": [
+        "glute_max"
+      ],
       "mechanic": "isolation",
       "equipment": "bodyweight",
       "level": "principiante",
@@ -2297,6 +2321,9 @@
       "direction": "none",
       "primary_muscle": "glutes",
       "secondary_muscles": [],
+      "detail_muscles": [
+        "glute_med"
+      ],
       "mechanic": "isolation",
       "equipment": "band",
       "level": "principiante",

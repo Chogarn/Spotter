@@ -63,11 +63,12 @@ KIND_TEXT = {
 
 # Partes finas de un músculo, solo para pintar el mapa (`docs/mapa-muscular-detalle-borrador.md`): el pecho en
 # alta (clavicular) y baja (esternal), el hombro en sus tres cabezas y la espalda en dorsal, media y alta, y
-# lumbar (decisiones 108, 109 y 110).
+# lumbar y el glúteo en mayor y medio (decisiones 108 a 111).
 DetailMuscle = Literal[
     "chest_upper", "chest_lower",
     "delt_front", "delt_side", "delt_rear",
     "back_lats", "back_mid", "back_low",
+    "glute_max", "glute_med",
 ]
 DETAIL_MUSCLES: tuple[DetailMuscle, ...] = get_args(DetailMuscle)
 

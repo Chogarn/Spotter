@@ -64,7 +64,7 @@ def test_el_pecho_se_cuenta_tambien_por_partes_segun_el_catalogo(api):
     # El press de banca está etiquetado como pecho bajo; el pecho alto queda en cero.
     assert {m["muscle"]: m["sets"] for m in cuerpo["details"]} == {
         "chest_upper": 0, "chest_lower": 3, "delt_front": 0, "delt_side": 0, "delt_rear": 0,
-        "back_lats": 0, "back_mid": 0, "back_low": 0,
+        "back_lats": 0, "back_mid": 0, "back_low": 0, "glute_max": 0, "glute_med": 0,
     }
 
 
@@ -94,10 +94,13 @@ def test_las_partes_finas_del_catalogo_son_las_aprobadas():
     }
     assert len(con("back_mid")) == 10  # los 9 remos y los encogimientos
     assert con("back_low") == {"hiperextensiones_banco", "superman_suelo"}
-    assert len(etiquetados) == 43
+    assert len(con("glute_max")) == 7
+    assert con("glute_med") == {"abduccion_cadera_maquina", "caminata_lateral_banda"}
+    assert len(etiquetados) == 52
     # Cada parte pertenece a su músculo; el cruce de poleas queda sin etiqueta a propósito.
     musculo = {"chest_upper": "chest", "chest_lower": "chest", "delt_front": "shoulders", "delt_side": "shoulders", "delt_rear": "shoulders",
         "back_lats": "back", "back_mid": "back", "back_low": "back",
+        "glute_max": "glutes", "glute_med": "glutes",
     }
     assert all(
         musculo[parte] == e.primary_muscle.value for e in load_catalog() for parte in e.detail_muscles
