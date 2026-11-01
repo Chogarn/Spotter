@@ -785,6 +785,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** que el balanceo con kettlebell vaya a glúteo mayor (lo aprobaste con la tabla), y que las sentadillas, zancadas y pesos muertos no se etiqueten (el mapa cuenta solo series directas y el glúteo es su ayuda).
 - **Ojo:** etiquetas sin fuentes. Probado con tests del backend (618) y mirado en el navegador con un usuario descartable (ya borrado) en la espalda del hombre; **no se vio la espalda de mujer con el glúteo partido ni un celular**. Faltan cuádriceps, bíceps, tríceps, gemelos e isquios (fase 3), que sí necesitan cortes dentro de una sola pieza.
 
+### 112. Tríceps y gemelos del mapa muscular se dividen en dos partes (Fase 3, segundo paso)
+- **Fecha:** 2026-11-01
+- **Decisión:** el mapa pinta el **tríceps** en cabeza larga (`triceps_long`) y lateral y medial (`triceps_side`), y los **gemelos** en gastrocnemio (`calf_gastro`) y sóleo (`calf_soleus`). Se agrupan las piezas que ya trae el dibujo (`TRICEPS_LARGO` y `GEMELO_SOLEO` en `lib/cuerpoMusculos.ts`); de frente, el tríceps se pinta como lateral y medial y los gemelos como gastrocnemio. Etiquetas: cabeza larga = extensión sobre la cabeza y press francés; lateral y medial = extensiones en polea (cuerda y barra), extensión con banda, patada, fondos en banco y press cerrado; gastrocnemio = las 4 elevaciones de talones de pie (máquina, prensa, mancuerna y peso corporal); sóleo = la elevación sentado en máquina. Mismo mecanismo que las decisiones 108 a 111.
+- **Por qué:** *(completar)*
+- **Descartaste:** nada por ahora. **Quedan sin dividir, por recomendación de la IA que aceptaste:** cuádriceps (casi todos los ejercicios trabajan todas las partes), bíceps (el dibujo tiene una sola pieza y las cabezas no se distinguen por el ejercicio) e isquios (el reparto es desigual y poco claro).
+- **Decidió la IA sin preguntarte:** que la lateral y la medial del tríceps vayan juntas (no hay ejercicios que las separen) y que las piezas finas de abajo de los gemelos sean el sóleo (es lo que mejor encaja con el dibujo, pero no se pudo confirmar).
+- **Ojo:** etiquetas sin fuentes. Probado con tests del backend (618) y mirado en el navegador con un usuario descartable (ya borrado) en la espalda del hombre; **no se vio la espalda de mujer con estas partes, la vista de frente ni un celular**.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
