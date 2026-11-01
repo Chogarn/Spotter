@@ -761,6 +761,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** el corte curvo (variante que sube hacia el brazo), que el cruce de poleas quede sin etiqueta, que los ejercicios sin etiqueta cuenten solo para el pecho completo y que las partes se midan con la misma vara que los demás músculos del mapa.
 - **Ojo:** las etiquetas son de mi conocimiento de anatomía y **no verifiqué fuentes** (EMG de press inclinado contra plano); las aprobaste igual, así que quedan pendientes de fuentes y de la revisión de una persona de educación física. Probado con tests del backend (618) y mirado en el navegador con un usuario descartable (ya borrado) en la vista de frente de hombre; **no se vio la de mujer ni en un celular**. Faltan hombro y espalda (fase 2) y las piernas y brazos (fase 3).
 
+### 109. El hombro del mapa muscular se divide en sus tres cabezas (Fase 2, segundo paso)
+- **Fecha:** 2026-11-01
+- **Decisión:** el mapa pinta el hombro en **tres partes**: anterior, lateral y posterior (`delt_front`, `delt_side`, `delt_rear` en `detail_muscles`). De frente se ven la anterior y la lateral; de espalda, la posterior y la lateral (el dibujo no tiene vista lateral). El corte es una curva por la mitad del hombro: del lado del cuerpo, la anterior (frente) o la posterior (espalda); el resto es la lateral. Etiquetas de los 11 ejercicios de hombro: anterior = los 4 presses (barra, mancuernas, máquina y Arnold) y las elevaciones frontales; lateral = las 3 elevaciones laterales (mancuernas, polea y banda); posterior = pájaros con mancuernas, pájaros en máquina y face pull. Mismo mecanismo que el pecho (decisión 108): solo para pintar el mapa, sin migración ni reindexado.
+- **Por qué:** *(completar)*
+- **Descartaste:** nada por ahora.
+- **Decidió la IA sin preguntarte:** que el corte sea por la mitad (las proporciones reales de las tres cabezas no son iguales) y que los presses cuenten solo como anterior aunque trabajan también la lateral.
+- **Ojo:** etiquetas sin fuentes (de anatomía, sin estudios de actividad muscular). Probado con tests del backend (618) y mirado en el navegador con un usuario descartable (ya borrado): hombre de frente y de espalda y mujer de frente; **no se vio la espalda de mujer ni un celular**. Falta la espalda (dorsal, romboides, trapecio y lumbar) y la fase 3.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
