@@ -2,7 +2,7 @@
 
 import { useId, useLayoutEffect, useRef, useState } from "react";
 
-import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER, DELTOIDE_MEDIAL, DORSAL_ANCHO, PECHO_ALTO } from "@/lib/cuerpoMusculos";
+import { ESPALDA, ESPALDA_MUJER, FRENTE, FRENTE_MUJER, DELTOIDE_MEDIAL, DORSAL_ANCHO, GLUTEO_MEDIO, PECHO_ALTO } from "@/lib/cuerpoMusculos";
 
 export type Vista = "frente" | "espalda";
 export type Cuerpo = "masculino" | "femenino";
@@ -46,6 +46,9 @@ export function MapaMuscular({
     intensidad.back_lats !== undefined &&
     intensidad.back_mid !== undefined &&
     intensidad.back_low !== undefined;
+  // El glúteo, igual: mayor (las piezas grandes) y medio (las chicas de arriba).
+  const gluteoPartido =
+    vista === "espalda" && intensidad.glute_max !== undefined && intensidad.glute_med !== undefined;
   const pechoPartido = vista === "frente" && intensidad.chest_upper !== undefined && intensidad.chest_lower !== undefined;
   // La caja de cada dibujo trae aire de sobra: se mide el cuerpo real y se recorta a él (con un margen
   // chico) para que no quede un hueco arriba ni abajo. Mientras se mide vale la caja de siempre.
@@ -87,7 +90,17 @@ export function MapaMuscular({
         </defs>
       )}
       {dibujo[vista].map((p) =>
-        espaldaPartida && (p.slug === "upper-back" || p.slug === "trapezius" || p.slug === "lower-back") ? (
+        gluteoPartido && p.slug === "gluteal" ? (
+          <g key={p.slug} stroke="#7d8794" strokeWidth={3} strokeLinejoin="round">
+            {p.paths.map((d, i) => (
+              <path
+                key={i}
+                d={d}
+                fill={COLORES[Math.min(4, GLUTEO_MEDIO[cuerpo].includes(i) ? intensidad.glute_med : intensidad.glute_max)]}
+              />
+            ))}
+          </g>
+        ) : espaldaPartida && (p.slug === "upper-back" || p.slug === "trapezius" || p.slug === "lower-back") ? (
           <g key={p.slug} stroke="#7d8794" strokeWidth={3} strokeLinejoin="round">
             {p.paths.map((d, i) => {
               const parte =

@@ -18,6 +18,8 @@ const PIEZAS: Record<string, string[]> = {
   back_lats: ["back_lats"],
   back_mid: ["back_mid"],
   back_low: ["back_low"],
+  glute_max: ["glute_max"],
+  glute_med: ["glute_med"],
   back: ["upper-back", "trapezius", "lower-back"],
   shoulders: ["deltoids"],
   quadriceps: ["quadriceps"],
