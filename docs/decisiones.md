@@ -777,6 +777,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** que los tres ejercicios cuenten como "espalda" para R3 (no hay un grupo lumbar aparte: se podría cubrir el mínimo de espalda con hiperextensiones; no lo respondiste, así que quedó así); que los remos cuenten solo como espalda media aunque trabajan también el dorsal; que el trapecio y los redondos vayan juntos; y los textos, el nivel, el equipo y la mecánica de los 3 ejercicios nuevos (borrador mío).
 - **Ojo:** las etiquetas y los textos no tienen fuentes. Probado con tests del backend (618) y mirado en el navegador con un usuario descartable (ya borrado) en la espalda del hombre; **no se vio la espalda de mujer ni un celular**. Los ejercicios nuevos no se probaron con una generación real de Gemini. Faltan piernas y brazos (fase 3).
 
+### 111. El glúteo del mapa muscular se divide en mayor y medio (Fase 3, primer paso)
+- **Fecha:** 2026-11-01
+- **Decisión:** el mapa pinta el glúteo en **dos partes**: mayor (`glute_max`) y medio (`glute_med`). No hubo que dibujar nada: el dibujo ya trae por lado una pieza grande (el mayor) y una chica arriba (el medio), y solo se agrupan (`GLUTEO_MEDIO` en `lib/cuerpoMusculos.ts`). Solo se ve en la vista de espalda. Etiquetas: mayor = hip thrust (barra, mancuerna y máquina), puente de glúteos, patada en polea, patada en cuadrupedia y balanceo con kettlebell; medio = abducción de cadera en máquina y caminata lateral con banda. Mismo mecanismo que las decisiones 108 a 110.
+- **Por qué:** *(completar)*
+- **Descartaste:** nada por ahora.
+- **Decidió la IA sin preguntarte:** que el balanceo con kettlebell vaya a glúteo mayor (lo aprobaste con la tabla), y que las sentadillas, zancadas y pesos muertos no se etiqueten (el mapa cuenta solo series directas y el glúteo es su ayuda).
+- **Ojo:** etiquetas sin fuentes. Probado con tests del backend (618) y mirado en el navegador con un usuario descartable (ya borrado) en la espalda del hombre; **no se vio la espalda de mujer con el glúteo partido ni un celular**. Faltan cuádriceps, bíceps, tríceps, gemelos e isquios (fase 3), que sí necesitan cortes dentro de una sola pieza.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
