@@ -62,19 +62,37 @@ def test_el_pecho_se_cuenta_tambien_por_partes_segun_el_catalogo(api):
     cuerpo = musculos(api)
 
     # El press de banca está etiquetado como pecho bajo; el pecho alto queda en cero.
-    assert {m["muscle"]: m["sets"] for m in cuerpo["details"]} == {"chest_upper": 0, "chest_lower": 3}
+    assert {m["muscle"]: m["sets"] for m in cuerpo["details"]} == {
+        "chest_upper": 0, "chest_lower": 3, "delt_front": 0, "delt_side": 0, "delt_rear": 0,
+    }
 
 
 def test_las_partes_finas_del_catalogo_son_las_aprobadas():
     from app.ai.catalog import load_catalog
 
     etiquetados = {e.id: e.detail_muscles for e in load_catalog() if e.detail_muscles}
-    assert {i for i, d in etiquetados.items() if d == ["chest_upper"]} == {
+
+    def con(parte):
+        return {i for i, d in etiquetados.items() if d == [parte]}
+
+    assert con("chest_upper") == {
         "press_inclinado_barra", "press_inclinado_mancuernas", "press_inclinado_maquina", "flexiones_declinadas",
     }
-    assert len(etiquetados) == 13
-    # Todos son ejercicios de pecho; el cruce de poleas queda sin etiqueta a propósito.
-    assert all(e.primary_muscle.value == "chest" for e in load_catalog() if e.detail_muscles)
+    assert len(con("chest_lower")) == 9
+    assert con("delt_front") == {
+        "press_hombros_barra", "press_hombros_mancuernas", "press_hombros_maquina", "press_arnold",
+        "elevaciones_frontales_mancuernas",
+    }
+    assert con("delt_side") == {
+        "elevaciones_laterales_mancuernas", "elevaciones_laterales_polea", "elevaciones_laterales_banda",
+    }
+    assert con("delt_rear") == {"pajaros_mancuernas", "pajaros_maquina", "face_pull"}
+    assert len(etiquetados) == 24
+    # Cada parte pertenece a su músculo; el cruce de poleas queda sin etiqueta a propósito.
+    musculo = {"chest_upper": "chest", "chest_lower": "chest", "delt_front": "shoulders", "delt_side": "shoulders", "delt_rear": "shoulders"}
+    assert all(
+        musculo[parte] == e.primary_muscle.value for e in load_catalog() for parte in e.detail_muscles
+    )
     assert "cruce_poleas" not in etiquetados
 
 

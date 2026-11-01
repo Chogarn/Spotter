@@ -519,6 +519,9 @@
       "secondary_muscles": [
         "triceps"
       ],
+      "detail_muscles": [
+        "delt_front"
+      ],
       "mechanic": "compound",
       "equipment": "barbell",
       "level": "intermedio",
@@ -540,6 +543,9 @@
       "secondary_muscles": [
         "triceps"
       ],
+      "detail_muscles": [
+        "delt_front"
+      ],
       "mechanic": "compound",
       "equipment": "dumbbell",
       "level": "principiante",
@@ -560,6 +566,9 @@
       "secondary_muscles": [
         "triceps"
       ],
+      "detail_muscles": [
+        "delt_front"
+      ],
       "mechanic": "compound",
       "equipment": "machine",
       "level": "principiante",
@@ -578,6 +587,9 @@
       "direction": "push",
       "primary_muscle": "shoulders",
       "secondary_muscles": [],
+      "detail_muscles": [
+        "delt_side"
+      ],
       "mechanic": "isolation",
       "equipment": "dumbbell",
       "level": "principiante",
@@ -597,6 +609,9 @@
       "direction": "push",
       "primary_muscle": "shoulders",
       "secondary_muscles": [],
+      "detail_muscles": [
+        "delt_side"
+      ],
       "mechanic": "isolation",
       "equipment": "cable",
       "level": "intermedio",
@@ -615,6 +630,9 @@
       "direction": "push",
       "primary_muscle": "shoulders",
       "secondary_muscles": [],
+      "detail_muscles": [
+        "delt_front"
+      ],
       "mechanic": "isolation",
       "equipment": "dumbbell",
       "level": "principiante",
@@ -634,6 +652,9 @@
       "primary_muscle": "shoulders",
       "secondary_muscles": [
         "back"
+      ],
+      "detail_muscles": [
+        "delt_rear"
       ],
       "mechanic": "isolation",
       "equipment": "dumbbell",
@@ -656,6 +677,9 @@
       "primary_muscle": "shoulders",
       "secondary_muscles": [
         "back"
+      ],
+      "detail_muscles": [
+        "delt_rear"
       ],
       "mechanic": "isolation",
       "equipment": "cable",
@@ -1878,6 +1902,9 @@
       "secondary_muscles": [
         "triceps"
       ],
+      "detail_muscles": [
+        "delt_front"
+      ],
       "mechanic": "compound",
       "equipment": "dumbbell",
       "level": "intermedio",
@@ -1896,6 +1923,9 @@
       "direction": "push",
       "primary_muscle": "shoulders",
       "secondary_muscles": [],
+      "detail_muscles": [
+        "delt_side"
+      ],
       "mechanic": "isolation",
       "equipment": "band",
       "level": "principiante",
@@ -1915,6 +1945,9 @@
       "primary_muscle": "shoulders",
       "secondary_muscles": [
         "back"
+      ],
+      "detail_muscles": [
+        "delt_rear"
       ],
       "mechanic": "isolation",
       "equipment": "machine",

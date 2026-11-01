@@ -62,8 +62,8 @@ KIND_TEXT = {
 
 
 # Partes finas de un músculo, solo para pintar el mapa (borrador de `docs/mapa-muscular-detalle-borrador.md`).
-# Por ahora, el pecho en dos: la parte alta (clavicular) y la baja (esternal).
-DETAIL_MUSCLES = ("chest_upper", "chest_lower")
+# El pecho en dos (alta o clavicular y baja o esternal) y el hombro en sus tres cabezas (decisiones 108 y 109).
+DETAIL_MUSCLES = ("chest_upper", "chest_lower", "delt_front", "delt_side", "delt_rear")
 
 
 class CatalogExercise(BaseModel):
@@ -76,7 +76,7 @@ class CatalogExercise(BaseModel):
     direction: ExerciseDirection
     primary_muscle: Muscle
     secondary_muscles: list[Muscle] = Field(default_factory=list)
-    detail_muscles: list[Literal["chest_upper", "chest_lower"]] = Field(default_factory=list)
+    detail_muscles: list[Literal["chest_upper", "chest_lower", "delt_front", "delt_side", "delt_rear"]] = Field(default_factory=list)
     mechanic: ExerciseMechanic
     equipment: ExerciseEquipment
     level: Level
