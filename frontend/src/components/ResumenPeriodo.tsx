@@ -62,11 +62,12 @@ export function useHoy(): string | null {
 const num = (v: number) => Math.round(v).toLocaleString("es-AR");
 
 // Las cifras de arriba que se pueden tocar para ver el gráfico de esa métrica (por día o por mes).
-type Metrica = "days" | "sets" | "kg" | "cardio" | "min";
+type Metrica = "days" | "sets" | "kg" | "cardioSets" | "cardio" | "min";
 const METRICAS: Record<Metrica, { titulo: string; unidad: string; valor: (b: PeriodBucket) => number }> = {
   days: { titulo: "Días entrenados", unidad: "días", valor: (b) => b.days_trained },
   sets: { titulo: "Series hechas", unidad: "series", valor: (b) => b.sets_done },
   kg: { titulo: "Kilos movidos", unidad: "kg", valor: (b) => b.kg_moved },
+  cardioSets: { titulo: "Series de cardio", unidad: "series", valor: (b) => b.cardio_sets_done },
   cardio: { titulo: "Minutos de cardio", unidad: "min", valor: (b) => b.cardio_minutes },
   min: { titulo: "Minutos entrenando", unidad: "min", valor: (b) => b.duration_minutes },
 };
@@ -107,12 +108,21 @@ export function ResumenPeriodo({ tramo, selector }: { tramo: Tramo; selector?: R
   const puedeAvanzar = hoy !== null && inicioDe(fecha, tramo) < inicioDe(hoy, tramo);
   const puedeRetroceder = datos.first_date !== null && inicioDe(fecha, tramo) > inicioDe(datos.first_date, tramo);
   const sinNada = datos.days_trained === 0;
-  const cartas: { id: Metrica; valor: string; texto: string; azul?: boolean }[] = [
-    ...(tramo !== "day" ? [{ id: "days" as const, valor: String(datos.days_trained), texto: "días entrenados" }] : []),
-    { id: "sets", valor: `${datos.sets_done}/${datos.sets_planned}`, texto: "series hechas" },
-    { id: "kg", valor: num(datos.kg_moved), texto: "kg movidos", azul: true },
-    ...(datos.cardio_minutes > 0 ? [{ id: "cardio" as const, valor: String(datos.cardio_minutes), texto: "min de cardio" }] : []),
-    ...(datos.duration_minutes !== null ? [{ id: "min" as const, valor: String(datos.duration_minutes), texto: "min entrenando" }] : []),
+  type Carta = { id: Metrica; valor: string; texto: string; azul?: boolean };
+  // De a dos por fila: series y kilos; días y tiempo; series y minutos de cardio. La que queda sola va ancha.
+  const filas: (Carta | false)[][] = [
+    [
+      { id: "sets", valor: `${datos.sets_done}/${datos.sets_planned}`, texto: "series hechas" },
+      { id: "kg", valor: num(datos.kg_moved), texto: "kg movidos", azul: true },
+    ],
+    [
+      tramo !== "day" && { id: "days", valor: String(datos.days_trained), texto: "días entrenados" },
+      datos.duration_minutes !== null && { id: "min", valor: String(datos.duration_minutes), texto: "min entrenando" },
+    ],
+    [
+      datos.cardio_sets_done > 0 && { id: "cardioSets", valor: String(datos.cardio_sets_done), texto: "series de cardio" },
+      datos.cardio_minutes > 0 && { id: "cardio", valor: String(datos.cardio_minutes), texto: "min de cardio" },
+    ],
   ];
 
   return (
@@ -141,22 +151,24 @@ export function ResumenPeriodo({ tramo, selector }: { tramo: Tramo; selector?: R
               <p className="mt-0 text-muted-foreground">Completado · lo que hiciste este día</p>
             </>
           )}
+          {tramo !== "day" && datos.buckets.length > 0 && <Barras datos={datos} tramo={tramo} metrica={metrica} />}
           <div className="mb-4 grid grid-cols-2 gap-2">
-            {cartas.map((c, i) => (
-              <Numero
-                key={c.id}
-                valor={c.valor}
-                texto={c.texto}
-                azul={c.azul}
-                // "Días entrenados" va solo y ancho arriba; si lo de abajo queda impar, la última también.
-                ancha={c.id === "days" || (i === cartas.length - 1 && (cartas.length - (cartas[0].id === "days" ? 1 : 0)) % 2 === 1)}
-                activa={tramo !== "day" && metrica === c.id}
-                onElegir={tramo === "day" ? undefined : () => setMetrica(c.id)}
-              />
-            ))}
+            {filas.map((fila) => {
+              const cartas = fila.filter((c): c is Carta => c !== false);
+              return cartas.map((c) => (
+                <Numero
+                  key={c.id}
+                  valor={c.valor}
+                  texto={c.texto}
+                  azul={c.azul}
+                  ancha={cartas.length === 1}
+                  activa={tramo !== "day" && metrica === c.id}
+                  onElegir={tramo === "day" ? undefined : () => setMetrica(c.id)}
+                />
+              ));
+            })}
           </div>
 
-          {tramo !== "day" && datos.buckets.length > 0 && <Barras datos={datos} tramo={tramo} metrica={metrica} />}
           {tramo === "day" && <ComoTeFueResumen ejercicios={datos.results} vacio="Este día no registraste series." />}
         </>
       )}

@@ -180,3 +180,34 @@ def test_los_musculos_del_dia_respetan_la_zona_horaria(api):
 
     assert series(musculos(api, "day", "2026-10-07", tz=-180))["chest"][0] == 1
     assert series(musculos(api, "day", "2026-10-08", tz=-180))["chest"][0] == 0
+
+
+def test_las_series_de_cardio_van_aparte_de_las_de_fuerza(api):
+    semana = crear_semana(api, date(2026, 10, 5), PlanStatus.ACTIVE)
+    entrenar(api, semana, 1, utc(2026, 10, 7), reps=10, peso=50)
+    with api.session() as db:
+        user = db.scalar(select(User).where(User.email == DEV_USER_EMAIL))
+        dia = db.scalar(select(PlanDay).where(PlanDay.week_plan_id == semana, PlanDay.day_index == 2))
+        sesion = WorkoutSession(user_id=user.id, plan_day_id=dia.id, finished_at=utc(2026, 10, 8))
+        db.add(sesion)
+        db.flush()
+        cinta = next(e for e in dia.exercises if e.exercise.name == "Cinta")
+        db.add(
+            SetEntry(
+                session_id=sesion.id,
+                plan_exercise_id=cinta.id,
+                plan_set_id=cinta.sets[0].id,
+                exercise_id=cinta.exercise_id,
+                set_number=1,
+                duration_minutes=30,
+            )
+        )
+        db.commit()
+
+    cuerpo = periodo(api, "week", "2026-10-07")
+
+    assert cuerpo["sets_done"] == 1  # solo el press
+    assert cuerpo["cardio_sets_done"] == 1
+    assert cuerpo["cardio_minutes"] == 30
+    assert sum(b["sets_done"] for b in cuerpo["buckets"]) == 1
+    assert sum(b["cardio_sets_done"] for b in cuerpo["buckets"]) == 1

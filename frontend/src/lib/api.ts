@@ -328,6 +328,7 @@ export type PeriodBucket = {
   days_trained: number;
   sets_done: number;
   kg_moved: number;
+  cardio_sets_done: number;
   cardio_minutes: number;
   duration_minutes: number;
 };
@@ -350,6 +351,7 @@ export type PeriodSummary = {
   sets_done: number;
   sets_planned: number;
   kg_moved: number;
+  cardio_sets_done: number; // las series de cardio van aparte: sets_done y sets_planned son de fuerza
   cardio_minutes: number;
   duration_minutes: number | null;
   buckets: PeriodBucket[]; // una barra por día (mes) o por mes (año); vacío en el día

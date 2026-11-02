@@ -599,6 +599,7 @@ class PeriodBucketOut(BaseModel):
     days_trained: int
     sets_done: int
     kg_moved: float
+    cardio_sets_done: int = 0
     cardio_minutes: int = 0
     duration_minutes: int = 0  # lo que tardó, en minutos; 0 si no se midió
 
@@ -635,6 +636,7 @@ class PeriodSummaryOut(BaseModel):
     sets_done: int
     sets_planned: int
     kg_moved: float
+    cardio_sets_done: int = 0  # las series de cardio van aparte: sets_done y sets_planned son de fuerza
     cardio_minutes: int
     duration_minutes: int | None = None  # suma de los días que se midieron
     buckets: list[PeriodBucketOut]  # vacío para el día

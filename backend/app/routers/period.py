@@ -11,6 +11,7 @@ from app.db import get_db
 from app.deps import get_current_user
 from app.ai.catalog import DETAIL_MUSCLES, detail_muscles_of
 from app.ai.history import signal
+from app.enums import ExerciseKind
 from app.models import PlanDay, PlanExercise, PlanSet, SetEntry, User, WorkoutSession
 from app.ai.rules import BIG_GROUPS, COMPLEMENT
 from app.routers.weeks import MIN_WEEKLY_SETS, day_entries, measured_minutes, routine_weeks
@@ -71,13 +72,14 @@ def get_period_summary(
     number_cache: dict[int, dict[int, int]] = {}
     all_days: set[date] = set()
     days: set[date] = set()
-    sets_done = sets_planned = cardio = 0
+    sets_done = sets_planned = cardio = cardio_sets = 0
     kg = Decimal(0)
     durations: list[int] = []
     sessions: list[PeriodSessionOut] = []
     # Por ejercicio: series hechas y la mejor marca (peso o, si no hay, repeticiones/duración).
     exercises: dict[int, dict] = {}
-    # Por barra (día del mes o mes del año): días entrenados, series, kilos, cardio y minutos entrenando.
+    # Por barra (día del mes o mes del año): días entrenados, series de fuerza, kilos, series y minutos de
+    # cardio y minutos entrenando.
     buckets: dict[date, dict] = {}
     # Solo el día: las series de cada ejercicio, planificadas y realizadas, para la señal.
     pairs_by_exercise: dict[int, list[tuple[PlanSet, SetEntry | None]]] = {}
@@ -114,22 +116,29 @@ def get_period_summary(
             )
         )
         key = local if period in ("week", "month") else local.replace(day=1)
-        bucket = buckets.setdefault(key, {"days": set(), "sets": 0, "kg": Decimal(0), "cardio": 0, "min": 0})
+        bucket = buckets.setdefault(key, {"days": set(), "sets": 0, "kg": Decimal(0), "cardio": 0, "cardio_sets": 0, "min": 0})
         bucket["days"].add(local)
         bucket["min"] += minutes or 0
 
         entries = day_entries(db, day)
         for plan_exercise in day.exercises:
             plan_exercises.setdefault(plan_exercise.exercise_id, plan_exercise)
+            is_cardio = plan_exercise.exercise.kind == ExerciseKind.CARDIO
             for plan_set in plan_exercise.sets:
-                sets_planned += 1
+                if not is_cardio:
+                    sets_planned += 1
                 entry = entries.get(plan_set.id)
                 if period in ("day", "week"):
                     pairs_by_exercise.setdefault(plan_exercise.exercise_id, []).append((plan_set, entry))
                 if entry is None:
                     continue
-                sets_done += 1
-                bucket["sets"] += 1
+                # Las series de cardio se cuentan aparte: "series hechas" es solo de fuerza.
+                if is_cardio:
+                    cardio_sets += 1
+                    bucket["cardio_sets"] += 1
+                else:
+                    sets_done += 1
+                    bucket["sets"] += 1
                 cardio += entry.duration_minutes or 0
                 bucket["cardio"] += entry.duration_minutes or 0
                 moved = (
@@ -159,6 +168,7 @@ def get_period_summary(
                     days_trained=len(b["days"]) if b else 0,
                     sets_done=b["sets"] if b else 0,
                     kg_moved=float(b["kg"]) if b else 0.0,
+                    cardio_sets_done=b["cardio_sets"] if b else 0,
                     cardio_minutes=b["cardio"] if b else 0,
                     duration_minutes=b["min"] if b else 0,
                 )
@@ -174,6 +184,7 @@ def get_period_summary(
                     days_trained=len(b["days"]) if b else 0,
                     sets_done=b["sets"] if b else 0,
                     kg_moved=float(b["kg"]) if b else 0.0,
+                    cardio_sets_done=b["cardio_sets"] if b else 0,
                     cardio_minutes=b["cardio"] if b else 0,
                     duration_minutes=b["min"] if b else 0,
                 )
@@ -189,6 +200,7 @@ def get_period_summary(
                     days_trained=len(b["days"]) if b else 0,
                     sets_done=b["sets"] if b else 0,
                     kg_moved=float(b["kg"]) if b else 0.0,
+                    cardio_sets_done=b["cardio_sets"] if b else 0,
                     cardio_minutes=b["cardio"] if b else 0,
                     duration_minutes=b["min"] if b else 0,
                 )
@@ -203,6 +215,7 @@ def get_period_summary(
         sets_done=sets_done,
         sets_planned=sets_planned,
         kg_moved=float(kg),
+        cardio_sets_done=cardio_sets,
         cardio_minutes=cardio,
         duration_minutes=sum(durations) if durations else None,
         buckets=out_buckets,
