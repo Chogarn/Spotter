@@ -12,7 +12,6 @@ import { InfoEjercicio } from "@/components/InfoEjercicio";
 import { Flecha } from "@/components/Flecha";
 import { DoneControl } from "@/components/DoneControl";
 import { ErrorMessage } from "@/components/ErrorMessage";
-import { SemanaPasada } from "@/components/SemanaPasada";
 import { usePeriodo } from "@/components/SelectorPeriodo";
 import { SetRow } from "@/components/SetRow";
 import { Button } from "@/components/ui/button";
@@ -285,7 +284,7 @@ export default function EntrenarView({
             aria-current={pos?.ej === CALOR ? "step" : undefined}
             className={cn(
               "h-2 flex-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-              pos?.ej === CALOR ? "bg-disco-tinta" : empezoElDia(actual) ? "bg-disco-rojo" : "bg-border",
+              pos?.ej === CALOR ? "bg-disco-tinta" : empezoElDia(actual) ? "bg-disco-verde" : "bg-border",
             )}
           />
         )}
@@ -299,7 +298,7 @@ export default function EntrenarView({
             aria-current={pos?.ej === i ? "step" : undefined}
             className={cn(
               "h-2 flex-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-              pos?.ej === i ? "bg-disco-tinta" : estaHecho(e) ? "bg-disco-rojo" : "bg-border",
+              pos?.ej === i ? "bg-disco-tinta" : estaHecho(e) ? "bg-disco-verde" : "bg-border",
             )}
           />
         ))}
@@ -318,6 +317,8 @@ export default function EntrenarView({
         <EntradaEnCalor
           dia={actual}
           registra={registra}
+          // Se da por hecha en cuanto hay algo registrado en el día (igual que la barra de arriba).
+          hecha={empezoElDia(actual)}
           onEmpezar={() => {
             const siguiente = proximoEjercicio(actual, CALOR);
             setPos(siguiente === null ? null : { ej: siguiente, serie: serieInicial(actual.exercises[siguiente]) });
@@ -375,25 +376,48 @@ function CierreDelDia() {
   return <Cargando />;
 }
 
+// "5 a 10 min de movilidad de cadera" → el tiempo en grande ("5 a 10 min") y lo que queda del texto
+// ("Movilidad de cadera"), como la serie en grande. Si el texto no empieza con minutos, null: se
+// muestra entero.
+function tiempoDeCalor(texto: string | null): { tiempo: string; resto: string } | null {
+  const m = texto?.trim().match(/^(\d+)(?:\s*(?:a|-|–)\s*(\d+))?\s*(?:minutos|min)\b\.?\s*(?:de\s+)?(.*)$/i);
+  if (!m) return null;
+  const resto = m[3].trim();
+  return {
+    tiempo: `${m[2] ? `${m[1]} a ${m[2]}` : m[1]} min`,
+    resto: resto ? resto.charAt(0).toUpperCase() + resto.slice(1) : "",
+  };
+}
+
 // La entrada en calor en grande, como un ejercicio más pero sin series: el texto y un botón para
 // pasar al primer ejercicio sin hacer.
 function EntradaEnCalor({
   dia,
   registra,
+  hecha,
   onEmpezar,
 }: {
   dia: DayDetail;
   registra: boolean;
+  hecha: boolean;
   onEmpezar: () => void;
 }) {
-  const siguiente = registra ? proximoEjercicio(dia, CALOR) : null;
+  const siguiente = registra && !hecha ? proximoEjercicio(dia, CALOR) : null;
+  const calor = tiempoDeCalor(dia.mobility_notes);
   return (
     <>
       <h1 className="my-0 text-4xl">Entrada en calor</h1>
-      <section className="mt-3 rounded-2xl bg-card p-5">
-        <p className="m-0">{dia.mobility_notes}</p>
+      <section className="mt-3 rounded-2xl bg-card p-5 text-center">
+        {calor ? (
+          <>
+            <p className="my-2 font-heading text-7xl leading-none font-bold">{calor.tiempo}</p>
+            <p className="m-0 text-muted-foreground">{calor.resto}</p>
+          </>
+        ) : (
+          <p className="m-0">{dia.mobility_notes}</p>
+        )}
       </section>
-      {registra && (
+      {registra && !hecha && (
         <Button size="xl" className="mt-4 w-full" type="button" onClick={onEmpezar}>
           Listo, empezar
         </Button>
@@ -437,12 +461,24 @@ function Ejercicio({
   const hecho = estaHecho(ejercicio);
   // Se registra serie por serie solo con el día abierto y el ejercicio sin cerrar.
   const enCurso = registra && !hecho;
-  const siguiente = registra ? proximoEjercicio(dia, pos.ej) : null;
+  // "Después" solo con el ejercicio en curso y si queda alguno más adelante: en el último no se da la
+  // vuelta al primero, y en uno ya hecho no hace falta.
+  const proximo = registra && !hecho ? proximoEjercicio(dia, pos.ej) : null;
+  const siguiente = proximo !== null && proximo > pos.ej ? proximo : null;
 
   return (
     <>
       <div className="flex items-start justify-between gap-3">
-        <h1 className="my-0 text-4xl">{ejercicio.name}</h1>
+        {/* Altura fija de dos líneas, y la letra se achica si el nombre es largo: así el cuadro de la
+            serie no sube ni baja de un ejercicio a otro según cuánto mida el título. */}
+        <h1
+          className={cn(
+            "my-0 min-h-20",
+            ejercicio.name.length <= 18 ? "text-4xl" : ejercicio.name.length <= 36 ? "text-3xl" : "text-2xl",
+          )}
+        >
+          {ejercicio.name}
+        </h1>
         <InfoEjercicio
           nombre={ejercicio.name}
           comoHacerlo={ejercicio.execution_notes}
@@ -450,7 +486,6 @@ function Ejercicio({
           className="mt-1.5"
         />
       </div>
-      {hecho && <p className="mt-1 mb-0 text-sm text-muted-foreground">Ejercicio hecho</p>}
 
       {enCurso ? (
         <SerieEnGrande
@@ -473,7 +508,6 @@ function Ejercicio({
               <SetRow key={i} kind={ejercicio.kind} index={i} set={s} />
             ))}
           </ul>
-          <SemanaPasada ejercicio={ejercicio} />
         </section>
       )}
 
@@ -533,7 +567,6 @@ function SerieEnGrande({
   const mostrada = real ? realAsSet(real) : serie;
   const todas = ejercicio.sets.every((s) => s.real);
   const boton = !real ? "Serie hecha" : todas ? "Terminar ejercicio" : "Siguiente serie";
-  const anterior = ejercicio.previous;
 
   // Mientras corre el descanso de este ejercicio, el círculo ocupa el lugar de la serie (decisión 48).
   if (descanso.corriendo?.clave === clave) {
@@ -562,20 +595,12 @@ function SerieEnGrande({
             <Pencil />
           </Button>
         )}
-        <p className="m-0 text-sm text-muted-foreground">
-          Serie {pos.serie + 1} de {ejercicio.sets.length}
-          {real && " · hecha"}
-        </p>
         <Medida kind={ejercicio.kind} serie={mostrada} />
         {real && differsFromPlan(serie, real) && (
           <p className="m-0 text-sm text-muted-foreground">tocaba {setText(ejercicio.kind, serie)}</p>
         )}
-        {anterior && (
-          <p className="mt-2 mb-0 text-sm text-muted-foreground">
-            Semana pasada:{" "}
-            {anterior[pos.serie] ? setText(ejercicio.kind, realAsSet(anterior[pos.serie]!)) : "sin registrar"}
-          </p>
-        )}
+        {/* En el cardio (una sola vuelta, en minutos) los discos de serie no aportan nada. */}
+        {ejercicio.kind !== "cardio" && (
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           {ejercicio.sets.map((s, i) => (
             <button
@@ -596,6 +621,7 @@ function SerieEnGrande({
             </button>
           ))}
         </div>
+        )}
       </section>
 
       {corrigiendo ? (
