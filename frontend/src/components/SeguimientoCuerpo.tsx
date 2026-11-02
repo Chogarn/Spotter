@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ReglaNumero } from "@/components/Asistente";
 import { GraficoCuerpo } from "@/components/GraficoCuerpo";
 import { Confirmar } from "@/components/Confirmar";
 import { sumar } from "@/components/ResumenPeriodo";
@@ -223,25 +224,39 @@ export function Formulario({
   const dos = (n: number) => String(n).padStart(2, "0");
   const hoy = `${ahora.getFullYear()}-${dos(ahora.getMonth() + 1)}-${dos(ahora.getDate())}`;
   const [fecha, setFecha] = useState(medicion?.measured_on ?? hoy);
-  const [peso, setPeso] = useState(medicion ? String(Number(medicion.weight_kg)).replace(".", ",") : "");
+  // La regla arranca en tu última medición (o en la que estás corrigiendo); null mientras se busca.
+  const [peso, setPeso] = useState<number | null>(medicion ? Number(medicion.weight_kg) : null);
   const [grasa, setGrasa] = useState(
     medicion?.body_fat_pct != null ? String(Number(medicion.body_fat_pct)).replace(".", ",") : "",
   );
+  const [verGrasa, setVerGrasa] = useState(medicion?.body_fat_pct != null);
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
 
+  useEffect(() => {
+    if (medicion) return;
+    let vigente = true;
+    apiFetch(`/measurements`)
+      .then(async (res) => (res.ok ? ((await res.json()) as Measurement[]) : []))
+      .catch(() => [] as Measurement[])
+      .then((filas) => vigente && setPeso(filas[0] ? Number(filas[0].weight_kg) : 70));
+    return () => {
+      vigente = false;
+    };
+  }, [medicion]);
+
   async function guardar() {
-    const kg = aNumero(peso);
+    const kg = peso;
     const pct = aNumero(grasa);
-    if (kg === null || kg < 30 || kg > 300) return setError("Escribí un peso entre 30 y 300 kg");
-    if (grasa.trim() !== "" && (pct === null || pct < 2 || pct > 70)) return setError("La grasa corporal va entre 2 y 70 %");
+    if (kg === null) return;
+    if (verGrasa && grasa.trim() !== "" && (pct === null || pct < 2 || pct > 70)) return setError("La grasa corporal va entre 2 y 70 %");
     setError("");
     setGuardando(true);
     try {
       const res = await apiFetch(medicion ? `/measurements/${medicion.id}` : `/measurements`, {
         method: medicion ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ weight_kg: kg, body_fat_pct: pct, measured_on: fecha || null }),
+        body: JSON.stringify({ weight_kg: kg, body_fat_pct: verGrasa ? pct : null, measured_on: fecha || null }),
       });
       if (!res.ok) {
         setError(errorText((await res.json()).detail));
@@ -267,55 +282,59 @@ export function Formulario({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="grid gap-3">
-          <div>
-            <Label>Fecha</Label>
-            <div id="med-fecha" className="flex items-center gap-1 rounded-full border border-input bg-background px-1">
-              <button
-                type="button"
-                aria-label="Día anterior"
-                onClick={() => setFecha(sumar(fecha, "day", -1))}
-                className="grid size-9 place-items-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                <ChevronLeft className="size-5" aria-hidden="true" />
-              </button>
-              <span className="flex-1 text-center font-heading text-xl">{fecha.split("-").reverse().join("/")}</span>
-              <button
-                type="button"
-                aria-label="Día siguiente"
-                disabled={fecha >= hoy}
-                onClick={() => setFecha(sumar(fecha, "day", 1))}
-                className="grid size-9 place-items-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-25"
-              >
-                <ChevronRight className="size-5" aria-hidden="true" />
-              </button>
+          <div className="flex items-center justify-center gap-1">
+            <button
+              type="button"
+              aria-label="Día anterior"
+              onClick={() => setFecha(sumar(fecha, "day", -1))}
+              className="grid size-9 place-items-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <ChevronLeft className="size-5" aria-hidden="true" />
+            </button>
+            <span className="min-w-32 rounded-full border border-input bg-background px-3 py-1 text-center text-sm">
+              {fecha === hoy ? "Hoy" : fecha.split("-").reverse().join("/")}
+            </span>
+            <button
+              type="button"
+              aria-label="Día siguiente"
+              disabled={fecha >= hoy}
+              onClick={() => setFecha(sumar(fecha, "day", 1))}
+              className="grid size-9 place-items-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-25"
+            >
+              <ChevronRight className="size-5" aria-hidden="true" />
+            </button>
+          </div>
+          {peso === null ? (
+            <p role="status" className="m-0 py-10 text-center text-muted-foreground">Cargando...</p>
+          ) : (
+            <ReglaNumero valor={peso} min={30} max={300} paso={0.1} unidad="kg" etiqueta="el peso" cadaCuantas={5} onChange={setPeso} />
+          )}
+          {verGrasa ? (
+            <div>
+              <Label htmlFor="med-grasa">Grasa corporal (%)</Label>
+              <Input
+                id="med-grasa"
+                inputMode="decimal"
+                placeholder="Ej: 18,5"
+                value={grasa}
+                onChange={(e) => setGrasa(e.target.value)}
+              />
+              <small>Si tenés una balanza biométrica.</small>
             </div>
-          </div>
-          <div>
-            <Label htmlFor="med-peso">Peso (kg)</Label>
-            <Input
-              id="med-peso"
-              inputMode="decimal"
-              placeholder="Ej: 78,4"
-              value={peso}
-              onChange={(e) => setPeso(e.target.value)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="med-grasa">Grasa corporal (%) (opcional)</Label>
-            <Input
-              id="med-grasa"
-              inputMode="decimal"
-              placeholder="Ej: 18,5"
-              value={grasa}
-              onChange={(e) => setGrasa(e.target.value)}
-            />
-            <small>Si tenés una balanza biométrica.</small>
-          </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setVerGrasa(true)}
+              className="flex items-center justify-center gap-1 rounded-lg py-1 text-sm text-disco-azul outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <Plus className="size-4" aria-hidden="true" /> Agregar grasa corporal
+            </button>
+          )}
           {error && <InlineError>{error}</InlineError>}
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={guardando}>Cancelar</AlertDialogCancel>
-          <Button type="button" onClick={guardar} disabled={guardando}>
+          <Button type="button" onClick={guardar} disabled={guardando || peso === null}>
             {guardando ? "Guardando..." : "Guardar"}
           </Button>
         </AlertDialogFooter>
