@@ -109,21 +109,26 @@ export function ResumenPeriodo({ tramo, selector }: { tramo: Tramo; selector?: R
   const puedeRetroceder = datos.first_date !== null && inicioDe(fecha, tramo) > inicioDe(datos.first_date, tramo);
   const sinNada = datos.days_trained === 0;
   type Carta = { id: Metrica; valor: string; texto: string; azul?: boolean };
-  // De a dos por fila: series y kilos; días y tiempo; series y minutos de cardio. La que queda sola va ancha.
-  const filas: (Carta | false)[][] = [
-    [
-      { id: "sets", valor: `${datos.sets_done}/${datos.sets_planned}`, texto: "series hechas" },
-      { id: "kg", valor: num(datos.kg_moved), texto: "kg movidos", azul: true },
-    ],
-    [
-      tramo !== "day" && { id: "days", valor: String(datos.days_trained), texto: "días entrenados" },
-      datos.duration_minutes !== null && { id: "min", valor: String(datos.duration_minutes), texto: "min entrenando" },
-    ],
-    [
-      datos.cardio_sets_done > 0 && { id: "cardioSets", valor: String(datos.cardio_sets_done), texto: "series de cardio" },
-      datos.cardio_minutes > 0 && { id: "cardio", valor: String(datos.cardio_minutes), texto: "min de cardio" },
-    ],
-  ];
+  const sets: Carta = { id: "sets", valor: `${datos.sets_done}/${datos.sets_planned}`, texto: "series hechas" };
+  const kg: Carta = { id: "kg", valor: num(datos.kg_moved), texto: "kg movidos", azul: true };
+  const min = datos.duration_minutes !== null && { id: "min" as const, valor: String(datos.duration_minutes), texto: "min entrenando" };
+  const cardio = datos.cardio_minutes > 0 && { id: "cardio" as const, valor: String(datos.cardio_minutes), texto: "min de cardio" };
+  // De a dos por fila. La que queda sola va ancha. El día es más corto: series y kilos, y los minutos
+  // entrenando junto a los de cardio. Semana, mes y año suman los días entrenados y las series de cardio.
+  const filas: (Carta | false)[][] =
+    tramo === "day"
+      ? [[sets, kg], [min, cardio]]
+      : [
+          [sets, kg],
+          [
+            { id: "days", valor: String(datos.days_trained), texto: "días entrenados" },
+            min,
+          ],
+          [
+            datos.cardio_sets_done > 0 && { id: "cardioSets", valor: String(datos.cardio_sets_done), texto: "series de cardio" },
+            cardio,
+          ],
+        ];
 
   return (
     <>
