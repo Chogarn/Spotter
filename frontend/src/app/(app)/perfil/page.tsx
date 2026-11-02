@@ -1,5 +1,6 @@
 "use client";
 
+import { InfoTexto } from "@/components/InfoTexto";
 import { Check, LogOut, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -203,8 +204,12 @@ export default function PerfilPage() {
       {pestana === "perfil" ? (
       <div role="tabpanel" id="panel-perfil" aria-labelledby="tab-perfil">
       <section className="mb-3 rounded-2xl bg-card p-4">
-        <div className="mb-3">
+        <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="my-0 text-xl">Tu cuerpo</h2>
+          <InfoTexto titulo="Sobre el IMC">
+            <p className="m-0">El IMC se calcula con tu peso y tu altura.</p>
+            <p className="m-0 mt-2">Es orientativo: no distingue músculo de grasa.</p>
+          </InfoTexto>
         </div>
         {/* A la vista, lo que cambia: el peso y el IMC, que se calcula con el peso y la altura (por eso
             no tiene lápiz ni lo pide el asistente). Lo demás, plegado (decisión 86). */}
@@ -218,9 +223,6 @@ export default function PerfilPage() {
           />
           <Dato valor={imc(form.weight_kg, form.height_cm)} unidad="IMC" />
         </div>
-        <p className="mt-2 mb-0 text-xs text-muted-foreground">
-          El IMC se calcula con tu peso y tu altura. Es orientativo: no distingue músculo de grasa.
-        </p>
         <details className="mt-3 border-t border-border pt-2">
           <summary className="cursor-pointer py-1.5 font-medium">Datos personales</summary>
           <div className="mt-2 grid grid-cols-2 gap-2">
