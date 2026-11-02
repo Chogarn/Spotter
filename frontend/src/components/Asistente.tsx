@@ -173,6 +173,8 @@ export function ReglaNumero({
   etiqueta,
   cadaCuantas,
   vertical = false,
+  compacta = false,
+  sinBotones = false,
   onChange,
 }: {
   valor: number;
@@ -185,6 +187,10 @@ export function ReglaNumero({
   cadaCuantas: number;
   // Regla vertical: se desliza hacia arriba y abajo y el valor crece hacia arriba.
   vertical?: boolean;
+  // Más chica (número y regla), para poner dos en la misma ventana.
+  compacta?: boolean;
+  // Sin los botones − y +: solo se ajusta deslizando la regla.
+  sinBotones?: boolean;
   onChange: (v: number) => void;
 }) {
   const regla = useRef<HTMLDivElement>(null);
@@ -228,25 +234,25 @@ export function ReglaNumero({
 
   const mostrado = formatear(valor, paso);
   const baja = (
-    <Button type="button" size="icon-lg" variant="outline" onClick={() => mover(-paso)}
+    <Button type="button" size={compacta ? "icon" : "icon-lg"} variant="outline" onClick={() => mover(-paso)}
       disabled={valor <= min} aria-label={`Bajar ${etiqueta}`}>
       <Minus />
     </Button>
   );
   const sube = (
-    <Button type="button" size="icon-lg" variant="outline" onClick={() => mover(paso)}
+    <Button type="button" size={compacta ? "icon" : "icon-lg"} variant="outline" onClick={() => mover(paso)}
       disabled={valor >= max} aria-label={`Subir ${etiqueta}`}>
       <Plus />
     </Button>
   );
   const numero = (
     <p
-      className="m-0 text-center font-heading text-8xl leading-none font-bold tabular-nums"
+      className={cn("m-0 text-center font-heading leading-none font-bold tabular-nums", compacta ? "text-5xl" : "text-8xl")}
       role="status"
       aria-label={`${etiqueta}: ${mostrado} ${unidad}`}
     >
       {mostrado}
-      <span className="ml-1.5 text-2xl font-medium text-muted-foreground">{unidad}</span>
+      <span className={cn("ml-1.5 font-medium text-muted-foreground", compacta ? "text-lg" : "text-2xl")}>{unidad}</span>
     </p>
   );
 
@@ -278,7 +284,7 @@ export function ReglaNumero({
         aria-hidden="true"
         className={cn(
           "flex overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-          vertical ? "h-72 w-24 touch-pan-y flex-col" : "h-16 touch-pan-x",
+          vertical ? "h-72 w-24 touch-pan-y flex-col" : compacta ? "h-11 touch-pan-x" : "h-16 touch-pan-x",
         )}
       >
         <div className={cn("shrink-0", vertical ? "h-1/2" : "w-1/2")} />
@@ -313,11 +319,11 @@ export function ReglaNumero({
   return (
     <div>
       <div className="flex items-center justify-center gap-3">
-        {baja}
+        {!sinBotones && baja}
         {numero}
-        {sube}
+        {!sinBotones && sube}
       </div>
-      <div className="mt-10">{cinta}</div>
+      <div className={compacta ? "mt-3" : "mt-10"}>{cinta}</div>
     </div>
   );
 }

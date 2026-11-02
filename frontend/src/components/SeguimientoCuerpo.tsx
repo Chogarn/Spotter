@@ -7,14 +7,11 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ReglaNumero } from "@/components/Asistente";
 import { GraficoCuerpo } from "@/components/GraficoCuerpo";
 import { Confirmar } from "@/components/Confirmar";
@@ -226,10 +223,9 @@ export function Formulario({
   const [fecha, setFecha] = useState(medicion?.measured_on ?? hoy);
   // La regla arranca en tu última medición (o en la que estás corrigiendo); null mientras se busca.
   const [peso, setPeso] = useState<number | null>(medicion ? Number(medicion.weight_kg) : null);
-  const [grasa, setGrasa] = useState(
-    medicion?.body_fat_pct != null ? String(Number(medicion.body_fat_pct)).replace(".", ",") : "",
-  );
-  const [verGrasa, setVerGrasa] = useState(medicion?.body_fat_pct != null);
+  // La grasa es opcional: null es "sin cargar". Al agregarla, la regla arranca en tu última grasa (o en 20).
+  const [grasa, setGrasa] = useState<number | null>(medicion?.body_fat_pct != null ? Number(medicion.body_fat_pct) : null);
+  const [ultimaGrasa, setUltimaGrasa] = useState(20);
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
 
@@ -239,7 +235,12 @@ export function Formulario({
     apiFetch(`/measurements`)
       .then(async (res) => (res.ok ? ((await res.json()) as Measurement[]) : []))
       .catch(() => [] as Measurement[])
-      .then((filas) => vigente && setPeso(filas[0] ? Number(filas[0].weight_kg) : 70));
+      .then((filas) => {
+        if (!vigente) return;
+        setPeso(filas[0] ? Number(filas[0].weight_kg) : 70);
+        const conGrasa = filas.find((f) => f.body_fat_pct !== null);
+        if (conGrasa) setUltimaGrasa(Number(conGrasa.body_fat_pct));
+      });
     return () => {
       vigente = false;
     };
@@ -247,16 +248,14 @@ export function Formulario({
 
   async function guardar() {
     const kg = peso;
-    const pct = aNumero(grasa);
     if (kg === null) return;
-    if (verGrasa && grasa.trim() !== "" && (pct === null || pct < 2 || pct > 70)) return setError("La grasa corporal va entre 2 y 70 %");
     setError("");
     setGuardando(true);
     try {
       const res = await apiFetch(medicion ? `/measurements/${medicion.id}` : `/measurements`, {
         method: medicion ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ weight_kg: kg, body_fat_pct: verGrasa ? pct : null, measured_on: fecha || null }),
+        body: JSON.stringify({ weight_kg: kg, body_fat_pct: grasa, measured_on: fecha || null }),
       });
       if (!res.ok) {
         setError(errorText((await res.json()).detail));
@@ -277,11 +276,8 @@ export function Formulario({
           <AlertDialogTitle className="font-heading text-2xl font-bold">
             {medicion ? "Corregir medición" : "Cargar peso"}
           </AlertDialogTitle>
-          <AlertDialogDescription>
-            Si ya cargaste otra ese día, se reemplaza. Tu peso del perfil queda en el de la medición más nueva.
-          </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="grid gap-3">
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
           <div className="flex items-center justify-center gap-1">
             <button
               type="button"
@@ -307,28 +303,37 @@ export function Formulario({
           {peso === null ? (
             <p role="status" className="m-0 py-10 text-center text-muted-foreground">Cargando...</p>
           ) : (
-            <ReglaNumero valor={peso} min={30} max={300} paso={0.1} unidad="kg" etiqueta="el peso" cadaCuantas={5} onChange={setPeso} />
-          )}
-          {verGrasa ? (
-            <div>
-              <Label htmlFor="med-grasa">Grasa corporal (%)</Label>
-              <Input
-                id="med-grasa"
-                inputMode="decimal"
-                placeholder="Ej: 18,5"
-                value={grasa}
-                onChange={(e) => setGrasa(e.target.value)}
-              />
-              <small>Si tenés una balanza biométrica.</small>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setVerGrasa(true)}
-              className="flex items-center justify-center gap-1 rounded-lg py-1 text-sm text-disco-azul outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-            >
-              <Plus className="size-4" aria-hidden="true" /> Agregar grasa corporal
-            </button>
+            <>
+              <div className="min-w-0 overflow-hidden">
+                <p className="m-0 mb-1 text-sm text-muted-foreground">Peso</p>
+                <ReglaNumero compacta sinBotones valor={peso} min={30} max={300} paso={0.1} unidad="kg" etiqueta="el peso" cadaCuantas={5} onChange={setPeso} />
+              </div>
+              <div className="min-w-0 overflow-hidden border-t border-border pt-3">
+                {grasa === null ? (
+                  <button
+                    type="button"
+                    onClick={() => setGrasa(ultimaGrasa)}
+                    className="mx-auto flex items-center gap-1 rounded-lg py-1 text-sm text-disco-azul outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                  >
+                    <Plus className="size-4" aria-hidden="true" /> Agregar grasa corporal
+                  </button>
+                ) : (
+                  <>
+                    <div className="mb-1 flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Grasa corporal · opcional</span>
+                      <button
+                        type="button"
+                        onClick={() => setGrasa(null)}
+                        className="rounded-lg text-disco-azul outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                    <ReglaNumero compacta sinBotones valor={grasa} min={2} max={70} paso={0.1} unidad="%" etiqueta="la grasa corporal" cadaCuantas={5} onChange={setGrasa} />
+                  </>
+                )}
+              </div>
+            </>
           )}
           {error && <InlineError>{error}</InlineError>}
         </div>
