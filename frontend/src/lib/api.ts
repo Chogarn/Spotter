@@ -1,4 +1,6 @@
-export const API = process.env.NEXT_PUBLIC_API_URL;
+// En desarrollo y con Docker se define (http://localhost:8000). En Vercel no: el backend vive en el
+// mismo sitio, bajo /api (ver vercel.json), y la cookie de sesión viaja sin CORS.
+export const API = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 
 // Todas las llamadas a la API pasan por acá: mandan la cookie de sesión (httpOnly) y, si la sesión
 // no es válida (401), la cierran y llevan a /login. Las de /auth/ las maneja cada pantalla.

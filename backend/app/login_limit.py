@@ -7,6 +7,7 @@
 - Los números son una elección de diseño, sin fuente.
 """
 
+import os
 from datetime import datetime, timedelta, timezone
 
 from fastapi import Request
@@ -21,8 +22,16 @@ MAX_PER_IP = 20
 
 
 def client_ip(request: Request) -> str:
-    """La dirección de quien llama. Sin proxy delante es la real; si el despliegue pone uno hay que
-    leerla de su encabezado (hoy no se hace: un encabezado que manda el cliente se puede inventar)."""
+    """La dirección de quien llama. Sin proxy delante es la real.
+
+    En Vercel (variable VERCEL=1, que pone la plataforma) la conexión llega desde su proxy, así que
+    se lee `x-forwarded-for`: Vercel lo sobrescribe y no reenvía IPs de afuera, por eso no se puede
+    inventar (docs de Vercel, 'Request headers'). Fuera de Vercel el encabezado NO se mira: lo manda
+    el cliente."""
+    if os.environ.get("VERCEL"):
+        forwarded = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        if forwarded:
+            return forwarded
     return request.client.host if request.client else "desconocida"
 
 

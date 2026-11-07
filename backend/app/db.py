@@ -19,8 +19,23 @@ def get_database_url() -> str:
     return url
 
 
+def engine_options() -> dict:
+    """Ajustes del motor. En Vercel (VERCEL=1) la base se alcanza por la dirección con pool de Neon
+    (pgbouncer en modo transacción): no admite sentencias preparadas, y cada instancia de la función
+    tiene que usar pocas conexiones."""
+    if os.environ.get("VERCEL"):
+        return {
+            "connect_args": {"prepare_threshold": None},
+            "pool_size": 2,
+            "max_overflow": 2,
+            "pool_recycle": 300,
+            "pool_pre_ping": True,
+        }
+    return {}
+
+
 def get_engine() -> Engine:
-    return create_engine(get_database_url())
+    return create_engine(get_database_url(), **engine_options())
 
 
 @lru_cache
