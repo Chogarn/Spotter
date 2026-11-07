@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { InstalarApp } from "@/components/InstalarApp";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 
@@ -54,6 +55,8 @@ export default function Bienvenida() {
           >
             Crear cuenta
           </Button>
+          {/* Solo en el teléfono y si todavía no está instalada (PWA, 2026-11-07). */}
+          <InstalarApp className="h-12 text-base text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" />
         </div>
       </div>
     </main>

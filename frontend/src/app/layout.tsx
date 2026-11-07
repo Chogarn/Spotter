@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 
@@ -19,6 +19,15 @@ const barlowCondensed = Barlow_Condensed({
 export const metadata: Metadata = {
   title: "Spotter",
   description: "Entrenador de gimnasio con IA que arma tu semana según tu progreso real.",
+  // App instalada en iPhone (desde "Agregar a pantalla de inicio"): abre sin la barra de Safari
+  // y con este nombre bajo el ícono (`apple-icon.png`). La barra de la hora va en negro: el
+  // iPhone no acepta otro color ahí sin que la página se dibuje debajo de la hora.
+  appleWebApp: { capable: true, title: "Spotter", statusBarStyle: "black" },
+};
+
+// El color de la barra de arriba del teléfono (la de la hora): tinta, como la franja.
+export const viewport: Viewport = {
+  themeColor: "#172033",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
