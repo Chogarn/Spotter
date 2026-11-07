@@ -823,7 +823,7 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Por qué:** *(completar)*
 - **Descartaste:** los íconos B (disco sobre claro), C (la barra de la pestaña) y D ("SP" con disco); la barra de arriba clara; instalar solo desde el menú del navegador; una pantalla propia "Sin conexión"; un aviso en las pantallas de los enlaces del correo (por ahora).
 - **Decidió la IA sin preguntarte:** el botón va solo en la Bienvenida (la copia en Perfil › Cuenta quedó sin respuesta); en iPhone la barra de la hora es negra y no tinta (otro color obliga a dibujar la página debajo de la hora); el ícono de la pestaña sigue siendo la barra de tres colores; el mismo dibujo sirve de ícono "maskable".
-- **Ojo:** sin probar en un teléfono real: el aviso de instalar (solo aparece con HTTPS), los pasos de iPhone y la sesión dentro de la app instalada (en iPhone se espera que pida iniciar sesión una vez; los enlaces de los correos se abren en el navegador).
+- **Ojo:** probada por vos en un Android real el 2026-11-07 (se instaló desde la Bienvenida y se pudo iniciar sesión). Sin probar: los pasos de iPhone, la sesión al cerrar y volver a abrir, y la sesión en iPhone (en iPhone se espera que pida iniciar sesión una vez; los enlaces de los correos se abren en el navegador).
 
 ## Decisiones abiertas
 
