@@ -809,6 +809,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** nada importante.
 - **Ojo:** el respaldo con todo está en una carpeta del escritorio (`viaje-argentina`, con claves y datos personales).
 
+### 115. La web se abre al público con Standard Protection
+- **Fecha:** 2026-11-07
+- **Decisión:** la Vercel Authentication pasó de proteger todas las direcciones `*.vercel.app` a **Standard Protection** (`prod_deployment_urls_and_all_previews`). `https://spotter-vert.vercel.app` abre sin iniciar sesión en Vercel (comprobado con `curl`); las previews y las direcciones largas de cada despliegue siguen pidiendo login de Vercel. Se puede volver atrás cambiando el valor a `all_except_custom_domains`.
+- **Por qué:** *(completar)*
+- **Descartaste:** apagar la Vercel Authentication por completo (dejaría abiertas también las previews) y mandar solo un enlace temporal de 23 horas para el profesor.
+- **Decidió la IA sin preguntarte:** nada importante.
+- **Ojo:** los topes compartidos (400 llamadas por día a Gemini, `EMAIL_DAILY_LIMIT=50`) ahora los puede gastar cualquiera. El aviso legal visible (#34) sigue en espera. El registro, la verificación y "Generar rutina" no se probaron todavía con una cuenta ajena.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.

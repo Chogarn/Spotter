@@ -171,7 +171,7 @@ La web pública corre en **Vercel**: un solo proyecto con dos servicios, definid
 
 - **Variables en Vercel** (Settings, Environment Variables; tras cambiar una hay que volver a desplegar): `DATABASE_URL` (la dirección **con pool** de Neon), `JWT_SECRET`, `COOKIE_SECURE=true`, `APP_ENV=production`, `APP_URL` (la dirección pública), `GEMINI_*` (clave, modelo y topes, incluidos los de embeddings) y `SMTP_*` más `EMAIL_DAILY_LIMIT`. No hace falta `NEXT_PUBLIC_API_URL`: el frontend usa `/api`.
 - **Migraciones:** no corren solas. Se aplican desde tu PC con la dirección **directa** de Neon (sin `-pooler`): `docker compose -f docker-compose.dev.yml run --rm --no-deps -e DATABASE_URL="<dirección directa>" backend alembic upgrade head`. Después se copian los vectores del catálogo (`catalog_embeddings`) con `pg_dump --data-only -t catalog_embeddings`, o se indexa con `index_catalog`.
-- **Plan gratis:** Vercel Hobby es solo para uso personal no comercial; Vercel Services está en Beta. Con la Vercel Authentication activa, la web pide iniciar sesión en Vercel.
+- **Plan gratis:** Vercel Hobby es solo para uso personal no comercial; Vercel Services está en Beta. La dirección de producción es pública (Standard Protection de Vercel); las previews y las direcciones largas de cada despliegue piden iniciar sesión en Vercel.
 
 ### Tests del backend
 
