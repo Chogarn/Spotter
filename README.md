@@ -34,7 +34,9 @@ El proyecto se construye por etapas. Hoy funciona de punta a punta:
 - **Progreso:** resúmenes por día, semana, mes y año (con "Cómo te fue": superaste, cumpliste, no llegaste o subiste y bajaste en cada ejercicio, y números que se tocan para ver su gráfico), radar de músculos, mapa muscular sobre el cuerpo, evolución por ejercicio, calendario y seguimiento del peso con IMC. Solo se continúa la rutina más reciente.
 - **Interfaz** con el estilo "Disco" (inspirado en los discos de pesas) sobre shadcn/ui y Tailwind; ver [docs/sistema-de-diseno.md](docs/sistema-de-diseno.md).
 
-**Todavía no está:** el despliegue en producción, las capturas de pantalla en este archivo y la revisión de los criterios y del catálogo por una persona con formación en educación física.
+**Desplegada** (2026-11-07) en Vercel (frontend y backend) con la base en Neon; ver "Despliegue en la nube" más abajo.
+
+**Todavía no está:** las capturas de pantalla en este archivo, "Generar rutina" probada en la web publicada, la app instalable en el teléfono y la revisión de los criterios y del catálogo por una persona con formación en educación física.
 
 **Descartado por ahora:** el ajuste conversando durante la semana, la nota de cómo me sentí por día, el esfuerzo por serie y el semáforo de dolor con escala. En su lugar, la IA deduce el esfuerzo de la carga y las repeticiones y lee el comentario de cierre. El plan no se edita a mano: lo único editable es lo realizado, y el plan solo cambia con la semana nueva. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
@@ -161,7 +163,15 @@ docker compose -f docker-compose.prod.yml up --build -d
 
 Las migraciones se aplican solas en un paso previo (servicio `migrate`) y el backend arranca recién cuando terminan bien. **Después hay que indexar el catálogo una vez** (`docker compose -f docker-compose.prod.yml exec backend python -m app.scripts.index_catalog`): sin eso, la IA recibe todos los ejercicios sin ordenar por similitud. Para apagar: `docker compose -f docker-compose.prod.yml down`.
 
-Este compose corre la aplicación completa como en producción, en tu PC o en un servidor propio. El despliegue en la nube todavía no está definido.
+Este compose corre la aplicación completa como en producción, en tu PC o en un servidor propio.
+
+### Despliegue en la nube (Vercel y Neon)
+
+La web pública corre en **Vercel**: un solo proyecto con dos servicios, definidos en [`vercel.json`](vercel.json). El frontend (Next.js) atiende todo y `/api/*` va al backend (FastAPI); como Vercel no quita el prefijo, [`backend/app/vercel_entry.py`](backend/app/vercel_entry.py) monta la API bajo `/api`. La base es **PostgreSQL en Neon** (con pgvector). Cada `git push` a `main` despliega solo.
+
+- **Variables en Vercel** (Settings, Environment Variables; tras cambiar una hay que volver a desplegar): `DATABASE_URL` (la dirección **con pool** de Neon), `JWT_SECRET`, `COOKIE_SECURE=true`, `APP_ENV=production`, `APP_URL` (la dirección pública), `GEMINI_*` (clave, modelo y topes, incluidos los de embeddings) y `SMTP_*` más `EMAIL_DAILY_LIMIT`. No hace falta `NEXT_PUBLIC_API_URL`: el frontend usa `/api`.
+- **Migraciones:** no corren solas. Se aplican desde tu PC con la dirección **directa** de Neon (sin `-pooler`): `docker compose -f docker-compose.dev.yml run --rm --no-deps -e DATABASE_URL="<dirección directa>" backend alembic upgrade head`. Después se copian los vectores del catálogo (`catalog_embeddings`) con `pg_dump --data-only -t catalog_embeddings`, o se indexa con `index_catalog`.
+- **Plan gratis:** Vercel Hobby es solo para uso personal no comercial; Vercel Services está en Beta. Con la Vercel Authentication activa, la web pide iniciar sesión en Vercel.
 
 ### Tests del backend
 

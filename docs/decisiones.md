@@ -793,6 +793,22 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** que la lateral y la medial del tríceps vayan juntas (no hay ejercicios que las separen) y que las piezas finas de abajo de los gemelos sean el sóleo (es lo que mejor encaja con el dibujo, pero no se pudo confirmar).
 - **Ojo:** etiquetas sin fuentes. Probado con tests del backend (618) y mirado en el navegador con un usuario descartable (ya borrado) en la espalda del hombre; **no se vio la espalda de mujer con estas partes, la vista de frente ni un celular**.
 
+### 113. Se despliega todo en Vercel, con la base en Neon
+- **Fecha:** 2026-11-07
+- **Decisión:** la app pública corre **entera en Vercel**: el frontend (Next.js) y el backend (FastAPI) como dos servicios de un mismo proyecto (Vercel Services), más una base **PostgreSQL en Neon** (plan gratis, región Frankfurt, con pgvector). Dirección de producción: `https://spotter-vert.vercel.app`. Vercel manda `/api/*` al backend y todo lo demás al frontend, así la cookie de sesión viaja sin CORS. Cada `git push` a `main` despliega solo. Los correos salen por SMTP desde una cuenta de Gmail creada solo para Spotter, con contraseña de aplicación.
+- **Por qué:** *(completar)*
+- **Descartaste:** el backend en Render (el plan gratis duerme el servicio y su base gratis vence a los 30 días) y un servidor propio con el `docker-compose.prod.yml` (la IA lo recomendó por ser lo que ya estaba armado; elegiste Vercel). Un dominio propio, por ahora.
+- **Decidió la IA sin preguntarte:** la región Frankfurt (`fra1`) para el backend, junto a la base; que `vercel_entry.py` monte toda la API bajo `/api` (Vercel no quita el prefijo); que en Vercel el motor de la base apague las sentencias preparadas y use un pool de 2 conexiones (la dirección con pool de Neon lo exige); que el límite de intentos del login lea la IP de `x-forwarded-for` solo cuando existe `VERCEL`; un `JWT_SECRET` nuevo para producción; `EMAIL_DAILY_LIMIT=50` (el borrador del proyecto); y dejar activa la Vercel Authentication, que hoy pide iniciar sesión en Vercel para ver la web.
+- **Ojo:** Vercel Services está en **Beta**; el plan Hobby es solo para uso personal no comercial. Neon usa **Postgres 18** y el desarrollo la 17 (las migraciones corrieron bien, no se probó todo). La contraseña de Neon y el `JWT_SECRET` nuevo pasaron por la conversación con la IA: conviene **rotarlos**. Con la protección de Vercel activa, otra persona no puede entrar ni abrir el enlace del correo de verificación. Se probó el registro, la verificación y el perfil con una cuenta real; **no se probó "Generar rutina" en producción**.
+
+### 114. La web publicada arranca vacía
+- **Fecha:** 2026-11-07
+- **Decisión:** la base de Neon no lleva los datos de la PC (usuarios, rutinas, series, historial de la IA). Solo se copiaron las migraciones y los **127 vectores del catálogo** de ejercicios, que no tienen datos personales y así no se gastó cuota de embeddings. Las cuentas se crean registrándose.
+- **Por qué:** *(completar)*
+- **Descartaste:** subir el volcado entero (traía usuarios de prueba y datos personales) y subir solo tu usuario. Queda abierto subirlo más adelante si hace falta.
+- **Decidió la IA sin preguntarte:** nada importante.
+- **Ojo:** el respaldo con todo está en una carpeta del escritorio (`viaje-argentina`, con claves y datos personales).
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
@@ -806,4 +822,4 @@ Rachas, logros, entrada por voz y notificaciones. No son decisiones: están anot
 ## Falta revisar
 
 - El código del modelo ([`backend/app/models.py`](../backend/app/models.py)) frente a estas decisiones.
-- Datos sin verificar con la fuente oficial: planes gratuitos y límites de Gemini y de la plataforma de despliegue.
+- Datos sin verificar con la fuente oficial: los planes gratuitos de Gemini están verificados (CLAUDE.md); los de **Vercel Hobby** (300 s por función, uso no comercial, Services en Beta), **Neon Free** (1 GB, 100 horas de cómputo, pgvector incluido, sin tarjeta) y **Render** (se descartó) se verificaron el 2026-11-07. Siguen sin verificarse los costos de Google Play y la App Store, y las funciones extra de una PWA en iPhone.
