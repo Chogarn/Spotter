@@ -817,6 +817,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** nada importante.
 - **Ojo:** los topes compartidos (400 llamadas por día a Gemini, `EMAIL_DAILY_LIMIT=50`) ahora los puede gastar cualquiera. El aviso legal visible (#34) sigue en espera. El registro, la verificación y "Generar rutina" no se probaron todavía con una cuenta ajena.
 
+### 116. Spotter se puede instalar en el teléfono (PWA)
+- **Fecha:** 2026-11-07
+- **Decisión:** la web se puede instalar como app, sin tiendas: `app/manifest.ts` (nombre "Spotter", `display: "standalone"`, color tinta `#172033`) e íconos de 192, 512 y 180 px (iPhone). **Ícono:** el disco rojo del logo sobre tinta (opción A de cuatro). **Barra de arriba del teléfono:** tinta. **Cómo se ofrece:** un botón "Instalar la app en tu teléfono" en la **Bienvenida**, debajo de "Crear cuenta" (idea tuya; la maqueta lo ponía en Perfil › Cuenta); solo en el teléfono y si todavía no está instalada; en Android abre el aviso del navegador y en iPhone muestra los pasos del menú Compartir. **Sin internet:** no por ahora. **Sesiones:** se construye y se prueba en un teléfono real antes de agregar avisos sobre los enlaces de los correos.
+- **Por qué:** *(completar)*
+- **Descartaste:** los íconos B (disco sobre claro), C (la barra de la pestaña) y D ("SP" con disco); la barra de arriba clara; instalar solo desde el menú del navegador; una pantalla propia "Sin conexión"; un aviso en las pantallas de los enlaces del correo (por ahora).
+- **Decidió la IA sin preguntarte:** el botón va solo en la Bienvenida (la copia en Perfil › Cuenta quedó sin respuesta); en iPhone la barra de la hora es negra y no tinta (otro color obliga a dibujar la página debajo de la hora); el ícono de la pestaña sigue siendo la barra de tres colores; el mismo dibujo sirve de ícono "maskable".
+- **Ojo:** sin probar en un teléfono real: el aviso de instalar (solo aparece con HTTPS), los pasos de iPhone y la sesión dentro de la app instalada (en iPhone se espera que pida iniciar sesión una vez; los enlaces de los correos se abren en el navegador).
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
