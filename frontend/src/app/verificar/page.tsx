@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { PantallaAcceso } from "@/components/Acceso";
@@ -19,7 +18,6 @@ const yaMandados = new Set<string>();
 // iniciada. Una cuenta nueva sigue con sus datos personales (/perfil).
 export default function VerificarPage() {
   const token = useTokenDeLaDireccion();
-  const router = useRouter();
   const [fallo, setFallo] = useState("");
 
   useEffect(() => {
@@ -32,15 +30,17 @@ export default function VerificarPage() {
       body: JSON.stringify({ token }),
     })
       .then(async (res) => {
-        if (res.ok) return router.replace("/perfil");
+        // Carga completa y no router.replace: recién ahora hay sesión, y Next podría reutilizar una
+        // versión de /perfil guardada sin ella (que rebota al login). Ver login/page.tsx.
+        if (res.ok) return window.location.replace("/perfil");
         const motivo = await readError(res);
         // Si el enlace ya se usó pero la sesión está abierta (tocaron el enlace dos veces), se sigue.
         const sesion = await fetch(`${API}/auth/me`, { credentials: "include" });
-        if (sesion.ok) router.replace("/perfil");
+        if (sesion.ok) window.location.replace("/perfil");
         else setFallo(motivo);
       })
       .catch(() => setFallo("No se pudo conectar con el servidor"));
-  }, [token, router]);
+  }, [token]);
 
   const error = token === "" ? "El enlace no es válido o venció" : fallo;
 

@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 
 import { CampoAcceso, CampoContrasena, PantallaAcceso } from "@/components/Acceso";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -11,8 +10,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { API, readError } from "@/lib/api";
 
+// Al iniciar sesión se va a la portada con una carga COMPLETA de la página, no con router.push: Next
+// guarda en el navegador la versión de "/" que vio sin sesión (la bienvenida) y, al navegar por
+// dentro, la reutiliza sin preguntarle al servidor. Pasó en producción (Vercel, 2026-11-07).
+function irAInicio() {
+  window.location.replace("/");
+}
+
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   // "Recordarme": con la casilla tildada la sesión dura 30 días y no hay que volver a escribir la
@@ -20,18 +25,16 @@ export default function LoginPage() {
   const [recordar, setRecordar] = useState(true);
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
-  // `navegando` se apaga solo cuando la página nueva está lista (no dejar estados activos tras push).
-  const [navegando, startTransition] = useTransition();
 
   // Si ya hay una sesión válida, no tiene sentido ver el login. Va con fetch directo, no con
   // apiFetch: un 401 acá es lo normal y no debe redirigir a /login otra vez.
   useEffect(() => {
     fetch(`${API}/auth/me`, { credentials: "include" })
       .then((res) => {
-        if (res.ok) startTransition(() => router.replace("/"));
+        if (res.ok) irAInicio();
       })
       .catch(() => {});
-  }, [router]);
+  }, []);
 
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
@@ -45,7 +48,8 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password, remember: recordar }),
       });
       if (res.ok) {
-        startTransition(() => router.push("/"));
+        irAInicio();
+        return; // la página se recarga entera: el botón queda ocupado hasta entonces
       } else {
         setError(await readError(res));
       }
@@ -55,7 +59,7 @@ export default function LoginPage() {
     setEnviando(false);
   }
 
-  const ocupado = enviando || navegando;
+  const ocupado = enviando;
 
   return (
     <PantallaAcceso titulo="Hola de nuevo" bajada="Entrá para seguir tu semana." disco="rojo">

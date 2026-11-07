@@ -126,7 +126,9 @@ export default function PerfilPage() {
         error={error}
         enviar={async (datos) => {
           const ok = await enviar(datos);
-          if (ok) router.push("/");
+          // Carga completa y no router.push: Next reutilizaría la versión de "/" guardada antes de
+          // tener sesión (la bienvenida). Ver login/page.tsx.
+          if (ok) window.location.replace("/");
           return ok;
         }}
       />
