@@ -3,6 +3,7 @@
 Sin FastAPI: el endpoint solo traduce las excepciones de acá a códigos HTTP.
 """
 
+import logging
 import threading
 from datetime import datetime, timedelta, timezone
 
@@ -60,8 +61,17 @@ class ActiveWeekExists(Exception):
     """Ya tiene una semana activa: no se genera la primera rutina de nuevo."""
 
 
+logger = logging.getLogger(__name__)
+
+
 class AiUpstreamError(Exception):
     """Gemini falló o no respondió a tiempo."""
+
+    @property
+    def overloaded(self) -> bool:
+        """Google dijo que está saturado (503) o que se pasó de pedidos (429): conviene esperar."""
+        text = str(self).lower()
+        return any(s in text for s in ("503", "429", "high demand", "unavailable", "overloaded"))
 
 
 class GenerationFailed(Exception):
@@ -150,6 +160,7 @@ def _generate_proposal(
         except (AiConfigError, AiLimitError):
             raise
         except Exception as error:
+            logger.error("Gemini falló en el intento %s: %s: %s", attempt + 1, type(error).__name__, error)
             raise AiUpstreamError(str(error)) from error
 
         try:

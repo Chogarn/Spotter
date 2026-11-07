@@ -135,11 +135,12 @@ def generate(
         raise HTTPException(
             status_code=429, detail="Llegaste al tope diario de la IA. Probá mañana."
         ) from None
-    except AiUpstreamError:
-        raise HTTPException(
-            status_code=502,
-            detail="La IA no respondió (puede haber tardado demasiado). Probá de nuevo.",
-        ) from None
+    except AiUpstreamError as error:
+        if error.overloaded:
+            detail = "Google tiene la IA saturada en este momento. Probá de nuevo en un rato."
+        else:
+            detail = "La IA no respondió (puede haber tardado demasiado). Probá de nuevo."
+        raise HTTPException(status_code=502, detail=detail) from None
     except GenerationFailed as error:
         # Mostrar algunos motivos concretos evita que un rechazo por reglas parezca una caída
         # de Gemini. La respuesta de la IA ya se recibió; se agotaron los intentos de corrección.
