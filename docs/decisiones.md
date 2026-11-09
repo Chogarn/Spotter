@@ -825,6 +825,22 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** el botón va solo en la Bienvenida (la copia en Perfil › Cuenta quedó sin respuesta); en iPhone la barra de la hora es negra y no tinta (otro color obliga a dibujar la página debajo de la hora); el ícono de la pestaña sigue siendo la barra de tres colores; el mismo dibujo sirve de ícono "maskable".
 - **Ojo:** probada por vos en un Android real el 2026-11-07 (se instaló desde la Bienvenida y se pudo iniciar sesión). Sin probar: los pasos de iPhone, la sesión al cerrar y volver a abrir, y la sesión en iPhone (en iPhone se espera que pida iniciar sesión una vez; los enlaces de los correos se abren en el navegador).
 
+### 117. Las reglas de peso y altura se usan desde la PC con − y + y con las flechas
+- **Fecha:** 2026-11-09
+- **Decisión:** en la PC el mouse no arrastra la regla y el peso va de a 0,1 kg. Se eligió **mantener apretado − o +**: un clic mueve un paso y, si se sigue apretando, el valor avanza cada vez más rápido. **"Cargar peso"** (Progreso › Cuerpo), que no tenía botones y en la PC no se podía cambiar, **lleva − y +** en el peso y la grasa. Y las **flechas del teclado** mueven la regla (en la horizontal → y ↑ suben; en la vertical, ↑ sube); en el perfil la regla toma el foco sola al abrir el paso.
+- **Por qué:** *(completar)*
+- **Descartaste:** arrastrar la regla con el mouse, moverla con la ruedita y escribir el número a mano.
+- **Decidió la IA sin preguntarte:** los tiempos de la aceleración (0,4 s y después cada 120, 60 y 30 ms, siempre de a un paso), qué flecha sube en cada regla, que en "Cargar peso" la regla no tome el foco sola (tiene dos) y que la regla se anuncie como un control deslizante.
+- **Ojo:** probado en el navegador de la PC y en el ancho de un celular; no en un teléfono real.
+
+### 118. El panel ⓘ separa "Cómo hacerlo" y "Por qué" en tarjetas
+- **Fecha:** 2026-11-09
+- **Decisión:** en el panel del ícono ⓘ de un ejercicio, "Cómo hacerlo" y "Por qué está en tu rutina" van cada uno en su **propia tarjeta blanca**, con el título en Barlow Condensed y en tinta (opción A de la maqueta). Antes eran un subtítulo chico y gris y se leían como un solo texto.
+- **Por qué:** *(completar)*
+- **Descartaste:** B (títulos más grandes y una línea divisoria) y C (tarjetas con un aro azul y uno amarillo).
+- **Decidió la IA sin preguntarte:** el espacio entre tarjetas y el tamaño de los títulos.
+- **Ojo:** lo revisaste vos en la app (2026-11-09).
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
