@@ -35,23 +35,16 @@ const poligono = (puntos: [number, number][]) => puntos.map(([x, y]) => `${x.toF
 type Vista = {
   subtitulo: string;
   minimum: number | null; // nulo: sin línea de mínimo (el día)
-  anterior: string | null; // cómo se llama el período con el que se compara; nulo si no hay
-  actual: string;
   terminado: boolean; // si el período ya pasó (cambia "faltan" por "faltaron")
   muscles: MuscleSets[];
   others: MuscleSets[]; // los complementos, solo para el mapa
   details: MuscleSets[]; // las partes finas (pecho alto y bajo), solo para el mapa
 };
 
-const ANTERIOR = { day: "Día anterior", month: "Mes anterior", year: "Año anterior" } as const;
-const ACTUAL = { day: "Este día", month: "Este mes", year: "Este año" } as const;
-
 function deLaSemana(d: WeekMuscles): Vista {
   return {
     subtitulo: `Semana ${d.number} de ${d.routine_name} · series directas hechas`,
     minimum: d.minimum,
-    anterior: d.has_previous ? "Semana pasada" : null,
-    actual: "Esta semana",
     terminado: d.status !== "active",
     muscles: d.muscles,
     others: d.others,
@@ -63,8 +56,6 @@ function deUnPeriodo(d: PeriodMuscles, hoy: string | null): Vista {
   return {
     subtitulo: "Series directas hechas, de todas tus rutinas",
     minimum: d.minimum,
-    anterior: ANTERIOR[d.period],
-    actual: ACTUAL[d.period],
     terminado: hoy !== null && d.end < hoy,
     muscles: d.muscles,
     others: d.others,
@@ -73,8 +64,8 @@ function deUnPeriodo(d: PeriodMuscles, hoy: string | null): Vista {
 }
 
 // Progreso › Estadísticas: las series hechas por cada grupo grande, contra el mínimo de R3 (10 por
-// semana, escalado al período) y contra el período anterior. Solo cuenta series directas. La
-// semana es la última (con la anterior de su rutina); día, mes y año se recorren con las flechas.
+// semana, escalado al período), solo del período elegido: sin comparar con el anterior. Solo
+// cuenta series directas. La semana es la última; día, mes y año se recorren con las flechas.
 export type Modo = "radar" | "mapa";
 
 export function RadarMusculos({ modo }: { modo: Modo }) {
@@ -159,7 +150,7 @@ function DeUnPeriodo({ tramo, modo, selector }: { tramo: Tramo; modo: Modo; sele
         onIr={setAncla}
         selector={selector}
       />
-      {datos.muscles.every((m) => m.sets === 0 && !m.previous_sets) ? (
+      {datos.muscles.every((m) => m.sets === 0) ? (
         <Vacio />
       ) : (
         <Grafico vista={deUnPeriodo(datos, hoy)} modo={modo} />
@@ -185,15 +176,10 @@ function Radar({ vista }: { vista: Vista }) {
   const total = grupos.length;
   const minimo = vista.minimum;
   // El borde del hexágono: el mínimo con aire, o lo mayor que se haya hecho.
-  const maximo = Math.max((minimo ?? 4) * 1.4, ...grupos.flatMap((g) => [g.sets, g.previous_sets ?? 0]));
+  const maximo = Math.max((minimo ?? 4) * 1.4, ...grupos.map((g) => g.sets));
   const fraccion = (v: number) => v / maximo;
 
-  const resumen = grupos
-    .map(
-      (g) =>
-        `${NOMBRE[g.muscle] ?? g.muscle}: ${g.sets} series${vista.anterior === null || g.previous_sets === null ? "" : `, antes ${g.previous_sets}`}`,
-    )
-    .join("; ");
+  const resumen = grupos.map((g) => `${NOMBRE[g.muscle] ?? g.muscle}: ${g.sets} series`).join("; ");
 
   return (
     <>
@@ -216,13 +202,6 @@ function Radar({ vista }: { vista: Vista }) {
           const [x, y] = punto(i, total, 1);
           return <line key={i} x1={CX} y1={CY} x2={x} y2={y} className="stroke-border" />;
         })}
-        {vista.anterior !== null && (
-          <polygon
-            points={poligono(grupos.map((g, i) => punto(i, total, fraccion(g.previous_sets ?? 0))))}
-            className="fill-muted-foreground/15 stroke-muted-foreground"
-            strokeWidth={2}
-          />
-        )}
         <polygon
           points={poligono(grupos.map((g, i) => punto(i, total, fraccion(g.sets))))}
           className="fill-disco-azul/15 stroke-disco-azul"
@@ -277,18 +256,6 @@ function Radar({ vista }: { vista: Vista }) {
         })}
         {activo !== null && <Globo vista={vista} indice={activo} />}
       </svg>
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-xs bg-disco-azul" aria-hidden="true" />
-          {vista.actual}
-        </span>
-        {vista.anterior !== null && (
-          <span className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-xs bg-muted-foreground" aria-hidden="true" />
-            {vista.anterior}
-          </span>
-        )}
-      </div>
     </>
   );
 }
@@ -298,12 +265,9 @@ function Globo({ vista, indice }: { vista: Vista; indice: number }) {
   const g = vista.muscles[indice];
   const total = vista.muscles.length;
   const minimo = vista.minimum;
-  const maximo = Math.max((minimo ?? 4) * 1.4, ...vista.muscles.flatMap((m) => [m.sets, m.previous_sets ?? 0]));
+  const maximo = Math.max((minimo ?? 4) * 1.4, ...vista.muscles.map((m) => m.sets));
   const [px, py] = punto(indice, total, g.sets / maximo);
-  const lineas = [
-    `${g.sets} ${g.sets === 1 ? "serie" : "series"}`,
-    ...(vista.anterior !== null && g.previous_sets !== null ? [`${vista.anterior}: ${g.previous_sets}`] : []),
-    ];
+  const lineas = [`${g.sets} ${g.sets === 1 ? "serie" : "series"}`];
   const ancho = 128;
   const alto = 12 + lineas.length * 16;
   const x = Math.min(Math.max(px - ancho / 2, 4), 340 - ancho - 4);
