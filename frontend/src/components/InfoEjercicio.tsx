@@ -54,18 +54,21 @@ export function InfoEjercicio({
               <X className="size-5" aria-hidden="true" />
             </button>
           </div>
-          {comoHacerlo && (
-            <section className="mb-4">
-              <h3 className="mt-0 mb-1 text-sm font-medium text-muted-foreground">Cómo hacerlo</h3>
-              <p className="m-0">{comoHacerlo}</p>
-            </section>
-          )}
-          {porQue && (
-            <section>
-              <h3 className="mt-0 mb-1 text-sm font-medium text-muted-foreground">Por qué está en tu rutina</h3>
-              <p className="m-0">{porQue}</p>
-            </section>
-          )}
+          {/* Cada parte en su propia tarjeta blanca, para que no se lean como un solo texto. */}
+          <div className="grid gap-2.5">
+            {comoHacerlo && (
+              <section className="rounded-2xl bg-card px-4 py-3.5">
+                <h3 className="mt-0 mb-1 font-heading text-lg font-bold">Cómo hacerlo</h3>
+                <p className="m-0">{comoHacerlo}</p>
+              </section>
+            )}
+            {porQue && (
+              <section className="rounded-2xl bg-card px-4 py-3.5">
+                <h3 className="mt-0 mb-1 font-heading text-lg font-bold">Por qué está en tu rutina</h3>
+                <p className="m-0">{porQue}</p>
+              </section>
+            )}
+          </div>
         </div>
       </dialog>
     </>
