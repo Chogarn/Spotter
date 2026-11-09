@@ -175,6 +175,7 @@ export function ReglaNumero({
   vertical = false,
   compacta = false,
   sinBotones = false,
+  enfocar = false,
   onChange,
 }: {
   valor: number;
@@ -191,6 +192,8 @@ export function ReglaNumero({
   compacta?: boolean;
   // Sin los botones − y +: solo se ajusta deslizando la regla.
   sinBotones?: boolean;
+  // Enfoca la regla al aparecer, para que las flechas del teclado anden sin tocarla.
+  enfocar?: boolean;
   onChange: (v: number) => void;
 }) {
   const regla = useRef<HTMLDivElement>(null);
@@ -278,13 +281,37 @@ export function ReglaNumero({
   // Si el paso se cierra con el botón apretado, el reloj no queda andando.
   useEffect(() => parar, []);
 
+  // Flechas del teclado, con el foco en la regla o en un botón − o +. Como en la regla: en la
+  // horizontal, → y ↑ suben y ← y ↓ bajan; en la vertical, ↑ sube y ↓ baja. Mantener la tecla
+  // apretada repite sola (la repetición es del sistema).
+  function alTeclear(e: React.KeyboardEvent) {
+    const sube = vertical ? e.key === "ArrowUp" : e.key === "ArrowRight" || e.key === "ArrowUp";
+    const baja = vertical ? e.key === "ArrowDown" : e.key === "ArrowLeft" || e.key === "ArrowDown";
+    if (!sube && !baja) return;
+    e.preventDefault();
+    // Como con el botón apretado: la regla salta sin animación y no pisa el valor al moverse.
+    repitiendo.current = true;
+    mover(sube ? paso : -paso);
+  }
+
+  function alSoltarTecla() {
+    if (reloj.current === null) repitiendo.current = false;
+  }
+
+  // `enfocar`: al abrir el paso, la regla ya toma las flechas sin tener que tocarla.
+  useEffect(() => {
+    if (enfocar) regla.current?.focus({ preventScroll: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const mostrado = formatear(valor, paso);
   const tamanoBoton = compacta ? "icon" : "icon-lg";
   // touch-none y onContextMenu: en el celular, mantener apretado no desplaza ni abre el menú
   // del sistema. onClick solo atiende el teclado (Enter o espacio, detail 0): un paso por vez.
+  // onPointerDown no frena el comportamiento normal, así el botón queda enfocado y toma las flechas.
   const baja = (
     <Button type="button" size={tamanoBoton} variant="outline" className="touch-none select-none"
-      onPointerDown={(e) => { if (e.button === 0) { e.preventDefault(); empezar(-paso); } }}
+      onPointerDown={(e) => { if (e.button === 0) empezar(-paso); }}
       onClick={(e) => { if (e.detail === 0) mover(-paso); }}
       onContextMenu={(e) => e.preventDefault()}
       disabled={valor <= min} aria-label={`Bajar ${etiqueta}`}>
@@ -293,7 +320,7 @@ export function ReglaNumero({
   );
   const sube = (
     <Button type="button" size={tamanoBoton} variant="outline" className="touch-none select-none"
-      onPointerDown={(e) => { if (e.button === 0) { e.preventDefault(); empezar(paso); } }}
+      onPointerDown={(e) => { if (e.button === 0) empezar(paso); }}
       onClick={(e) => { if (e.detail === 0) mover(paso); }}
       onContextMenu={(e) => e.preventDefault()}
       disabled={valor >= max} aria-label={`Subir ${etiqueta}`}>
@@ -336,9 +363,16 @@ export function ReglaNumero({
       <div
         ref={regla}
         onScroll={alDeslizar}
-        aria-hidden="true"
+        tabIndex={0}
+        role="slider"
+        aria-label={etiqueta}
+        aria-orientation={vertical ? "vertical" : "horizontal"}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={valor}
+        aria-valuetext={`${mostrado} ${unidad}`}
         className={cn(
-          "flex overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          "flex overflow-auto rounded-lg outline-none [scrollbar-width:none] focus-visible:ring-3 focus-visible:ring-ring/50 [&::-webkit-scrollbar]:hidden",
           vertical ? "h-72 w-24 touch-pan-y flex-col" : compacta ? "h-11 touch-pan-x" : "h-16 touch-pan-x",
         )}
       >
@@ -360,7 +394,7 @@ export function ReglaNumero({
 
   if (vertical) {
     return (
-      <div className="flex items-center justify-center gap-6">
+      <div className="flex items-center justify-center gap-6" onKeyDown={alTeclear} onKeyUp={alSoltarTecla}>
         {/* Ancho fijo: si el número cambia de ancho (99 a 100), la regla y su línea azul no se mueven. */}
         <div className="flex w-48 shrink-0 flex-col items-center gap-4">
           {sube}
@@ -372,7 +406,7 @@ export function ReglaNumero({
     );
   }
   return (
-    <div>
+    <div onKeyDown={alTeclear} onKeyUp={alSoltarTecla}>
       <div className="flex items-center justify-center gap-3">
         {!sinBotones && baja}
         {numero}
