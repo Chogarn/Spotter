@@ -199,6 +199,8 @@ export function ReglaNumero({
 
   // Al abrir, y cuando el valor cambia por los botones, la regla se mueve hasta la marca.
   const yaPuesta = useRef(false);
+  // Si hay un botón − o + apretado (ver `empezar`, más abajo).
+  const repitiendo = useRef(false);
   // En la vertical el valor crece hacia arriba (como una regla de altura): la marca 0 queda abajo.
   const aMarca = (posicion: number) => {
     const m = Math.round(posicion / MARCA);
@@ -214,7 +216,8 @@ export function ReglaNumero({
       const destino = aPosicion(indice);
       el.scrollTo({
         ...(vertical ? { top: destino } : { left: destino }),
-        behavior: yaPuesta.current ? "smooth" : "instant",
+        // Mientras se mantiene apretado − o +, sin animación: el valor cambia más rápido que ella.
+        behavior: yaPuesta.current && !repitiendo.current ? "smooth" : "instant",
       });
     }
     yaPuesta.current = true;
@@ -222,25 +225,77 @@ export function ReglaNumero({
   }, [indice, vertical]);
 
   function alDeslizar() {
+    // Mientras se mantiene apretado un botón, manda el botón: la regla solo lo sigue.
+    if (repitiendo.current) return;
     const el = regla.current;
     if (!el) return;
     const i = Math.min(marcas, Math.max(0, aMarca(vertical ? el.scrollTop : el.scrollLeft)));
     if (i !== indice) onChange(Number((min + i * paso).toFixed(2)));
   }
 
+  // El valor al día, para el botón que se mantiene apretado (su reloj no ve los renders nuevos).
+  const valorActual = useRef(valor);
+  useEffect(() => {
+    valorActual.current = valor;
+  }, [valor]);
+
   function mover(delta: number) {
-    onChange(Number(Math.min(max, Math.max(min, valor + delta)).toFixed(2)));
+    const nuevo = Number(Math.min(max, Math.max(min, valorActual.current + delta)).toFixed(2));
+    valorActual.current = nuevo;
+    onChange(nuevo);
   }
 
+  // Mantener apretado − o +: un paso al apretar y, si se sigue apretando, el valor sigue
+  // avanzando cada vez más rápido (después de 0,4 s, cada 120 ms; desde 1,5 s, cada 60 ms;
+  // desde 3 s, cada 30 ms). Se corta al soltar en cualquier lado o al llegar al límite.
+  const reloj = useRef<number | null>(null);
+
+  function parar() {
+    if (reloj.current !== null) window.clearTimeout(reloj.current);
+    reloj.current = null;
+    repitiendo.current = false;
+  }
+
+  function empezar(delta: number) {
+    parar();
+    repitiendo.current = true;
+    window.addEventListener("pointerup", parar, { once: true });
+    window.addEventListener("pointercancel", parar, { once: true });
+    window.addEventListener("blur", parar, { once: true });
+    mover(delta);
+    // Cuenta los pasos en vez de mirar el reloj: 400 ms + 9 × 120 ms ≈ 1,5 s y 25 × 60 ms ≈ 1,5 s más.
+    const seguir = (n: number, espera: number) => {
+      reloj.current = window.setTimeout(() => {
+        const v = valorActual.current;
+        if ((delta < 0 && v <= min) || (delta > 0 && v >= max)) return parar();
+        mover(delta);
+        seguir(n + 1, n < 9 ? 120 : n < 34 ? 60 : 30);
+      }, espera);
+    };
+    seguir(0, 400);
+  }
+
+  // Si el paso se cierra con el botón apretado, el reloj no queda andando.
+  useEffect(() => parar, []);
+
   const mostrado = formatear(valor, paso);
+  const tamanoBoton = compacta ? "icon" : "icon-lg";
+  // touch-none y onContextMenu: en el celular, mantener apretado no desplaza ni abre el menú
+  // del sistema. onClick solo atiende el teclado (Enter o espacio, detail 0): un paso por vez.
   const baja = (
-    <Button type="button" size={compacta ? "icon" : "icon-lg"} variant="outline" onClick={() => mover(-paso)}
+    <Button type="button" size={tamanoBoton} variant="outline" className="touch-none select-none"
+      onPointerDown={(e) => { if (e.button === 0) { e.preventDefault(); empezar(-paso); } }}
+      onClick={(e) => { if (e.detail === 0) mover(-paso); }}
+      onContextMenu={(e) => e.preventDefault()}
       disabled={valor <= min} aria-label={`Bajar ${etiqueta}`}>
       <Minus />
     </Button>
   );
   const sube = (
-    <Button type="button" size={compacta ? "icon" : "icon-lg"} variant="outline" onClick={() => mover(paso)}
+    <Button type="button" size={tamanoBoton} variant="outline" className="touch-none select-none"
+      onPointerDown={(e) => { if (e.button === 0) { e.preventDefault(); empezar(paso); } }}
+      onClick={(e) => { if (e.detail === 0) mover(paso); }}
+      onContextMenu={(e) => e.preventDefault()}
       disabled={valor >= max} aria-label={`Subir ${etiqueta}`}>
       <Plus />
     </Button>

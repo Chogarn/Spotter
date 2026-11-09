@@ -306,7 +306,7 @@ export function Formulario({
             <>
               <div className="min-w-0 overflow-hidden">
                 <p className="m-0 mb-1 text-sm text-muted-foreground">Peso</p>
-                <ReglaNumero compacta sinBotones valor={peso} min={30} max={300} paso={0.1} unidad="kg" etiqueta="el peso" cadaCuantas={5} onChange={setPeso} />
+                <ReglaNumero compacta valor={peso} min={30} max={300} paso={0.1} unidad="kg" etiqueta="el peso" cadaCuantas={5} onChange={setPeso} />
               </div>
               <div className="min-w-0 overflow-hidden border-t border-border pt-3">
                 {grasa === null ? (
@@ -329,7 +329,7 @@ export function Formulario({
                         Quitar
                       </button>
                     </div>
-                    <ReglaNumero compacta sinBotones valor={grasa} min={2} max={70} paso={0.1} unidad="%" etiqueta="la grasa corporal" cadaCuantas={5} onChange={setGrasa} />
+                    <ReglaNumero compacta valor={grasa} min={2} max={70} paso={0.1} unidad="%" etiqueta="la grasa corporal" cadaCuantas={5} onChange={setGrasa} />
                   </>
                 )}
               </div>
