@@ -43,6 +43,11 @@ function seccionActiva(i: number, p: string, desdeRutinas: boolean): boolean {
   return SECCIONES[i].activa(p);
 }
 
+// El modo entrenar de un día: ahí la píldora "entrenando ahora" no hace falta (decisión 124).
+function esModoEntrenar(p: string): boolean {
+  return /^\/semanas\/\d+\/dia\/\d+\/entrenar\/?$/.test(p);
+}
+
 // Solo el día y su modo entrenar: la semana de /semanas/[id] y los días que se miran desde Rutinas
 // (`?desde=rutinas`) no son parte de entrenar.
 function recordable(p: string): boolean {
@@ -109,8 +114,9 @@ function Barra({ pathname, desdeRutinas }: { pathname: string | null; desdeRutin
 
   return (
     <>
-      {/* "Entrenando ahora": en toda pantalla que no sea de la sección Entrenar. */}
-      <MiniBarraEntreno visible={pathname !== null && !enEntrenar} />
+      {/* "Entrenando ahora": en toda pantalla salvo el modo entrenar (decisión 124; antes se
+          ocultaba en toda la sección Entrenar). */}
+      <MiniBarraEntreno visible={pathname !== null && !esModoEntrenar(pathname)} ruta={pathname} />
     <nav
       aria-label="Secciones"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]"

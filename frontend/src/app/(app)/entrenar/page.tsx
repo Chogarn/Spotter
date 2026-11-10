@@ -5,11 +5,12 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { BotonDelDia, diaQueToca } from "@/components/BotonDelDia";
 import { CerrarSemana } from "@/components/CerrarSemana";
 import { Disco, estadoDia } from "@/components/Disco";
 import { Festejo } from "@/components/Festejo";
 import { OpcionesSiguiente, useUltimaSemana } from "@/components/SiguienteSemana";
-import { readError, apiFetch, type WeekDetail } from "@/lib/api";
+import { readError, apiFetch, type Week, type WeekDetail } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Franja } from "@/components/Franja";
@@ -21,6 +22,8 @@ export default function Entrenar() {
   const [cargando, setCargando] = useState(true);
   // La semana activa con sus días, o null si no hay.
   const [semana, setSemana] = useState<WeekDetail | null>(null);
+  // La semana activa resumida: trae el día empezado y si está detenido (decisión 124).
+  const [activa, setActiva] = useState<Week | null>(null);
   // Id de la propuesta que quedó pendiente (se puede volver a ver), si hay una.
   const [pendiente, setPendiente] = useState<number | null>(null);
   const [error, setError] = useState("");
@@ -33,9 +36,10 @@ export default function Entrenar() {
       const activa = await apiFetch(`/weeks/active`);
       if (activa.status === 404) return setSemana(null); // la semana pudo haberse cerrado
       if (!activa.ok) throw new Error(await readError(activa));
-      const { id } = await activa.json();
-      const detalle = await apiFetch(`/weeks/${id}`);
+      const resumen: Week = await activa.json();
+      const detalle = await apiFetch(`/weeks/${resumen.id}`);
       if (!detalle.ok) throw new Error(await readError(detalle));
+      setActiva(resumen);
       setSemana(await detalle.json());
     }
     cargar()
@@ -64,7 +68,7 @@ export default function Entrenar() {
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
         {error && <ErrorMessage>{error}</ErrorMessage>}
         {cargando && <CargandoDiscos />}
-        {!cargando && semana && <SemanaActiva semana={semana} onCerrada={() => setRecarga((n) => n + 1)} />}
+        {!cargando && semana && <SemanaActiva semana={semana} activa={activa} onCerrada={() => setRecarga((n) => n + 1)} />}
         {!cargando && !semana && (
           <SinSemana pendiente={pendiente} onConflict={() => setRecarga((n) => n + 1)} />
         )}
@@ -73,9 +77,17 @@ export default function Entrenar() {
   );
 }
 
-function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: () => void }) {
+function SemanaActiva({
+  semana,
+  activa,
+  onCerrada,
+}: {
+  semana: WeekDetail;
+  activa: Week | null;
+  onCerrada: () => void;
+}) {
   const pendientes = semana.days.filter((d) => d.state !== "completed");
-  const proximo = pendientes[0];
+  const proximo = diaQueToca(semana.days, activa);
 
   return (
     <>
@@ -85,14 +97,7 @@ function SemanaActiva({ semana, onCerrada }: { semana: WeekDetail; onCerrada: ()
             <p className="m-0 text-sm text-muted-foreground">Te toca</p>
             <h2 className="mt-0 mb-0 text-6xl">Día {proximo.day_index}</h2>
             <p className="mt-0 mb-4 text-xl text-muted-foreground">{tituloDia(proximo.title)}</p>
-            <Button
-              size="xl"
-              className="w-full"
-              nativeButton={false}
-              render={<Link href={`/semanas/${semana.id}/dia/${proximo.day_index}/entrenar`} />}
-            >
-              Empezar
-            </Button>
+            <BotonDelDia weekId={semana.id} dayIndex={proximo.day_index} activa={activa} />
           </>
         ) : (
           <>

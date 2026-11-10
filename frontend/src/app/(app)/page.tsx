@@ -4,6 +4,7 @@ import { CalendarCheck, CalendarDays, ChartLine, Lightbulb, ListChecks, Scale, S
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { BotonDelDia, diaQueToca } from "@/components/BotonDelDia";
 import { CerrarSemana } from "@/components/CerrarSemana";
 import { Disco, estadoDia } from "@/components/Disco";
 import { Festejo } from "@/components/Festejo";
@@ -15,8 +16,7 @@ import { usePeriodo } from "@/components/SelectorPeriodo";
 import { NuevaRutina } from "@/components/NuevaRutina";
 import { OpcionesSiguiente, useUltimaSemana } from "@/components/SiguienteSemana";
 import { TarjetaAcceso } from "@/components/TarjetaAcceso";
-import { Button } from "@/components/ui/button";
-import { readError, apiFetch, type SessionUser, type WeekDetail } from "@/lib/api";
+import { readError, apiFetch, type SessionUser, type Week, type WeekDetail } from "@/lib/api";
 import { tituloDia } from "@/lib/format";
 import { CargandoDiscos } from "@/components/Cargando";
 
@@ -29,6 +29,8 @@ export default function Inicio() {
   const [cargando, setCargando] = useState(true);
   const [usuario, setUsuario] = useState<SessionUser | null>(null);
   const [semana, setSemana] = useState<WeekDetail | null>(null);
+  // La semana activa resumida: trae el día empezado y si está detenido (decisión 124).
+  const [activa, setActiva] = useState<Week | null>(null);
   // El número del día que se completó hoy, si hay uno: la tarjeta lo festeja arriba.
   const [festejoDia, setFestejoDia] = useState<number | null>(null);
   const [pendiente, setPendiente] = useState<number | null>(null);
@@ -53,10 +55,11 @@ export default function Inicio() {
       const activa = await apiFetch(`/weeks/active`);
       if (activa.status === 404) return setSemana(null);
       if (!activa.ok) throw new Error(await readError(activa));
-      const { id } = await activa.json();
-      const detalle = await apiFetch(`/weeks/${id}`);
+      const resumen: Week = await activa.json();
+      const detalle = await apiFetch(`/weeks/${resumen.id}`);
       if (!detalle.ok) throw new Error(await readError(detalle));
       const datos: WeekDetail = await detalle.json();
+      setActiva(resumen);
       setSemana(datos);
       // El día completado hoy (fecha del teléfono), el último si hubo más de uno: se festeja en la
       // tarjeta. Se calcula acá, en el navegador, porque Next no deja leer la fecha al preparar la página.
@@ -81,7 +84,7 @@ export default function Inicio() {
       .catch(() => {});
   }, [recarga]);
 
-  const proximo = semana?.days.find((d) => d.state !== "completed");
+  const proximo = semana ? diaQueToca(semana.days, activa) : undefined;
   const nombre = usuario?.name?.trim();
 
   return (
@@ -131,14 +134,7 @@ export default function Inicio() {
               <>
                 <h2 className={`mt-0 mb-0 ${festejoDia !== null ? "text-2xl" : "text-4xl"}`}>Día {proximo.day_index}</h2>
                 <p className="mt-0 mb-4 text-lg text-muted-foreground">{tituloDia(proximo.title)}</p>
-                <Button
-                  size="xl"
-                  className="w-full"
-                  nativeButton={false}
-                  render={<Link href={`/semanas/${semana.id}/dia/${proximo.day_index}/entrenar`} />}
-                >
-                  Empezar
-                </Button>
+                <BotonDelDia weekId={semana.id} dayIndex={proximo.day_index} activa={activa} />
               </>
             ) : (
               <>

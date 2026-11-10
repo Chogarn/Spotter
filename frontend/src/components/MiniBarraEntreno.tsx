@@ -28,9 +28,9 @@ type EnCurso = {
 // "Seguir" y "Detener"; detenido, la píldora queda gris con "Retomar" (decisión 121). No se descarta el día desde acá.
 // Mientras corre el reloj de descanso, la misma píldora muestra la cuenta atrás en lugar del
 // contador del día (y la franja del descanso no se repite); al terminar vuelve el contador.
-// `visible` cambia cada vez que se navega: ahí se vuelve a preguntar, así que al completar el
-// día desaparece sola. Si algo falla, no se muestra (es un atajo, no una función).
-export function MiniBarraEntreno({ visible }: { visible: boolean }) {
+// Se vuelve a preguntar cada vez que se navega (`ruta`), así que al completar el día desaparece
+// sola. Si algo falla, no se muestra (es un atajo, no una función).
+export function MiniBarraEntreno({ visible, ruta }: { visible: boolean; ruta: string | null }) {
   const router = useRouter();
   const [enCurso, setEnCurso] = useState<EnCurso | null>(null);
   const [trabajando, setTrabajando] = useState(false);
@@ -76,7 +76,7 @@ export function MiniBarraEntreno({ visible }: { visible: boolean }) {
     return () => {
       vigente = false;
     };
-  }, [visible]);
+  }, [visible, ruta]);
 
   if (!mostrandose || !enCurso) return null;
   const actual = enCurso;
