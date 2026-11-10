@@ -85,14 +85,29 @@ def strength_days(routine: RoutineProposal) -> int:
     )
 
 
-def cardio_minutes(routine: RoutineProposal) -> int:
+def day_cardio_minutes(day: DayProposal) -> int:
+    """Minutos de cardio de un día, sumando todas las máquinas."""
     return sum(
         s.duration_minutes or 0
-        for day in routine.days
         for e in day.exercises
         if e.kind == ExerciseKind.CARDIO
         for s in e.sets
     )
+
+
+# R17 (decisión 125): de 20 a 30 minutos de cardio en cada día de entrenamiento.
+# 150 a 300 por semana (OMS 2020) queda como referencia; no se exige.
+CARDIO_DAY_MIN = 20
+CARDIO_DAY_MAX = 30
+
+
+def cardio_day_issues(routine: RoutineProposal) -> list[str]:
+    return [
+        f"El Día {number} tiene {minutes} min de cardio y debe tener de "
+        f"{CARDIO_DAY_MIN} a {CARDIO_DAY_MAX}."
+        for number, day in enumerate(routine.days, start=1)
+        if not CARDIO_DAY_MIN <= (minutes := day_cardio_minutes(day)) <= CARDIO_DAY_MAX
+    ]
 
 
 def weekly_sets_by_muscle(routine: RoutineProposal) -> dict[Muscle, float]:
@@ -363,12 +378,12 @@ def validate_routine(
     if missing:
         error("R1", "Faltan grupos musculares grandes en la semana: " + ", ".join(missing) + ".")
 
-    total_cardio = cardio_minutes(routine)
-    if goal == Goal.PERDER_GRASA and not 150 <= total_cardio <= 300:
-        error("R17", f"El cardio semanal es de {total_cardio} min y debe estar entre 150 y 300.")
+    if goal == Goal.PERDER_GRASA:
+        for message in cardio_day_issues(routine):
+            error("R17", message)
 
     # --- Avisos: se muestran, no se rechaza ---
-    _volume_warnings(routine, goal, n_strength, total_cardio, sets_by_muscle, warn)
+    _volume_warnings(routine, goal, n_strength, sets_by_muscle, warn)
     for message in distribution_issues(routine):  # decisión 90
         warn("Reparto", message)
         result.soft_issues.append(Issue("Reparto", message))
@@ -399,7 +414,7 @@ def validate_routine(
     return result
 
 
-def _volume_warnings(routine, goal, n_strength, total_cardio, sets_by_muscle, warn) -> None:
+def _volume_warnings(routine, goal, n_strength, sets_by_muscle, warn) -> None:
     """Volumen por objetivo (R3, R4, R20, R25). Solo avisan."""
     strength_sets = [
         len(e.sets) for d in routine.days for e in d.exercises if e.kind in STRENGTH_KINDS
@@ -428,5 +443,5 @@ def _volume_warnings(routine, goal, n_strength, total_cardio, sets_by_muscle, wa
             warn("R25", f"Son 2 o 3 sesiones de fuerza y la rutina trae {n_strength}.")
         per_exercise("R25", 2, 3)
         per_group("R25", 6, 10)
-        if not 150 <= total_cardio <= 300:
-            warn("R25", f"El aeróbico debería ser de 150 a 300 min por semana y trae {total_cardio}.")
+        for message in cardio_day_issues(routine):  # decisión 125: como R17, pero solo avisa
+            warn("R25", message)

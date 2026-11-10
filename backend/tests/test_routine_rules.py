@@ -177,11 +177,36 @@ def test_r1_los_dias_de_solo_cardio_no_cuentan_como_fuerza():
     assert "R1" in reglas(result)
 
 
-@pytest.mark.parametrize("minutos,ok", [(0, False), (149, False), (150, True), (300, True), (301, False)])
-def test_r17_el_cardio_de_perder_grasa_va_de_150_a_300(minutos, ok):
-    dias = [dia_completo(sets=2), dia_completo(sets=2), *dias_de_cardio(minutos)]
+def dia_con_cardio(*minutos):
+    """Un día de fuerza con una máquina de cardio por cada valor de minutos."""
+    return DayProposal(
+        title="Cuerpo completo",
+        exercises=[fuerza(m, sets=2) for m in BIG_GROUPS] + [cardio(n) for n in minutos],
+    )
+
+
+@pytest.mark.parametrize("minutos,ok", [((), False), ((19,), False), ((20,), True), ((30,), True), ((31,), False)])
+def test_r17_cada_dia_de_perder_grasa_lleva_de_20_a_30_min_de_cardio(minutos, ok):
+    """Decisión 125: el tope es por día; la semana no tiene que llegar a 150. () = sin cardio."""
+    dias = [dia_con_cardio(25), dia_con_cardio(*minutos)]
     result = validate_routine(RoutineProposal(days=dias), Goal.PERDER_GRASA, Level.INTERMEDIO)
     assert ("R17" not in reglas(result)) is ok
+
+
+def test_r17_suma_todas_las_maquinas_del_dia():
+    bien = RoutineProposal(days=[dia_con_cardio(15, 15), dia_con_cardio(10, 10)])
+    pasado = RoutineProposal(days=[dia_con_cardio(20, 15), dia_con_cardio(25)])
+    assert "R17" not in reglas(validate_routine(bien, Goal.PERDER_GRASA, Level.INTERMEDIO))
+    result = validate_routine(pasado, Goal.PERDER_GRASA, Level.INTERMEDIO)
+    assert [i.message for i in result.errors if i.rule == "R17"] == [
+        "El Día 1 tiene 35 min de cardio y debe tener de 20 a 30."
+    ]
+
+
+def test_r17_con_2_dias_la_semana_puede_quedar_debajo_de_150():
+    dias = [dia_con_cardio(30), dia_con_cardio(30)]
+    result = validate_routine(RoutineProposal(days=dias), Goal.PERDER_GRASA, Level.INTERMEDIO)
+    assert "R17" not in reglas(result)
 
 
 def test_r17_no_se_exige_cardio_a_quien_busca_masa():
@@ -252,6 +277,15 @@ def test_r20_perder_grasa_avisa_si_el_volumen_de_fuerza_se_pasa():
 def test_r25_mantenerme_activo_avisa_si_falta_aerobico():
     result = validate_routine(rutina(sets=3), Goal.MANTENERME_ACTIVO, Level.PRINCIPIANTE)
     assert "R25" in reglas(result, "warnings")
+
+
+def test_r25_avisa_si_un_dia_pasa_de_30_min_de_cardio_sin_rechazar():
+    """Decisión 125: en mantenerme activo el tope por día es un aviso, no un error."""
+    dias = [dia_con_cardio(25), dia_con_cardio(40)]
+    result = validate_routine(RoutineProposal(days=dias), Goal.MANTENERME_ACTIVO, Level.INTERMEDIO)
+    assert "R17" not in reglas(result)
+    assert any(w.rule == "R25" and "Día 2 tiene 40 min" in w.message for w in result.warnings)
+    assert not any(w.rule == "R25" and "Día 1" in w.message for w in result.warnings)
 
 
 def test_r25_pide_de_2_a_3_series_por_ejercicio():
