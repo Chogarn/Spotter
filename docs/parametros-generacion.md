@@ -72,11 +72,11 @@ La IA responde un JSON con la semana. El código lo valida y, si no cumple, pide
 |---|---|---|---|---|---|---|
 | **Masa** | 10 a 20 | (no fija; ver nota) | 6 a 15 (8 a 12 de referencia) | — | No lleva | Evidencia (R3, ACSM 2026, certeza media) |
 | **Fuerza** | no fija | 2 a 3, con cargas de 80 % del máximo o más | 3 a 8; el ejercicio principal va primero | — | No lleva | Evidencia (R4, ACSM 2026) |
-| **Perder grasa** | 2 a 4 series duras | — | — | Al menos 2 días, manteniendo la carga | 150 a 300 min, a intensidad moderada | Cardio: evidencia (R17, OMS 2020). Series: síntesis del investigador, certeza baja (R20) |
-| **Mantenerme activo** | 6 a 10 | 2 a 3 | 6 a 15 | 2 a 3 sesiones | 150 a 300 min | Síntesis del investigador, certeza baja a moderada (R25; absorbió a "condición general", decisión 100) |
+| **Perder grasa** | 2 a 4 series duras | — | — | Al menos 2 días, manteniendo la carga | 20 a 30 min por día de entrenamiento, a intensidad moderada (150 a 300 por semana como referencia; decisión 125) | Cardio: evidencia (R17, OMS 2020). Series: síntesis del investigador, certeza baja (R20) |
+| **Mantenerme activo** | 6 a 10 | 2 a 3 | 6 a 15 | 2 a 3 sesiones | 20 a 30 min por día (solo avisa; decisión 125) | Síntesis del investigador, certeza baja a moderada (R25; absorbió a "condición general", decisión 100) |
 
 Notas:
-- **Perder grasa:** si cardio y fuerza van el mismo día, la fuerza va primero; si se dividen, con 3 horas o más de separación. La alimentación queda fuera de la app. El código **rechaza** una rutina de perder grasa con cardio fuera de 150 a 300 min (R17).
+- **Perder grasa:** si cardio y fuerza van el mismo día, la fuerza va primero; si se dividen, con 3 horas o más de separación. La alimentación queda fuera de la app. El código **rechaza** una rutina de perder grasa con un día que tenga menos de 20 o más de 30 min de cardio, sumando sus máquinas (R17, decisión 125).
 - **En todos los objetivos:** no hace falta llegar al fallo; la idea es dejar **2 o 3 repeticiones en reserva**.
 - Los **6 grupos grandes** son pecho, espalda, hombros, cuádriceps, isquios y glúteos. Bíceps, tríceps, gemelos y core no tienen un mínimo propio.
 - R3 (10 o más series) **vale también para principiantes**. R20 y R25 son síntesis del investigador, no cifras publicadas.
@@ -256,7 +256,7 @@ Si un peso propuesto sube **más de 10 %** sobre el último peso realizado, mues
 - Días distintos de los que eligió la persona.
 - Split incompatible con los días, el nivel o el objetivo.
 - Menos de 2 días de fuerza o faltan grupos grandes (R1).
-- Perder grasa con cardio fuera de 150 a 300 min (R17).
+- Perder grasa con un día de cardio fuera de 20 a 30 min (R17, decisión 125).
 - Ejercicios fuera del catálogo o con el tipo equivocado.
 
 ### Solo avisa (se ve en la pestaña Avisos)

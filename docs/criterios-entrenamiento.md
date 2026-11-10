@@ -68,7 +68,7 @@ Es historia: el ACSM 2026 la reemplaza.
 - No da minutos específicos para entrenamiento de fuerza.
 - La revisión sistemática de 2025 (de segunda mano) coincide: combinar entrenamiento de fuerza con restricción calórica conserva la masa muscular.
 
-**Consecuencia para el producto:** la evidencia no dice que "perder grasa" requiera una rutina de fuerza distinta; lo que cambia es el **cardio** y la **alimentación**. **Decisión del usuario (2026-10-08):** "perder grasa" es un objetivo con **más cardio y menos fuerza**, y la alimentación queda fuera de la app. El cardio se planifica y registra como ejercicio con duración en minutos. La fuerza se mantiene al mínimo de R1 (al menos 2 días por semana). R17 resuelve los minutos: la IA elige entre 150 y 300 por semana y el código valida ese rango.
+**Consecuencia para el producto:** la evidencia no dice que "perder grasa" requiera una rutina de fuerza distinta; lo que cambia es el **cardio** y la **alimentación**. **Decisión del usuario (2026-10-08):** "perder grasa" es un objetivo con **más cardio y menos fuerza**, y la alimentación queda fuera de la app. El cardio se planifica y registra como ejercicio con duración en minutos. La fuerza se mantiene al mínimo de R1 (al menos 2 días por semana). R17 resuelve los minutos: **desde la decisión 125 (2026-11-10), de 20 a 30 por día de entrenamiento**, y 150 a 300 por semana queda solo como referencia.
 
 ### ACSM 2026, series por ejercicio (leído en el texto completo el 2026-10-10)
 
@@ -156,7 +156,7 @@ Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and 
 
 | # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
 |---|---|---|---|---|---|
-| R17 | Para el objetivo **perder grasa**, la IA define los **minutos de cardio semanales** de cada persona según su perfil (nivel) y la carga de fuerza, **dentro de 150 a 300 minutos por semana** a intensidad moderada. El usuario puede editarlos | Evidencia (el rango) y decisión de diseño (la IA elige dentro) | OMS 2020 (150 a 300 minutos de aeróbico moderado, recomendación fuerte, certeza moderada) y ACSM 2009 (150 a 250 pérdida modesta, más de 250 pérdida significativa; resumen oficial) | **Gemini elige y el código valida el rango** | Crear y cerrar semana |
+| R17 | **Modificada el 2026-11-10 (decisión 125).** Para el objetivo **perder grasa**, **cada día de entrenamiento lleva de 20 a 30 minutos de cardio** a intensidad moderada, sumando todas las máquinas de ese día; nunca más de 30 en un día. **150 a 300 minutos por semana queda como referencia general**, que no obliga a sumar cardio: con pocos días la semana queda por debajo. La app planifica solo lo que se hace en el gimnasio. *(Antes: la IA elegía de 150 a 300 por semana y el código validaba ese rango)* | Evidencia (la referencia semanal) y decisión de diseño (el rango por día) | OMS 2020 (150 a 300 minutos de aeróbico moderado por semana, recomendación fuerte, certeza moderada; la OMS cuenta **toda** la actividad física, también la del tiempo libre, el transporte, el trabajo y la casa, verificado el 2026-11-10 en su hoja informativa) y ACSM 2009 (150 a 250 pérdida modesta, más de 250 pérdida significativa; resumen oficial). **Los 20 a 30 por día no tienen fuente:** es diseño del usuario (los turnos de las máquinas de cardio en los gimnasios grandes) | **Gemini elige y el código valida el rango de cada día** (si no, pide la rutina de nuevo) | Crear y cerrar semana |
 | R32 | Para el objetivo **perder grasa**, el plan incluye **cardio** además de la fuerza. *(Antes C1)* | Decisión de producto | ACSM 2009: la actividad aeróbica es lo que más pesa para bajar de peso | Gemini | Crear |
 | R33 | La **intensidad** del cardio se indica en las indicaciones de ejecución (por ejemplo, "ritmo moderado, que puedas hablar"). *(Antes C5)* | Convención | Sin fuente específica. Certeza baja | Gemini | Crear |
 
@@ -176,7 +176,7 @@ Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and 
 | R20 | Fuerza para "perder grasa": **2 a 4 series duras por grupo grande por semana** (R3 no se aplica a este objetivo) | Síntesis del investigador | Sin cifra publicada: es una síntesis. Certeza baja | Código | Crear |
 | R21 | **Tipo de cardio libre** (continuo o por intervalos), sin prometer que uno queme más grasa | Evidencia | Wewege 2017 y Keating 2017: reducen grasa de forma similar. Certeza media | Gemini | Crear |
 | R22 | Si cardio y fuerza van el mismo día, **fuerza primero**; si se dividen en dos sesiones, **3 horas o más** de separación | Evidencia débil | Eddens 2018, Feng 2025, Schumann 2022 (solo resúmenes). Certeza baja-media | Gemini | Crear |
-| R23 | El cardio de un **principiante** empieza cerca de **150 a 250 minutos** y sube hacia 300 con el tiempo (dentro de R17) | Convención | Sin fuente específica. Certeza baja | Gemini | Crear y cerrar semana |
+| R23 | **Sin efecto desde la decisión 125** (R17 pasó a ser por día y ya no se elige un total semanal). Texto original: el cardio de un **principiante** empieza cerca de **150 a 250 minutos** y sube hacia 300 con el tiempo (dentro de R17) | Convención | Sin fuente específica. Certeza baja | Gemini | Crear y cerrar semana |
 
 ### Mantenerse activo (antes también "condición general")
 
@@ -185,7 +185,7 @@ Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and 
 | # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
 |---|---|---|---|---|---|
 | R24 | **REEMPLAZADA por R25 (decisión 100, 2026-10-26): ya no se aplica.** Texto original, solo como referencia: **Mantenerse activo:** 2 sesiones de fuerza, **2 series por ejercicio**, 4 a 6 series semanales por grupo grande, y aeróbico de 150 minutos moderados. *(Modificada 2026-10-10: el piso de series pasó de 1 a 2 porque el ACSM 2026 recomienda al menos 2 por ejercicio; el tope de 2 se mantiene)* | Síntesis del investigador | OMS 2020 (el piso de 2 días y 150 min) y ACSM 2026 (al menos 2 series por ejercicio); el resto es interpolación. Certeza baja-moderada | Código | Crear |
-| R25 | **Mantenerse activo (antes "condición general"):** 2 a 3 sesiones de fuerza, 2 a 3 series por ejercicio, 6 a 10 series semanales por grupo grande, y aeróbico de 150 a 300 minutos | Síntesis del investigador | OMS 2020 y ACSM 2026 (2 a 3 series por ejercicio); el resto es interpolación. Certeza baja-moderada | Código | Crear |
+| R25 | **Mantenerse activo (antes "condición general"):** 2 a 3 sesiones de fuerza, 2 a 3 series por ejercicio, 6 a 10 series semanales por grupo grande, y aeróbico de 150 a 300 minutos. **Desde la decisión 125:** el aeróbico es de **20 a 30 minutos por día de entrenamiento**, como R17, pero el código solo avisa; 150 a 300 queda como referencia | Síntesis del investigador | OMS 2020 y ACSM 2026 (2 a 3 series por ejercicio); el resto es interpolación. Certeza baja-moderada | Código | Crear |
 | R26 | **Movilidad y equilibrio:** 2 veces por semana, de 5 a 10 minutos, indicados como **texto** en el día (`mobility_notes`), sin series ni tilde | Convención | ACSM 2011 (resumen): flexibilidad 2 o más días y equilibrio 2 a 3 días. Certeza baja | Gemini | Crear |
 
 ### Repeticiones, progresión, esfuerzo y fatiga
@@ -202,7 +202,7 @@ Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and 
 
 Estas dudas **no están resueltas** y no las decide la IA:
 
-- **Minutos de cardio según el nivel:** R17 fija el rango, pero la evidencia no dice cómo variar entre un principiante (cerca de 150) y alguien con más experiencia (cerca de 300). Queda a criterio de la IA dentro del rango.
+- **Minutos de cardio según el nivel** (desde la decisión 125 el rango es por día, de 20 a 30): R17 fija el rango, pero la evidencia no dice cómo variar entre un principiante (cerca de 150) y alguien con más experiencia (cerca de 300). Queda a criterio de la IA dentro del rango.
 - **A qué músculos aplica R3 (resuelta 2026-10-08):** solo a los 6 grupos grandes (pecho, espalda, hombros, cuádriceps, isquios y glúteos); bíceps, tríceps, gemelos y core trabajan por las series indirectas (R5). Ver la decisión 31.
 - **Esfuerzo (R29):** la equivalencia entre "2 o 3 repeticiones en reserva" y un esfuerzo de 7 u 8 está aprobada como deducción, pero **sigue sin verificarse en la tabla original** de Zourdos 2016.
 - **Bajar la carga cuando el usuario no llega a las repeticiones (hueco encontrado el 2026-10-09):** R9, R10 y R28 solo cubren subir o no subir, y R31 baja la carga solo por dolor. **Resuelta el 2026-10-16 con R36** (decisión 73): sin comentario de fatiga se mantiene, y con fatiga o cargas altas se baja un escalón del equipo.
