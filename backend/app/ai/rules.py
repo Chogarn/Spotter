@@ -2,10 +2,10 @@
 
 Fuente de cada regla: docs/criterios-entrenamiento.md (R1 a R36, aprobadas por el usuario).
 Dos niveles:
-- error: la rutina se rechaza (R1, R11, R12, R17, split incompatible). Son las que el proyecto fijó como "el código valida".
+- error: la rutina se rechaza (R1, R11, R17, split incompatible). Son las que el proyecto fijó como "el código valida".
 - aviso: se muestra al usuario pero no se rechaza (volumen por objetivo, R4, R18, R34).
 
-R3 (10 a 20 series semanales para masa) aplica solo a los 6 grupos grandes (decisión del usuario);
+R3 (10 series semanales o más para masa; desde la decisión 126 no hay máximo) aplica solo a los 6 grupos grandes (decisión del usuario);
 bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial trabajan por las series indirectas (R5). Solo avisa.
 """
 
@@ -52,9 +52,19 @@ COMPLEMENT = (
 )
 MIN_DAYS_PER_BIG_GROUP = 2  # con 3 o más días de fuerza
 MAX_SPREAD_PER_MUSCLE = 3  # entre los días en que se trabaja un mismo músculo
-MAX_SETS_PER_MUSCLE_DAY = 9  # 3 ejercicios de 3 series
+MAX_SETS_PER_MUSCLE_DAY = 12  # decisión 126 (antes 9)
 MAX_SPREAD_BETWEEN_DAYS = 4  # series de grupos grandes del día con más y del día con menos
 MAX_COMPLEMENT_SETS_PER_DAY = 6
+# Decisión 126: los abdominales (core) no cuentan para el tope de complemento ni para los 6
+# ejercicios del día; van aparte.
+CAPPED_COMPLEMENT = tuple(m for m in COMPLEMENT if m != Muscle.CORE)
+# Decisión 126 (2026-11-10, diseño del usuario, sin fuente): en masa y fuerza, cada día de fuerza
+# lleva 6 ejercicios o más sin contar abdominales ni cardio, y cada ejercicio de fuerza de 3 a 4 series (el usuario: masa y fuerza no llevan 5 o 6).
+VOLUME_GOALS = (Goal.MASA, Goal.FUERZA)
+MIN_EXERCISES_PER_DAY = 6
+SETS_PER_EXERCISE = (3, 4)
+# Decisión 126: de 3 a 6 días por semana para todos los niveles (reemplaza a R12 para principiantes).
+ALLOWED_DAYS = (3, 4, 5, 6)
 # Cuánto dura un ejercicio de fuerza típico (3 series de unas 10 repeticiones con 90 a 120 s de
 # descanso y el cambio de máquina), para decirle a la IA cuántos necesita.
 MINUTES_PER_EXERCISE = (8, 9)
@@ -165,8 +175,8 @@ def distribution_issues(routine: RoutineProposal) -> list[str]:
         if over:
             n, s = max(over, key=lambda x: x[1])
             issues.append(
-                f"{name} tiene {s} series el Día {n}: el máximo es {MAX_SETS_PER_MUSCLE_DAY} por día "
-                "(3 ejercicios de 3 series). Pasá series a otro día."
+                f"{name} tiene {s} series el Día {n}: el máximo es {MAX_SETS_PER_MUSCLE_DAY} por día. "
+                "Pasá series a otro día."
             )
         if len(per_day) >= 3 and len(worked) < MIN_DAYS_PER_BIG_GROUP:
             issues.append(
@@ -194,11 +204,43 @@ def distribution_issues(routine: RoutineProposal) -> list[str]:
             )
 
     for i, d in enumerate(per_day):
-        complement = sum(d.get(m, 0) for m in COMPLEMENT)
+        complement = sum(d.get(m, 0) for m in CAPPED_COMPLEMENT)
         if complement > MAX_COMPLEMENT_SETS_PER_DAY:
             issues.append(
-                f"El Día {labels[i]} tiene {complement} series de bíceps, tríceps, gemelos, abdominales, aductores, antebrazo y tibial: el "
+                f"El Día {labels[i]} tiene {complement} series de bíceps, tríceps, gemelos, aductores, antebrazo y tibial: el "
                 f"máximo es {MAX_COMPLEMENT_SETS_PER_DAY}. Son complemento: no se usan para completar un día."
+            )
+    return issues
+
+
+def counted_exercises(day: DayProposal) -> int:
+    """Decisión 126: los ejercicios de fuerza del día, sin contar abdominales ni cardio."""
+    return sum(
+        1 for e in day.exercises if e.kind in STRENGTH_KINDS and e.primary_muscle != Muscle.CORE
+    )
+
+
+def volume_issues(routine: RoutineProposal, goal: Goal) -> list[str]:
+    """Decisión 126, solo en masa y fuerza: 6 ejercicios o más por día de fuerza (sin abdominales
+    ni cardio) y de 3 a 4 series por ejercicio de fuerza."""
+    if goal not in VOLUME_GOALS:
+        return []
+    issues: list[str] = []
+    low, high = SETS_PER_EXERCISE
+    for number, day in enumerate(routine.days, start=1):
+        if not any(e.kind in STRENGTH_KINDS for e in day.exercises):
+            continue
+        count = counted_exercises(day)
+        if count < MIN_EXERCISES_PER_DAY:
+            issues.append(
+                f"El Día {number} tiene {count} ejercicios de fuerza y debe tener {MIN_EXERCISES_PER_DAY} o más, "
+                "sin contar abdominales ni cardio."
+            )
+        wrong = [e.name for e in day.exercises if e.kind in STRENGTH_KINDS and not low <= len(e.sets) <= high]
+        if wrong:
+            issues.append(
+                f"El Día {number} tiene ejercicios con menos de {low} o más de {high} series: "
+                + ", ".join(wrong) + f". Cada ejercicio de fuerza lleva de {low} a {high} series."
             )
     return issues
 
@@ -295,9 +337,9 @@ def exercise_count_hint(minutes: int) -> int:
 
 
 def allowed_days(level: Level) -> tuple[int, ...]:
-    """Los días por semana que puede elegir el usuario (decisión 52): R12 para principiantes
-    (2 o 3) y R11 para el resto (2 a 6)."""
-    return (2, 3) if level == Level.PRINCIPIANTE else (2, 3, 4, 5, 6)
+    """Los días por semana que puede elegir el usuario (decisión 52): desde la decisión 126, de 3
+    a 6 para todos los niveles."""
+    return ALLOWED_DAYS
 
 
 def catalog_problems(routine: RoutineProposal, extra_names: Iterable[str] = ()) -> list[str]:
@@ -350,10 +392,8 @@ def validate_routine(
 
     # --- Errores: la rutina se rechaza ---
     n_days = len(routine.days)
-    if not 2 <= n_days <= 6:
-        error("R11", f"La semana tiene {n_days} días y debe tener entre 2 y 6.")
-    if level == Level.PRINCIPIANTE and n_days not in (2, 3):
-        error("R12", f"Un principiante entrena 2 o 3 días y la rutina trae {n_days}.")
+    if n_days not in ALLOWED_DAYS:  # decisión 126: de 3 a 6 para todos
+        error("R11", f"La semana tiene {n_days} días y debe tener entre {ALLOWED_DAYS[0]} y {ALLOWED_DAYS[-1]}.")
     # Decisión 52: los días los elige el usuario y la rutina tiene que traer exactamente esos.
     if days is not None and n_days != days:
         error("Días", f"La persona eligió {days} días por semana y la rutina trae {n_days}.")
@@ -387,6 +427,9 @@ def validate_routine(
     for message in distribution_issues(routine):  # decisión 90
         warn("Reparto", message)
         result.soft_issues.append(Issue("Reparto", message))
+    for message in volume_issues(routine, goal):  # decisión 126
+        warn("Volumen", message)
+        result.soft_issues.append(Issue("Volumen", message))
 
     # Decisión 90: `minutes` se conserva solo para compatibilidad; R18 es referencia y no límite.
     reference = reference_minutes(goal, level)
@@ -429,12 +472,13 @@ def _volume_warnings(routine, goal, n_strength, sets_by_muscle, warn) -> None:
         for muscle in BIG_GROUPS:
             sets = sets_by_muscle.get(muscle, 0)
             if not low <= sets <= high:
-                warn(rule, f"{muscle.value}: {sets:g} series por semana y debería haber de {low:g} a {high:g}.")
+                rango = f"{low:g} o más" if high == float("inf") else f"de {low:g} a {high:g}"
+                warn(rule, f"{muscle.value}: {sets:g} series por semana y debería haber {rango}.")
 
     if goal == Goal.MASA:
-        per_group("R3", 10, 20)
+        per_group("R3", 10, float("inf"))  # decisión 126: pasar de 20 está permitido
     elif goal == Goal.FUERZA:
-        per_exercise("R4", 2, 3)
+        pass  # decisión 126: las series por ejercicio (3 a 4) las comprueba volume_issues
     elif goal == Goal.PERDER_GRASA:
         per_group("R20", 2, 4)
     elif goal == Goal.MANTENERME_ACTIVO:

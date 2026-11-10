@@ -76,7 +76,7 @@ def test_un_ejercicio_que_no_esta_en_la_propuesta_da_404(api, entorno, monkeypat
 def test_el_cambio_se_aplica_en_todos_los_dias_donde_esta_el_ejercicio(api, entorno, monkeypatch):
     pid = propuesta(api, monkeypatch)
     antes = api.get(f"/proposals/{pid}").json()
-    assert len(ejercicios(antes, PRESS)) == 2  # está en los dos días
+    assert len(ejercicios(antes, PRESS)) == 3  # está en los tres días
 
     respuesta = cambiar(api, pid, PRESS, "press_pecho_maquina")
 
@@ -84,7 +84,7 @@ def test_el_cambio_se_aplica_en_todos_los_dias_donde_esta_el_ejercicio(api, ento
     despues = respuesta.json()
     assert ejercicios(despues, PRESS) == []
     nuevos = ejercicios(despues, "Press de pecho en máquina")
-    assert len(nuevos) == 2  # en los dos días
+    assert len(nuevos) == 3  # en los tres días
 
 
 def test_el_ejercicio_nuevo_trae_las_etiquetas_del_catalogo_y_copia_las_series(
@@ -125,7 +125,7 @@ def test_el_cambio_queda_guardado(api, entorno, monkeypatch):
     guardada = api.get(f"/proposals/{pid}").json()
 
     assert ejercicios(guardada, PRESS) == []
-    assert len(ejercicios(guardada, "Press de pecho en máquina")) == 2
+    assert len(ejercicios(guardada, "Press de pecho en máquina")) == 3
 
 
 def test_un_cambio_por_algo_que_no_es_alternativa_se_rechaza(api, entorno, monkeypatch):
@@ -146,7 +146,7 @@ def test_se_puede_cambiar_mas_de_una_vez(api, entorno, monkeypatch):
 
     assert segundo.status_code == 200
     assert ejercicios(segundo.json(), "Press de pecho en máquina") == []
-    assert len(ejercicios(segundo.json(), "Flexiones de brazos")) == 2
+    assert len(ejercicios(segundo.json(), "Flexiones de brazos")) == 3
 
 
 def test_los_avisos_se_recalculan_con_la_rutina_nueva(api, entorno, monkeypatch):

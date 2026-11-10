@@ -4,14 +4,16 @@ from app.enums import Goal, Level, RoutineSplit
 
 
 def compatible_splits(days: int, level: Level, goal: Goal) -> tuple[RoutineSplit, ...]:
-    """Devuelve solo splits que pueden respetar R12 y el reparto de la decisión 90."""
+    """Devuelve solo splits que pueden respetar el reparto de la decisión 90. Desde la decisión
+    126 se entrena de 3 a 6 días, con cualquier nivel."""
+    if days not in (3, 4, 5, 6):
+        return ()
     if level == Level.PRINCIPIANTE:
-        return (RoutineSplit.FULL_BODY,) if days in (2, 3) else ()
+        return (RoutineSplit.FULL_BODY,)
 
     options = [RoutineSplit.FULL_BODY]
     # Torso/pierna en 3 días dejaría las piernas en un solo día, contra la decisión 90.
-    # En 2 días de masa, tampoco entra el mínimo semanal de R3 bajo el tope de 9 series por grupo/día.
-    if days in (2, 4, 5, 6) and not (days == 2 and goal == Goal.MASA):
+    if days in (4, 5, 6):
         options.append(RoutineSplit.UPPER_LOWER)
     # El PPL clásico de 3 días concentra cada grupo grande en un día. Solo PPL x2 (6 días)
     # satisface la frecuencia mínima de grupos grandes que fijó la decisión 90.
@@ -24,12 +26,13 @@ def default_split(days: int, level: Level, goal: Goal) -> RoutineSplit:
     """Compatibilidad para clientes viejos y rutinas que todavía no guardan un split."""
     choices = compatible_splits(days, level, goal)
     preferred = {
-        2: RoutineSplit.FULL_BODY,
         3: RoutineSplit.FULL_BODY,
         4: RoutineSplit.UPPER_LOWER,
         5: RoutineSplit.UPPER_LOWER,
         6: RoutineSplit.PPL,
     }.get(days, RoutineSplit.FULL_BODY)
+    if not choices:
+        return RoutineSplit.FULL_BODY
     return preferred if preferred in choices else choices[0]
 
 

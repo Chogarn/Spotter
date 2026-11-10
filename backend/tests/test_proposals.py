@@ -19,7 +19,7 @@ PERFIL = {
     "limitations": None,
     "accept_legal_notice": True,
 }
-ELECCION = {"goal": "masa", "level": "principiante", "days": 2, "minutes": 60}
+ELECCION = {"goal": "masa", "level": "principiante", "days": 3, "minutes": 60}
 GRANDES = [
     ("Press de banca con barra", "chest", "upper", "push"),
     ("Remo con barra", "back", "upper", "pull"),
@@ -40,7 +40,7 @@ def ejercicio(nombre, musculo, region, direccion, sets=4):
     }
 
 
-def rutina(dias=2, **cambios):
+def rutina(dias=3, **cambios):
     dia = {"title": "Cuerpo completo", "mobility_notes": None,
            "exercises": [ejercicio(*g) for g in GRANDES]}
     return {"days": [dia for _ in range(dias)], "notices": [], **cambios}
@@ -120,7 +120,7 @@ def test_generar_guarda_una_propuesta_pendiente_sin_tocar_el_plan(api, entorno, 
     cuerpo = response.json()
     assert cuerpo["status"] == "pending"
     assert cuerpo["kind"] == "generate"
-    assert len(cuerpo["routine"]["days"]) == 2
+    assert len(cuerpo["routine"]["days"]) == 3
     assert contar(api, WeekPlan) == 0  # el plan no se toca hasta aceptar
     assert contar(api, AiCall) == 1
 
@@ -252,7 +252,7 @@ def test_generar_sin_objetivo_o_sin_nivel_da_422_y_no_llama_a_la_ia(api, entorno
     assert api.post("/proposals/generate").status_code == 422
     assert api.post("/proposals/generate", json={"goal": "masa"}).status_code == 422
     assert api.post("/proposals/generate", json={"level": "avanzado"}).status_code == 422
-    assert api.post("/proposals/generate", json={"goal": "volar", "level": "avanzado", "days": 2, "minutes": 60}).status_code == 422
+    assert api.post("/proposals/generate", json={"goal": "volar", "level": "avanzado", "days": 3, "minutes": 60}).status_code == 422
     assert falso.llamadas == 0
     assert contar(api, AiCall) == 0
 
@@ -262,7 +262,7 @@ def test_el_prompt_lleva_lo_elegido_y_la_semana_lo_guarda_al_aceptar(api, entorn
     falso = usar_gemini(monkeypatch, rutina())
 
     propuesta = api.post(
-        "/proposals/generate", json={"goal": "fuerza", "level": "avanzado", "days": 2, "minutes": 60}
+        "/proposals/generate", json={"goal": "fuerza", "level": "avanzado", "days": 3, "minutes": 60}
     ).json()
 
     assert "Nivel: avanzado" in falso.prompts[0]
@@ -294,7 +294,7 @@ def test_aceptar_crea_la_semana_los_dias_los_ejercicios_y_las_series(api, entorn
     with api.session() as db:
         semana = db.scalars(select(WeekPlan)).one()
         assert semana.status == PlanStatus.ACTIVE
-        assert [d.day_index for d in semana.days] == [1, 2]
+        assert [d.day_index for d in semana.days] == [1, 2, 3]
         assert len(semana.days[0].exercises) == 6
         primero = semana.days[0].exercises[0]
         assert primero.position == 1
@@ -309,12 +309,12 @@ def test_aceptar_crea_la_semana_los_dias_los_ejercicios_y_las_series(api, entorn
 
 def test_un_ejercicio_repetido_en_la_semana_no_se_duplica(api, entorno, monkeypatch):
     con_perfil(api)
-    usar_gemini(monkeypatch, rutina())  # los 6 ejercicios se repiten en los 2 días
+    usar_gemini(monkeypatch, rutina())  # los 6 ejercicios se repiten en los 3 días
     propuesta = api.post("/proposals/generate", json=ELECCION).json()
     api.post(f"/proposals/{propuesta['id']}/accept")
 
     assert contar(api, Exercise) == 6
-    assert contar(api, PlanExercise) == 12
+    assert contar(api, PlanExercise) == 18
 
 
 def test_un_ejercicio_que_ya_existia_conserva_sus_etiquetas(api, entorno, monkeypatch):
@@ -412,8 +412,8 @@ def test_la_propuesta_trae_la_duracion_estimada_de_cada_dia(api, entorno, monkey
     cuerpo = api.post("/proposals/generate", json=ELECCION).json()
 
     # 6 ejercicios de 5 series x 10 reps con 120 s de descanso y 5 cambios de 3,5 min (con 4 series).
-    assert cuerpo["day_minutes"] == [66, 66]
-    assert api.get(f"/proposals/{cuerpo['id']}").json()["day_minutes"] == [66, 66]
+    assert cuerpo["day_minutes"] == [66, 66, 66]
+    assert api.get(f"/proposals/{cuerpo['id']}").json()["day_minutes"] == [66, 66, 66]
 
 
 def test_sin_semana_activa_el_endpoint_da_404(api):
@@ -432,7 +432,9 @@ def test_la_semana_activa_lista_los_dias_en_orden(api, entorno, monkeypatch):
 
     assert response.status_code == 200
     dias = response.json()["days"]
-    assert [(d["day_index"], d["title"]) for d in dias] == [(1, "Cuerpo completo"), (2, "Pierna")]
+    assert [(d["day_index"], d["title"]) for d in dias] == [
+        (1, "Cuerpo completo"), (2, "Pierna"), (3, "Cuerpo completo")
+    ]
 
 
 def test_descartar_no_crea_semana_activa(api, entorno, monkeypatch):

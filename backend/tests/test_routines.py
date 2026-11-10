@@ -16,7 +16,7 @@ from tests.test_proposals import (  # noqa: F401  (fixtures y ayudantes comparti
     usar_gemini,
 )
 
-NUEVA = {"goal": "fuerza", "level": "avanzado", "days": 2, "minutes": 60}
+NUEVA = {"goal": "fuerza", "level": "avanzado", "days": 3, "minutes": 60}
 
 
 def generar_y_aceptar(api, monkeypatch, cuerpo=NUEVA):
@@ -102,7 +102,7 @@ def test_continuar_hereda_objetivo_y_nivel_y_suma_la_semana_a_la_misma_rutina(
     rutina_id = api.get("/routines").json()[0]["id"]
     falso = usar_gemini(monkeypatch, rutina())
 
-    propuesta = api.post("/proposals/generate", json={"routine_id": rutina_id, "days": 2, "minutes": 60})
+    propuesta = api.post("/proposals/generate", json={"routine_id": rutina_id, "days": 3, "minutes": 60})
     assert propuesta.status_code == 201
     assert "Nivel: avanzado" in falso.prompts[0]
     assert "Objetivo: fuerza (ganar fuerza)" in falso.prompts[0]
@@ -117,7 +117,7 @@ def test_la_numeracion_de_semanas_es_por_rutina(api, entorno, monkeypatch):
     con_perfil(api)
     generar_y_aceptar(api, monkeypatch)
     cerrar_activa(api)
-    generar_y_aceptar(api, monkeypatch, {"goal": "masa", "level": "intermedio", "days": 2, "minutes": 60})
+    generar_y_aceptar(api, monkeypatch, {"goal": "masa", "level": "intermedio", "days": 3, "minutes": 60})
 
     semana = api.get("/weeks/active").json()["id"]
 
@@ -140,8 +140,8 @@ def test_continuar_una_rutina_inexistente_o_ajena_da_404_y_no_llama_a_la_ia(
         db.commit()
         ajena_id = ajena.id
 
-    assert api.post("/proposals/generate", json={"routine_id": 999, "days": 2, "minutes": 60}).status_code == 404
-    assert api.post("/proposals/generate", json={"routine_id": ajena_id, "days": 2, "minutes": 60}).status_code == 404
+    assert api.post("/proposals/generate", json={"routine_id": 999, "days": 3, "minutes": 60}).status_code == 404
+    assert api.post("/proposals/generate", json={"routine_id": ajena_id, "days": 3, "minutes": 60}).status_code == 404
     assert falso.llamadas == 0
 
 
@@ -164,7 +164,7 @@ def test_la_lista_va_de_la_mas_nueva_a_la_mas_vieja_y_marca_la_que_tiene_semana_
     con_perfil(api)
     generar_y_aceptar(api, monkeypatch)
     cerrar_activa(api)
-    generar_y_aceptar(api, monkeypatch, {"goal": "mantenerme_activo", "level": "principiante", "days": 2, "minutes": 60})
+    generar_y_aceptar(api, monkeypatch, {"goal": "mantenerme_activo", "level": "principiante", "days": 3, "minutes": 60})
 
     lista = api.get("/routines").json()
 
@@ -248,11 +248,11 @@ def test_una_rutina_vieja_no_se_continua(api, entorno, monkeypatch):
     generar_y_aceptar(api, monkeypatch)
     cerrar_activa(api)
     vieja = api.get("/routines").json()[0]["id"]
-    generar_y_aceptar(api, monkeypatch, {"goal": "masa", "level": "intermedio", "days": 2, "minutes": 60})
+    generar_y_aceptar(api, monkeypatch, {"goal": "masa", "level": "intermedio", "days": 3, "minutes": 60})
     cerrar_activa(api)
     usar_gemini(monkeypatch, rutina())
 
-    res = api.post("/proposals/generate", json={"routine_id": vieja, "days": 2, "minutes": 60})
+    res = api.post("/proposals/generate", json={"routine_id": vieja, "days": 3, "minutes": 60})
 
     assert res.status_code == 409
     assert "ya terminó" in res.json()["detail"]
@@ -264,7 +264,7 @@ def test_la_ultima_semana_de_una_rutina_vieja_no_se_reabre(api, entorno, monkeyp
     cerrar_activa(api)
     vieja = api.get("/routines").json()[0]["id"]
     semana_vieja = api.get(f"/routines/{vieja}").json()["weeks"][0]["id"]
-    generar_y_aceptar(api, monkeypatch, {"goal": "masa", "level": "intermedio", "days": 2, "minutes": 60})
+    generar_y_aceptar(api, monkeypatch, {"goal": "masa", "level": "intermedio", "days": 3, "minutes": 60})
     cerrar_activa(api)
 
     res = api.post(f"/weeks/{semana_vieja}/reopen")

@@ -27,19 +27,21 @@ const NIVELES = [
   ["intermedio", "intermedio"],
   ["avanzado", "avanzado"],
 ];
-// Los días por semana que se pueden elegir (decisión 52): R12 para principiantes (2 o 3) y R11
-// para el resto (2 a 6). El backend vuelve a comprobarlo.
-function diasPermitidos(nivel: string): number[] {
-  return nivel === "principiante" ? [2, 3] : [2, 3, 4, 5, 6];
+// Los días por semana que se pueden elegir (decisión 52): desde la decisión 126, de 3 a 6 para
+// todos los niveles. El backend vuelve a comprobarlo.
+const DIAS_PERMITIDOS = [3, 4, 5, 6];
+// Una rutina vieja puede tener 2 días guardados: al continuarla no vienen marcados.
+function diasGuardados(dias: number | null | undefined): number | null {
+  return dias != null && DIAS_PERMITIDOS.includes(dias) ? dias : null;
 }
 
 function splitsPermitidos(nivel: string, objetivo: string, dias: number | null): Split[] {
   if (dias === null) return [];
-  if (nivel === "principiante") return dias === 2 || dias === 3 ? ["full_body"] : [];
+  if (dias < 3 || dias > 6) return [];
+  if (nivel === "principiante") return ["full_body"];
   const opciones: Split[] = ["full_body"];
   // Con tres días, torso/pierna deja un grupo grande en una sola sesión (decisión 90).
-  // Con dos días de masa, el mínimo de R3 no cabe en el máximo de 9 series por grupo y día.
-  if ([2, 4, 5, 6].includes(dias) && !(dias === 2 && objetivo === "masa")) opciones.push("upper_lower");
+  if ([4, 5, 6].includes(dias)) opciones.push("upper_lower");
   // PPL clásico solo en dos vueltas; PPL de tres días contradice la frecuencia de la decisión 90.
   if (dias === 6) opciones.push("ppl");
   return opciones;
@@ -59,9 +61,8 @@ const SPLIT_ETIQUETAS: Record<Split, { titulo: string; detalle: string }> = {
 
 function ayudaCompatibilidad(nivel: string, objetivo: string, dias: number | null): string {
   if (dias === null) return "Al elegir los días te mostramos las estructuras que se pueden usar.";
-  if (nivel === "principiante") return "Para nivel principiante, Spotter ofrece Cuerpo completo con 2 o 3 días.";
+  if (nivel === "principiante") return "Para nivel principiante, Spotter ofrece Cuerpo completo.";
   if (dias === 3) return "Con 3 días, solo aparece Cuerpo completo: así cada grupo grande puede repetirse durante la semana.";
-  if (dias === 2 && objetivo === "masa") return "Con 2 días y objetivo masa, solo aparece Cuerpo completo: Torso/Piernas dejaría demasiado volumen de un grupo para un solo día.";
   if (dias === 6) return "Con 6 días podés elegir Cuerpo completo, Torso/Piernas o dos vueltas de Empuje/Tirón/Piernas.";
   return `Con ${dias} días podés elegir Cuerpo completo o Torso/Piernas. PPL requiere 6 días para completar dos vueltas.`;
 }
@@ -175,9 +176,9 @@ export function GenerarRutina({
   function elegir(valor: string) {
     setEleccion(valor);
     const rutina = rutinas?.find((r) => String(r.id) === valor);
-    setDias(rutina?.days_per_week ?? null);
+    setDias(diasGuardados(rutina?.days_per_week));
     setMinutos(minutosValidos(rutina?.session_minutes ?? MINUTOS_HABITUAL, rutina?.level ?? ""));
-    setSplit(rutina?.split_type ?? splitPredeterminado(rutina?.days_per_week ?? null, rutina?.level ?? "", rutina?.goal ?? ""));
+    setSplit(rutina?.split_type ?? splitPredeterminado(diasGuardados(rutina?.days_per_week), rutina?.level ?? "", rutina?.goal ?? ""));
   }
 
   function cambiarNivel(valor: string) {
@@ -185,7 +186,7 @@ export function GenerarRutina({
     // Lo mismo con el tiempo: un principiante no pasa de 60.
     setMinutos(minutosValidos(minutos, valor));
     // Si los días elegidos no entran en el nivel nuevo (por ejemplo 4 para un principiante), se borran.
-    if (dias !== null && !diasPermitidos(valor).includes(dias)) setDias(null);
+    if (dias !== null && !DIAS_PERMITIDOS.includes(dias)) setDias(null);
     else setSplit(splitPredeterminado(dias, valor, objetivoActual));
   }
 
@@ -224,9 +225,9 @@ export function GenerarRutina({
         const rutina = lista.find((r) => r.id === continuar);
         if (!rutina) throw new Error("No se encontró la rutina para continuar");
         setEleccion(String(rutina.id));
-        setDias(rutina.days_per_week ?? null);
+        setDias(diasGuardados(rutina.days_per_week));
         setMinutos(minutosValidos(rutina.session_minutes ?? MINUTOS_HABITUAL, rutina.level));
-        setSplit(rutina.split_type ?? splitPredeterminado(rutina.days_per_week ?? null, rutina.level, rutina.goal));
+        setSplit(rutina.split_type ?? splitPredeterminado(diasGuardados(rutina.days_per_week), rutina.level, rutina.goal));
       } else if (lista.length === 0) {
         setEleccion("nueva"); // sin rutinas no hay nada que continuar
       }
@@ -344,9 +345,9 @@ export function GenerarRutina({
               onChange={setMinutos} />
           )}
           {actual === "dias" && (
-            <div role="radiogroup" aria-label="Días por semana" className="grid grid-cols-3 gap-3">
-              {[2, 3, 4, 5, 6].map((d) => {
-                const permitido = diasPermitidos(nivelActual).includes(d);
+            <div role="radiogroup" aria-label="Días por semana" className="grid grid-cols-2 gap-3">
+              {DIAS_PERMITIDOS.map((d) => {
+                const permitido = DIAS_PERMITIDOS.includes(d);
                 return (
                   <button
                     key={d}

@@ -70,7 +70,7 @@ def dias_de_cardio(total):
     return dias
 
 
-def rutina(n_dias=2, **kwargs):
+def rutina(n_dias=3, **kwargs):
     return RoutineProposal(days=[dia_completo(**kwargs) for _ in range(n_dias)])
 
 
@@ -82,8 +82,8 @@ def reglas(result, nivel="errors"):
 
 
 def test_una_rutina_valida_no_trae_errores_ni_avisos():
-    # 2 días x 5 series = 10 series semanales por grupo grande (R3).
-    result = validate_routine(rutina(sets=5), Goal.MASA, Level.INTERMEDIO)
+    # 3 días x 4 series = 12 series semanales por grupo grande (R3); 4 series es el máximo por ejercicio.
+    result = validate_routine(rutina(sets=4), Goal.MASA, Level.INTERMEDIO)
     assert result.ok
     assert result.warnings == []
 
@@ -142,10 +142,10 @@ def test_el_esquema_json_para_gemini_se_genera():
 
 def test_la_respuesta_de_gemini_se_valida_desde_json():
     texto = rutina().model_dump_json()
-    assert len(RoutineProposal.model_validate_json(texto).days) == 2
+    assert len(RoutineProposal.model_validate_json(texto).days) == 3
 
 
-# --- errores: R1, R11, R12, R17 ---
+# --- errores: R1, R11, R17 ---
 
 
 def test_r11_una_semana_de_un_dia_se_rechaza():
@@ -157,10 +157,13 @@ def test_r11_siete_dias_se_rechazan():
     assert "R11" in reglas(validate_routine(rutina(7), Goal.MASA, Level.INTERMEDIO))
 
 
-@pytest.mark.parametrize("dias,ok", [(2, True), (3, True), (4, False)])
-def test_r12_el_principiante_entrena_2_o_3_dias(dias, ok):
-    result = validate_routine(rutina(dias), Goal.MASA, Level.PRINCIPIANTE)
-    assert ("R12" not in reglas(result)) is ok
+@pytest.mark.parametrize("dias,ok", [(2, False), (3, True), (6, True), (7, False)])
+@pytest.mark.parametrize("nivel", [Level.PRINCIPIANTE, Level.AVANZADO])
+def test_r11_se_entrena_de_3_a_6_dias_con_cualquier_nivel(dias, ok, nivel):
+    # Decisión 126: de 3 a 6 días para todos (antes, R12 dejaba al principiante en 2 o 3).
+    result = validate_routine(rutina(dias), Goal.MASA, nivel)
+    assert ("R11" not in reglas(result)) is ok
+    assert "R12" not in reglas(result)
 
 
 def test_r1_faltan_grupos_musculares_grandes():
@@ -261,11 +264,10 @@ def test_r18_el_avanzado_con_masa_no_tiene_referencia_de_duracion():
     assert "R34" not in reglas(validate_routine(corta, Goal.MASA, Level.AVANZADO), "warnings")
 
 
-def test_r4_fuerza_avisa_si_hay_mas_de_3_series_por_ejercicio():
-    result = validate_routine(rutina(sets=4), Goal.FUERZA, Level.INTERMEDIO)
-    assert result.ok
-    assert "R4" in reglas(result, "warnings")
-    assert "R4" not in reglas(validate_routine(rutina(sets=3), Goal.FUERZA, Level.INTERMEDIO), "warnings")
+def test_fuerza_ya_no_avisa_r4_por_series_de_3_a_4():
+    # Decisión 126: en fuerza, de 3 a 4 series por ejercicio (antes R4 avisaba con más de 3).
+    for series in (3, 4):
+        assert "R4" not in reglas(validate_routine(rutina(sets=series), Goal.FUERZA, Level.INTERMEDIO), "warnings")
 
 
 def test_r20_perder_grasa_avisa_si_el_volumen_de_fuerza_se_pasa():
@@ -302,15 +304,16 @@ def test_r25_pide_de_2_a_3_series_por_ejercicio():
 
 @pytest.mark.parametrize("series,avisa", [(2, True), (3, True), (5, False), (6, False)])
 def test_r3_masa_avisa_si_un_grupo_grande_queda_fuera_de_10_a_20_series(series, avisa):
-    # 2 dias x series por ejercicio = series semanales directas por grupo grande.
+    # 3 dias x series por ejercicio = series semanales directas por grupo grande.
     result = validate_routine(rutina(sets=series), Goal.MASA, Level.INTERMEDIO)
     assert result.ok  # solo avisa
     assert ("R3" in reglas(result, "warnings")) is avisa
 
 
-def test_r3_avisa_tambien_cuando_se_pasa_de_20():
-    result = validate_routine(rutina(3, sets=8), Goal.MASA, Level.INTERMEDIO)  # 24 por grupo
-    assert "R3" in reglas(result, "warnings")
+def test_r3_no_avisa_cuando_se_pasa_de_20():
+    # Decisión 126: pasar de 20 series semanales está permitido.
+    result = validate_routine(rutina(4, sets=6), Goal.MASA, Level.INTERMEDIO)  # 24 por grupo
+    assert "R3" not in reglas(result, "warnings")
 
 
 def test_r3_no_se_aplica_a_otros_objetivos():
@@ -387,7 +390,70 @@ def test_r34_el_tiempo_de_un_isometrico_son_sus_segundos():
 def test_una_rutina_con_plancha_valida_sin_errores():
     dias = [
         DayProposal(title="Cuerpo completo", exercises=[*[fuerza(m) for m in BIG_GROUPS], plancha()])
-        for _ in range(2)
+        for _ in range(3)
     ]
     result = validate_routine(RoutineProposal(days=dias), Goal.MASA, Level.INTERMEDIO)
     assert result.ok
+
+
+# --- decisión 126: 6 ejercicios o más por día y de 3 a 4 series (masa y fuerza) ---
+
+
+def dia_con(*musculos, sets=4, extra=()):
+    return DayProposal(title="Día", exercises=[*[fuerza(m, sets=sets) for m in musculos], *extra])
+
+
+def volumen(result):
+    return [i.message for i in result.soft_issues if i.rule == "Volumen"]
+
+
+@pytest.mark.parametrize("objetivo", [Goal.MASA, Goal.FUERZA])
+def test_un_dia_con_menos_de_6_ejercicios_se_pide_de_nuevo(objetivo):
+    dias = [dia_con(*BIG_GROUPS[:5]), dia_con(*BIG_GROUPS[1:]), dia_con(*BIG_GROUPS[:5])]
+    result = validate_routine(RoutineProposal(days=dias), objetivo, Level.INTERMEDIO)
+    assert result.ok  # no se rechaza: se pide de nuevo una vez y después se avisa
+    assert any("5 ejercicios de fuerza y debe tener 6 o más" in m for m in volumen(result))
+    assert "Volumen" in reglas(result, "warnings")
+
+
+def test_los_abdominales_y_el_cardio_no_cuentan_para_los_6():
+    dias = [dia_con(*BIG_GROUPS[:5], extra=(plancha(), cardio(20))) for _ in range(3)]
+    result = validate_routine(RoutineProposal(days=dias), Goal.MASA, Level.INTERMEDIO)
+    assert any("5 ejercicios de fuerza" in m for m in volumen(result))
+
+
+def test_biceps_triceps_y_gemelos_si_cuentan_para_los_6():
+    dias = [dia_con(*BIG_GROUPS[:5], Muscle.TRICEPS) for _ in range(3)]
+    result = validate_routine(RoutineProposal(days=dias), Goal.MASA, Level.INTERMEDIO)
+    assert not any("ejercicios de fuerza y debe tener" in m for m in volumen(result))
+
+
+@pytest.mark.parametrize("series,ok", [(2, False), (3, True), (4, True), (5, False)])
+def test_cada_ejercicio_lleva_de_3_a_4_series(series, ok):
+    result = validate_routine(rutina(sets=series), Goal.FUERZA, Level.INTERMEDIO)
+    assert (not any("series:" in m for m in volumen(result))) is ok
+
+
+@pytest.mark.parametrize("objetivo", [Goal.PERDER_GRASA, Goal.MANTENERME_ACTIVO])
+def test_los_6_ejercicios_no_se_exigen_en_perder_grasa_ni_mantenerme_activo(objetivo):
+    dias = [dia_con(*BIG_GROUPS[:4], sets=2) for _ in range(3)]
+    result = validate_routine(RoutineProposal(days=dias), objetivo, Level.INTERMEDIO)
+    assert volumen(result) == []
+
+
+@pytest.mark.parametrize("series,marca", [(12, False), (13, True)])
+def test_el_tope_de_un_grupo_en_un_dia_es_12(series, marca):
+    # 2 ejercicios de pecho: 6+6 = 12 entra; 6+7 = 13 se pasa.
+    pecho = [fuerza(Muscle.CHEST, sets=6), fuerza(Muscle.CHEST, sets=series - 6)]
+    dia = DayProposal(title="Día", exercises=[*pecho, *[fuerza(m) for m in BIG_GROUPS[1:]]])
+    result = validate_routine(RoutineProposal(days=[dia, dia, dia]), Goal.MASA, Level.INTERMEDIO)
+    assert any("el máximo es 12 por día" in i.message for i in result.soft_issues) is marca
+
+
+def test_los_abdominales_no_suman_al_tope_de_complemento():
+    abdominales = [fuerza(Muscle.CORE, sets=4), fuerza(Muscle.CORE, sets=4)]
+    dia = DayProposal(
+        title="Día", exercises=[*[fuerza(m) for m in BIG_GROUPS], fuerza(Muscle.TRICEPS, sets=6), *abdominales]
+    )
+    result = validate_routine(RoutineProposal(days=[dia, dia, dia]), Goal.MASA, Level.INTERMEDIO)
+    assert not any("complemento" in i.message for i in result.soft_issues)

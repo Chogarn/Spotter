@@ -89,7 +89,7 @@ def generate(
     else:
         if goal is None or level is None:
             raise HTTPException(status_code=422, detail="Falta el objetivo y el nivel")
-    permitidos = allowed_days(level)  # R12 para principiantes, R11 para el resto
+    permitidos = allowed_days(level)  # decisión 126: de 3 a 6 para todos
     if data.days not in permitidos:
         raise HTTPException(
             status_code=422,

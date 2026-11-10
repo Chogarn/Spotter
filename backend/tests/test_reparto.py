@@ -60,10 +60,12 @@ def test_una_diferencia_grande_entre_dos_dias_del_mismo_grupo_se_marca():
     assert any("Pecho tiene 9 series el Día 1 y 3 el Día 2" in p for p in problemas)
 
 
-def test_mas_de_9_series_de_un_grupo_en_un_dia_se_marca():
+def test_mas_de_12_series_de_un_grupo_en_un_dia_se_marca():
+    # Decisión 126: el tope pasó de 9 a 12.
     problemas = distribution_issues(rutina(dia(chest=13), dia(chest=12)))
 
-    assert any("Pecho tiene 13 series el Día 1: el máximo es 9" in p for p in problemas)
+    assert any("Pecho tiene 13 series el Día 1: el máximo es 12" in p for p in problemas)
+    assert not any("Día 2: el máximo" in p for p in problemas)
 
 
 def test_los_dias_tienen_que_tener_una_cantidad_parecida_de_series_grandes():
@@ -77,11 +79,11 @@ def test_el_complemento_no_completa_un_dia_y_tiene_su_tope():
     relleno = DayProposal(
         title="Día",
         exercises=[fuerza(m, sets=3) for m in BIG_GROUPS]
-        + [fuerza(Muscle.CORE, sets=4), fuerza(Muscle.BICEPS, sets=3)],
+        + [fuerza(Muscle.TRICEPS, sets=4), fuerza(Muscle.BICEPS, sets=3)],
     )
     problemas = distribution_issues(rutina(relleno, dia()))
 
-    assert any("El Día 1 tiene 7 series de bíceps, tríceps, gemelos, abdominales, aductores, antebrazo y tibial" in p for p in problemas)
+    assert any("El Día 1 tiene 7 series de bíceps, tríceps, gemelos, aductores, antebrazo y tibial" in p for p in problemas)
 
 
 def test_el_complemento_no_cuenta_como_grupo_grande():
@@ -100,7 +102,7 @@ def test_un_dia_solo_de_cardio_no_se_cuenta():
 
 
 def test_validate_routine_los_deja_como_avisos_y_como_pedido_de_reintento():
-    resultado = validate_routine(rutina(dia(chest=13), dia(chest=12)), Goal.MASA, Level.INTERMEDIO)
+    resultado = validate_routine(rutina(dia(chest=13), dia(chest=12), dia(chest=12)), Goal.MASA, Level.INTERMEDIO)
 
     assert resultado.ok  # no rechaza
     assert any(w.rule == "Reparto" for w in resultado.warnings)
@@ -115,7 +117,7 @@ def a_dict(r: RoutineProposal) -> dict:
 
 
 def rutina_catalogo(**series):
-    """Una rutina con ejercicios del catálogo: dos días con los 6 grupos grandes."""
+    """Una rutina con ejercicios del catálogo: tres días con los 6 grupos grandes."""
     def ej(g):
         return ejercicio(*g, sets=series.get(g[1], 3))
 
@@ -123,12 +125,13 @@ def rutina_catalogo(**series):
         "days": [
             {"title": "Día 1", "mobility_notes": None, "exercises": [ej(g) for g in GRANDES]},
             {"title": "Día 2", "mobility_notes": None, "exercises": [ejercicio(*g, sets=3) for g in GRANDES]},
+            {"title": "Día 3", "mobility_notes": None, "exercises": [ejercicio(*g, sets=3) for g in GRANDES]},
         ],
         "notices": [],
     }
 
 
-ELECCION = {"goal": "masa", "level": "principiante", "days": 2}
+ELECCION = {"goal": "masa", "level": "principiante", "days": 3}
 
 
 def generar(api, cuerpo=ELECCION):
@@ -194,5 +197,5 @@ def test_minutos_anteriores_se_ignoran_y_no_restringen_la_propuesta(api, entorno
     respuesta = generar(api, {**ELECCION, "minutes": 120})
 
     assert respuesta.status_code == 201
-    assert respuesta.json()["day_minutes"] == [50, 50]
+    assert respuesta.json()["day_minutes"] == [50, 50, 50]
     assert "La persona no elige minutos" in falso.prompts[0]

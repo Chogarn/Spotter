@@ -52,7 +52,7 @@ Elegí los ejercicios **solo de esta lista**. Cada línea trae el nombre, las et
 
 {{SPLIT}}
 
-- **Principiante: cuerpo completo, 2 o 3 días.**
+- **Principiante: cuerpo completo** (de 3 a 6 días, los que eligió la persona).
 - **Al menos 2 días de fuerza por semana**, y en la semana tienen que quedar cubiertos los **6 grupos grandes**: pecho, espalda, hombros, cuádriceps, isquios y glúteos.
 - Por defecto, cada grupo grande se trabaja **2 veces por semana**. Una sola vez no es un error si el volumen alcanza.
 
@@ -60,8 +60,8 @@ Elegí los ejercicios **solo de esta lista**. Cada línea trae el nombre, las et
 
 Contá las series por semana así: una serie **directa** (músculo principal) vale 1 y una **indirecta** (músculo secundario) vale 0,5.
 
-- **masa** (ganar masa muscular): **10 a 20 series por semana en cada uno de los 6 grupos grandes**. Bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial no tienen un mínimo propio: trabajan con las series indirectas, y podés darles ejercicios propios si hay lugar. Repeticiones de **6 a 15** (8 a 12 de referencia).
-- **fuerza**: **2 a 3 series por ejercicio**, con cargas altas (80 % del máximo o más) y entre **3 y 8 repeticiones**. El ejercicio principal va al comienzo de la sesión.
+- **masa** (ganar masa muscular): **10 series por semana como mínimo en cada uno de los 6 grupos grandes**, apuntando a **12 a 20**; pasar de 20 está permitido. Bíceps, tríceps, gemelos, core, aductores, antebrazo y tibial no tienen un mínimo propio: trabajan con las series indirectas, y les das ejercicios propios para completar el día (ver "Ejercicios y series por día"). Repeticiones de **6 a 15** (8 a 12 de referencia).
+- **fuerza**: **3 a 4 series por ejercicio**, con cargas altas (80 % del máximo o más) y entre **3 y 8 repeticiones**. El ejercicio principal va al comienzo de la sesión.
 - **perder_grasa**: **más cardio y menos fuerza**. Fuerza **al menos 2 días**, manteniendo la carga aunque baje el volumen, con **2 a 4 series duras por grupo grande por semana**. Cardio: **cada día de entrenamiento lleva de 20 a 30 minutos de cardio**, a intensidad moderada, sumando todas las máquinas de ese día (por ejemplo, 15 de bicicleta y 15 de elíptica, o 25 de cinta). **Nunca más de 30 minutos en un día.** La referencia general es de 150 a 300 minutos por semana, pero no agregues cardio para llegar: con pocos días la semana queda por debajo y está bien. El tipo de cardio es libre (continuo o por intervalos), sin prometer que uno queme más grasa. Si cardio y fuerza van el mismo día, **la fuerza va primero**; si se dividen en dos sesiones, con **3 horas o más** de separación. La alimentación queda fuera de la app.
 - **mantenerme_activo** (mantener la condición física general): **2 a 3 sesiones de fuerza**, **2 a 3 series por ejercicio**, **6 a 10 series semanales por grupo grande**, y aeróbico: **de 20 a 30 minutos de cardio en cada día de entrenamiento**, sumando todas las máquinas de ese día, nunca más de 30 (la referencia general de 150 a 300 minutos por semana no obliga a sumar cardio). Rutinas equilibradas de cuerpo completo y con variedad. Repeticiones de 6 a 15.
 - En todos los casos: **no hace falta llegar al fallo**; la idea es dejar **2 o 3 repeticiones en reserva**. No impongas un rango fijo de repeticiones: sugerí uno práctico y editable.
@@ -78,9 +78,23 @@ Contá las series por semana así: una serie **directa** (músculo principal) va
 El volumen semanal de cada grupo grande tiene que **repartirse parejo entre los días**: no se junta en un solo día ni se llenan los primeros días dejando flacos los últimos.
 
 - Un grupo grande se trabaja en **al menos 2 días** cuando la rutina tiene 3 o más días de fuerza.
-- Entre los días en que trabajás un mismo grupo, la diferencia de series es de **3 como máximo**, y ningún día pasa de **9 series de un mismo grupo** (3 ejercicios de 3 series).
+- Entre los días en que trabajás un mismo grupo, la diferencia de series es de **3 como máximo**, y ningún día pasa de **12 series de un mismo grupo**.
 - Todos los días tienen que tener una cantidad **parecida** de series de los grupos grandes: la diferencia entre el día con más y el que menos tiene es de **4 como máximo**.
-- **Bíceps, tríceps, gemelos, abdominales, aductores, antebrazo y tibial son complemento:** no cuentan para el volumen de los grupos grandes y **no sirven para completar un día**. Hasta **6 series de complemento por día**.
+- **Bíceps, tríceps, gemelos, abdominales, aductores, antebrazo y tibial son complemento:** no cuentan para el volumen de los grupos grandes y **no sirven para completar un día**. Hasta **6 series de complemento por día**, sin contar los abdominales.
+
+# Ejercicios y series por día (objetivos masa y fuerza)
+
+Esta sección vale **solo para masa y fuerza**. En perder_grasa y mantenerme_activo seguí el volumen de su objetivo.
+
+- Cada día de fuerza lleva **6 ejercicios o más**, sin contar abdominales ni cardio. Bíceps, tríceps y gemelos sí cuentan.
+- Cada ejercicio de fuerza lleva **de 3 a 4 series** (nunca 5 o más).
+- Como guía, cada grupo grande se trabaja con **2 a 5 ejercicios por semana**. Es una referencia, no una regla.
+- Por ejemplo, en empuje, tirón y piernas: empuje con 2 de pecho, 2 de hombro y 2 de tríceps; tirón con 4 de espalda y 2 de bíceps; piernas con cuádriceps, isquios, glúteos y gemelos hasta llegar a 6.
+
+# Abdominales (todos los objetivos)
+
+- **Al menos 2 días por semana** llevan **1 ejercicio de abdominales** (`primary_muscle: core`) de 3 series, al final de la sesión.
+- Van **además** de los ejercicios del día: no cuentan para los 6 ejercicios ni para el tope de series de complemento.
 
 # Duración de cada sesión
 

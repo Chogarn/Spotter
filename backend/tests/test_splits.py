@@ -41,14 +41,12 @@ def propuesta(split: RoutineSplit, days: int) -> RoutineProposal:
 
 
 def test_matriz_de_opciones_y_combinaciones_incompatibles():
-    assert compatible_splits(2, Level.PRINCIPIANTE, Goal.MASA) == (RoutineSplit.FULL_BODY,)
+    # Decisión 126: de 3 a 6 días con cualquier nivel; con 2 no hay ninguna estructura.
+    assert compatible_splits(2, Level.PRINCIPIANTE, Goal.MASA) == ()
+    assert compatible_splits(2, Level.INTERMEDIO, Goal.FUERZA) == ()
     assert compatible_splits(3, Level.PRINCIPIANTE, Goal.FUERZA) == (RoutineSplit.FULL_BODY,)
+    assert compatible_splits(6, Level.PRINCIPIANTE, Goal.MASA) == (RoutineSplit.FULL_BODY,)
     assert compatible_splits(3, Level.INTERMEDIO, Goal.FUERZA) == (RoutineSplit.FULL_BODY,)
-    assert compatible_splits(2, Level.INTERMEDIO, Goal.MASA) == (RoutineSplit.FULL_BODY,)
-    assert compatible_splits(2, Level.INTERMEDIO, Goal.FUERZA) == (
-        RoutineSplit.FULL_BODY,
-        RoutineSplit.UPPER_LOWER,
-    )
     assert compatible_splits(4, Level.AVANZADO, Goal.MASA) == (
         RoutineSplit.FULL_BODY,
         RoutineSplit.UPPER_LOWER,
@@ -66,7 +64,7 @@ def test_matriz_de_opciones_y_combinaciones_incompatibles():
 
 def test_cada_split_valida_su_secuencia_de_grupos():
     casos = [
-        (RoutineSplit.FULL_BODY, Goal.FUERZA, Level.PRINCIPIANTE, 2),
+        (RoutineSplit.FULL_BODY, Goal.FUERZA, Level.PRINCIPIANTE, 3),
         (RoutineSplit.UPPER_LOWER, Goal.FUERZA, Level.INTERMEDIO, 4),
         (RoutineSplit.PPL, Goal.FUERZA, Level.AVANZADO, 6),
     ]
@@ -90,15 +88,13 @@ def test_split_incompatible_se_rechaza_antes_de_llamar_a_gemini(api, entorno, mo
 
 def test_split_elegido_viaja_al_prompt_y_queda_guardado_al_aceptar(api, entorno, monkeypatch):
     con_perfil(api)
-    upper_lower = deepcopy(rutina(dias=2))
-    upper_lower["days"] = [deepcopy(upper_lower["days"][0]) for _ in range(2)]
-    upper_lower["days"][0]["exercises"] = [e for e in upper_lower["days"][0]["exercises"] if e["primary_muscle"] in {"chest", "back", "shoulders"}]
-    upper_lower["days"][1]["exercises"] = [e for e in upper_lower["days"][1]["exercises"] if e["primary_muscle"] in {"quadriceps", "hamstrings", "glutes"}]
-    falso = usar_gemini(monkeypatch, upper_lower)
+    upper_lower = propuesta(RoutineSplit.UPPER_LOWER, 4).model_dump(mode="json")
+    # Los días traen 3 ejercicios (menos de 6, decisión 126): se pide de nuevo una vez y se acepta con aviso.
+    falso = usar_gemini(monkeypatch, upper_lower, upper_lower)
 
     propuesta_out = api.post(
         "/proposals/generate",
-        json={"goal": "fuerza", "level": "avanzado", "days": 2, "split": "upper_lower"},
+        json={"goal": "fuerza", "level": "avanzado", "days": 4, "split": "upper_lower"},
     )
 
     assert propuesta_out.status_code == 201

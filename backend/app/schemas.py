@@ -146,8 +146,8 @@ class GenerateIn(BaseModel):
     goal: Goal | None = None
     level: Level | None = None
     # Cuántos días por semana entrena (decisión 52): obligatorio, también al continuar.
-    # Que entre en lo que permite el nivel (2 o 3 para principiantes) lo comprueba el endpoint.
-    days: int = Field(ge=2, le=6)
+    # Decisión 126: de 3 a 6 para todos los niveles (lo comprueba el endpoint, con su mensaje).
+    days: int = Field(ge=1, le=7)
     # Estructura semanal elegida de las que son compatibles con los días y el nivel.
     split: RoutineSplit | None = None
     # Campo histórico de decisiones 82/88/89. Desde decisión 90 se acepta por compatibilidad,

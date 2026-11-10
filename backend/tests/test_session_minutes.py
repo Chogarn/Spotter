@@ -39,7 +39,7 @@ def test_los_minutos_historicos_no_restringen_ni_se_envian_como_objetivo(api, en
     con_perfil(api)
     falso = usar_gemini(monkeypatch, rutina())
 
-    respuesta = generar(api, {"goal": "masa", "level": "principiante", "days": 2, "minutes": 90})
+    respuesta = generar(api, {"goal": "masa", "level": "principiante", "days": 3, "minutes": 90})
 
     assert respuesta.status_code == 201
     assert falso.llamadas == 1
@@ -50,7 +50,7 @@ def test_minutos_historicos_irregulares_no_rechazan_generacion(api, entorno, mon
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
 
-    raro = generar(api, {"goal": "masa", "level": "intermedio", "days": 2, "minutes": 50})
+    raro = generar(api, {"goal": "masa", "level": "intermedio", "days": 3, "minutes": 50})
 
     assert raro.status_code == 201
 
@@ -82,7 +82,7 @@ def test_al_aceptar_no_se_guarda_el_tiempo_historico_como_preferencia(api, entor
     con_perfil(api)
     usar_gemini(monkeypatch, rutina())
     propuesta = generar(
-        api, {"goal": "masa", "level": "principiante", "days": 2, "minutes": 60}
+        api, {"goal": "masa", "level": "principiante", "days": 3, "minutes": 60}
     ).json()
 
     assert api.post(f"/proposals/{propuesta['id']}/accept").status_code == 200
@@ -198,7 +198,8 @@ def con_series(sets):
     return base
 
 
-ELEGIDO = {"goal": "masa", "level": "principiante", "days": 2, "minutes": 60}
+ELEGIDO = {"goal": "masa", "level": "principiante", "days": 3, "minutes": 60}
+ACTIVO = {**ELEGIDO, "goal": "mantenerme_activo"}
 
 
 def test_la_duracion_no_se_pasa_como_objetivo_a_gemini():
@@ -211,9 +212,10 @@ def test_la_duracion_no_se_pasa_como_objetivo_a_gemini():
 def test_la_duracion_corta_avisa_sin_reintentar(api, entorno, monkeypatch):
     con_perfil(api)
     # 2 series por ejercicio queda debajo de la referencia, pero el usuario no eligió un límite.
+    # Con mantenerme activo: en masa y fuerza, 2 series se piden de nuevo (decisión 126).
     falso = usar_gemini(monkeypatch, con_series(2))
 
-    respuesta = generar(api, ELEGIDO)
+    respuesta = generar(api, ACTIVO)
 
     assert respuesta.status_code == 201
     assert falso.llamadas == 1
@@ -222,9 +224,9 @@ def test_la_duracion_corta_avisa_sin_reintentar(api, entorno, monkeypatch):
 
 def test_la_duracion_larga_avisa_sin_reintentar(api, entorno, monkeypatch):
     con_perfil(api)
-    falso = usar_gemini(monkeypatch, con_series(6), con_series(4))  # 6 series: ~96 min
+    falso = usar_gemini(monkeypatch, con_series(6), con_series(4))  # 6 series: ~96 min (en mantenerme activo, donde no rige el tope de 4)
 
-    respuesta = generar(api, ELEGIDO)
+    respuesta = generar(api, ACTIVO)
 
     assert respuesta.status_code == 201
     assert falso.llamadas == 1
@@ -235,7 +237,7 @@ def test_la_duracion_corta_se_acepta_con_aviso_y_no_reintenta(api, entorno, monk
     con_perfil(api)
     falso = usar_gemini(monkeypatch, con_series(2), con_series(2))
 
-    respuesta = generar(api, ELEGIDO)
+    respuesta = generar(api, ACTIVO)
 
     assert respuesta.status_code == 201
     assert falso.llamadas == 1
