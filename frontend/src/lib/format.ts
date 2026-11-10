@@ -81,6 +81,18 @@ export function estaHecho(exercise: ExerciseItem): boolean {
   return exercise.completed === true;
 }
 
+// ¿Ya se registró algo en el día (una serie o un ejercicio cerrado)?
+export function empezoElDia(dia: DayDetail): boolean {
+  return dia.exercises.some((e) => estaHecho(e) || e.sets.some((s) => s.real));
+}
+
+// ¿La entrada en calor está hecha? Si se finalizó con el cronómetro (decisión 122) o, como antes
+// (decisión 56), si el día ya tiene algo registrado: así los días viejos, sin minutos, se siguen
+// viendo hechos. En ese caso no hay minutos que mostrar.
+export function calorHecha(dia: DayDetail): boolean {
+  return dia.warmup_minutes != null || empezoElDia(dia);
+}
+
 export const dayStateText = {
   pending: "",
   partial: "a medias",

@@ -304,6 +304,7 @@ export type DayDetail = {
   started_at: string | null; // cuándo se tocó "Empezar día" (decisión 82)
   paused_at?: string | null; // cuándo se tocó "Detener"; vacío si no está detenido (decisión 121)
   paused_seconds?: number; // segundos detenidos en total: no cuentan en la duración
+  warmup_minutes?: number | null; // la entrada en calor hecha, con sus minutos; vacío si no (decisión 122)
   exercises: ExerciseItem[];
 };
 

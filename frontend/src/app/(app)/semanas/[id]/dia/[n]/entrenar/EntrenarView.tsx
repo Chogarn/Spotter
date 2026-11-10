@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import { Confirmar } from "@/components/Confirmar";
+import { PasoConReloj, PasoHecho } from "@/components/Cronometro";
 import { ContadorSesion } from "@/components/ContadorSesion";
 import { BotonDescanso, RelojCircular, useDescanso } from "@/components/Descanso";
 import { Disco, DiscosSemana } from "@/components/Disco";
@@ -19,7 +20,8 @@ import { SetRow } from "@/components/SetRow";
 import { TablaSeries, cuerpoDeSerie, distintoDelPlan } from "@/components/TablaSeries";
 import { Button } from "@/components/ui/button";
 import { readError, type DayDetail, type DayState, type ExerciseItem, type SetItem, type WeekDetail, apiFetch } from "@/lib/api";
-import { estaHecho, realAsSet, setText, summarize, tituloDia } from "@/lib/format";
+import { calorHecha, estaHecho, realAsSet, setText, summarize, tituloDia } from "@/lib/format";
+import { borrarCronosDelDia } from "@/lib/cronometro";
 import { cn } from "cn";
 import { Cargando } from "@/components/Cargando";
 
@@ -27,13 +29,9 @@ import { Cargando } from "@/components/Cargando";
 type Posicion = { ej: number; serie: number };
 
 // La entrada en calor (`mobility_notes`) va como un paso antes del primer ejercicio. No tiene
-// series ni se guarda: no cuenta en los ejercicios hechos.
+// series ni cuenta en los ejercicios hechos; queda hecha al tocar "Finalizar" en su cronómetro,
+// que guarda los minutos (decisión 122), o, como antes, en cuanto hay algo registrado (`calorHecha`).
 const CALOR = -1;
-
-// Se da por hecha en cuanto hay algo registrado en el día.
-function empezoElDia(dia: DayDetail): boolean {
-  return dia.exercises.some((e) => estaHecho(e) || e.sets.some((s) => s.real));
-}
 
 // La primera serie sin registrar del ejercicio; si están todas, la última (falta cerrarlo).
 function serieInicial(ejercicio: ExerciseItem): number {
@@ -84,7 +82,7 @@ function posicionInicial(
     return { ej: pedido, serie: serieInicial(dia.exercises[pedido]) };
   }
   if (registra && guardada) return guardada;
-  if (dia.mobility_notes && (!registra || !empezoElDia(dia))) return { ej: CALOR, serie: 0 };
+  if (dia.mobility_notes && (!registra || !calorHecha(dia))) return { ej: CALOR, serie: 0 };
   const ej = registra ? dia.exercises.findIndex((e) => !estaHecho(e)) : 0;
   return ej === -1 ? null : { ej, serie: serieInicial(dia.exercises[ej]) };
 }
@@ -218,8 +216,8 @@ export default function EntrenarView({
   // El botón grande: marca la serie, pasa a la siguiente o cierra el ejercicio, según toque. Con
   // `valores` (lo cambiado en la tabla de series), la serie se guarda con esos números; sin ellos,
   // con lo planificado.
-  async function avanzar(valores: SetItem | null) {
-    if (!pos) return;
+  async function avanzar(valores: SetItem | null): Promise<boolean> {
+    if (!pos) return false;
     setError("");
     setTrabajando(true);
     try {
@@ -229,15 +227,17 @@ export default function EntrenarView({
         const guardada = valores
           ? await guardarSerie(serie, valores, d.exercises[pos.ej].kind)
           : await llamar<SetItem>(`/sets/${serie.id}/done`);
-        if (!guardada) return;
+        if (!guardada) return false;
         d = conSerie(d, guardada);
         setDia(d);
       }
       const libre = d.exercises[pos.ej].sets.findIndex((s) => !s.real);
       if (libre === -1) await terminarEjercicio(d, pos.ej);
       else setPos({ ej: pos.ej, serie: libre });
+      return true;
     } catch {
       setError("No se pudo conectar con el servidor");
+      return false;
     } finally {
       setTrabajando(false);
     }
@@ -260,6 +260,39 @@ export default function EntrenarView({
     }
   }
 
+  // Pasa al primer ejercicio sin hacer después de `desde` (o al cierre del día).
+  function seguirDesde(d: DayDetail, desde: number) {
+    const siguiente = proximoEjercicio(d, desde);
+    setPos(siguiente === null ? null : { ej: siguiente, serie: serieInicial(d.exercises[siguiente]) });
+  }
+
+  // "Finalizar" de la entrada en calor (decisión 122): guarda los minutos y sigue.
+  async function finalizarCalor(minutos: number): Promise<boolean> {
+    setError("");
+    setTrabajando(true);
+    try {
+      const res = await apiFetch(`/weeks/${actual.week_id}/days/${actual.day_index}/warmup`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ minutes: minutos }),
+      });
+      if (!res.ok) {
+        setError(await readError(res));
+        return false;
+      }
+      const { warmup_minutes }: { warmup_minutes: number | null } = await res.json();
+      const nuevo = { ...actual, warmup_minutes };
+      setDia(nuevo);
+      seguirDesde(nuevo, CALOR);
+      return true;
+    } catch {
+      setError("No se pudo conectar con el servidor");
+      return false;
+    } finally {
+      setTrabajando(false);
+    }
+  }
+
   // Detener, retomar y reiniciar el día (decisión 121). Devuelven el estado del reloj.
   type EstadoReloj = Pick<DayDetail, "finished_at" | "started_at" | "paused_at" | "paused_seconds">;
   async function cambiarReloj(accion: "pause" | "resume" | "restart") {
@@ -277,6 +310,7 @@ export default function EntrenarView({
       try {
         localStorage.removeItem(claveDePosicion(id, n));
       } catch {}
+      borrarCronosDelDia(actual.week_id, actual.day_index);
       router.push("/entrenar");
     } catch {
       setError("No se pudo conectar con el servidor");
@@ -369,7 +403,7 @@ export default function EntrenarView({
             aria-current={pos?.ej === CALOR ? "step" : undefined}
             className={cn(
               "h-2 flex-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-              pos?.ej === CALOR ? "bg-disco-tinta" : empezoElDia(actual) ? "bg-disco-verde" : "bg-border",
+              pos?.ej === CALOR ? "bg-disco-tinta" : calorHecha(actual) ? "bg-disco-verde" : "bg-border",
             )}
           />
         )}
@@ -402,12 +436,12 @@ export default function EntrenarView({
         <EntradaEnCalor
           dia={actual}
           registra={registra}
-          // Se da por hecha en cuanto hay algo registrado en el día (igual que la barra de arriba).
-          hecha={empezoElDia(actual)}
-          onEmpezar={() => {
-            const siguiente = proximoEjercicio(actual, CALOR);
-            setPos(siguiente === null ? null : { ej: siguiente, serie: serieInicial(actual.exercises[siguiente]) });
-          }}
+          pausado={pausado}
+          trabajando={trabajando}
+          onFinalizar={finalizarCalor}
+          // Saltar no la marca como hecha (decisión 122).
+          onSaltar={() => seguirDesde(actual, CALOR)}
+          onRetomar={() => cambiarReloj("resume")}
         />
       ) : pos ? (
         <Ejercicio
@@ -425,6 +459,8 @@ export default function EntrenarView({
             setPos({ ej: pos.ej, serie: serieInicial(nuevo.exercises[pos.ej]) });
           }}
           onAvanzar={avanzar}
+          // Saltar el cardio lo deja sin registrar (decisión 122).
+          onSaltar={() => seguirDesde(actual, pos.ej)}
         />
       ) : (
         <section className="rounded-2xl bg-card p-5">
@@ -533,38 +569,58 @@ function tiempoDeCalor(texto: string | null): { tiempo: string; resto: string } 
   };
 }
 
-// La entrada en calor en grande, como un ejercicio más pero sin series: el texto y un botón para
-// pasar al primer ejercicio sin hacer.
+// La entrada en calor en grande, como un ejercicio más pero sin series: el tiempo planificado y el
+// texto, con el cronómetro (decisión 122). Hecha, muestra los minutos que se midieron.
 function EntradaEnCalor({
   dia,
   registra,
-  hecha,
-  onEmpezar,
+  pausado,
+  trabajando,
+  onFinalizar,
+  onSaltar,
+  onRetomar,
 }: {
   dia: DayDetail;
   registra: boolean;
-  hecha: boolean;
-  onEmpezar: () => void;
+  pausado: boolean;
+  trabajando: boolean;
+  onFinalizar: (minutos: number) => Promise<boolean>;
+  onSaltar: () => void;
+  onRetomar: () => void;
 }) {
+  const hecha = calorHecha(dia);
   const siguiente = registra && !hecha ? proximoEjercicio(dia, CALOR) : null;
   const calor = tiempoDeCalor(dia.mobility_notes);
+  const planificado = calor?.tiempo ?? null;
+  const texto = calor ? calor.resto : dia.mobility_notes;
   return (
     <>
       <h1 className="my-0 text-4xl">Entrada en calor</h1>
-      <section className="mt-3 rounded-2xl bg-card p-5 text-center">
-        {calor ? (
-          <>
-            <p className="my-2 font-heading text-7xl leading-none font-bold">{calor.tiempo}</p>
-            <p className="m-0 text-muted-foreground">{calor.resto}</p>
-          </>
-        ) : (
-          <p className="m-0">{dia.mobility_notes}</p>
-        )}
-      </section>
-      {registra && !hecha && (
-        <Button size="xl" className="mt-4 w-full" type="button" onClick={onEmpezar}>
-          Listo, empezar
-        </Button>
+      {hecha ? (
+        <PasoHecho etiqueta="Hecha" minutos={dia.warmup_minutes ?? null} planificado={planificado} distinto={false} texto={texto} />
+      ) : registra ? (
+        <PasoConReloj
+          dia={dia}
+          paso="calor"
+          planificado={planificado}
+          texto={texto}
+          pausado={pausado}
+          trabajando={trabajando}
+          onFinalizar={onFinalizar}
+          onSaltar={onSaltar}
+          onRetomar={onRetomar}
+        />
+      ) : (
+        <section className="mt-3 rounded-2xl bg-card p-5 text-center">
+          {calor ? (
+            <>
+              <p className="my-2 font-heading text-7xl leading-none font-bold">{calor.tiempo}</p>
+              <p className="m-0 text-muted-foreground">{calor.resto}</p>
+            </>
+          ) : (
+            <p className="m-0">{dia.mobility_notes}</p>
+          )}
+        </section>
       )}
       {siguiente !== null && (
         <p className="mt-4 rounded-xl bg-card px-4 py-3 text-sm">
@@ -587,6 +643,7 @@ function Ejercicio({
   onSerieGuardada,
   onEjercicioCambiado,
   onAvanzar,
+  onSaltar,
 }: {
   dia: DayDetail;
   pos: Posicion;
@@ -597,7 +654,8 @@ function Ejercicio({
   onIrASerie: (serie: number) => void;
   onSerieGuardada: (s: SetItem) => void;
   onEjercicioCambiado: (e: ExerciseItem) => void;
-  onAvanzar: (valores: SetItem | null) => void;
+  onAvanzar: (valores: SetItem | null) => Promise<boolean>;
+  onSaltar: () => void;
 }) {
   const ejercicio = dia.exercises[pos.ej];
   const hecho = estaHecho(ejercicio);
@@ -629,7 +687,21 @@ function Ejercicio({
         />
       </div>
 
-      {enCurso ? (
+      {enCurso && ejercicio.kind === "cardio" ? (
+        // El cardio con cronómetro (decisión 122): "Finalizar" guarda los minutos medidos como lo
+        // realizado de la serie.
+        <PasoConReloj
+          key={`${pos.ej}-${pos.serie}`}
+          dia={dia}
+          paso={`${pos.ej}-${pos.serie}`}
+          planificado={`${ejercicio.sets[pos.serie].duration_minutes} min`}
+          pausado={pausado}
+          trabajando={trabajando}
+          onFinalizar={(minutos) => onAvanzar({ ...ejercicio.sets[pos.serie], duration_minutes: minutos })}
+          onSaltar={onSaltar}
+          onRetomar={onRetomar}
+        />
+      ) : enCurso ? (
         <SerieEnGrande
           dia={dia}
           ejercicio={ejercicio}
@@ -642,6 +714,8 @@ function Ejercicio({
           onSerieGuardada={onSerieGuardada}
           onAvanzar={onAvanzar}
         />
+      ) : ejercicio.kind === "cardio" && hecho ? (
+        <CardioHecho ejercicio={ejercicio} />
       ) : (
         // Hecho o en lectura: todas las series con lo que se registró.
         <section className="mt-3 rounded-2xl bg-card px-4 py-2">
@@ -675,6 +749,13 @@ function Ejercicio({
       )}
     </>
   );
+}
+
+// El cardio ya hecho: los minutos realizados en grande (en azul si no son los planificados).
+function CardioHecho({ ejercicio }: { ejercicio: ExerciseItem }) {
+  const plan = ejercicio.sets.reduce((t, s) => t + (s.duration_minutes ?? 0), 0);
+  const real = ejercicio.sets.reduce((t, s) => t + (s.real?.duration_minutes ?? s.duration_minutes ?? 0), 0);
+  return <PasoHecho etiqueta="Hecho" minutos={real} planificado={`${plan} min`} distinto={real !== plan} />;
 }
 
 function SerieEnGrande({

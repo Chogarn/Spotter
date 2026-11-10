@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
+import { ContadorSesion } from "@/components/ContadorSesion";
 import { Disco } from "@/components/Disco";
 import { Confirmar } from "@/components/Confirmar";
 import { InfoEjercicio } from "@/components/InfoEjercicio";
@@ -13,7 +14,8 @@ import { Flecha } from "@/components/Flecha";
 import { Resumen } from "@/components/ExerciseRow";
 import { SetRow } from "@/components/SetRow";
 import { readError, type DayDetail, type ExerciseItem, type SetItem, type WeekDetail, apiFetch } from "@/lib/api";
-import { estaHecho, summarize, tituloDia } from "@/lib/format";
+import { calorHecha, estaHecho, summarize, tituloDia } from "@/lib/format";
+import { leerCrono, pausaDelCrono } from "@/lib/cronometro";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -157,6 +159,7 @@ export default function DiaView({
           <ol className="m-0 mt-4 grid list-none grid-cols-1 gap-2.5 p-0">
             {dia.mobility_notes && (
               <TarjetaCalor
+                dia={dia}
                 texto={dia.mobility_notes}
                 abierta={abierta === CALOR}
                 onAlternar={() => setAbierta((a) => (a === CALOR ? null : CALOR))}
@@ -262,10 +265,26 @@ export default function DiaView({
 }
 
 // La entrada en calor (`mobility_notes`) como la primera tarjeta de la lista (decisión 56): se
-// despliega igual que un ejercicio, pero solo con el texto; no tiene series ni cuenta como hecha.
+// despliega igual que un ejercicio, pero solo con el texto; no tiene series. Debajo del nombre dice
+// si está hecha y cuántos minutos midió, o si su cronómetro está corriendo (decisión 122).
 const CALOR = -1;
 
-function TarjetaCalor({ texto, abierta, onAlternar }: { texto: string; abierta: boolean; onAlternar: () => void }) {
+function TarjetaCalor({
+  dia,
+  texto,
+  abierta,
+  onAlternar,
+}: {
+  dia: DayDetail;
+  texto: string;
+  abierta: boolean;
+  onAlternar: () => void;
+}) {
+  const hecha = calorHecha(dia);
+  // El cronómetro se guarda en el navegador; solo cuenta mientras el día está abierto.
+  const [crono] = useState(() =>
+    hecha || dia.finished_at !== null ? null : leerCrono(dia.week_id, dia.day_index, "calor"),
+  );
   return (
     <li className="rounded-2xl border-2 border-transparent bg-card">
       <button
@@ -277,12 +296,34 @@ function TarjetaCalor({ texto, abierta, onAlternar }: { texto: string; abierta: 
       >
         <span className="min-w-0 flex-1">
           <span className="block font-heading text-[1.35rem] leading-tight font-bold">Entrada en calor</span>
-          {!abierta && (
-            <span className="block truncate font-heading text-lg leading-tight font-semibold text-muted-foreground">
-              {texto}
+          {hecha ? (
+            <span className="block font-heading text-lg leading-tight font-semibold text-muted-foreground">
+              {dia.warmup_minutes != null ? `hecha · ${dia.warmup_minutes} min` : "hecha"}
             </span>
+          ) : crono ? (
+            <span className="block font-heading text-lg leading-tight font-semibold text-disco-rojo">
+              corriendo ·{" "}
+              <ContadorSesion
+                desde={crono.inicio}
+                pausa={pausaDelCrono(crono, dia)}
+                detenidoEn={dia.paused_at ?? null}
+                etiqueta="Cronómetro de la entrada en calor"
+                className="tabular-nums"
+              />
+            </span>
+          ) : (
+            !abierta && (
+              <span className="block truncate font-heading text-lg leading-tight font-semibold text-muted-foreground">
+                {texto}
+              </span>
+            )
           )}
         </span>
+        {hecha && (
+          <Disco estado="hecho" className="size-7">
+            <Check className="size-4" aria-label="Hecha" />
+          </Disco>
+        )}
         <ChevronDown
           className={cn("size-6 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none", abierta && "rotate-180")}
           aria-hidden="true"

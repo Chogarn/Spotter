@@ -29,11 +29,13 @@ export function ContadorSesion({
   pausa = 0,
   detenidoEn = null,
   className,
+  etiqueta = "Tiempo de la sesión",
 }: {
   desde: string;
   pausa?: number;
   detenidoEn?: string | null;
   className?: string;
+  etiqueta?: string;
 }) {
   const ahora = useSyncExternalStore(suscribirse, segundosAhora, sinHora);
   if (ahora === null) return null;
@@ -42,7 +44,7 @@ export function ContadorSesion({
   return (
     <span
       role="timer"
-      aria-label="Tiempo de la sesión"
+      aria-label={etiqueta}
       className={className ?? "font-heading text-lg font-bold tabular-nums text-foreground"}
     >
       {formato(segundos)}
