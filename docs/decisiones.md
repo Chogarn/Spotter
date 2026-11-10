@@ -881,6 +881,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** el texto de la confirmación; al reabrir, la pantalla vuelve a leer el día y se olvidan la posición guardada del modo entrenar y los cronómetros de ese día; también se borran las marcas viejas de carga y dolor de los ejercicios (decisión 74).
 - **Ojo:** ya no hay forma de corregir un número de un día completado: hay que reabrirlo y volver a registrarlo entero. Probado en el navegador en ancho de celular con un usuario descartable (ya borrado): un Día 2 completado con todo hecho quedó, al reabrirlo, sin series ni ejercicios marcados, sin reloj y sin estar en curso. No se probó en un teléfono real.
 
+### 124. Con un día empezado, "Te toca" dice "Seguir entrenando" y la píldora se ve en Entrenar
+- **Fecha:** 2026-11-10
+- **Decisión:** con un día empezado y sin completar, la tarjeta **"Te toca"** de Entrenar muestra **ese día** con el botón **"Seguir entrenando"** (y **"Retomar"** si está detenido, que retoma el reloj y abre el modo entrenar); sin día empezado sigue diciendo "Empezar". La **píldora "entrenando ahora"** ya no se oculta en toda la sección Entrenar: se ve en la pantalla Entrenar y en la lista del día, y solo se oculta **dentro del modo entrenar**. El botón Entrenar de la barra, estando en el modo entrenar, sigue llevando a la pantalla Entrenar.
+- **Por qué:** *(completar)*
+- **Descartaste:** que el botón Entrenar no haga nada dentro del modo entrenar, el texto "Continuar" y dejar la píldora oculta en Entrenar (con la tarjeta alcanzaba).
+- **Decidió la IA sin preguntarte:** lo mismo en la tarjeta "Hoy te toca" de **Inicio** (también dice "Seguir entrenando" o "Retomar"), y que la píldora se vuelva a pedir en cada pantalla a la que se navega (antes solo al aparecer).
+- **Ojo:** si se detiene el día desde la píldora estando en Entrenar, la tarjeta sigue diciendo "Seguir entrenando" hasta cambiar de pantalla (no se entera sola). Probado en el navegador en ancho de celular con un usuario descartable (ya borrado): desde el modo entrenar, Entrenar muestra "Seguir entrenando" y la píldora; con el día detenido, Inicio muestra "Retomar", y tocarlo retoma el reloj y abre el día; dentro del modo entrenar la píldora no aparece. No se probó en un teléfono real.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
