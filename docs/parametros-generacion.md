@@ -35,7 +35,7 @@ No se manda a la IA el nombre ni el correo.
 |---|---|---|
 | **Objetivo** | masa · fuerza · perder grasa · mantenerme activo | Diseño |
 | **Nivel** | principiante · intermedio · avanzado | Diseño |
-| **Días por semana** | Principiante: 2 o 3. El resto: de 2 a 6 | Convención y decisión de producto (R11, R12): ninguna fuente prescribe una cantidad de días |
+| **Días por semana** | De 3 a 6 para todos los niveles (decisión 126; antes principiante 2 o 3 y el resto de 2 a 6) | Convención y decisión de producto (R11, R12): ninguna fuente prescribe una cantidad de días |
 | **Estructura (split)** | Cuerpo completo · torso/pierna · empuje/tirón/piernas (PPL), según las opciones compatibles | Decisión de producto 91; no hay una estructura prescrita por las fuentes |
 | Equipamiento | No se pregunta: se da por hecho un gimnasio completo | Diseño |
 | *Tiempo por sesión* | **Apagado por ahora.** No se pide; la duración es solo un dato de control (ver 8) | Diseño |
@@ -87,7 +87,7 @@ Notas:
 
 | Regla | Valor | Origen | Lo comprueba |
 |---|---|---|---|
-| Días por semana | 2 a 6 (R11); principiante 2 o 3 (R12) | Convención y decisión de producto | Código (rechaza) |
+| Días por semana | 3 a 6 para todos (R11 y R12, modificadas por la decisión 126) | Convención y decisión de producto | Código (rechaza) |
 | Días exactamente iguales a los elegidos | Sí | Diseño | Código (rechaza) |
 | Fuerza mínima | Al menos 2 días (R1) | Fuente | Código (rechaza) |
 | Grupos cubiertos | Los 6 grupos grandes, al menos 1 serie (R1) | Fuente | Código (rechaza) |
@@ -104,7 +104,7 @@ Notas:
 | 5 | Cuerpo completo o torso/pierna |
 | 6 | Cuerpo completo, torso/pierna o PPL × 2 |
 
-Principiante: solo 2 o 3 días de cuerpo completo.
+Principiante: solo cuerpo completo, de 3 a 6 días (decisión 126).
 
 ---
 
@@ -129,7 +129,7 @@ Principiante: solo 2 o 3 días de cuerpo completo.
 
 ### 6.2 Límites técnicos de una rutina
 
-Hasta 12 ejercicios por día, 10 series por ejercicio, hasta 4 músculos secundarios por ejercicio, de 1 a 7 días en el formato (el código exige de 2 a 6).
+Hasta 12 ejercicios por día, 10 series por ejercicio, hasta 4 músculos secundarios por ejercicio, de 1 a 7 días en el formato (el código exige de 3 a 6).
 
 ### 6.3 Orden, descanso y movilidad
 
@@ -161,7 +161,7 @@ Reglas de **diseño** elegidas por el usuario el 2026-10-23, que **no son R1 a R
 | Diferencia de series entre los días de un mismo grupo | 3 como máximo | Ninguno (diseño) |
 | Series de un mismo grupo en un día | 9 como máximo (3 ejercicios de 3 series) | Parcial (preprint: unas 11 series fraccionadas por sesión) |
 | Diferencia entre el día con más y el con menos series de grupos grandes | 4 como máximo | Ninguno (diseño) |
-| Complemento (bíceps, tríceps, gemelos, abdominales) | Hasta 6 series por día; no cuenta para el volumen de los grupos grandes ni completa un día | Ninguno (diseño) |
+| Complemento (bíceps, tríceps, gemelos, abdominales) | Hasta 6 series por día, sin contar los abdominales (decisión 126); no cuenta para el volumen de los grupos grandes ni completa un día | Ninguno (diseño) |
 
 Si no se cumplen, el código **pide la rutina de nuevo una vez**; si el segundo intento tampoco entra, la acepta con el aviso "Reparto".
 
@@ -252,7 +252,7 @@ Si un peso propuesto sube **más de 10 %** sobre el último peso realizado, mues
 ## 11. Qué comprueba el código
 
 ### Rechaza la rutina (la IA tiene que rehacerla)
-- Cantidad de días fuera de 2 a 6, o un principiante con 4 o más (R11, R12).
+- Cantidad de días fuera de 3 a 6 (R11 y R12, decisión 126).
 - Días distintos de los que eligió la persona.
 - Split incompatible con los días, el nivel o el objetivo.
 - Menos de 2 días de fuerza o faltan grupos grandes (R1).

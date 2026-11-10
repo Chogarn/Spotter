@@ -111,8 +111,8 @@ Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and 
 |---|---|---|---|---|---|
 | R1 | Mínimo de **2 días de fuerza por semana**, cubriendo todos los grupos musculares grandes | Evidencia | ACSM 2026 y OMS 2020. Certeza moderada | Código | Crear |
 | R2 | Por defecto, **cada grupo grande se trabaja 2 veces por semana**. Una sola vez no es error si el volumen alcanza | Convención con apoyo indirecto | Meta-análisis de frecuencia: con volumen igual, la frecuencia casi no cambia el resultado | Gemini | Crear |
-| R3 | **Masa muscular:** apuntar a **10 series o más por semana** por grupo muscular y no pasar de unas 18 a 20 | Evidencia | ACSM 2026. Certeza media; el texto no concilia el piso con el tope. **Vale también para principiantes** (decisión del estudiante): la evidencia viene sobre todo de personas sin experiencia. **Se cuenta solo en los 6 grupos grandes** (decisión del estudiante, 2026-10-08) | Código (avisa) | Crear |
-| R4 | **Fuerza:** **2 a 3 series por ejercicio**, cargas de 80 % del máximo o más, y el ejercicio principal al comienzo de la sesión | Evidencia | ACSM 2026 | Código (series por ejercicio) y Gemini (carga y orden) | Crear |
+| R3 | **Masa muscular:** apuntar a **10 series o más por semana** por grupo muscular y no pasar de unas 18 a 20. **Modificada el 2026-11-10 (decisión 126):** 10 es el mínimo, la IA apunta a **12 a 20** y **pasar de 20 está permitido** (el código ya no avisa por arriba) | Evidencia | ACSM 2026. Certeza media; el texto no concilia el piso con el tope. **Vale también para principiantes** (decisión del estudiante): la evidencia viene sobre todo de personas sin experiencia. **Se cuenta solo en los 6 grupos grandes** (decisión del estudiante, 2026-10-08) | Código (avisa) | Crear |
+| R4 | **Fuerza:** **2 a 3 series por ejercicio**, cargas de 80 % del máximo o más, y el ejercicio principal al comienzo de la sesión. **Modificada el 2026-11-10 (decisión 126, diseño del usuario, sin fuente):** en masa y fuerza, **3 a 4 series por ejercicio**; carga y orden siguen igual | Evidencia | ACSM 2026 | Código (series por ejercicio) y Gemini (carga y orden) | Crear |
 | R5 | Las series **indirectas cuentan como 0,5** y las directas como 1 | Convención con apoyo parcial | Pelland 2026, solo resumen. No es norma oficial | Código | Siempre |
 
 ### Carga, esfuerzo y descanso
@@ -135,8 +135,8 @@ Fuente: *Resistance Training Prescription for Muscle Function, Hypertrophy, and 
 
 | # | Regla | Tipo | Fuente y certeza | Cómo se aplica | Cuándo |
 |---|---|---|---|---|---|
-| R11 | **La persona elige de 2 a 6 días** por semana; el código exige que la propuesta traiga exactamente esa cantidad. Elige además una estructura compatible: cuerpo completo, torso/pierna o PPL, según nivel, objetivo y días. Ninguna fuente prescribe el número de días ni la estructura. *(Días: decisión 52. Estructuras: decisión 91)* | Decisión de producto y convención | El ACSM 2026 no encontró diferencias entre 1 y más de 5 días con igual volumen; no prescribe splits | Código valida los días y el split | Crear y continuar |
-| R12 | **Principiantes:** 2 o 3 días y cuerpo completo. El código no ofrece otros splits para este nivel. | Convención compatible con la evidencia | ACSM 2009 recomendaba cuerpo completo para novatos; esa pauta fue reemplazada en 2026 | Código | Crear y continuar |
+| R11 | **La persona elige de 2 a 6 días** por semana (**desde la decisión 126, de 3 a 6, con cualquier nivel**); el código exige que la propuesta traiga exactamente esa cantidad. Elige además una estructura compatible: cuerpo completo, torso/pierna o PPL, según nivel, objetivo y días. Ninguna fuente prescribe el número de días ni la estructura. *(Días: decisión 52. Estructuras: decisión 91)* | Decisión de producto y convención | El ACSM 2026 no encontró diferencias entre 1 y más de 5 días con igual volumen; no prescribe splits | Código valida los días y el split | Crear y continuar |
+| R12 | **Principiantes:** 2 o 3 días y cuerpo completo. El código no ofrece otros splits para este nivel. **Modificada el 2026-11-10 (decisión 126):** los días pasan a ser de 3 a 6, como el resto; sigue solo cuerpo completo | Convención compatible con la evidencia | ACSM 2009 recomendaba cuerpo completo para novatos; esa pauta fue reemplazada en 2026 | Código | Crear y continuar |
 
 ### Clasificación y equilibrio
 
@@ -239,9 +239,11 @@ No son R1 a R36 (no salen de las fuentes): las eligió el usuario para que el vo
 |---|---|
 | Días en que se trabaja cada grupo grande | al menos 2, si la rutina tiene 3 o más días de fuerza |
 | Diferencia de series entre los días de un mismo grupo | 3 como máximo |
-| Series de un mismo grupo en un día | 9 como máximo (3 ejercicios de 3 series) |
+| Series de un mismo grupo en un día | 12 como máximo (antes 9; decisión 126) |
 | Diferencia de series de grupos grandes entre el día con más y el con menos | 4 como máximo |
-| Complemento (bíceps, tríceps, gemelos y abdominales) | hasta 6 series por día; no cuenta para los grupos grandes ni completa un día |
+| Complemento (bíceps, tríceps, gemelos y abdominales) | hasta 6 series por día, **sin contar los abdominales** (decisión 126); no cuenta para los grupos grandes ni completa un día |
+
+**Ejercicios y series por día (decisión 126, 2026-11-10, diseño del usuario, sin fuente).** Solo en **masa y fuerza**: cada día de fuerza lleva **6 ejercicios o más**, sin contar abdominales ni cardio (bíceps, tríceps y gemelos sí cuentan), y cada ejercicio de fuerza lleva **de 3 a 4 series**. El código lo comprueba como el reparto (pide de nuevo una vez y después avisa). Como guía para la IA, sin control del código: **2 a 5 ejercicios por grupo grande por semana**. **Abdominales**, en todos los objetivos: al menos 2 días por semana, 1 ejercicio de 3 series, aparte de los 6 (solo en el prompt). Perder grasa y mantenerme activo siguen con su volumen (R20 y R25).
 
 ## Aductores, antebrazo y tibial (decisión 99, 2026-10-26)
 
