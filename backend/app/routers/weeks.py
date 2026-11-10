@@ -39,6 +39,8 @@ from app.schemas import (
     RealSetOut,
     ResultSetOut,
     SetEntryIn,
+    WarmupIn,
+    WarmupOut,
     WeekDayItemOut,
     WeekDetailOut,
     WeekMusclesOut,
@@ -665,6 +667,7 @@ def get_day(
         started_at=None if session is None else session.started_at,
         paused_at=None if session is None else session.paused_at,
         paused_seconds=0 if session is None else (session.paused_seconds or 0),
+        warmup_minutes=None if session is None else session.warmup_minutes,
         exercises=[
             exercise_out(e, entries, done.get(e.id), previous.get(e.exercise_id))
             for e in day.exercises
@@ -1072,9 +1075,31 @@ def restart_day(
     session.started_at = None
     session.paused_at = None
     session.paused_seconds = 0
+    session.warmup_minutes = None
     db.commit()
     db.refresh(session)
     return day_status(session)
+
+
+@router.put("/{week_id}/days/{day_index}/warmup", response_model=WarmupOut)
+def save_warmup(
+    week_id: int,
+    day_index: int,
+    data: WarmupIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> WarmupOut:
+    """Entrada en calor hecha (decisión 122): guarda los minutos que midió el cronómetro al tocar
+    "Finalizar". Solo en un día con entrada en calor, abierto y sin detener."""
+    week, _ = get_own_week(db, user, week_id)
+    day = find_day(week, day_index)
+    require_active(week)
+    if not day.mobility_notes:
+        raise HTTPException(status_code=409, detail="Este día no tiene entrada en calor")
+    session = open_session(db, user, day)
+    session.warmup_minutes = data.minutes
+    db.commit()
+    return WarmupOut(warmup_minutes=session.warmup_minutes)
 
 
 @router.post("/{week_id}/days/{day_index}/reopen", response_model=DayStatusOut)

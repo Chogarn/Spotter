@@ -546,7 +546,19 @@ class DayDetailOut(BaseModel):
     # Pausa (decisión 121): cuándo se detuvo (vacío si no) y los segundos detenidos en total.
     paused_at: datetime | None = None
     paused_seconds: int = 0
+    # Entrada en calor (decisión 122): los minutos medidos al finalizarla; vacío si no se hizo.
+    warmup_minutes: int | None = None
     exercises: list[DayExerciseOut]
+
+
+class WarmupIn(BaseModel):
+    """Los minutos que midió el cronómetro de la entrada en calor (decisión 122)."""
+
+    minutes: int = Field(ge=1, le=180)
+
+
+class WarmupOut(BaseModel):
+    warmup_minutes: int | None
 
 
 class DayStatusOut(BaseModel):

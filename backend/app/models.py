@@ -369,6 +369,9 @@ class WorkoutSession(Base):
     # y cuántos segundos estuvo detenido en total. Esos segundos no cuentan en la duración del día.
     paused_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     paused_seconds: Mapped[int] = mapped_column(Integer, server_default="0", default=0)
+    # Entrada en calor (decisión 122): los minutos que midió el cronómetro al tocar "Finalizar".
+    # Vacío si no se hizo (o se salteó).
+    warmup_minutes: Mapped[int | None] = mapped_column(Integer)
     feeling: Mapped[Feeling | None] = mapped_column(enum_column(Feeling))
     notes: Mapped[str | None] = mapped_column(Text)
 
