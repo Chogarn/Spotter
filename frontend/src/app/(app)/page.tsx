@@ -11,6 +11,7 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { Formulario } from "@/components/SeguimientoCuerpo";
 import { Franja } from "@/components/Franja";
 import { Logo } from "@/components/Logo";
+import { usePeriodo } from "@/components/SelectorPeriodo";
 import { NuevaRutina } from "@/components/NuevaRutina";
 import { OpcionesSiguiente, useUltimaSemana } from "@/components/SiguienteSemana";
 import { TarjetaAcceso } from "@/components/TarjetaAcceso";
@@ -28,10 +29,14 @@ export default function Inicio() {
   const [cargando, setCargando] = useState(true);
   const [usuario, setUsuario] = useState<SessionUser | null>(null);
   const [semana, setSemana] = useState<WeekDetail | null>(null);
+  // El número del día que se completó hoy, si hay uno: la tarjeta lo festeja arriba.
+  const [festejoDia, setFestejoDia] = useState<number | null>(null);
   const [pendiente, setPendiente] = useState<number | null>(null);
   const [error, setError] = useState("");
   // El recuadro para cargar el peso del día, sin salir de Inicio.
   const [cargandoPeso, setCargandoPeso] = useState(false);
+  // "Ver cómo te fue" abre Resúmenes en la pestaña Día.
+  const [, setPeriodo] = usePeriodo();
   // Subir `recarga` vuelve a pedir todo (por ejemplo, si al generar ya había una semana activa).
   const [recarga, setRecarga] = useState(0);
 
@@ -51,7 +56,16 @@ export default function Inicio() {
       const { id } = await activa.json();
       const detalle = await apiFetch(`/weeks/${id}`);
       if (!detalle.ok) throw new Error(await readError(detalle));
-      setSemana(await detalle.json());
+      const datos: WeekDetail = await detalle.json();
+      setSemana(datos);
+      // El día completado hoy (fecha del teléfono), el último si hubo más de uno: se festeja en la
+      // tarjeta. Se calcula acá, en el navegador, porque Next no deja leer la fecha al preparar la página.
+      const hoy = new Date().toDateString();
+      const deHoy = datos.days
+        .filter((d) => d.finished_at && new Date(d.finished_at).toDateString() === hoy)
+        .sort((a, b) => (a.finished_at! < b.finished_at! ? -1 : 1))
+        .at(-1);
+      setFestejoDia(deHoy?.day_index ?? null);
     }
     cargar()
       .catch((e) => setError(e instanceof Error ? e.message : "No se pudo conectar con el servidor"))
@@ -87,6 +101,26 @@ export default function Inicio() {
           <section
             className={`mb-4 rounded-2xl border-2 bg-card p-5 ${proximo ? "border-disco-tinta" : "border-disco-amarillo"}`}
           >
+            {/* Hoy se completó un día: el festejo del modo entrenar, arriba; lo que sigue queda debajo. */}
+            {festejoDia !== null && (
+              <div className="mb-4 border-b border-border pb-4 text-center">
+                <Festejo />
+                <h2 className="mt-0 mb-1 text-4xl">Día {festejoDia} completado</h2>
+                <p className="m-0 text-muted-foreground">
+                  {tituloDia(semana.days.find((d) => d.day_index === festejoDia)?.title ?? "")}
+                </p>
+                <Link
+                  href="/progreso/resumenes"
+                  onClick={() => setPeriodo("day")}
+                  className="mt-2 inline-block text-sm font-medium text-disco-azul"
+                >
+                  Ver cómo te fue
+                </Link>
+              </div>
+            )}
+            {festejoDia !== null && proximo && (
+              <p className="mt-0 mb-2 text-sm font-medium text-muted-foreground">Próximo</p>
+            )}
             {/* La semana en curso: solo los discos de los días. */}
             <div className="mb-4 flex items-center gap-1.5">
               {semana.days.map((d) => (
@@ -95,7 +129,7 @@ export default function Inicio() {
             </div>
             {proximo ? (
               <>
-                <h2 className="mt-0 mb-0 text-4xl">Día {proximo.day_index}</h2>
+                <h2 className={`mt-0 mb-0 ${festejoDia !== null ? "text-2xl" : "text-4xl"}`}>Día {proximo.day_index}</h2>
                 <p className="mt-0 mb-4 text-lg text-muted-foreground">{tituloDia(proximo.title)}</p>
                 <Button
                   size="xl"
