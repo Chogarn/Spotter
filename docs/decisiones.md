@@ -873,6 +873,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte (en la maqueta, y lo aprobaste):** el cronómetro sigue corriendo si se sale de la pantalla (se guarda en el navegador la hora en que se empezó) y se frena con el día detenido; los minutos se redondean (mínimo 1, máximo 180); reiniciar el día borra la entrada en calor y los cronómetros. **Sin preguntar:** con varias series de cardio, cada serie tiene su propio cronómetro.
 - **Ojo:** como se mantiene la regla de antes, si se saltea la entrada en calor y después se registra una serie, también aparece como hecha (sin minutos): no hay forma de distinguirlo de un día viejo. Probado en el navegador en ancho de celular con un usuario descartable (ya borrado): entrada en calor corriendo, en la lista del día, finalizada (guardó 9 min y pasó al primer ejercicio); cardio con el día detenido (se frenó en 32:13 y siguió al retomar) y finalizado (guardó 32 min, en azul con "tocaba 30 min"). No se probó en un teléfono real ni Saltar.
 
+### 123. Reabrir un día lo deja sin hacer
+- **Fecha:** 2026-11-10
+- **Decisión:** **Reabrir día** (en la lista de un día completado) ya no es para corregir: deja el día **como si nunca se hubiera empezado**, igual que Reiniciar (decisión 121). Borra las series, los ejercicios marcados y la entrada en calor, el reloj vuelve a cero y apagado, y al volver a entrenar todo aparece sin hacer. Pide confirmación (botón rojo, "No se puede deshacer"). Reabrir un ejercicio (decisión 33) no cambia: sigue destrabándolo sin borrar nada.
+- **Por qué:** *(completar)*
+- **Descartaste:** que Reabrir siga conservando lo hecho (como era), y dos opciones al reabrir ("Corregir" y "Empezar de nuevo").
+- **Decidió la IA sin preguntarte:** el texto de la confirmación; al reabrir, la pantalla vuelve a leer el día y se olvidan la posición guardada del modo entrenar y los cronómetros de ese día; también se borran las marcas viejas de carga y dolor de los ejercicios (decisión 74).
+- **Ojo:** ya no hay forma de corregir un número de un día completado: hay que reabrirlo y volver a registrarlo entero. Probado en el navegador en ancho de celular con un usuario descartable (ya borrado): un Día 2 completado con todo hecho quedó, al reabrirlo, sin series ni ejercicios marcados, sin reloj y sin estar en curso. No se probó en un teléfono real.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.

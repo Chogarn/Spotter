@@ -196,7 +196,7 @@ De la diferencia entre lo planificado y lo real salen el análisis y la semana s
 
 ### Día completado
 - Cierra la sesión (`workout_sessions.finished_at`). Los ejercicios sin registrar quedan como no hechos y se puede completar con pendientes.
-- Con el día completado no se puede editar nada hasta tocar **Reabrir día** (en la lista del día).
+- Con el día completado no se puede editar nada. **Reabrir día** (en la lista del día, con confirmación) lo deja sin hacer, como si nunca se hubiera empezado: borra lo registrado y el reloj vuelve a cero (decisión 123).
 - Los datos se guardan a medida que se cargan, no al terminar: si se corta la app no se pierde nada.
 - Un día está **completo** cuando se tocó "Día completado" y **a medias** si solo hay algo registrado.
 
