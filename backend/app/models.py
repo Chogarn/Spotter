@@ -365,6 +365,10 @@ class WorkoutSession(Base):
     # Cuándo tocó "Empezar día" (decisión 82). Reabrir el día lo vacía; solo sirve para medir
     # cuánto tardó.
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Pausa del modo entrenar (decisión 121): cuándo se tocó "Detener" (vacío si no está detenido)
+    # y cuántos segundos estuvo detenido en total. Esos segundos no cuentan en la duración del día.
+    paused_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    paused_seconds: Mapped[int] = mapped_column(Integer, server_default="0", default=0)
     feeling: Mapped[Feeling | None] = mapped_column(enum_column(Feeling))
     notes: Mapped[str | None] = mapped_column(Text)
 

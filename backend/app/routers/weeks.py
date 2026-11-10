@@ -121,14 +121,42 @@ def open_session(db: Session, user: User, day: PlanDay) -> WorkoutSession:
         raise HTTPException(
             status_code=409, detail="El día está completado: reabrilo para corregir"
         )
+    elif session.paused_at is not None:
+        raise HTTPException(status_code=409, detail="El día está en pausa: retomalo para seguir")
     return session
+
+
+def end_pause(session: WorkoutSession, now: datetime) -> None:
+    """Suma lo que estuvo detenido y saca la pausa (decisión 121)."""
+    if session.paused_at is not None:
+        desde = session.paused_at
+        if desde.tzinfo is None:  # SQLite (los tests) guarda la hora sin zona: es UTC
+            desde = desde.replace(tzinfo=timezone.utc)
+        session.paused_seconds = (session.paused_seconds or 0) + max(
+            0, round((now - desde).total_seconds())
+        )
+        session.paused_at = None
+
+
+def day_status(session: WorkoutSession | None) -> DayStatusOut:
+    if session is None:
+        return DayStatusOut(finished_at=None)
+    return DayStatusOut(
+        finished_at=session.finished_at,
+        started_at=session.started_at,
+        paused_at=session.paused_at,
+        paused_seconds=session.paused_seconds or 0,
+    )
 
 
 def measured_minutes(session: WorkoutSession | None) -> int | None:
     """Lo que tardó el día (decisión 82): de "Empezar día" a "Día completado". Nulo si falta alguno."""
     if session is None or session.started_at is None or session.finished_at is None:
         return None
-    seconds = (session.finished_at - session.started_at).total_seconds()
+    # Lo que estuvo detenido no cuenta (decisión 121).
+    seconds = (session.finished_at - session.started_at).total_seconds() - (
+        session.paused_seconds or 0
+    )
     return max(0, round(seconds / 60)) if seconds >= 0 else None
 
 
@@ -332,20 +360,23 @@ def get_active_week(
     week = active_week(db, user.id)
     if week is None:
         raise HTTPException(status_code=404, detail="No tenés una semana activa")
+    # El día empezado y sin completar (decisión 84), y si está detenido (decisión 121).
+    en_curso = next(
+        (
+            (d.day_index, s.paused_at is not None)
+            for d in week.days
+            if (s := day_session(db, user, d)) is not None
+            and s.started_at is not None
+            and s.finished_at is None
+        ),
+        None,
+    )
     return WeekOut(
         id=week.id,
         week_start=week.week_start,
         days=[{"day_index": d.day_index, "title": d.title} for d in week.days],
-        in_progress_day=next(
-            (
-                d.day_index
-                for d in week.days
-                if (s := day_session(db, user, d)) is not None
-                and s.started_at is not None
-                and s.finished_at is None
-            ),
-            None,
-        ),
+        in_progress_day=en_curso[0] if en_curso else None,
+        in_progress_paused=bool(en_curso) and en_curso[1],
     )
 
 
@@ -416,16 +447,19 @@ def get_week(
         week_start=week.week_start,
         closing_note=week.closing_note,
         split_type=week.routine.split_type,
-        days=[
-            WeekDayItemOut(
-                day_index=d.day_index,
-                title=d.title,
-                exercise_count=len(d.exercises),
-                minutes=day_minutes(d),
-                state=day_state(day_entries(db, d), day_session(db, user, d)),
-            )
-            for d in week.days
-        ],
+        days=[week_day_item(db, user, d) for d in week.days],
+    )
+
+
+def week_day_item(db: Session, user: User, day: PlanDay) -> WeekDayItemOut:
+    session = day_session(db, user, day)
+    return WeekDayItemOut(
+        day_index=day.day_index,
+        title=day.title,
+        exercise_count=len(day.exercises),
+        minutes=day_minutes(day),
+        state=day_state(day_entries(db, day), session),
+        finished_at=session.finished_at if session is not None else None,
     )
 
 
@@ -629,6 +663,8 @@ def get_day(
         minutes=day_minutes(day),
         finished_at=None if session is None else session.finished_at,
         started_at=None if session is None else session.started_at,
+        paused_at=None if session is None else session.paused_at,
+        paused_seconds=0 if session is None else (session.paused_seconds or 0),
         exercises=[
             exercise_out(e, entries, done.get(e.id), previous.get(e.exercise_id))
             for e in day.exercises
@@ -951,7 +987,7 @@ def start_day(
     if session.started_at is None:
         session.started_at = datetime.now(timezone.utc)
     db.commit()
-    return DayStatusOut(finished_at=None, started_at=session.started_at)
+    return day_status(session)
 
 
 @router.post("/{week_id}/days/{day_index}/complete", response_model=DayStatusOut)
@@ -970,9 +1006,75 @@ def complete_day(
         session = WorkoutSession(user_id=user.id, plan_day_id=day.id)
         db.add(session)
     if session.finished_at is None:
-        session.finished_at = datetime.now(timezone.utc)
+        now = datetime.now(timezone.utc)
+        end_pause(session, now)  # completar un día detenido lo retoma y lo cierra
+        session.finished_at = now
     db.commit()
-    return DayStatusOut(finished_at=session.finished_at, started_at=session.started_at)
+    return day_status(session)
+
+
+def started_session(db: Session, user: User, week_id: int, day_index: int) -> WorkoutSession:
+    """La sesión de un día empezado y sin completar; 409 si no lo está."""
+    week, _ = get_own_week(db, user, week_id)
+    day = find_day(week, day_index)
+    require_active(week)
+    session = day_session(db, user, day)
+    if session is None or session.started_at is None:
+        raise HTTPException(status_code=409, detail="El día no está empezado")
+    if session.finished_at is not None:
+        raise HTTPException(status_code=409, detail="El día está completado: reabrilo para corregir")
+    return session
+
+
+@router.post("/{week_id}/days/{day_index}/pause", response_model=DayStatusOut)
+def pause_day(
+    week_id: int,
+    day_index: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> DayStatusOut:
+    """Detener (decisión 121): frena el reloj del día y lo deja de dar por "en curso" hasta
+    retomarlo. Lo registrado no se toca. Si ya estaba detenido, no cambia nada."""
+    session = started_session(db, user, week_id, day_index)
+    if session.paused_at is None:
+        session.paused_at = datetime.now(timezone.utc)
+        db.commit()
+    return day_status(session)
+
+
+@router.post("/{week_id}/days/{day_index}/resume", response_model=DayStatusOut)
+def resume_day(
+    week_id: int,
+    day_index: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> DayStatusOut:
+    """Retomar (decisión 121): el reloj sigue desde donde se detuvo."""
+    session = started_session(db, user, week_id, day_index)
+    end_pause(session, datetime.now(timezone.utc))
+    db.commit()
+    return day_status(session)
+
+
+@router.post("/{week_id}/days/{day_index}/restart", response_model=DayStatusOut)
+def restart_day(
+    week_id: int,
+    day_index: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> DayStatusOut:
+    """Reiniciar (decisión 121): el día vuelve a como estaba antes de empezarlo. Borra lo registrado
+    (series y ejercicios marcados) y el reloj queda en cero y apagado, así que el día deja de estar
+    en curso hasta que se vuelva a tocar "Empezar". El plan no cambia."""
+    session = started_session(db, user, week_id, day_index)
+    db.execute(delete(SetEntry).where(SetEntry.session_id == session.id))
+    db.execute(delete(ExerciseCompletion).where(ExerciseCompletion.session_id == session.id))
+    session.started_at = None
+    session.paused_at = None
+    session.paused_seconds = 0
+    db.commit()
+    db.refresh(session)
+    return day_status(session)
 
 
 @router.post("/{week_id}/days/{day_index}/reopen", response_model=DayStatusOut)
@@ -990,5 +1092,7 @@ def reopen_day(
     if session is not None and session.finished_at is not None:
         session.finished_at = None
         session.started_at = None  # el contador vuelve a empezar al retomar (decisión 82)
+        session.paused_at = None
+        session.paused_seconds = 0
         db.commit()
     return DayStatusOut(finished_at=None)

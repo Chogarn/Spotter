@@ -539,3 +539,13 @@ def test_el_estado_de_los_dias_pasa_de_pendiente_a_a_medias_a_completado(api, se
 def test_completar_sin_registrar_nada_deja_el_dia_completado(api, semana):
     completar(api, semana, 2)
     assert estados(api, semana) == ["pending", "completed"]
+
+
+def test_la_semana_trae_cuando_se_completo_cada_dia(api, semana):
+    # Inicio festeja el día completado hoy: GET /weeks/{id} trae finished_at por día.
+    completar(api, semana, 1)
+    dias = {d["day_index"]: d for d in api.get(f"/weeks/{semana}").json()["days"]}
+    assert dias[1]["state"] == "completed" and dias[1]["finished_at"] is not None
+    assert dias[2]["finished_at"] is None
+    reabrir(api, semana, 1)
+    assert api.get(f"/weeks/{semana}").json()["days"][0]["finished_at"] is None

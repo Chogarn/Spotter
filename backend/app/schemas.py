@@ -250,6 +250,8 @@ class WeekOut(BaseModel):
     # El día que se empezó ("Empezar día") y todavía no se completó, si hay uno: la barra de abajo
     # lleva directo a su modo entrenar (decisión 84).
     in_progress_day: int | None = None
+    # Ese día está detenido (decisión 121): la barra no vuelve ahí y la píldora dice "En pausa".
+    in_progress_paused: bool = False
 
 
 class RoutineSummaryOut(BaseModel):
@@ -295,6 +297,8 @@ class WeekDayItemOut(BaseModel):
     minutes: int  # duración estimada (R34)
     # "pending" (nada registrado), "partial" (algo registrado) o "completed" (Día completado).
     state: str
+    # Cuándo se tocó "Día completado" (vacío si no): Inicio festeja el día completado hoy.
+    finished_at: datetime | None = None
 
 
 class RoutineDetailOut(BaseModel):
@@ -539,12 +543,17 @@ class DayDetailOut(BaseModel):
     finished_at: datetime | None
     # Cuándo se tocó "Empezar día" (decisión 82): el contador del modo entrenar cuenta desde acá.
     started_at: datetime | None
+    # Pausa (decisión 121): cuándo se detuvo (vacío si no) y los segundos detenidos en total.
+    paused_at: datetime | None = None
+    paused_seconds: int = 0
     exercises: list[DayExerciseOut]
 
 
 class DayStatusOut(BaseModel):
     finished_at: datetime | None
     started_at: datetime | None = None
+    paused_at: datetime | None = None
+    paused_seconds: int = 0
 
 
 class CalendarSessionOut(BaseModel):
