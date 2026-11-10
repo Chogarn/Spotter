@@ -36,6 +36,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0027` aductores, antebrazo y tibial | Suma `adductors`, `forearm` y `tibialis` al enum de músculos (grupos complemento; decisión 99) | Implementada |
 | `0028` objetivos unificados | "Condición general" pasa a "mantenerme activo" en rutinas y propuestas; el objetivo queda en 4 valores (decisión 100) | Implementada |
 | `0029` intentos de login | Crea `login_attempts` (correo, IP y hora de cada intento fallido) para el límite de intentos del login (decisión 106) | Implementada |
+| `0030` pausa del día | Agrega `workout_sessions.paused_at` (desde cuándo está detenido el día) y `paused_seconds` (los segundos detenidos acumulados, que no cuentan en la duración; decisión 121) | Implementada |
 | `0020` cambio de contraseña | Suma `users.password_changed_at` (nula): al cambiar la contraseña se cierran las sesiones de los demás aparatos (decisión 80) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
@@ -374,7 +375,9 @@ Una sesión de entrenamiento realizada.
 | plan_day_id | Día del plan que se entrenó (opcional) |
 | performed_at | Cuándo se empezó |
 | finished_at | Cuándo el usuario tocó "Día completado". Vacío mientras la sesión está en curso; volver a dejarlo vacío la reabre |
-| started_at | Cuándo tocó "Empezar día" (el modo entrenar la marca al abrirse). Reabrir el día la vacía. La duración medida es `finished_at - started_at` y se calcula, no se guarda (decisión 82) |
+| started_at | Cuándo tocó "Empezar día" (el modo entrenar la marca al abrirse). Reabrir el día la vacía. La duración medida es `finished_at - started_at` menos `paused_seconds` y se calcula, no se guarda (decisión 82). Reiniciar el día la vacía y borra lo registrado (decisión 121) |
+| paused_at | Desde cuándo está detenido el día (vacío si no lo está). Detenido no se registra y el día no cuenta como en curso (decisión 121) |
+| paused_seconds | Segundos detenidos acumulados; se restan de la duración medida (decisión 121) |
 | feeling | `easy`, `good`, `hard` o `pain` |
 | notes | Texto libre opcional ("cómo me sentí") |
 

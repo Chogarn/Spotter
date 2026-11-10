@@ -1,6 +1,6 @@
 # Flujo de Spotter
 
-**Última revisión: 2026-10-27** (solo se continúa la rutina más reciente, Resúmenes por fecha con el botón de período y "Cómo te fue" con "Mixto"; antes: R36 con el peso sugerido calculado por el código y la estructura del día como aviso; antes: radar de series por músculo y mini barra de entrenamiento en curso; antes: split elegido, duración informativa y reparto actual de las series; antes: franja oscura, Perfil con pestaña Cuenta, logo nuevo, Entrenar con franja amarilla, asistentes de una pregunta, navegación con tres botones, Inicio con "Hoy te toca", Progreso con calendario y fecha de nacimiento).
+**Última revisión: 2026-11-09** (festejo del día en Inicio, tabla de series sin lápiz y detener, retomar o reiniciar el día; antes: solo se continúa la rutina más reciente, Resúmenes por fecha con el botón de período y "Cómo te fue" con "Mixto"; antes: R36 con el peso sugerido calculado por el código y la estructura del día como aviso; antes: radar de series por músculo y mini barra de entrenamiento en curso; antes: split elegido, duración informativa y reparto actual de las series; antes: franja oscura, Perfil con pestaña Cuenta, logo nuevo, Entrenar con franja amarilla, asistentes de una pregunta, navegación con tres botones, Inicio con "Hoy te toca", Progreso con calendario y fecha de nacimiento).
 
 Este documento describe cómo se usa la aplicación de principio a fin. Es la base para definir las pantallas, la API y el modelo de datos. Las decisiones de producto reflejadas acá las tomó el usuario; lo que se descartó figura marcado y los puntos abiertos están al final.
 
@@ -127,7 +127,7 @@ Fija, siempre, también en la computadora. **Mini barra "entrenando ahora"** (de
 
 ### Inicio (`/`)
 - **Franja oscura** (decisiones 78 y 79: todas las pantallas la llevan, menos el modo entrenar; Entrenar y el día llevan aro amarillo) con el logo, "Hola, nombre" y dos aros asomando (el rojo grande y uno azul, como en la bienvenida; decisión 77). Sin fecha: no aportaba, porque los días del plan son "Día 1, Día 2" (a pedido del usuario, 2026-10-16).
-- **"Hoy te toca":** la tarjeta principal. Con semana activa muestra la rutina, el número de semana, los discos de los días (el que toca hoy con aro azul), "N de M días", el próximo día con su duración y **Empezar día N**. Con todos los días completados invita a cerrar la semana. Sin semana activa muestra las opciones de Generar.
+- **"Hoy te toca":** la tarjeta principal. Con semana activa muestra la rutina, el número de semana, los discos de los días (el que toca hoy con aro azul), "N de M días", el próximo día con su duración y **Empezar día N**. Con todos los días completados invita a cerrar la semana. Sin semana activa muestra las opciones de Generar. El día que se completa un día, arriba va el festejo (confeti, "Día N completado" y "Ver cómo te fue") y el próximo día debajo, más chico, con Empezar (decisión 119).
 - **Aviso** de propuesta de la IA pendiente.
 - **Tus rutinas:** "Tus rutinas" y "Nueva rutina" (abre el asistente o avisa).
 - **Tu progreso:** cuatro tarjetas: **Resúmenes** y **Calendario** (abren directo), **Estadísticas** (el índice de Progreso, decisión 95) y **Cargar peso** (abre el recuadro sin salir de Inicio). Las tarjetas de acceso llevan el ícono y un texto corto en una sola línea.
@@ -159,7 +159,8 @@ Un índice con **cuatro botones grandes** (Radar de músculos, Mapa muscular, Ev
 "Empezar día N" abre una pantalla con **un ejercicio a la vez** y la serie actual en grande (decisión 46):
 
 - **Entrada en calor:** si el día tiene movilidad, es el primer paso (decisión 56). No tiene series ni cuenta como ejercicio hecho.
-- **Serie hecha:** guarda lo planificado; se corrige con el lápiz.
+- **Serie hecha:** guarda lo planificado o lo cambiado en la tabla **"Series · kilos y reps"**, que se despliega debajo de los discos (plegada en cada ejercicio): una fila por serie con casillas que se escriben o se mueven con ▲ ▼. En una serie ya hecha, el cambio se guarda al instante (decisión 120; sin lápiz).
+- **Detener, retomar y reiniciar** (decisión 121): íconos junto al reloj de la sesión. Detenido, el reloj se frena (no cuenta en la duración), no se registra y la píldora "entrenando ahora" queda gris con "Retomar". Reiniciar, con confirmación, deja el día sin empezar (borra lo registrado y apaga el reloj) y vuelve a Entrenar.
 - **Reloj de descanso:** un botón redondo lo arranca, nunca solo, con el descanso del ejercicio; −15 s, +15 s y Saltar. Al llegar a cero vibra, y si se sale a otra pantalla lo muestra la mini barra "entrenando ahora" (decisiones 48 y 92); si no hay un día en curso, una franja arriba de la barra.
 - Al terminar las series del ejercicio, lo marca y sigue con el próximo sin hacer; si se sale, retoma donde quedó. Flechas ‹ › para pasar de ejercicio.
 - Al terminar los ejercicios aparece **Día completado**, que cierra el día y **lleva a Resúmenes › Día** (decisión 103; antes mostraba una pantalla de cierre propia, decisión 93), donde se ven las cifras del día y "Cómo te fue".

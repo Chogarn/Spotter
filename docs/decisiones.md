@@ -841,6 +841,30 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** el espacio entre tarjetas y el tamaño de los títulos.
 - **Ojo:** lo revisaste vos en la app (2026-11-09).
 
+### 119. Inicio festeja el día completado hoy
+- **Fecha:** 2026-11-09
+- **Decisión:** si hoy se tocó "Día completado", la tarjeta de Inicio muestra arriba el festejo del modo entrenar (confeti, "Día N completado", el nombre del día y "Ver cómo te fue", que abre Resúmenes › Día) y **debajo, más chico, el día que sigue** con "Próximo", los discos y Empezar. Al día siguiente vuelve a la tarjeta de siempre. `GET /weeks/{id}` trae `finished_at` en cada día para saberlo.
+- **Por qué:** *(completar)*
+- **Descartaste:** mostrarlo solo una vez al volver a Inicio, mostrarlo solo al completar la semana y esconder el día siguiente mientras se festeja.
+- **Decidió la IA sin preguntarte:** "hoy" es la fecha del teléfono; con dos días completados el mismo día se festeja el último; "Ver cómo te fue" es un enlace azul (no un botón) para que Empezar siga siendo el principal; la etiqueta "Próximo"; con la semana entera hecha, el festejo va arriba de "Falta cerrar la semana".
+- **Ojo:** visto en el navegador en ancho de celular con un usuario descartable (ya borrado); no en un teléfono real, ni el caso de la semana entera hecha.
+
+### 120. En el modo entrenar, las series se editan en una tabla desplegable, sin lápiz
+- **Fecha:** 2026-11-09
+- **Decisión:** en el modo entrenar, la tarjeta de la serie queda como antes (el número grande y los discos) pero **sin el lápiz**. Debajo de los discos, en la misma tarjeta, la línea **"Series · kilos y reps"** despliega una tabla con una fila por serie (Serie, Kilos, Reps; en cardio, Minutos; en isométricos, Segundos). Cada casilla **se escribe o se mueve con flechitas ▲ ▼**. La tabla **arranca plegada** en cada ejercicio. Cambiar una serie **no cambia las que faltan** (siguen con lo planificado). Lo cambiado se ve en azul con "tocaba …" y el número grande de arriba se actualiza. `components/TablaSeries.tsx`.
+- **Por qué:** *(completar)* (el problema que señalaste: corregir una serie llevaba muchos toques).
+- **Descartaste:** − y + grandes en dos filas (A) o lado a lado (B), casillas siempre a la vista sin tabla (C), la tabla sola sin el número grande, y la tabla en un panel que sube desde abajo.
+- **Decidió la IA sin preguntarte:** lo cambiado en una serie sin hacer se guarda **al tocar "Serie hecha"** (guardar una serie la cuenta como hecha); una serie ya hecha se guarda al cambiarla; las flechas mueven los kilos de a 2,5 (igual en todo equipo), las reps y los minutos de a 1 y los segundos de a 5; los kilos se pueden dejar vacíos; la pantalla del día (fuera del modo entrenar) sigue con el lápiz.
+- **Ojo:** probado en el navegador en ancho de celular con un usuario descartable (ya borrado): bajar una rep y "Serie hecha" guardó 9 × 50, subir los kilos de una serie hecha se guardó al instante, y la plancha muestra Segundos. No se probó en un teléfono real ni con el cardio.
+
+### 121. El día se puede detener, retomar y reiniciar desde el modo entrenar
+- **Fecha:** 2026-11-09
+- **Decisión:** junto al reloj del modo entrenar van **⏸ Detener** (o **▶ Retomar**) y **↺ Reiniciar**. **Detener** frena el reloj (lo detenido no cuenta en la duración del día) **y** el día deja de estar "en curso": la barra no vuelve ahí y no se registran series hasta retomarlo (la serie se ve apagada y el botón grande pasa a "Retomar"). **Reiniciar** deja el día **como si nunca se hubiera empezado**, con confirmación: borra lo registrado (series y ejercicios marcados), el reloj vuelve a cero y queda apagado, el día deja de estar en curso (desaparece la píldora) y se sale a Entrenar, donde vuelve a estar "Empezar". La píldora "entrenando ahora" suma **⏸** y, con el día detenido, **queda en gris con "En pausa" y "Retomar"**. No es la "pausa de la rutina" descartada en la decisión 70: es solo el día que se está entrenando. Migración 0030 (`workout_sessions.paused_at` y `paused_seconds`) y `POST .../pause`, `.../resume` y `.../restart`.
+- **Por qué:** *(completar)*
+- **Descartaste:** que Detener frene solo el reloj o solo el día, que Reiniciar vuelva solo el reloj a cero o que lo deje en marcha (fue la primera versión, corregida el mismo día), los botones en la pantalla Entrenar, y que la píldora desaparezca con el día detenido.
+- **Decidió la IA sin preguntarte:** al reiniciar se sale a la pantalla Entrenar (quedarse en el modo entrenar lo volvería a empezar) y es solo el día, no la semana; "Día completado" con el día detenido lo retoma y lo cierra; reabrir un día borra la pausa; el servidor responde 409 si se registra con el día detenido; los íconos son chicos y redondos junto al reloj, con la etiqueta amarilla "En pausa".
+- **Ojo:** probado en el navegador en ancho de celular con un usuario descartable (ya borrado): detener, la píldora en gris, Entrenar con el día detenido (va a /entrenar), retomar desde la píldora y reiniciar con confirmación (deja el día sin empezar, sin píldora, y sale a Entrenar con "Empezar"). En el celular, la línea de arriba ("Día 1 · ejercicio 1 de 2") se parte en dos por los botones nuevos. No se probó en un teléfono real.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
