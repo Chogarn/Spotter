@@ -22,11 +22,23 @@ function formato(total: number): string {
 
 // El contador de la sesión (decisión 82): cuenta desde la hora en que se tocó "Empezar día"
 // (`desde`, ISO). Se calcula con esa hora y no sumando segundos, así sigue bien si se bloquea la
-// pantalla. Es solo un dato: no hace nada al llegar a ningún tiempo.
-export function ContadorSesion({ desde, className }: { desde: string; className?: string }) {
+// pantalla. Es solo un dato: no hace nada al llegar a ningún tiempo. Lo detenido no cuenta
+// (decisión 121): se restan `pausa` segundos y, con el día detenido (`detenidoEn`), queda quieto.
+export function ContadorSesion({
+  desde,
+  pausa = 0,
+  detenidoEn = null,
+  className,
+}: {
+  desde: string;
+  pausa?: number;
+  detenidoEn?: string | null;
+  className?: string;
+}) {
   const ahora = useSyncExternalStore(suscribirse, segundosAhora, sinHora);
   if (ahora === null) return null;
-  const segundos = Math.max(0, ahora - Math.floor(new Date(desde).getTime() / 1000));
+  const hasta = detenidoEn ? Math.floor(new Date(detenidoEn).getTime() / 1000) : ahora;
+  const segundos = Math.max(0, hasta - Math.floor(new Date(desde).getTime() / 1000) - pausa);
   return (
     <span
       role="timer"

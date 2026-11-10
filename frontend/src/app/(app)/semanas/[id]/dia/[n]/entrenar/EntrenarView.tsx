@@ -1,22 +1,25 @@
 "use client";
 
-import { Pencil, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Pause, Play, RotateCcw, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
+import { Confirmar } from "@/components/Confirmar";
 import { ContadorSesion } from "@/components/ContadorSesion";
 import { BotonDescanso, RelojCircular, useDescanso } from "@/components/Descanso";
-import { Disco } from "@/components/Disco";
+import { Disco, DiscosSemana } from "@/components/Disco";
+import { Festejo } from "@/components/Festejo";
 import { InfoEjercicio } from "@/components/InfoEjercicio";
 import { Flecha } from "@/components/Flecha";
 import { DoneControl } from "@/components/DoneControl";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { usePeriodo } from "@/components/SelectorPeriodo";
 import { SetRow } from "@/components/SetRow";
+import { TablaSeries, cuerpoDeSerie, distintoDelPlan } from "@/components/TablaSeries";
 import { Button } from "@/components/ui/button";
-import { readError, type DayDetail, type ExerciseItem, type SetItem, apiFetch } from "@/lib/api";
-import { differsFromPlan, estaHecho, realAsSet, setText, summarize } from "@/lib/format";
+import { readError, type DayDetail, type DayState, type ExerciseItem, type SetItem, type WeekDetail, apiFetch } from "@/lib/api";
+import { estaHecho, realAsSet, setText, summarize, tituloDia } from "@/lib/format";
 import { cn } from "cn";
 import { Cargando } from "@/components/Cargando";
 
@@ -104,7 +107,11 @@ export default function EntrenarView({
   const [pos, setPos] = useState<Posicion | null>(null);
   const [error, setError] = useState("");
   const [trabajando, setTrabajando] = useState(false);
-  const [corrigiendo, setCorrigiendo] = useState(false);
+  // Recién se tocó "Día completado": se muestra el festejo en vez de ir directo al Resumen del día.
+  const [festejo, setFestejo] = useState(false);
+  // El recuadro que confirma "Reiniciar el día" (borra lo registrado; decisión 121).
+  const [confirmarReinicio, setConfirmarReinicio] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     apiFetch(`/weeks/${id}/days/${n}`)
@@ -184,6 +191,20 @@ export default function EntrenarView({
     return res.json();
   }
 
+  // Guarda lo realizado en una serie con los números de la tabla; si falla, deja el mensaje.
+  async function guardarSerie(serie: SetItem, valores: SetItem, kind: ExerciseItem["kind"]): Promise<SetItem | null> {
+    const res = await apiFetch(`/weeks/${actual.week_id}/days/${actual.day_index}/sets/${serie.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cuerpoDeSerie(kind, valores)),
+    });
+    if (!res.ok) {
+      setError(await readError(res));
+      return null;
+    }
+    return res.json();
+  }
+
   // Cierra el ejercicio y pasa al siguiente sin hacer (o al final, si no queda ninguno).
   async function terminarEjercicio(d: DayDetail, ej: number) {
     const ejercicio = await llamar<ExerciseItem>(`/exercises/${d.exercises[ej].id}/done`);
@@ -191,12 +212,13 @@ export default function EntrenarView({
     const nuevo = conEjercicio(d, ejercicio);
     setDia(nuevo);
     const siguiente = proximoEjercicio(nuevo, ej);
-    setCorrigiendo(false);
     setPos(siguiente === null ? null : { ej: siguiente, serie: serieInicial(nuevo.exercises[siguiente]) });
   }
 
-  // El botón grande: marca la serie, pasa a la siguiente o cierra el ejercicio, según toque.
-  async function avanzar() {
+  // El botón grande: marca la serie, pasa a la siguiente o cierra el ejercicio, según toque. Con
+  // `valores` (lo cambiado en la tabla de series), la serie se guarda con esos números; sin ellos,
+  // con lo planificado.
+  async function avanzar(valores: SetItem | null) {
     if (!pos) return;
     setError("");
     setTrabajando(true);
@@ -204,7 +226,9 @@ export default function EntrenarView({
       let d = actual;
       const serie = d.exercises[pos.ej].sets[pos.serie];
       if (!serie.real) {
-        const guardada = await llamar<SetItem>(`/sets/${serie.id}/done`);
+        const guardada = valores
+          ? await guardarSerie(serie, valores, d.exercises[pos.ej].kind)
+          : await llamar<SetItem>(`/sets/${serie.id}/done`);
         if (!guardada) return;
         d = conSerie(d, guardada);
         setDia(d);
@@ -225,7 +249,8 @@ export default function EntrenarView({
     try {
       const estado = await llamar<{ finished_at: string | null }>(`/complete`);
       if (estado) {
-        // Día cerrado: se queda en la pantalla de cierre, que ofrece ver las estadísticas o ir a Inicio.
+        // Día cerrado: se muestra el festejo, que ofrece ver cómo te fue o ir a Inicio.
+        setFestejo(true);
         setDia({ ...actual, finished_at: estado.finished_at });
       }
     } catch {
@@ -235,6 +260,32 @@ export default function EntrenarView({
     }
   }
 
+  // Detener, retomar y reiniciar el día (decisión 121). Devuelven el estado del reloj.
+  type EstadoReloj = Pick<DayDetail, "finished_at" | "started_at" | "paused_at" | "paused_seconds">;
+  async function cambiarReloj(accion: "pause" | "resume" | "restart") {
+    setError("");
+    setTrabajando(true);
+    try {
+      const estado = await llamar<EstadoReloj>(`/${accion}`);
+      if (!estado) return;
+      if (accion !== "restart") {
+        setDia({ ...actual, ...estado });
+        return;
+      }
+      // Reiniciar dejó el día sin empezar: se sale a Entrenar, donde vuelve a estar "Empezar".
+      // Quedarse acá lo volvería a empezar (abrir el modo entrenar es "Empezar día").
+      try {
+        localStorage.removeItem(claveDePosicion(id, n));
+      } catch {}
+      router.push("/entrenar");
+    } catch {
+      setError("No se pudo conectar con el servidor");
+    } finally {
+      setTrabajando(false);
+    }
+  }
+  const pausado = Boolean(actual.paused_at);
+
   const total = actual.exercises.length;
   // En el cierre del día (sin ejercicio a la vista), "anterior" lleva al último ejercicio.
   const actualEj = pos ? pos.ej : total;
@@ -242,7 +293,6 @@ export default function EntrenarView({
   const primero = hayCalor ? CALOR : 0;
 
   function irA(i: number) {
-    setCorrigiendo(false);
     setPos(i === CALOR ? { ej: CALOR, serie: 0 } : { ej: i, serie: serieInicial(actual.exercises[i]) });
   }
 
@@ -259,7 +309,42 @@ export default function EntrenarView({
           {/* Un día recién completado de una semana activa queda en lectura, pero no hace falta decirlo. */}
           {!registra && !(actual.week_status === "active" && actual.finished_at !== null) && " · solo lectura"}
         </span>
-        {registra && actual.started_at && <ContadorSesion desde={actual.started_at} />}
+        {registra && actual.started_at && (
+          // El reloj del día con Detener o Retomar y Reiniciar al lado (decisión 121).
+          <span className="flex items-center gap-1.5">
+            {pausado && (
+              <span className="rounded-full bg-disco-amarillo px-2 py-0.5 text-xs font-semibold text-disco-tinta">En pausa</span>
+            )}
+            <ContadorSesion
+              desde={actual.started_at}
+              pausa={actual.paused_seconds ?? 0}
+              detenidoEn={actual.paused_at ?? null}
+              className={cn("font-heading text-lg font-bold tabular-nums", pausado ? "text-muted-foreground" : "text-foreground")}
+            />
+            <Button
+              size="icon"
+              variant={pausado ? "default" : "outline"}
+              className="rounded-full"
+              type="button"
+              disabled={trabajando}
+              onClick={() => cambiarReloj(pausado ? "resume" : "pause")}
+              aria-label={pausado ? "Retomar el día" : "Detener el día"}
+            >
+              {pausado ? <Play /> : <Pause />}
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              className="rounded-full"
+              type="button"
+              disabled={trabajando}
+              onClick={() => setConfirmarReinicio(true)}
+              aria-label="Reiniciar el día"
+            >
+              <RotateCcw />
+            </Button>
+          </span>
+        )}
         <Button size="icon-lg" variant="ghost" nativeButton={false} render={<Link href={volver} />} aria-label="Volver al día">
           <X />
         </Button>
@@ -330,13 +415,9 @@ export default function EntrenarView({
           pos={pos}
           registra={registra}
           trabajando={trabajando}
-          corrigiendo={corrigiendo}
-          onIrASerie={(serie) => {
-            setCorrigiendo(false);
-            setPos({ ej: pos.ej, serie });
-          }}
-          onCorregir={() => setCorrigiendo(true)}
-          onTerminarCorreccion={() => setCorrigiendo(false)}
+          pausado={pausado}
+          onRetomar={() => cambiarReloj("resume")}
+          onIrASerie={(serie) => setPos({ ej: pos.ej, serie })}
           onSerieGuardada={(s) => setDia((d) => (d ? conSerie(d, s) : d))}
           onEjercicioCambiado={(e) => {
             const nuevo = conEjercicio(actual, e);
@@ -355,16 +436,79 @@ export default function EntrenarView({
                 Día completado
               </Button>
             </>
+          ) : festejo ? (
+            <FestejoDelDia dia={actual} />
           ) : (
             <CierreDelDia />
           )}
         </section>
       )}
+      <Confirmar
+        abierto={confirmarReinicio}
+        titulo={`¿Reiniciar el Día ${actual.day_index}?`}
+        texto="El día vuelve a como estaba antes de empezarlo: se borran las series y los ejercicios que marcaste y el reloj vuelve a cero. No se puede deshacer."
+        accion="Reiniciar"
+        onConfirmar={() => {
+          setConfirmarReinicio(false);
+          void cambiarReloj("restart");
+        }}
+        onCancelar={() => setConfirmarReinicio(false)}
+      />
     </main>
   );
 }
 
-// Al cerrar el día (y al volver a un día ya completado) se va al Resumen del día, en Resúmenes: es
+// Justo después de tocar "Día completado": el confeti de la semana completada, "Día N completado",
+// el nombre del día, los días de la semana en discos y la duración (si se midió). Las series y los
+// kilos quedan para el Resumen del día, al que se llega con "Ver cómo te fue".
+function FestejoDelDia({ dia }: { dia: DayDetail }) {
+  const router = useRouter();
+  const [, setPeriodo] = usePeriodo();
+  const [estados, setEstados] = useState<DayState[] | null>(null);
+
+  useEffect(() => {
+    apiFetch(`/weeks/${dia.week_id}`)
+      .then(async (res) => {
+        if (!res.ok) return;
+        const semana: WeekDetail = await res.json();
+        setEstados(semana.days.map((d) => d.state));
+      })
+      .catch(() => {});
+  }, [dia.week_id]);
+
+  const minutos =
+    dia.started_at && dia.finished_at
+      ? Math.round((new Date(dia.finished_at).getTime() - new Date(dia.started_at).getTime()) / 60000)
+      : null;
+
+  return (
+    <div className="text-center">
+      <Festejo />
+      <h1 className="mt-0 mb-1 text-4xl">Día {dia.day_index} completado</h1>
+      <p className="m-0 text-muted-foreground">
+        {tituloDia(dia.title)}
+        {minutos !== null && minutos > 0 && ` · ${minutos} min`}
+      </p>
+      <div className="mt-3 flex h-4 justify-center">{estados && <DiscosSemana estados={estados} />}</div>
+      <Button
+        size="xl"
+        className="mt-5 w-full"
+        type="button"
+        onClick={() => {
+          setPeriodo("day");
+          router.push("/progreso/resumenes");
+        }}
+      >
+        Ver cómo te fue
+      </Button>
+      <Button size="xl" variant="outline" className="mt-2 w-full" nativeButton={false} render={<Link href="/" />}>
+        Ir a Inicio
+      </Button>
+    </div>
+  );
+}
+
+// Al volver a un día ya completado se va al Resumen del día, en Resúmenes: es
 // la misma pantalla que se ve después desde Inicio.
 function CierreDelDia() {
   const router = useRouter();
@@ -437,10 +581,9 @@ function Ejercicio({
   pos,
   registra,
   trabajando,
-  corrigiendo,
+  pausado,
+  onRetomar,
   onIrASerie,
-  onCorregir,
-  onTerminarCorreccion,
   onSerieGuardada,
   onEjercicioCambiado,
   onAvanzar,
@@ -449,13 +592,12 @@ function Ejercicio({
   pos: Posicion;
   registra: boolean;
   trabajando: boolean;
-  corrigiendo: boolean;
+  pausado: boolean;
+  onRetomar: () => void;
   onIrASerie: (serie: number) => void;
-  onCorregir: () => void;
-  onTerminarCorreccion: () => void;
   onSerieGuardada: (s: SetItem) => void;
   onEjercicioCambiado: (e: ExerciseItem) => void;
-  onAvanzar: () => void;
+  onAvanzar: (valores: SetItem | null) => void;
 }) {
   const ejercicio = dia.exercises[pos.ej];
   const hecho = estaHecho(ejercicio);
@@ -492,11 +634,11 @@ function Ejercicio({
           dia={dia}
           ejercicio={ejercicio}
           pos={pos}
+          key={pos.ej}
           trabajando={trabajando}
-          corrigiendo={corrigiendo}
+          pausado={pausado}
+          onRetomar={onRetomar}
           onIrASerie={onIrASerie}
-          onCorregir={onCorregir}
-          onTerminarCorreccion={onTerminarCorreccion}
           onSerieGuardada={onSerieGuardada}
           onAvanzar={onAvanzar}
         />
@@ -540,10 +682,9 @@ function SerieEnGrande({
   ejercicio,
   pos,
   trabajando,
-  corrigiendo,
+  pausado,
+  onRetomar,
   onIrASerie,
-  onCorregir,
-  onTerminarCorreccion,
   onSerieGuardada,
   onAvanzar,
 }: {
@@ -551,20 +692,24 @@ function SerieEnGrande({
   ejercicio: ExerciseItem;
   pos: Posicion;
   trabajando: boolean;
-  corrigiendo: boolean;
+  pausado: boolean;
+  onRetomar: () => void;
   onIrASerie: (serie: number) => void;
-  onCorregir: () => void;
-  onTerminarCorreccion: () => void;
   onSerieGuardada: (s: SetItem) => void;
-  onAvanzar: () => void;
+  onAvanzar: (valores: SetItem | null) => void;
 }) {
   const descanso = useDescanso();
+  // La tabla de series arranca plegada en cada ejercicio (decisión 120).
+  const [tablaAbierta, setTablaAbierta] = useState(false);
+  // Lo cambiado en la tabla para las series sin hacer: se guarda recién con "Serie hecha".
+  const [borrador, setBorrador] = useState<Record<number, SetItem>>({});
   // El descanso es de este ejercicio: se guarda con qué ejercicio lo arrancó y adónde volver.
   const clave = `${dia.week_id}-${dia.day_index}-${pos.ej}`;
   const href = `/semanas/${dia.week_id}/dia/${dia.day_index}/entrenar?ejercicio=${pos.ej + 1}`;
   const serie = ejercicio.sets[pos.serie];
   const real = serie.real ?? null;
-  const mostrada = real ? realAsSet(real) : serie;
+  const mostrada = real ? realAsSet(real) : (borrador[pos.serie] ?? serie);
+  const cambiada = distintoDelPlan(serie, mostrada);
   const todas = ejercicio.sets.every((s) => s.real);
   const boton = !real ? "Serie hecha" : todas ? "Terminar ejercicio" : "Siguiente serie";
 
@@ -580,25 +725,10 @@ function SerieEnGrande({
           Listo, siguiente serie
         </p>
       )}
-      <section className="relative mt-3 rounded-2xl bg-card p-5 text-center">
-        {/* El lápiz va en la esquina de la serie, lejos del botón grande (decisión 47). */}
-        {!corrigiendo && (
-          <Button
-            size="icon-lg"
-            variant="outline"
-            className="absolute top-3 right-3"
-            type="button"
-            onClick={onCorregir}
-            disabled={trabajando}
-            aria-label={`Corregir la serie ${pos.serie + 1}`}
-          >
-            <Pencil />
-          </Button>
-        )}
-        <Medida kind={ejercicio.kind} serie={mostrada} />
-        {real && differsFromPlan(serie, real) && (
-          <p className="m-0 text-sm text-muted-foreground">tocaba {setText(ejercicio.kind, serie)}</p>
-        )}
+      {/* Con el día detenido la serie se ve apagada y no se registra hasta retomar (decisión 121). */}
+      <section className={cn("mt-3 rounded-2xl bg-card p-5 text-center", pausado && "opacity-55")} inert={pausado}>
+        <Medida kind={ejercicio.kind} serie={mostrada} cambiada={cambiada} />
+        {cambiada && <p className="m-0 text-sm text-muted-foreground">tocaba {setText(ejercicio.kind, serie)}</p>}
         {/* En el cardio (una sola vuelta, en minutos) los discos de serie no aportan nada. */}
         {ejercicio.kind !== "cardio" && (
         <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -622,47 +752,66 @@ function SerieEnGrande({
           ))}
         </div>
         )}
+        {/* Los números de todas las series, plegados debajo de los discos (decisión 120): reemplaza
+            al lápiz. */}
+        <div className="mt-4 border-t border-border pt-2 text-left">
+          <button
+            type="button"
+            onClick={() => setTablaAbierta((a) => !a)}
+            aria-expanded={tablaAbierta}
+            className="flex w-full items-center justify-between rounded-lg py-1.5 font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <span>{ejercicio.kind === "strength" ? "Series · kilos y reps" : "Series"}</span>
+            {tablaAbierta ? <ChevronUp className="size-5" /> : <ChevronDown className="size-5" />}
+          </button>
+          {tablaAbierta && (
+            <TablaSeries
+              kind={ejercicio.kind}
+              sets={ejercicio.sets}
+              actual={pos.serie}
+              borrador={borrador}
+              onBorrador={(i, valores) => setBorrador((b) => ({ ...b, [i]: valores }))}
+              weekId={dia.week_id}
+              dayIndex={dia.day_index}
+              onGuardada={onSerieGuardada}
+              disabled={trabajando}
+            />
+          )}
+        </div>
       </section>
 
-      {corrigiendo ? (
-        <ul className="mt-4 list-none rounded-2xl bg-card p-3">
-          <SetRow
-            key={`${pos.ej}-${pos.serie}`}
-            kind={ejercicio.kind}
-            index={pos.serie}
-            set={serie}
-            edit={{ weekId: dia.week_id, dayIndex: dia.day_index, onSaved: onSerieGuardada }}
-            editarAlAbrir
-            onTerminar={onTerminarCorreccion}
-          />
-        </ul>
+      {pausado ? (
+        <Button size="xl" className="mt-4 w-full" type="button" onClick={onRetomar} disabled={trabajando}>
+          <Play /> Retomar
+        </Button>
       ) : (
-        <div className="mt-4 flex gap-2">
-          {/* El reloj lo arranca el usuario, nunca solo; sin descanso propuesto no aparece. */}
-          {ejercicio.rest_seconds !== null && (
-            <BotonDescanso segundos={ejercicio.rest_seconds} clave={clave} href={href} nombre={ejercicio.name} />
-          )}
-          <Button
-            size="xl"
-            className="flex-1"
-            type="button"
-            onClick={() => {
-              descanso.olvidarAviso();
-              onAvanzar();
-            }}
-            disabled={trabajando}
-          >
-            {trabajando ? "Guardando..." : boton}
-          </Button>
-        </div>
+      <div className="mt-4 flex gap-2">
+        {/* El reloj lo arranca el usuario, nunca solo; sin descanso propuesto no aparece. */}
+        {ejercicio.rest_seconds !== null && (
+          <BotonDescanso segundos={ejercicio.rest_seconds} clave={clave} href={href} nombre={ejercicio.name} />
+        )}
+        <Button
+          size="xl"
+          className="flex-1"
+          type="button"
+          onClick={() => {
+            descanso.olvidarAviso();
+            // Si la serie sin hacer se cambió en la tabla, se guarda con esos números.
+            onAvanzar(!real && cambiada ? mostrada : null);
+          }}
+          disabled={trabajando}
+        >
+          {trabajando ? "Guardando..." : boton}
+        </Button>
+      </div>
       )}
     </>
   );
 }
 
 // La serie en grande: repeticiones y kilos (en azul, el color de la carga), segundos o minutos.
-function Medida({ kind, serie }: { kind: ExerciseItem["kind"]; serie: SetItem }) {
-  const grande = "m-0 font-heading font-bold leading-none";
+function Medida({ kind, serie, cambiada = false }: { kind: ExerciseItem["kind"]; serie: SetItem; cambiada?: boolean }) {
+  const grande = cn("m-0 font-heading font-bold leading-none", cambiada && "text-disco-azul");
   if (kind === "cardio") return <p className={cn(grande, "my-2 text-7xl")}>{serie.duration_minutes} min</p>;
   if (kind === "isometric") return <p className={cn(grande, "my-2 text-7xl")}>{serie.duration_seconds} s</p>;
   return (

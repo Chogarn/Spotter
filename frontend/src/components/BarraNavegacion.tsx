@@ -2,7 +2,7 @@
 
 import { Dumbbell, House, UserRound } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
 import { MiniBarraEntreno } from "@/components/MiniBarraEntreno";
@@ -12,7 +12,8 @@ import { cn } from "cn";
 // Barra fija abajo, siempre, también en la computadora (decisión 42). Tres lugares, con Entrenar
 // en el centro como un botón redondo elevado (decisiones 47 y 51). Rutinas y Progreso se abren
 // desde Inicio, y mientras se está en ellos Inicio queda marcado. Entrenar abarca lo que se abre
-// desde ahí: la semana, el día, el ejercicio y la propuesta.
+// desde ahí: el día, el ejercicio y la propuesta (la semana y el día que se miran desde Rutinas
+// son de Inicio: ver `seccionActiva`).
 const SECCIONES = [
   {
     href: "/",
@@ -34,6 +35,14 @@ const SECCIONES = [
 // vuelve ahí (decisión 84). Se guarda por pestaña del navegador. La propuesta no se recuerda.
 const ULTIMO_ENTRENAR = "spotter_ultimo_entrenar";
 
+// La semana (/semanas/[id], que solo se abre desde Rutinas) y el día abierto desde Rutinas
+// (`?desde=rutinas`) son para mirar (decisión 53): son parte de Rutinas, es decir de Inicio, y no
+// de Entrenar, aunque su dirección empiece con /semanas.
+function seccionActiva(i: number, p: string, desdeRutinas: boolean): boolean {
+  if (desdeRutinas || /^\/semanas\/\d+\/?$/.test(p)) return i === 0;
+  return SECCIONES[i].activa(p);
+}
+
 // Solo el día y su modo entrenar: la semana de /semanas/[id] y los días que se miran desde Rutinas
 // (`?desde=rutinas`) no son parte de entrenar.
 function recordable(p: string): boolean {
@@ -44,26 +53,27 @@ function recordable(p: string): boolean {
 // <Suspense> bloquea las rutas con parámetros). Mientras tanto se ve la barra sin sección marcada.
 export function BarraNavegacion() {
   return (
-    <Suspense fallback={<Barra pathname={null} />}>
+    <Suspense fallback={<Barra pathname={null} desdeRutinas={false} />}>
       <BarraConRuta />
     </Suspense>
   );
 }
 
 function BarraConRuta() {
-  return <Barra pathname={usePathname()} />;
+  const desdeRutinas = useSearchParams().get("desde") === "rutinas";
+  return <Barra pathname={usePathname()} desdeRutinas={desdeRutinas} />;
 }
 
-function Barra({ pathname }: { pathname: string | null }) {
+function Barra({ pathname, desdeRutinas }: { pathname: string | null; desdeRutinas: boolean }) {
+  const enEntrenar = pathname !== null && seccionActiva(1, pathname, desdeRutinas);
   const router = useRouter();
 
   useEffect(() => {
-    if (pathname === null || !recordable(pathname)) return;
-    if (window.location.search.includes("desde=rutinas")) return;
+    if (pathname === null || !recordable(pathname) || desdeRutinas) return;
     try {
       sessionStorage.setItem(ULTIMO_ENTRENAR, pathname);
     } catch {}
-  }, [pathname]);
+  }, [pathname, desdeRutinas]);
 
   // Con un día empezado y sin completar, Entrenar vuelve ahí (a donde se estaba dentro de ese día, o
   // al ejercicio activo); si no hay, a la pantalla de inicio de Entrenar, nunca a un día que solo
@@ -72,7 +82,7 @@ function Barra({ pathname }: { pathname: string | null }) {
   async function irAEntrenar(e: React.MouseEvent<HTMLAnchorElement>) {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
-    if (pathname !== null && SECCIONES[1].activa(pathname)) {
+    if (enEntrenar) {
       router.push("/entrenar");
       return;
     }
@@ -85,7 +95,8 @@ function Barra({ pathname }: { pathname: string | null }) {
       const res = await apiFetch(`/weeks/active`);
       if (res.ok) {
         const semana: Week = await res.json();
-        if (semana.in_progress_day) {
+        // Un día detenido no cuenta como en curso (decisión 121): se va al inicio de Entrenar.
+        if (semana.in_progress_day && !semana.in_progress_paused) {
           const dia = `/semanas/${semana.id}/dia/${semana.in_progress_day}`;
           // Solo se vuelve a lo recordado si es el día empezado; un día que se estaba mirando
           // sin haberlo empezado no cuenta.
@@ -99,14 +110,14 @@ function Barra({ pathname }: { pathname: string | null }) {
   return (
     <>
       {/* "Entrenando ahora": en toda pantalla que no sea de la sección Entrenar. */}
-      <MiniBarraEntreno visible={pathname !== null && !SECCIONES[1].activa(pathname)} />
+      <MiniBarraEntreno visible={pathname !== null && !enEntrenar} />
     <nav
       aria-label="Secciones"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]"
     >
       <ul className="mx-auto my-0 flex h-(--alto-barra) max-w-xl list-none items-end justify-around p-0">
-        {SECCIONES.map(({ href, texto, Icono, activa, central }) => {
-          const actual = pathname !== null && activa(pathname);
+        {SECCIONES.map(({ href, texto, Icono, central }, i) => {
+          const actual = pathname !== null && seccionActiva(i, pathname, desdeRutinas);
           return (
             <li key={href} className="flex-1">
               <Link

@@ -112,6 +112,7 @@ export type Week = {
   days: { day_index: number; title: string }[];
   // El día empezado y sin completar, si hay uno (decisión 84).
   in_progress_day?: number | null;
+  in_progress_paused?: boolean; // ese día está detenido (decisión 121)
 };
 
 export type Routine = {
@@ -287,6 +288,7 @@ export type WeekDetail = {
     exercise_count: number;
     minutes: number;
     state: DayState;
+    finished_at?: string | null; // cuándo se tocó "Día completado"
   }[];
 };
 
@@ -300,6 +302,8 @@ export type DayDetail = {
   minutes: number;
   finished_at: string | null; // cuándo se tocó "Día completado"; vacío si el día sigue abierto
   started_at: string | null; // cuándo se tocó "Empezar día" (decisión 82)
+  paused_at?: string | null; // cuándo se tocó "Detener"; vacío si no está detenido (decisión 121)
+  paused_seconds?: number; // segundos detenidos en total: no cuentan en la duración
   exercises: ExerciseItem[];
 };
 
