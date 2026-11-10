@@ -15,7 +15,7 @@ import { Resumen } from "@/components/ExerciseRow";
 import { SetRow } from "@/components/SetRow";
 import { readError, type DayDetail, type ExerciseItem, type SetItem, type WeekDetail, apiFetch } from "@/lib/api";
 import { calorHecha, estaHecho, summarize, tituloDia } from "@/lib/format";
-import { leerCrono, pausaDelCrono } from "@/lib/cronometro";
+import { borrarCronosDelDia, leerCrono, pausaDelCrono } from "@/lib/cronometro";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -96,7 +96,17 @@ export default function DiaView({
       const res = await apiFetch(`/weeks/${dia.week_id}/days/${dia.day_index}/${accion}`, {
         method: "POST",
       });
-      if (res.ok) {
+      if (res.ok && accion === "reopen") {
+        // Reabrir borra lo registrado (decisión 123): se vuelve a leer el día, y se olvida dónde
+        // estaba el modo entrenar y sus cronómetros.
+        try {
+          localStorage.removeItem(`spotter_pos_${dia.week_id}_${dia.day_index}`);
+        } catch {}
+        borrarCronosDelDia(dia.week_id, dia.day_index);
+        const leido = await apiFetch(`/weeks/${dia.week_id}/days/${dia.day_index}`);
+        if (leido.ok) setDia(await leido.json());
+        else setError(await readError(leido));
+      } else if (res.ok) {
         const estado = await res.json();
         setDia((actual) => (actual ? { ...actual, finished_at: estado.finished_at } : actual));
       } else {
@@ -202,9 +212,8 @@ export default function DiaView({
                   <Confirmar
                     abierto={confirmandoReapertura}
                     titulo={`¿Reabrir el día ${dia.day_index}?`}
-                    texto="Vuelve a estar en curso y podés cambiar lo que cargaste. No se borra nada."
+                    texto="El día vuelve a quedar sin hacer, como si nunca lo hubieras empezado: se borran las series, los ejercicios marcados y la entrada en calor, y el reloj vuelve a cero. No se puede deshacer."
                     accion="Reabrir día"
-                    destructivo={false}
                     onCancelar={() => setConfirmandoReapertura(false)}
                     onConfirmar={() => {
                       setConfirmandoReapertura(false);

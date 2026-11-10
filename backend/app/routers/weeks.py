@@ -1070,15 +1070,23 @@ def restart_day(
     (series y ejercicios marcados) y el reloj queda en cero y apagado, así que el día deja de estar
     en curso hasta que se vuelva a tocar "Empezar". El plan no cambia."""
     session = started_session(db, user, week_id, day_index)
+    unstart(db, session)
+    db.commit()
+    db.refresh(session)
+    return day_status(session)
+
+
+def unstart(db: Session, session: WorkoutSession) -> None:
+    """Deja el día como si nunca se hubiera empezado: borra lo registrado (series, ejercicios
+    marcados y entrada en calor) y el reloj queda en cero y apagado. Lo usan Reiniciar (decisión
+    121) y Reabrir día (decisión 123). El plan no cambia."""
     db.execute(delete(SetEntry).where(SetEntry.session_id == session.id))
     db.execute(delete(ExerciseCompletion).where(ExerciseCompletion.session_id == session.id))
+    session.finished_at = None
     session.started_at = None
     session.paused_at = None
     session.paused_seconds = 0
     session.warmup_minutes = None
-    db.commit()
-    db.refresh(session)
-    return day_status(session)
 
 
 @router.put("/{week_id}/days/{day_index}/warmup", response_model=WarmupOut)
@@ -1109,15 +1117,13 @@ def reopen_day(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> DayStatusOut:
-    """Reabre un día completado para corregirlo."""
+    """Reabre un día completado (decisión 123): vuelve a quedar sin hacer, como si nunca se hubiera
+    empezado. Borra lo registrado; un día sin completar no cambia."""
     week, _ = get_own_week(db, user, week_id)
     day = find_day(week, day_index)
     require_active(week)
     session = day_session(db, user, day)
     if session is not None and session.finished_at is not None:
-        session.finished_at = None
-        session.started_at = None  # el contador vuelve a empezar al retomar (decisión 82)
-        session.paused_at = None
-        session.paused_seconds = 0
+        unstart(db, session)
         db.commit()
     return DayStatusOut(finished_at=None)

@@ -363,12 +363,19 @@ def test_cerrar_un_ejercicio_no_bloquea_a_los_otros(api, semana):
     assert editar.status_code == 200
 
 
-def test_reabrir_el_dia_no_reabre_los_ejercicios_cerrados(api, semana):
+def test_reabrir_el_dia_lo_deja_sin_hacer(api, semana):
+    """Decisión 123: reabrir borra lo registrado y el día queda como si nunca se hubiera empezado."""
     press = ejercicios(api, semana, 1)["Press de banca con barra"]
+    api.post(f"/weeks/{semana}/days/1/start")
     marcar(api, semana, 1, press["id"])
+    api.put(f"/weeks/{semana}/days/1/warmup", json={"minutes": 7})
     completar(api, semana, 1)
     reabrir(api, semana, 1)
-    assert cerrado(api, semana, 1, "Press de banca con barra") is True
+    assert cerrado(api, semana, 1, "Press de banca con barra") is False
+    assert contar(api, SetEntry) == 0
+    dia = api.get(f"/weeks/{semana}/days/1").json()
+    assert dia["finished_at"] is None and dia["started_at"] is None and dia["warmup_minutes"] is None
+    assert api.get("/weeks/active").json()["in_progress_day"] is None
 
 
 def test_con_el_dia_completado_no_se_reabre_un_ejercicio(api, semana):
@@ -463,7 +470,7 @@ def test_un_dia_completado_no_admite_cambios(api, semana):
     assert contar(api, SetEntry) == 4  # nada cambió
 
 
-def test_reabrir_deja_corregir_de_nuevo(api, semana):
+def test_reabrir_deja_registrar_de_nuevo(api, semana):
     press = ejercicios(api, semana, 1)["Press de banca con barra"]
     plancha = ejercicios(api, semana, 1)["Plancha"]
     marcar(api, semana, 1, press["id"])  # este ejercicio queda cerrado
@@ -471,12 +478,11 @@ def test_reabrir_deja_corregir_de_nuevo(api, semana):
 
     assert reabrir(api, semana, 1).json()["finished_at"] is None
     assert api.get(f"/weeks/{semana}/days/1").json()["finished_at"] is None
-    # un ejercicio sin cerrar vuelve a poder corregirse
+    # se vuelve a registrar todo desde cero, también el ejercicio que estaba cerrado
     editar = api.put(f"/weeks/{semana}/days/1/sets/{plancha['sets'][0]['id']}", json={"duration_seconds": 30})
     assert editar.status_code == 200
-    # pero reabrir el día no reabre los ejercicios que se habían cerrado
-    cerrado = api.put(f"/weeks/{semana}/days/1/sets/{press['sets'][0]['id']}", json={"reps": 3})
-    assert cerrado.status_code == 409
+    otra_vez = api.put(f"/weeks/{semana}/days/1/sets/{press['sets'][0]['id']}", json={"reps": 3})
+    assert otra_vez.status_code == 200
 
 
 def test_reabrir_un_dia_que_no_estaba_completado_no_hace_nada(api, semana):
@@ -532,8 +538,9 @@ def test_el_estado_de_los_dias_pasa_de_pendiente_a_a_medias_a_completado(api, se
     completar(api, semana, 1)
     assert estados(api, semana) == ["completed", "pending"]
 
+    # Reabrir borra lo registrado: el día vuelve a estar sin hacer (decisión 123).
     reabrir(api, semana, 1)
-    assert estados(api, semana) == ["partial", "pending"]
+    assert estados(api, semana) == ["pending", "pending"]
 
 
 def test_completar_sin_registrar_nada_deja_el_dia_completado(api, semana):

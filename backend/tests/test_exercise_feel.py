@@ -103,8 +103,9 @@ def test_con_el_dia_completado_es_de_lectura(api, semana):
     api.post(f"/weeks/{semana}/days/1/complete")
     assert marcar(api, semana, ej, {"load_feel": "heavy"}).status_code == 409
     assert ejercicio(api, semana)["load_feel"] == "good"  # y se sigue viendo
+    # Reabrir el día borra lo registrado, también las marcas (decisión 123).
     api.post(f"/weeks/{semana}/days/1/reopen")
-    assert marcar(api, semana, ej, {"load_feel": "heavy"}).status_code == 200
+    assert ejercicio(api, semana)["load_feel"] is None
 
 
 def test_con_la_semana_cerrada_es_de_lectura(api):
