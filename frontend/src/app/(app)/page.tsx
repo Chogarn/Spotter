@@ -12,10 +12,10 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { Formulario } from "@/components/SeguimientoCuerpo";
 import { Franja } from "@/components/Franja";
 import { Logo } from "@/components/Logo";
-import { usePeriodo } from "@/components/SelectorPeriodo";
 import { NuevaRutina } from "@/components/NuevaRutina";
 import { OpcionesSiguiente, useUltimaSemana } from "@/components/SiguienteSemana";
 import { TarjetaAcceso } from "@/components/TarjetaAcceso";
+import { Button } from "@/components/ui/button";
 import { readError, apiFetch, type SessionUser, type Week, type WeekDetail } from "@/lib/api";
 import { tituloDia } from "@/lib/format";
 import { CargandoDiscos } from "@/components/Cargando";
@@ -37,8 +37,6 @@ export default function Inicio() {
   const [error, setError] = useState("");
   // El recuadro para cargar el peso del día, sin salir de Inicio.
   const [cargandoPeso, setCargandoPeso] = useState(false);
-  // "Ver cómo te fue" abre Resúmenes en la pestaña Día.
-  const [, setPeriodo] = usePeriodo();
   // Subir `recarga` vuelve a pedir todo (por ejemplo, si al generar ya había una semana activa).
   const [recarga, setRecarga] = useState(0);
 
@@ -112,21 +110,24 @@ export default function Inicio() {
                 <h2 className="mt-0 mb-4 text-4xl">Semana completada</h2>
                 <CerrarSemana weekId={semana.id} pendientes={[]} destacado onCerrada={() => setRecarga((n) => n + 1)} />
               </>
-            ) : festejoDia !== null ? (
-              /* Hoy se completó un día: la tarjeta es solo el festejo; el próximo día vuelve mañana. */
+            ) : festejoDia !== null && !activa?.in_progress_day ? (
+              /* Hoy se completó un día y no hay otro empezado: el festejo y "Volver a entrenar", que
+                 abre el día siguiente (decisión 130: se puede hacer más de un día en la misma fecha).
+                 "Ver cómo te fue" queda en el final del modo entrenar y en Resumen del día. */
               <div className="text-center">
                 <Festejo />
                 <h2 className="mt-0 mb-1 text-4xl">Día {festejoDia} completado</h2>
-                <p className="m-0 text-muted-foreground">
+                <p className="mt-0 mb-5 text-muted-foreground">
                   {tituloDia(semana.days.find((d) => d.day_index === festejoDia)?.title ?? "")}
                 </p>
-                <Link
-                  href="/progreso/resumenes"
-                  onClick={() => setPeriodo("day")}
-                  className="mt-2 inline-block text-sm font-medium text-disco-azul"
+                <Button
+                  size="xl"
+                  className="w-full"
+                  nativeButton={false}
+                  render={<Link href={`/semanas/${semana.id}/dia/${proximo.day_index}/entrenar`} />}
                 >
-                  Ver cómo te fue
-                </Link>
+                  Volver a entrenar
+                </Button>
               </div>
             ) : (
               <>
