@@ -102,11 +102,19 @@ export default function Inicio() {
 
         {!cargando && semana && (
           <section
-            className={`mb-4 rounded-2xl border-2 bg-card p-5 ${proximo ? "border-disco-tinta" : "border-disco-amarillo"}`}
+            className="mb-4 rounded-2xl border-2 border-disco-tinta bg-card p-5"
           >
-            {/* Hoy se completó un día: el festejo del modo entrenar, arriba; lo que sigue queda debajo. */}
-            {festejoDia !== null && (
-              <div className="mb-4 border-b border-border pb-4 text-center">
+            {!proximo ? (
+              <>
+                {/* Todos los días hechos: el festejo de la semana y cerrarla desde acá. El "Día N
+                    completado" del último día ya se vio en el modo entrenar. */}
+                <Festejo />
+                <h2 className="mt-0 mb-4 text-4xl">Semana completada</h2>
+                <CerrarSemana weekId={semana.id} pendientes={[]} destacado onCerrada={() => setRecarga((n) => n + 1)} />
+              </>
+            ) : festejoDia !== null ? (
+              /* Hoy se completó un día: la tarjeta es solo el festejo; el próximo día vuelve mañana. */
+              <div className="text-center">
                 <Festejo />
                 <h2 className="mt-0 mb-1 text-4xl">Día {festejoDia} completado</h2>
                 <p className="m-0 text-muted-foreground">
@@ -120,33 +128,17 @@ export default function Inicio() {
                   Ver cómo te fue
                 </Link>
               </div>
-            )}
-            {festejoDia !== null && proximo && (
-              <p className="mt-0 mb-2 text-sm font-medium text-muted-foreground">Próximo</p>
-            )}
-            {/* La semana en curso: solo los discos de los días. */}
-            <div className="mb-4 flex items-center gap-1.5">
-              {semana.days.map((d) => (
-                <Disco key={d.day_index} estado={estadoDia[d.state]} hoy={d.day_index === proximo?.day_index} />
-              ))}
-            </div>
-            {proximo ? (
-              <>
-                <h2 className={`mt-0 mb-0 ${festejoDia !== null ? "text-2xl" : "text-4xl"}`}>Día {proximo.day_index}</h2>
-                <p className="mt-0 mb-4 text-lg text-muted-foreground">{tituloDia(proximo.title)}</p>
-                <BotonDelDia weekId={semana.id} dayIndex={proximo.day_index} activa={activa} />
-              </>
             ) : (
               <>
-                {/* Todos los días hechos: lo que falta es cerrar la semana, y se hace desde acá. */}
-                <p className="m-0 text-sm font-medium text-disco-tinta">
-                  <span className="mr-1.5 rounded-full bg-disco-amarillo px-2 py-0.5">Falta cerrar la semana</span>
-                </p>
-                <h2 className="mt-2 mb-1 text-4xl">Completaste los {semana.days.length} días</h2>
-                <p className="mt-0 mb-4 text-sm text-muted-foreground">
-                  Cerrala para que la IA arme la siguiente con lo que hiciste.
-                </p>
-                <CerrarSemana weekId={semana.id} pendientes={[]} destacado onCerrada={() => setRecarga((n) => n + 1)} />
+                {/* La semana en curso: solo los discos de los días. */}
+                <div className="mb-4 flex items-center gap-1.5">
+                  {semana.days.map((d) => (
+                    <Disco key={d.day_index} estado={estadoDia[d.state]} hoy={d.day_index === proximo?.day_index} />
+                  ))}
+                </div>
+                <h2 className="mt-0 mb-0 text-4xl">Día {proximo.day_index}</h2>
+                <p className="mt-0 mb-4 text-lg text-muted-foreground">{tituloDia(proximo.title)}</p>
+                <BotonDelDia weekId={semana.id} dayIndex={proximo.day_index} activa={activa} />
               </>
             )}
           </section>
