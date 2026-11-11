@@ -905,6 +905,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA (propuestas que aprobaste con "tus propuestas están ok"):** aplicar los 6 ejercicios y las series por ejercicio solo a masa y fuerza; los abdominales al menos 2 días con 1 ejercicio de 3 series; el principiante solo con cuerpo completo; que las reglas nuevas se comprueben como el reparto (se pide de nuevo una vez y después se avisa, sin rechazar); no tocar el chequeo de la base de datos (hay una rutina vieja de 2 días en desarrollo); que los abdominales solo vayan en el prompt, sin control del código; y mostrar en el asistente solo los botones de 3 a 6, en dos columnas.
 - **Ojo:** las 3 a 4 series, los 6 ejercicios, los 12 a 20 y el tope de 12 **no tienen fuente**: es diseño tuyo. La tabla de Eneko Baz **no se verificó** (no se sabe si cuenta series directas o totales) y no se usó como regla. Un día de 6 ejercicios de 3 a 4 series dura unos 50 a 70 minutos (R34 solo avisa). **El prompt nuevo no se probó con Gemini real.** Las rutinas ya aceptadas no cambian.
 
+### 127. El backend de Vercel corre en Frankfurt, al lado de la base
+- **Fecha:** 2026-11-11
+- **Decisión:** las funciones de Vercel (el backend) corren en **Frankfurt (`fra1`)**, la misma región que la base de Neon, con `"regions": ["fra1"]` en `vercel.json`. Antes no había región configurada y Vercel usaba la de por defecto, Washington (`iad1`): cada consulta a la base cruzaba el Atlántico (unos 100 ms).
+- **Por qué:** *(completar)* (lo que viste: cambiar de ejercicio en Evolución por ejercicio tardaba mucho en la web).
+- **Descartaste:** llevar la base a EE. UU. (había que crear otro proyecto de Neon y copiar los datos).
+- **Decidió la IA sin preguntarte:** ponerlo en `vercel.json` y no en el panel de Vercel, para que quede en el repo y se deshaga borrando una línea.
+- **Ojo:** sin costo, verificado el 2026-11-11 en la documentación de Vercel (Hobby es gratis, sin facturación, y admite una región cualquiera). El viaje del teléfono al backend se alarga un poco (de Argentina a Frankfurt hay más distancia que a Washington), pero es uno solo por pedido. En el mismo cambio, el historial de un ejercicio pasó de unas 85 consultas a 5 y la lista de ejercicios de 146 a 1 (mismos resultados, comparados con los datos de desarrollo).
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
