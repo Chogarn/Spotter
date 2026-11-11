@@ -913,6 +913,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** ponerlo en `vercel.json` y no en el panel de Vercel, para que quede en el repo y se deshaga borrando una línea.
 - **Ojo, error de la IA:** se aprobó creyendo que el backend corría en Washington (`iad1`, la región por defecto de Vercel) porque `vercel.json` no la nombraba. Después del push se comprobó que **ya estaba en Frankfurt**: el despliegue anterior tenía `regions: ["fra1"]`, configurado en el panel del proyecto. La línea no cambia la región: solo la deja escrita en el repo. Sin costo (verificado el 2026-11-11 en la documentación de Vercel: Hobby es gratis y admite una región cualquiera). La mejora real de esa pantalla es la del mismo día: el historial de un ejercicio pasó de unas 85 consultas a 5 y la lista de ejercicios de 146 a 1 (mismos resultados, comparados con los datos de desarrollo), y el buscador se abre en cada toque.
 
+### 128. Inicio festeja solo el día completado y, con la semana entera hecha, "Semana completada"
+- **Fecha:** 2026-11-11
+- **Decisión:** cambia la 119. (1) El día que se completa un día y quedan otros, la tarjeta de Inicio es **solo el festejo** (confeti, "Día N completado", el nombre del día y "Ver cómo te fue"): ya no muestra debajo los discos ni el día siguiente con Empezar; vuelve al día siguiente. (2) Con **todos los días de la semana hechos**, Inicio muestra el **confeti, "Semana completada" y el botón Cerrar semana** (en lugar de "Completaste los N días"); el "Día N completado" del último día se ve solo en el modo entrenar.
+- **Por qué:** *(completar)*
+- **Descartaste:** dejar el festejo del último día con "Cerrar semana" debajo, y que Inicio mostrara solo el festejo sin los accesos de Tus rutinas y Tu progreso.
+- **Decidió la IA sin preguntarte:** "Semana completada" se ve mientras la semana esté entera hecha y sin cerrar, no solo el día en que se terminó; se sacaron de esa tarjeta la etiqueta "Falta cerrar la semana", la frase "Cerrala para que la IA…" y los discos; el borde de la tarjeta queda oscuro (antes, amarillo con la semana hecha).
+- **Ojo:** visto en el navegador en ancho de celular con un usuario descartable (ya borrado); no en un teléfono real.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
