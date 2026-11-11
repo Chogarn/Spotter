@@ -14,11 +14,11 @@
 
 **Pantalla:** Inicio → Nueva rutina → asistente: objetivo (Masa), nivel, días (4), estructura (torso/pierna) → pantalla de carga con los discos (**cortar la espera en la edición**) → la propuesta: pasar de día con las flechas, abrir el ⓘ de un ejercicio ("Cómo hacerlo" y "Por qué está en tu rutina"), tocar "Cambiar ejercicio" en uno, mirar la pestaña Avisos → Aceptar.
 
-**Voz:** "Para empezar elijo el objetivo, mi nivel, cuántos días puedo entrenar y cómo quiero repartir el cuerpo. La IA arma la rutina, pero no inventa: elige solo de un catálogo de 127 ejercicios revisados, y el código comprueba reglas de entrenamiento con fuente, como el volumen mínimo por músculo. Cada ejercicio explica cómo se hace y por qué está. Si uno no me gusta, lo cambio por otro del catálogo. Nada se guarda hasta que yo acepto: la IA propone y yo decido."
+**Voz:** "Para empezar elijo el objetivo, mi nivel, cuántos días puedo entrenar y cómo quiero repartir el cuerpo. La IA arma la rutina, pero no inventa: elige solo de un catálogo cerrado de 127 ejercicios, y el código comprueba reglas de entrenamiento con fuente, como el volumen mínimo por músculo. Cada ejercicio explica cómo se hace y por qué está. Si uno no me gusta, lo cambio por otro del catálogo. Nada se guarda hasta que yo acepto: la IA propone y yo decido."
 
 ## Escena 2 · Entrenar un día (≈ 60 s)
 
-**Pantalla:** Inicio "Hoy te toca" → Empezar → entrada en calor con el cronómetro y Finalizar → una serie en grande → abrir "Series · kilos y reps" y cambiar los kilos de una serie → Serie hecha → el reloj de descanso (mostrar unos segundos y Saltar) → avanzar al último ejercicio → Día completado → el confeti y "Ver cómo te fue".
+**Pantalla:** Inicio "Hoy te toca" → Empezar → entrada en calor con el cronómetro y Finalizar → una serie en grande → abrir "Series · kilos y reps" y cambiar los kilos de una serie → Serie hecha → el reloj de descanso (mostrar unos segundos y Saltar) → avanzar al último ejercicio → Día completado → el confeti y "Ver cómo te fue" (es el final del modo entrenar; en Inicio la tarjeta dice "Volver a entrenar", decisión 130).
 
 **Voz:** "En el gimnasio, la app me muestra un ejercicio a la vez. Toco 'Serie hecha' y queda registrado lo planificado; si levanté otro peso o hice menos repeticiones, lo cambio acá. El reloj de descanso arranca cuando yo quiero. Lo planificado y lo real se guardan por separado, y esa diferencia es lo que después analiza la IA."
 
@@ -45,13 +45,14 @@
 Solo se puede continuar la rutina más reciente (decisión 102), así que conviene grabar así:
 
 1. Con la cuenta demo ya preparada (una rutina con semanas cerradas y la última en curso, con el último día sin hacer): **escena 2** (entrenar ese día), **escena 3** (cerrar y generar la siguiente) y **escena 4** (Progreso, que ya tiene historia).
-2. Al final, **escena 1** (Nueva rutina), porque crea una rutina nueva y la anterior pasa a "Terminada".
-3. La apertura y el cierre, cuando quieras.
+2. **Sin cámara, cerrar la semana que se aceptó en la escena 3** (Entrenar → Cerrar semana). Con una semana en curso, "Nueva rutina" no abre el asistente: avisa "Tenés una semana en curso" y pide cerrarla primero.
+3. Al final, **escena 1** (Nueva rutina), porque crea una rutina nueva y la anterior pasa a "Terminada".
+4. La apertura y el cierre, cuando quieras.
 
 En la edición se ordenan 0, 1, 2, 3, 4 y 5.
 
 ## Antes de grabar
 
 - Celular con modo "No molestar", batería cargada y la hora visible prolija.
-- La generación tarda de 10 a 60 segundos y Google a veces responde "IA saturada": no pasa nada, se reintenta y se corta la espera en la edición. Cada intento es una llamada que cuenta para el tope de 400 por día (sobra).
+- La generación tarda de 10 a 60 segundos y Google a veces responde "IA saturada": no pasa nada, aparece la pantalla de error con "Probar de nuevo" (decisión 129), lo elegido no se pierde y se corta la espera en la edición. Cada intento es una llamada que cuenta para el tope de 400 por día (sobra).
 - Grabar la voz aparte, después de editar la imagen, suele salir mejor que hablar mientras se toca.
