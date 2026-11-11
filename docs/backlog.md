@@ -107,9 +107,9 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
   - **Verificado el 2026-11-07 (MDN y Apple):** Android con Chrome o Samsung Internet la instala como app real; con otros navegadores solo crea un acceso directo. iPhone: desde el menú Compartir, con Safari, Chrome, Edge y otros desde iOS 16.4. Mac: Safari 17 en adelante (macOS Sonoma 14), Archivo, Añadir al Dock; Chrome y Edge también instalan en escritorio. Chrome exige un manifest con `name` o `short_name`, `start_url`, `display` e íconos de **192 y 512 px**, más HTTPS (ya está en Vercel); el service worker no hace falta para instalar. [MDN: Making PWAs installable](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable), [Apple: Add to Dock](https://support.apple.com/en-us/104996).
   - **Sigue sin verificar:** cómo se instala en iPhone paso a paso en la página de Apple (la que consulté solo cubre Mac), y qué funciones extra, como notificaciones, quedan disponibles en iPhone.
   - **Criterios de aceptación:** (1) en Android (Chrome) aparece "Instalar app" y queda un ícono con el nombre y el diseño elegidos; (2) abierta desde el ícono, no muestra la barra del navegador; (3) en iPhone se puede añadir a la pantalla de inicio con el mismo ícono; (4) el login y la sesión funcionan igual desde la app instalada; (5) comprobado en un teléfono real, no solo en el emulador.
-- [ ] Deploy en producción `docker`
+- [x] Deploy en producción: Vercel (frontend y backend) y Neon (PostgreSQL), abierta al público el 2026-11-07 (decisiones 113 y 115) `docker`
 - [ ] README completo (cómo levantar, capturas) `docs`
-- [ ] Publicación LinkedIn 4: proyecto desplegado `docs`
+- [x] Publicación LinkedIn 4: "Cuarto avance de Spotter" (la app en la web, instalable en el teléfono, modo entrenar renovado, mapa muscular por partes y la prueba con un amigo), publicada el 2026-11-10 `docs`
 
 ## S6: Demo Day y cierre
 - [ ] Video demo `docs`
