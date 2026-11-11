@@ -3,7 +3,7 @@
 import { ChevronDown, ChevronUp, Pause, Play, RotateCcw, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 
 import { Confirmar } from "@/components/Confirmar";
 import { PasoConReloj, PasoHecho } from "@/components/Cronometro";
@@ -782,6 +782,14 @@ function SerieEnGrande({
   const descanso = useDescanso();
   // La tabla de series arranca plegada en cada ejercicio (decisión 120).
   const [tablaAbierta, setTablaAbierta] = useState(false);
+  // Al abrir la tabla, la página baja hasta "Serie hecha": si no, en un celular queda detrás del
+  // botón redondo de la barra y hay que saber que se puede deslizar.
+  const acciones = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!tablaAbierta) return;
+    const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    acciones.current?.scrollIntoView({ block: "end", behavior: quieto ? "auto" : "smooth" });
+  }, [tablaAbierta]);
   // Lo cambiado en la tabla para las series sin hacer: se guarda recién con "Serie hecha".
   const [borrador, setBorrador] = useState<Record<number, SetItem>>({});
   // El descanso es de este ejercicio: se guarda con qué ejercicio lo arrancó y adónde volver.
@@ -866,7 +874,8 @@ function SerieEnGrande({
           <Play /> Retomar
         </Button>
       ) : (
-      <div className="mt-4 flex gap-2">
+      // El margen de abajo deja a la vista la barra y el botón redondo que sobresale (unos 40 px).
+      <div ref={acciones} className="mt-4 flex scroll-mb-[calc(var(--alto-barra)+2.5rem)] gap-2">
         {/* El reloj lo arranca el usuario, nunca solo; sin descanso propuesto no aparece. */}
         {ejercicio.rest_seconds !== null && (
           <BotonDescanso segundos={ejercicio.rest_seconds} clave={clave} href={href} nombre={ejercicio.name} />

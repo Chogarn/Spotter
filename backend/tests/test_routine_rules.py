@@ -310,6 +310,14 @@ def test_r3_masa_avisa_si_un_grupo_grande_queda_fuera_de_10_a_20_series(series, 
     assert ("R3" in reglas(result, "warnings")) is avisa
 
 
+def test_r3_nombra_el_musculo_en_castellano():
+    # El aviso lo lee el usuario: "Pecho", no el valor interno "chest".
+    result = validate_routine(rutina(sets=2), Goal.MASA, Level.INTERMEDIO)
+    mensajes = [w.message for w in result.warnings if w.rule == "R3"]
+    assert any(m.startswith("Pecho:") for m in mensajes)
+    assert not any(m.split(":")[0] in {mu.value for mu in Muscle} for m in mensajes)
+
+
 def test_r3_no_avisa_cuando_se_pasa_de_20():
     # Decisión 126: pasar de 20 series semanales está permitido.
     result = validate_routine(rutina(4, sets=6), Goal.MASA, Level.INTERMEDIO)  # 24 por grupo

@@ -473,7 +473,10 @@ def _volume_warnings(routine, goal, n_strength, sets_by_muscle, warn) -> None:
             sets = sets_by_muscle.get(muscle, 0)
             if not low <= sets <= high:
                 rango = f"{low:g} o más" if high == float("inf") else f"de {low:g} a {high:g}"
-                warn(rule, f"{muscle.value}: {sets:g} series por semana y debería haber {rango}.")
+                warn(
+                    rule,
+                    f"{MUSCLE_TEXT[muscle].capitalize()}: {sets:g} series por semana y debería haber {rango}.",
+                )
 
     if goal == Goal.MASA:
         per_group("R3", 10, float("inf"))  # decisión 126: pasar de 20 está permitido

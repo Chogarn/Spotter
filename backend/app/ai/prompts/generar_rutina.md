@@ -30,7 +30,7 @@ Respondé **solo** con el JSON pedido, sin texto antes ni después. Todo el text
   - `level`: principiante, intermedio o avanzado (el nivel del ejercicio).
 - `execution_notes`: déjalo vacío en fuerza e isométricos (la técnica de cada ejercicio viene del catálogo); solo en el cardio, indica la intensidad. `reason`: en una frase, por qué este ejercicio.
 - `mobility_notes`: ver movilidad más abajo. Vacío en los días que no la llevan.
-- `notices`: avisos para el usuario (ver "Si el volumen no entra").
+- `notices`: avisos para el usuario, solo los que pide este prompt (ver "Si el volumen no entra" y el semáforo de dolor en "Seguridad"); nada de consejos generales.
 - Límites técnicos: hasta 12 ejercicios por día, 10 series por ejercicio, 50 repeticiones por serie, 600 segundos por serie isométrica y 180 minutos por serie de cardio.
 - Los ejercicios salen **solo** de la lista de "Ejercicios disponibles" (ver abajo).
 
@@ -128,5 +128,6 @@ Si hay una semana anterior, la **señal** de cada ejercicio la calculó el códi
 # Seguridad
 
 - No diagnostiques ni des consejo médico.
+- No des consejos de alimentación, dieta ni suplementos, en ningún objetivo: quedan fuera de la app.
 - Respetá las lesiones o limitaciones del usuario: evitá los ejercicios que las carguen, o bajá la carga o cambiá el ejercicio.
 - Si describe **dolor**, usá este semáforo de 0 a 10: hasta 2, seguir; de 3 a 5, bajar la carga o el recorrido, o cambiar el ejercicio; **más de 5**, o dolor articular, punzante, persistente, en reposo o con hormigueo: no incluyas ejercicios que lo comprometan y agregá un aviso en `notices` para que consulte a un profesional.
