@@ -928,6 +928,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** el servidor manda el motivo en el encabezado `X-Error-Code` (los mensajes de la API no cambiaron); "saturada" y "no respondió" comparten pantalla; la cuenta del tope por minuto es siempre de 60 s; el borrador en el navegador dura 2 días, es por usuario, se guarda ante cualquiera de estos errores y se borra al generar bien o al cancelar; "Cambiar la estructura" vuelve al paso de la estructura; los títulos, los textos y el color del disco de cada pantalla.
 - **Ojo:** probado en el navegador con respuestas simuladas (sin gastar cuota) y en ancho de celular; no en un teléfono real ni con una falla real de Gemini.
 
+### 130. Se puede hacer más de un día en la misma fecha, y Inicio lo ofrece con "Volver a entrenar"
+- **Fecha:** 2026-11-11
+- **Decisión:** cambia la parte (1) de la 128. Se permite hacer más de un día de la rutina en la misma fecha (el servidor ya lo dejaba y Entrenar ya lo mostraba). El día que se completa un día y quedan otros, la tarjeta de Inicio muestra el confeti, "Día N completado", el nombre del día y el botón oscuro **"Volver a entrenar"**, que abre el modo entrenar del día siguiente. **"Ver cómo te fue" sale de Inicio**: ya está en el final del modo entrenar y en Resumen del día.
+- **Por qué:** *(completar)*
+- **Descartaste:** uno solo por fecha (bloquear empezar otro día hasta mañana); permitirlo solo desde Entrenar sin ofrecerlo en Inicio; dejar "Ver cómo te fue" como link debajo de "Volver a entrenar".
+- **Decidió la IA sin preguntarte:** si después de "Volver a entrenar" hay un día empezado, Inicio deja de festejar y muestra ese día con "Seguir entrenando" (o "Retomar"), como cualquier día en curso; el botón empieza el día siguiente sin pasar por Entrenar.
+- **Ojo:** visto en el navegador en ancho de celular con un usuario descartable (ya borrado); no en un teléfono real.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
