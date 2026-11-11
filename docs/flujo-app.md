@@ -97,7 +97,15 @@ Se abre con **Generar rutina** (Inicio o Entrenar, sin semana activa) o con **Nu
 ### Mientras la IA trabaja
 La llamada a Gemini puede tardar de 10 a 90 segundos. Una **pantalla completa de carga** ("Armando tu semana") tapa todo, incluida la barra de abajo, y **no tiene botón de salir** (decisión 67): una sola generación a la vez por persona. Si pasa de 2 minutos, la app corta la espera y muestra un error. Cada llamada cuenta en el tope diario.
 
-**Si algo sale mal** se ve un mensaje y se puede reintentar: falta el perfil o ya hay una semana activa o una generación en curso (409), llegó al tope por minuto o por día (429), la IA no respondió o no pudo armar una rutina válida tras un reintento (502), o la IA no está configurada (503).
+**Si algo sale mal** (decisión 129), la pantalla de carga se convierte en una pantalla de error con un mensaje según el motivo, que el servidor manda en el encabezado `X-Error-Code`:
+
+- **La IA no respondió o está saturada** (502, `ia_no_respondio`): "La IA está con mucha demanda", con "Probar de nuevo" y "Volver".
+- **Tope por minuto** (429, `tope_minuto`): "Un respiro y seguimos", con una cuenta de 1:00; "Probar de nuevo" se habilita al terminar.
+- **Tope del día** (429, `tope_dia`): "Por hoy la IA descansa", con la hora local en que se reinicia (medianoche del Pacífico) y "Volver al inicio".
+- **La rutina no pasó las reglas** tras el reintento (502, `reglas`): "No salió una rutina que cumpla todo", con los motivos técnicos plegados en "Ver detalle", "Probar de nuevo" y "Cambiar la estructura".
+- **Sin conexión** (el pedido no llegó): "Sin conexión", con "Probar de nuevo" y "Volver".
+
+"Probar de nuevo" lo toca siempre la persona: no hay reintentos automáticos. Lo elegido no se pierde: queda marcado en el asistente y además se guarda en el navegador (por usuario, 2 días), así que la próxima vez el asistente se abre en el último paso con todo marcado; se borra al generar bien o al tocar Cancelar. Los demás errores siguen como un mensaje dentro del asistente: falta el perfil, ya hay una semana activa o una generación en curso (409), o la IA no está configurada (503).
 
 ### Cómo elige los ejercicios (catálogo con RAG, decisiones 58 y 67)
 
