@@ -7,6 +7,7 @@ import { readError, type Routine, apiFetch } from "@/lib/api";
 import { GrupoOpciones, OpcionAsistente, PasoAsistente, RuedaNumero } from "@/components/Asistente";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { ErrorGeneracion, MOTIVOS, type MotivoFallo } from "@/components/ErrorGeneracion";
 import { FraseDeCarga } from "@/components/FraseDeCarga";
 import { IconoNivel } from "@/components/IconoNivel";
 import { IconoObjetivo } from "@/components/IconoObjetivo";
@@ -92,6 +93,54 @@ const OBJETIVOS = [
   ["mantenerme_activo", "mantenerme activo"],
 ];
 
+// Si la generación falla, lo elegido se guarda en el navegador (por usuario) y la próxima vez el
+// asistente se abre en el último paso con todo marcado. Se borra al generar bien o al cancelar.
+const CLAVE_BORRADOR = "spotter:generar-borrador";
+const VIDA_BORRADOR_MS = 2 * 24 * 60 * 60 * 1000;
+type Borrador = {
+  usuario: number;
+  eleccion: string;
+  objetivo: string;
+  nivel: string;
+  dias: number;
+  split: Split;
+  guardado: number;
+};
+
+async function usuarioActual(): Promise<number | null> {
+  try {
+    const res = await apiFetch(`/auth/me`);
+    return res.ok ? (await res.json()).id : null;
+  } catch {
+    return null;
+  }
+}
+
+function borrarBorrador() {
+  try {
+    window.localStorage.removeItem(CLAVE_BORRADOR);
+  } catch {
+    /* sin acceso al almacenamiento: no hay borrador */
+  }
+}
+
+async function leerBorrador(): Promise<Borrador | null> {
+  let b: Borrador;
+  try {
+    const crudo = window.localStorage.getItem(CLAVE_BORRADOR);
+    if (!crudo) return null;
+    b = JSON.parse(crudo);
+  } catch {
+    return null;
+  }
+  if (!b || Date.now() - b.guardado > VIDA_BORRADOR_MS) {
+    borrarBorrador();
+    return null;
+  }
+  // Otro usuario en el mismo aparato no ve las elecciones del anterior.
+  return (await usuarioActual()) === b.usuario ? b : null;
+}
+
 // Botón que, antes de llamar a la IA, pregunta qué hacer (continuar una rutina o empezar una
 // nueva con su nivel y objetivo), con Cancelar. `onConflict` avisa a la pantalla si el servidor
 // dice que ya hay una semana activa. Con `soloNueva` (desde Rutinas) va directo a una rutina nueva:
@@ -127,6 +176,9 @@ export function GenerarRutina({
   const [minutos, setMinutos] = useState(MINUTOS_HABITUAL);
   const [paso, setPaso] = useState<Paso>("eleccion");
   const [error, setError] = useState("");
+  // Una generación que falló por la IA, un tope, las reglas o la conexión: tapa el asistente con una
+  // pantalla que explica qué pasó (`ErrorGeneracion`). Los demás errores siguen en el asistente.
+  const [fallo, setFallo] = useState<{ motivo: MotivoFallo; detalle?: string } | null>(null);
   // `pidiendo`: esperando a la IA. `navegando`: abriendo la propuesta; se apaga solo cuando la
   // nueva página está lista (así esta pantalla no queda "generando" al volver a ella).
   const [pidiendo, setPidiendo] = useState(false);
@@ -198,8 +250,40 @@ export function GenerarRutina({
       : splitPredeterminado(valor, nivelActual, objetivoActual));
   }
 
+  // Vuelve a marcar lo elegido antes de una generación fallida, si todavía vale en este asistente.
+  async function restaurar(lista: Routine[]) {
+    const b = await leerBorrador();
+    if (!b) return;
+    const rutina = lista.find((r) => String(r.id) === b.eleccion);
+    const vale = b.eleccion === "nueva"
+      ? continuar === undefined && Boolean(b.objetivo && b.nivel)
+      : !soloNueva && rutina !== undefined && (continuar === undefined || String(continuar) === b.eleccion);
+    if (!vale) return;
+    const nivelB = b.eleccion === "nueva" ? b.nivel : rutina!.level;
+    const objetivoB = b.eleccion === "nueva" ? b.objetivo : rutina!.goal;
+    if (!DIAS_PERMITIDOS.includes(b.dias) || !splitsPermitidos(nivelB, objetivoB, b.dias).includes(b.split)) return;
+    setEleccion(b.eleccion);
+    setObjetivo(b.eleccion === "nueva" ? b.objetivo : "");
+    setNivel(b.eleccion === "nueva" ? b.nivel : "");
+    setDias(b.dias);
+    setSplit(b.split);
+    setPaso("split");
+  }
+
+  async function guardarBorrador() {
+    const usuario = await usuarioActual();
+    if (usuario === null || dias === null || split === "") return;
+    const b: Borrador = { usuario, eleccion, objetivo, nivel, dias, split, guardado: Date.now() };
+    try {
+      window.localStorage.setItem(CLAVE_BORRADOR, JSON.stringify(b));
+    } catch {
+      /* sin acceso al almacenamiento: el asistente sigue andando sin borrador */
+    }
+  }
+
   async function abrir() {
     setError("");
+    setFallo(null);
     setPreguntando(true);
     setPaso("eleccion");
     setEleccion("");
@@ -210,8 +294,9 @@ export function GenerarRutina({
     setMinutos(MINUTOS_HABITUAL);
     setRutinas(null);
     if (soloNueva) {
-      setRutinas([]);
       setEleccion("nueva");
+      await restaurar([]);
+      setRutinas([]); // recién ahora se dibuja el asistente: no se ve el primer paso antes de saltar
       return;
     }
     try {
@@ -220,7 +305,6 @@ export function GenerarRutina({
       // Solo se continúa la rutina más reciente (la lista viene de la más nueva a la más vieja): las
       // anteriores terminaron y el servidor las rechaza.
       const lista: Routine[] = (await res.json()).filter((r: Routine) => r.week_count > 0).slice(0, 1);
-      setRutinas(lista);
       if (continuar !== undefined) {
         const rutina = lista.find((r) => r.id === continuar);
         if (!rutina) throw new Error("No se encontró la rutina para continuar");
@@ -231,6 +315,8 @@ export function GenerarRutina({
       } else if (lista.length === 0) {
         setEleccion("nueva"); // sin rutinas no hay nada que continuar
       }
+      await restaurar(lista);
+      setRutinas(lista);
     } catch (e) {
       setPreguntando(false);
       setError(e instanceof Error ? e.message : "No se pudo conectar con el servidor");
@@ -239,6 +325,7 @@ export function GenerarRutina({
 
   async function generar() {
     setError("");
+    setFallo(null);
     setPidiendo(true);
     try {
       const res = await apiFetch(`/proposals/generate`, {
@@ -252,14 +339,23 @@ export function GenerarRutina({
       });
       if (res.ok) {
         const propuesta = await res.json();
+        borrarBorrador();
         startTransition(() => router.push(`/rutina/propuesta/${propuesta.id}`));
         setPidiendo(false);
         return;
       }
-      setError(await readError(res));
-      if (res.status === 409) onConflict?.();
+      const motivo = res.headers.get("X-Error-Code") as MotivoFallo | null;
+      if (motivo && MOTIVOS.includes(motivo)) {
+        // El mensaje técnico (los motivos de las reglas) queda plegado en "Ver detalle".
+        setFallo({ motivo, detalle: motivo === "reglas" ? await readError(res) : undefined });
+        void guardarBorrador();
+      } else {
+        setError(await readError(res));
+        if (res.status === 409) onConflict?.();
+      }
     } catch {
-      setError("No se pudo conectar con el servidor");
+      setFallo({ motivo: "sin_conexion" });
+      void guardarBorrador();
     }
     setPidiendo(false);
   }
@@ -267,6 +363,8 @@ export function GenerarRutina({
   function cancelar() {
     setPreguntando(false);
     setError("");
+    setFallo(null);
+    borrarBorrador(); // cancelar a propósito: la próxima vez arranca de cero
   }
 
   return (
@@ -286,7 +384,7 @@ export function GenerarRutina({
           Cargando...
         </div>
       )}
-      {preguntando && !generando && rutinas !== null && (
+      {preguntando && !generando && rutinas !== null && !fallo && (
         <PasoAsistente
           paso={indice + 1}
           total={pasos.length}
@@ -406,6 +504,20 @@ export function GenerarRutina({
             La IA está pensando tu rutina. Puede tardar hasta 2 minutos. No cierres esta página.
           </p>
         </div>
+      )}
+      {preguntando && !generando && fallo && (
+        <ErrorGeneracion
+          motivo={fallo.motivo}
+          detalle={fallo.detalle}
+          onReintentar={generar}
+          onVolver={() => setFallo(null)}
+          onInicio={() => {
+            // El borrador queda: al volver a generar, lo elegido aparece marcado.
+            setFallo(null);
+            setPreguntando(false);
+            router.push("/");
+          }}
+        />
       )}
       {error && !preguntando && <ErrorMessage>{error}</ErrorMessage>}
     </>

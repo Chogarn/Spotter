@@ -68,6 +68,12 @@ def require_pending(proposal: PlanProposal) -> None:
         raise HTTPException(status_code=409, detail="Esa propuesta ya fue resuelta")
 
 
+# Encabezado con el motivo de una generación fallida, para que la pantalla explique cada caso a su
+# manera: "ia_no_respondio" (Gemini caído, saturado o lento), "tope_minuto", "tope_dia" y "reglas" (la
+# rutina no pasó la validación). El mensaje (`detail`) sigue igual para quien lea la API.
+ERROR_CODE = "X-Error-Code"
+
+
 @router.post("/generate", response_model=ProposalOut, status_code=201)
 def generate(
     data: GenerateIn,
@@ -130,17 +136,19 @@ def generate(
             raise HTTPException(
                 status_code=429,
                 detail="Llegaste al tope de llamadas por minuto. Probá de nuevo en un minuto.",
-                headers={"Retry-After": "60"},
+                headers={"Retry-After": "60", ERROR_CODE: "tope_minuto"},
             ) from None
         raise HTTPException(
-            status_code=429, detail="Llegaste al tope diario de la IA. Probá mañana."
+            status_code=429,
+            detail="Llegaste al tope diario de la IA. Probá mañana.",
+            headers={ERROR_CODE: "tope_dia"},
         ) from None
     except AiUpstreamError as error:
         if error.overloaded:
             detail = "Google tiene la IA saturada en este momento. Probá de nuevo en un rato."
         else:
             detail = "La IA no respondió (puede haber tardado demasiado). Probá de nuevo."
-        raise HTTPException(status_code=502, detail=detail) from None
+        raise HTTPException(status_code=502, detail=detail, headers={ERROR_CODE: "ia_no_respondio"}) from None
     except GenerationFailed as error:
         # Mostrar algunos motivos concretos evita que un rechazo por reglas parezca una caída
         # de Gemini. La respuesta de la IA ya se recibió; se agotaron los intentos de corrección.
@@ -153,6 +161,7 @@ def generate(
                 "Gemini respondió, pero la rutina no pasó las reglas después de varios intentos. "
                 f"Motivos: {motivos or 'la propuesta no cumplió la validación.'}"
             ),
+            headers={ERROR_CODE: "reglas"},
         ) from None
 
 

@@ -174,13 +174,28 @@ def test_con_el_tope_alcanzado_devuelve_429_y_no_llama(api, entorno, monkeypatch
 
     assert response.status_code == 429
     assert response.headers["retry-after"] == "60"
+    assert response.headers["x-error-code"] == "tope_minuto"
     assert falso.llamadas == 1
+
+
+def test_con_el_tope_diario_alcanzado_avisa_con_su_codigo(api, entorno, monkeypatch):
+    monkeypatch.setenv("GEMINI_DAILY_LIMIT", "1")
+    con_perfil(api)
+    usar_gemini(monkeypatch, rutina(), rutina())
+    assert api.post("/proposals/generate", json=ELECCION).status_code == 201
+
+    response = api.post("/proposals/generate", json=ELECCION)
+
+    assert response.status_code == 429
+    assert response.headers["x-error-code"] == "tope_dia"
 
 
 def test_si_gemini_falla_devuelve_502(api, entorno, monkeypatch):
     con_perfil(api)
     usar_gemini(monkeypatch, RuntimeError("timeout"))
-    assert api.post("/proposals/generate", json=ELECCION).status_code == 502
+    response = api.post("/proposals/generate", json=ELECCION)
+    assert response.status_code == 502
+    assert response.headers["x-error-code"] == "ia_no_respondio"
     assert contar(api, PlanProposal) == 0
 
 
@@ -217,6 +232,7 @@ def test_dos_respuestas_invalidas_no_guardan_nada(api, entorno, monkeypatch):
     response = api.post("/proposals/generate", json=ELECCION)
 
     assert response.status_code == 502
+    assert response.headers["x-error-code"] == "reglas"
     assert falso.llamadas == 2
     assert contar(api, PlanProposal) == 0
     assert contar(api, AiCall) == 2
