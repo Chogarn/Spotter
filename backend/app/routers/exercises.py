@@ -1,29 +1,26 @@
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy import distinct, func, select
+from sqlalchemy.orm import Session, selectinload
 
 from app.db import get_db
 from app.deps import get_current_user
 from app.enums import ExerciseKind
-from app.models import Exercise, User, WeekPlan
+from app.models import (
+    Exercise,
+    PlanDay,
+    PlanExercise,
+    PlanSet,
+    SetEntry,
+    User,
+    WeekPlan,
+    WorkoutSession,
+)
 from app.routers.routines import best_of_week
-from app.routers.weeks import day_entries, routine_weeks
 from app.schemas import ExerciseOptionOut, ExerciseTimelineOut, TimelinePointOut
 
 router = APIRouter(prefix="/exercises", tags=["exercises"])
-
-
-def user_weeks(db: Session, user: User) -> list[WeekPlan]:
-    """Todas las semanas de la persona, de la más vieja a la más nueva, sin importar la rutina."""
-    return list(
-        db.scalars(
-            select(WeekPlan)
-            .where(WeekPlan.user_id == user.id)
-            .order_by(WeekPlan.week_start, WeekPlan.id)
-        )
-    )
 
 
 @router.get("", response_model=list[ExerciseOptionOut])
@@ -32,19 +29,20 @@ def list_exercises(
 ) -> list[ExerciseOptionOut]:
     """Los ejercicios que aparecieron en alguna semana de la persona (en cualquier rutina), con
     en cuántas semanas, para elegir cuál graficar."""
-    found: dict[int, tuple[Exercise, set[int]]] = {}
-    for week in user_weeks(db, user):
-        for day in week.days:
-            for plan_exercise in day.exercises:
-                exercise, weeks = found.setdefault(
-                    plan_exercise.exercise_id, (plan_exercise.exercise, set())
-                )
-                weeks.add(week.id)
+    # Una sola consulta (antes, una por semana, día y ejercicio).
+    rows = db.execute(
+        select(Exercise, func.count(distinct(PlanDay.week_plan_id)))
+        .join(PlanExercise, PlanExercise.exercise_id == Exercise.id)
+        .join(PlanDay, PlanDay.id == PlanExercise.plan_day_id)
+        .join(WeekPlan, WeekPlan.id == PlanDay.week_plan_id)
+        .where(WeekPlan.user_id == user.id)
+        .group_by(Exercise.id)
+    ).all()
     options = [
         ExerciseOptionOut(
-            id=exercise.id, name=exercise.name, kind=exercise.kind.value, weeks_count=len(weeks)
+            id=exercise.id, name=exercise.name, kind=exercise.kind.value, weeks_count=weeks_count
         )
-        for exercise, weeks in found.values()
+        for exercise, weeks_count in rows
     ]
     return sorted(options, key=lambda o: o.name.lower())
 
@@ -64,24 +62,59 @@ def exercise_timeline(
     if exercise is None:
         raise HTTPException(status_code=404, detail="No existe ese ejercicio")
 
-    raw: list[tuple[WeekPlan, int, list]] = []
-    number_cache: dict[int, list[int]] = {}
-    for week in user_weeks(db, user):
-        entries = []
-        appears = False
-        for day in week.days:
-            planned = [e for e in day.exercises if e.exercise_id == exercise_id]
-            if not planned:
-                continue
-            appears = True
-            done = day_entries(db, day)
-            entries += [done[s.id] for e in planned for s in e.sets if s.id in done]
-        if not appears:
-            continue
-        ids = number_cache.setdefault(
-            week.routine_id, [w.id for w in routine_weeks(db, week.routine_id)]
+    # Pocas consultas grandes en vez de una por día, ejercicio y serie: con la base lejos (Neon en
+    # Frankfurt) cada consulta cuesta un viaje y cientos de ellas tardaban segundos.
+    # Todas las semanas de la persona, de la más vieja a la más nueva, sin importar la rutina.
+    weeks = list(
+        db.scalars(
+            select(WeekPlan)
+            .where(WeekPlan.user_id == user.id)
+            .options(selectinload(WeekPlan.routine))
+            .order_by(WeekPlan.week_start, WeekPlan.id)
         )
-        raw.append((week, ids.index(week.id) + 1, entries))
+    )
+    # El número de cada semana dentro de su rutina, en el mismo orden que routine_weeks.
+    number: dict[int, int] = {}
+    per_routine: dict[int, int] = {}
+    for week in weeks:
+        per_routine[week.routine_id] = per_routine.get(week.routine_id, 0) + 1
+        number[week.id] = per_routine[week.routine_id]
+
+    # Las semanas en que el ejercicio estuvo planificado.
+    appears = set(
+        db.scalars(
+            select(PlanDay.week_plan_id)
+            .join(PlanExercise, PlanExercise.plan_day_id == PlanDay.id)
+            .join(WeekPlan, WeekPlan.id == PlanDay.week_plan_id)
+            .where(WeekPlan.user_id == user.id, PlanExercise.exercise_id == exercise_id)
+        )
+    )
+    # Lo realizado en sus series planificadas, en una sesión de ese mismo día (como day_entries):
+    # una entrada por serie (la última, si hubiera dos).
+    rows = db.execute(
+        select(SetEntry, PlanDay.week_plan_id)
+        .join(PlanSet, PlanSet.id == SetEntry.plan_set_id)
+        .join(PlanExercise, PlanExercise.id == PlanSet.plan_exercise_id)
+        .join(PlanDay, PlanDay.id == PlanExercise.plan_day_id)
+        .join(WorkoutSession, WorkoutSession.id == SetEntry.session_id)
+        .join(WeekPlan, WeekPlan.id == PlanDay.week_plan_id)
+        .where(
+            WeekPlan.user_id == user.id,
+            PlanExercise.exercise_id == exercise_id,
+            WorkoutSession.plan_day_id == PlanDay.id,
+        )
+        .order_by(SetEntry.id)
+    ).all()
+    by_set: dict[int, tuple[SetEntry, int]] = {}
+    for entry, week_id in rows:
+        by_set[entry.plan_set_id] = (entry, week_id)
+    entries_of: dict[int, list[SetEntry]] = {}
+    for entry, week_id in by_set.values():
+        entries_of.setdefault(week_id, []).append(entry)
+
+    raw: list[tuple[WeekPlan, int, list]] = [
+        (week, number[week.id], entries_of.get(week.id, [])) for week in weeks if week.id in appears
+    ]
     if not raw:
         raise HTTPException(status_code=404, detail="Ese ejercicio no figura en tus semanas")
 

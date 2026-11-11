@@ -110,9 +110,28 @@ export function EvolucionEjercicio() {
   return (
     <section className="mt-4 mb-3 rounded-2xl bg-card p-4">
       <h3 className="mt-0 mb-2 font-heading text-xl font-bold">Evolución por ejercicio</h3>
-      {ejercicios && <BuscarEjercicio ejercicios={ejercicios} elegido={ejercicioId} onElegir={setEjercicioId} />}
+      {ejercicios && (
+        <BuscarEjercicio
+          ejercicios={ejercicios}
+          elegido={ejercicioId}
+onElegir={(id) => {
+            setError("");
+            setEjercicioId(id);
+          }}
+        />
+      )}
       {error && <InlineError>{error}</InlineError>}
-      {historial && historial.exercise_id === ejercicioId && <Linea historial={historial} />}
+      {historial && historial.exercise_id === ejercicioId ? (
+        <Linea historial={historial} />
+      ) : (
+        // Mientras llega el historial del ejercicio elegido, para que no parezca trabado.
+        ejercicioId !== null &&
+        !error && (
+          <p className="m-0 py-6 text-center text-sm text-muted-foreground" role="status">
+            Cargando…
+          </p>
+        )
+      )}
     </section>
   );
 }

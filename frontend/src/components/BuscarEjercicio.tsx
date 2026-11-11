@@ -1,7 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 
 import type { RoutineExercise } from "@/lib/api";
 import { cn } from "cn";
@@ -23,6 +23,7 @@ export function BuscarEjercicio({
   onElegir: (id: number) => void;
 }) {
   const id = useId();
+  const campo = useRef<HTMLInputElement>(null);
   const [abierto, setAbierto] = useState(false);
   const [texto, setTexto] = useState("");
   const nombreElegido = ejercicios.find((e) => e.id === elegido)?.name ?? "";
@@ -31,6 +32,13 @@ export function BuscarEjercicio({
   function elegir(ejercicio: RoutineExercise) {
     onElegir(ejercicio.id);
     setAbierto(false);
+    setTexto("");
+    // Suelta el foco: si no, el campo seguía enfocado y tocarlo de nuevo no abría la lista.
+    campo.current?.blur();
+  }
+
+  function abrir() {
+    setAbierto(true);
     setTexto("");
   }
 
@@ -41,6 +49,7 @@ export function BuscarEjercicio({
         aria-hidden="true"
       />
       <input
+        ref={campo}
         type="search"
         role="combobox"
         aria-label="Buscar ejercicio"
@@ -49,18 +58,16 @@ export function BuscarEjercicio({
         aria-autocomplete="list"
         placeholder="Buscar ejercicio"
         value={abierto ? texto : nombreElegido}
-        onFocus={() => {
-          setAbierto(true);
-          setTexto("");
+        onFocus={abrir}
+        // Por las dudas: si el campo ya tenía el foco y la lista estaba cerrada, el toque la abre.
+        onClick={() => {
+          if (!abierto) abrir();
         }}
         onBlur={() => setAbierto(false)}
         onChange={(e) => setTexto(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Escape") e.currentTarget.blur();
-          if (e.key === "Enter" && coinciden[0]) {
-            elegir(coinciden[0]);
-            e.currentTarget.blur();
-          }
+          if (e.key === "Enter" && coinciden[0]) elegir(coinciden[0]);
         }}
         className="h-11 w-full rounded-full border border-input bg-card pr-4 pl-11 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
       />
