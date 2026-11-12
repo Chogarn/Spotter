@@ -1,7 +1,7 @@
 "use client";
 
 import { tituloDia } from "@/lib/format";
-import { Check, MessageSquare, Sparkles, TriangleAlert } from "lucide-react";
+import { Check, MessageSquare, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -43,7 +43,7 @@ export default function PropuestaView({
   const [trabajando, setTrabajando] = useState(false);
   const [aceptada, setAceptada] = useState(false);
   const [error, setError] = useState("");
-  const [pestana, setPestana] = useState<"semana" | "cambios" | "avisos">("semana");
+  const [pestana, setPestana] = useState<"semana" | "cambios">("semana");
   // Antes y después (#49): solo en una semana nueva; en la primera rutina viene sin base.
   const [cambios, setCambios] = useState<ProposalChanges | null>(null);
   // El día a la vista (uno por vez) y la tarjeta desplegada de ese día.
@@ -166,7 +166,6 @@ export default function PropuestaView({
   }
 
   const { days, notices, summary } = propuesta.routine;
-  const totalAvisos = (summary ? 1 : 0) + propuesta.warnings.length + notices.length;
   const dia = days[diaActual] ?? days[0];
   const conBase = cambios?.has_base ? cambios : null;
   const cambioPorClave = new Map(conBase?.exercises.map((c) => [claveEjercicio(c.name), c]) ?? []);
@@ -174,7 +173,10 @@ export default function PropuestaView({
     ? conBase.exercises.filter((c) => c.status !== "igual").length + conBase.removed.length
     : 0;
   const tipos = Object.fromEntries(days.flatMap((d) => d.exercises.map((e) => [claveEjercicio(e.name), e.kind])));
-  const pestanas = conBase ? (["semana", "cambios", "avisos"] as const) : (["semana", "avisos"] as const);
+  // Sin pestaña Avisos (decisión 134): los avisos del código (reparto, volumen, split, duración,
+  // subidas de peso) siguen guardados en la propuesta, pero no se muestran. El resumen y las notas
+  // de la IA van arriba de la semana.
+  const pestanas = conBase ? (["semana", "cambios"] as const) : (["semana"] as const);
 
   function irADia(i: number) {
     setDiaActual(i);
@@ -193,7 +195,8 @@ export default function PropuestaView({
       />
       <div style={{ ...contenedor, width: "100%", paddingTop: "1.25rem" }}>
 
-      {/* Dos pestañas: la semana día por día y los avisos (resumen, avisos del código y notas). */}
+      {/* Pestañas solo en una semana nueva: la semana día por día y los cambios. */}
+      {pestanas.length > 1 && (
       <div role="tablist" aria-label="Propuesta" className="my-3 flex rounded-full bg-muted p-1">
         {pestanas.map((p) => (
           <button
@@ -207,13 +210,31 @@ export default function PropuestaView({
               pestana === p ? "bg-primary text-primary-foreground" : "text-foreground",
             )}
           >
-            {p === "semana" ? "Semana" : p === "cambios" ? `Cambios (${totalCambios})` : `Avisos (${totalAvisos})`}
+            {p === "semana" ? "Semana" : `Cambios (${totalCambios})`}
           </button>
         ))}
       </div>
+      )}
 
       {pestana === "semana" ? (
-        <section role="tabpanel" aria-label="Semana">
+        <section role={pestanas.length > 1 ? "tabpanel" : undefined} aria-label="Semana">
+          {/* El resumen y las notas de la IA, arriba de los días. */}
+          {(summary || notices.length > 0) && (
+            <div className="mb-4 grid gap-2.5">
+              {summary && (
+                <Aviso Icono={Sparkles} destacado>
+                  <span className="font-medium">Resumen de la IA</span>
+                  <span className="block text-sm text-muted-foreground">{summary}</span>
+                </Aviso>
+              )}
+              {notices.map((n, i) => (
+                <Aviso key={`n${i}`} Icono={MessageSquare}>
+                  <span className="text-muted-foreground">Nota de la IA: </span>
+                  {n}
+                </Aviso>
+              ))}
+            </div>
+          )}
           {/* Una barra por día y flechas, como en el modo entrenar: se ve un día por vez. */}
           <div className="flex items-center gap-1">
             <Flecha
@@ -272,32 +293,11 @@ export default function PropuestaView({
             <small className="text-muted-foreground">Los pesos son orientativos. La app no da consejo médico.</small>
           </p>
         </section>
-      ) : pestana === "cambios" && conBase ? (
+      ) : conBase ? (
         <section role="tabpanel" aria-label="Cambios">
           <ListaCambios cambios={conBase} tipos={tipos} />
         </section>
-      ) : (
-        <section role="tabpanel" aria-label="Avisos" className="grid gap-2.5">
-          {totalAvisos === 0 && <p className="text-muted-foreground">No hay avisos para esta semana.</p>}
-          {summary && (
-            <Aviso Icono={Sparkles} destacado>
-              <span className="font-medium">Resumen de la IA</span>
-              <span className="block text-sm text-muted-foreground">{summary}</span>
-            </Aviso>
-          )}
-          {propuesta.warnings.map((w, i) => (
-            <Aviso key={`w${i}`} Icono={TriangleAlert}>
-              {w.message}
-            </Aviso>
-          ))}
-          {notices.map((n, i) => (
-            <Aviso key={`n${i}`} Icono={MessageSquare}>
-              <span className="text-muted-foreground">Nota de la IA: </span>
-              {n}
-            </Aviso>
-          ))}
-        </section>
-      )}
+      ) : null}
       {cambiando && (
         <CambiarEjercicio
           key={cambiando}
@@ -344,7 +344,7 @@ export default function PropuestaView({
   );
 }
 
-// Un aviso de la pestaña Avisos, con su ícono. El resumen de la IA va destacado en amarillo.
+// El resumen o una nota de la IA, arriba de la semana, con su ícono. El resumen de la IA va destacado en amarillo.
 function Aviso({
   Icono,
   destacado = false,

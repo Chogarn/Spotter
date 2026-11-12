@@ -259,7 +259,7 @@ Si un peso propuesto sube **más de 10 %** sobre el último peso realizado, mues
 - Perder grasa con un día de cardio fuera de 20 a 30 min (R17, decisión 125).
 - Ejercicios fuera del catálogo o con el tipo equivocado.
 
-### Solo avisa (se ve en la pestaña Avisos)
+### Solo avisa (se guarda en la propuesta, `warnings`; desde la decisión 134 no se muestra en pantalla)
 - Volumen por objetivo fuera de rango (R3, R4, R20, R25), por ejemplo "chest: 8 series por semana y debería haber de 10 a 20".
 - Duración de un día lejos de la referencia (R34).
 - Un peso que sube más de 10 % (R9).

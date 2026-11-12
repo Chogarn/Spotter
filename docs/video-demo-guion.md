@@ -12,7 +12,7 @@
 
 ## Escena 1 · Armar la rutina con la IA (≈ 50 s)
 
-**Pantalla:** Inicio → Nueva rutina → asistente: objetivo (Masa), nivel, días (4), estructura (torso/pierna) → pantalla de carga con los discos (**cortar la espera en la edición**) → la propuesta: pasar de día con las flechas, abrir el ⓘ de un ejercicio ("Cómo hacerlo" y "Por qué está en tu rutina"), tocar "Cambiar ejercicio" en uno, mirar la pestaña Avisos → Aceptar.
+**Pantalla:** Inicio → Nueva rutina → asistente: objetivo (Masa), nivel, días (4), estructura (torso/pierna) → pantalla de carga con los discos (**cortar la espera en la edición**) → la propuesta: pasar de día con las flechas, abrir el ⓘ de un ejercicio ("Cómo hacerlo" y "Por qué está en tu rutina"), tocar "Cambiar ejercicio" en uno, mirar el resumen de la IA arriba de la semana → Aceptar.
 
 **Voz:** "Para empezar elijo el objetivo, mi nivel, cuántos días puedo entrenar y cómo quiero repartir el cuerpo. La IA arma la rutina, pero no inventa: elige solo de un catálogo cerrado de 127 ejercicios, y el código comprueba reglas de entrenamiento con fuente, como el volumen mínimo por músculo. Cada ejercicio explica cómo se hace y por qué está. Si uno no me gusta, lo cambio por otro del catálogo. Nada se guarda hasta que yo acepto: la IA propone y yo decido."
 
