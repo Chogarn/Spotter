@@ -38,6 +38,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0029` intentos de login | Crea `login_attempts` (correo, IP y hora de cada intento fallido) para el límite de intentos del login (decisión 106) | Implementada |
 | `0030` pausa del día | Agrega `workout_sessions.paused_at` (desde cuándo está detenido el día) y `paused_seconds` (los segundos detenidos acumulados, que no cuentan en la duración; decisión 121) | Implementada |
 | `0031` entrada en calor | Agrega `workout_sessions.warmup_minutes`: los minutos que midió el cronómetro de la entrada en calor al tocar "Finalizar" (vacío si no se hizo; decisión 122) | Implementada |
+| `0032` consentimientos | Agrega `profiles.legal_notice_version` (la versión del aviso aceptada), `health_consent_at` y `health_consent_version` (el consentimiento de datos de salud; en blanco si se retiró; decisión 138) | Implementada |
 | `0020` cambio de contraseña | Suma `users.password_changed_at` (nula): al cambiar la contraseña se cierran las sesiones de los demás aparatos (decisión 80) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
@@ -82,6 +83,9 @@ erDiagram
         string sex
         text limitations
         datetime legal_notice_accepted_at
+        string legal_notice_version
+        datetime health_consent_at
+        string health_consent_version
     }
     BODY_WEIGHT_LOGS {
         int id PK
@@ -271,7 +275,10 @@ Datos personales del usuario. Una fila por usuario. **No tiene nivel, objetivo n
 | sex | Opcional; solo para ajustar cargas iniciales |
 | *(sin días ni duración)* | **El perfil no tiene "días por semana" ni "duración de la sesión"**: los días se eligen por rutina y la IA decide la duración. La cantidad de días se calcula con `plan_days` |
 | limitations | Lesiones o limitaciones (texto opcional) |
-| legal_notice_accepted_at | Cuándo aceptó el aviso legal |
+| legal_notice_accepted_at | Cuándo aceptó el aviso legal (la versión vigente) |
+| legal_notice_version | Qué versión del aviso aceptó (`backend/app/legal.py`); si no es la vigente, la app pide aceptar de nuevo |
+| health_consent_at | Cuándo dio el consentimiento de datos de salud; vacío si no lo dio o lo retiró (entonces no se genera rutina) |
+| health_consent_version | Con qué versión del aviso lo dio |
 
 ### body_weight_logs
 Historial del peso corporal, para ver la evolución. Cuando el usuario actualiza su peso se agrega una fila y se actualiza `profiles.weight_kg`.

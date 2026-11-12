@@ -52,7 +52,7 @@ El proyecto se construye por etapas. Hoy funciona de punta a punta:
 
 **Desplegada** (2026-11-07) en Vercel (frontend y backend) con la base en Neon, abierta al público y probada con cuentas reales; ver "Despliegue en la nube" más abajo.
 
-**Todavía no está:** la prueba de la app instalada en un iPhone, la página completa del aviso legal y la revisión de los criterios y del catálogo por una persona con formación en educación física.
+**Todavía no está:** la prueba de la app instalada en un iPhone, la revisión legal del aviso y la revisión de los criterios y del catálogo por una persona con formación en educación física.
 
 **Descartado por ahora:** el ajuste conversando durante la semana, la nota de cómo me sentí por día, el esfuerzo por serie y el semáforo de dolor con escala. En su lugar, la IA deduce el esfuerzo de la carga y las repeticiones y lee el comentario de cierre. El plan no se edita a mano: lo único editable es lo realizado, y el plan solo cambia con la semana nueva. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
@@ -60,7 +60,7 @@ El proyecto se construye por etapas. Hoy funciona de punta a punta:
 
 ### Base
 - Registro e inicio de sesión (JWT), con verificación de correo.
-- Perfil con datos personales y aviso legal; el nivel, el objetivo, los días y la estructura se eligen al empezar cada rutina.
+- Perfil con datos personales, aviso legal y consentimiento de datos de salud (página pública `/aviso-legal`, pensada para España); el nivel, el objetivo, los días y la estructura se eligen al empezar cada rutina.
 - Rutinas semanales organizadas en días y ejercicios, con series desglosables (cada serie con sus repeticiones y su peso) e indicaciones de ejecución. El cardio y los isométricos son ejercicios con duración.
 - Registro de sesiones: lo realizado frente a lo planificado, serie por serie.
 
@@ -72,7 +72,7 @@ La IA trabaja sobre los datos del usuario y siempre **propone**: se ve una vista
 3. **Explicación por ejercicio:** el ícono ⓘ muestra "Cómo hacerlo" y por qué el ejercicio está en la rutina.
 
 ### Fuera del alcance del MVP
-Nutrición, wearables, video y consejos médicos. La app pide aceptar que no da consejo médico al crear el perfil y lo recuerda en letra chica en el día y en la propuesta; la página completa del aviso legal está en espera (borrador en [docs/aviso-legal-borrador.md](docs/aviso-legal-borrador.md)).
+Nutrición, wearables, video y consejos médicos. La app pide aceptar el aviso legal (que no da consejo médico) y el consentimiento de datos de salud al crear el perfil, y lo recuerda en letra chica en el día y en la propuesta; el texto completo está en la página `/aviso-legal`.
 
 ## Tecnologías
 

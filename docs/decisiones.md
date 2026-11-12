@@ -990,6 +990,21 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Por qué:** *(completar)*
 - **Ojo:** comprobado con los tipos y el lint; no visto en el navegador.
 
+### 138. Aviso legal visible, para España, con consentimiento de salud aparte
+- **Fecha:** 2026-11-12
+- **Decisión:** el aviso legal (#34) sale de la espera y se muestra, pensado para **España** (RGPD, LOPDGDD, LSSI, consumo y Reglamento de IA), con el texto del informe `reports/Aviso legal de Spotter en España.md`. Lo eligió el usuario:
+  - **Responsable:** nombre y correo de contacto (el Gmail de Spotter), sin domicilio ni NIF.
+  - **Edad mínima: 18 años** (lo piden los proveedores de IA; en España se consiente desde los 14). El paso de la fecha de nacimiento y el servidor no dejan seguir a los menores.
+  - **"Recordarme" viene sin tildar** (reemplaza a la decisión 98): la cookie de 30 días la tiene que elegir la persona (WP194, Planet49).
+  - **Consentimiento de salud en una casilla aparte, sin marcar y obligatoria** para crear el perfil, con la fecha y la versión guardadas (migración 0032: `profiles.legal_notice_version`, `health_consent_at` y `health_consent_version`; la versión vigente está en `backend/app/legal.py` y `frontend/src/lib/legal.ts`).
+  - **Retirarlo** (Perfil › Cuenta › Datos de salud) **apaga "Generar rutina"** (`POST /proposals/generate` responde 403 con `X-Error-Code: sin_consentimiento`, sin llamar a la IA); los datos quedan guardados y se puede volver a dar.
+  - **Las cuentas que ya existían** ven una pantalla para aceptar (`AceptarAviso.tsx`) hasta aceptar la versión vigente; desde ahí también pueden borrar la cuenta.
+  - **Las limitaciones siguen opcionales** y una copia de los datos (portabilidad) se pide por correo.
+  - **Sin aviso de IA** en el último paso de "Generar rutina" ni arriba de la propuesta (el usuario lo prefirió así).
+  - Lugares: enlace "Aviso legal · Privacidad · Cookies" al pie de Bienvenida, Login y Registro; la primera capa de información en Registro; las dos casillas en el último paso del perfil; el grupo "Legal y privacidad" en Perfil › Cuenta; y la página pública `/aviso-legal` ("En resumen", el aviso de dolor siempre a la vista y 17 secciones plegables).
+- **Por qué:** *(completar)*
+- **Ojo:** es un borrador de producto, no asesoramiento legal: falta que lo revise un abogado. El nombre y el correo del responsable (Bruno Muzzio, spotter.gym.app.ia@gmail.com) se completaron el mismo día en `frontend/src/lib/legal.ts`. Retirar el consentimiento y dejar los datos guardados puede no alcanzar para el RGPD (retirar el permiso también obliga a dejar de guardarlos): anotado para el abogado. **Las condiciones de la API de Gemini (vigentes desde el 2026-03-23) prohíben el plan gratuito en apps abiertas a usuarios del EEE**: hasta cambiar de IA, la sección de la IA nombra a Gemini y Spotter no cumple esa cláusula (informe `reports/IA gratis para usuarios de la UE.md`). Probado con un usuario descartable en el navegador (pantalla para aceptar, filas de Cuenta, retirar y el 403 al generar); el asistente del perfil nuevo con las dos casillas solo se comprobó con los tipos.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
