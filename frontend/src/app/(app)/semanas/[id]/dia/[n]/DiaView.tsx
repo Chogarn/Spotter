@@ -406,7 +406,9 @@ function TarjetaEjercicio({
             </span>
           )}
         </span>
-        {registra && hecho && (
+        {/* El tilde va siempre que el ejercicio esté hecho, también en lectura (día cerrado o
+            desde Rutinas), igual que la entrada en calor. */}
+        {hecho && (
           <Disco estado="hecho" className="size-7">
             <Check className="size-4" aria-label="Hecho" />
           </Disco>

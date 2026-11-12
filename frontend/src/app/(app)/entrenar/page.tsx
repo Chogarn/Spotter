@@ -149,14 +149,18 @@ function SinSemana({ pendiente, onConflict }: { pendiente: number | null; onConf
 
   return (
     <>
-      {ultima ? (
-        <>
-          <Festejo />
-          <h2 className="mt-0 mb-4 text-4xl">Semana {ultima.semana.number} completada</h2>
-        </>
-      ) : (
-        <h2 className="mt-0 text-4xl">Armá tu próxima semana</h2>
-      )}
+      {/* La misma tarjeta que en Inicio: el festejo, el título y las dos opciones juntos. */}
+      <section className="mb-4 rounded-2xl border-2 border-disco-tinta bg-card p-5">
+        {ultima ? (
+          <>
+            <Festejo />
+            <h2 className="mt-0 mb-4 text-4xl">Semana {ultima.semana.number} completada</h2>
+          </>
+        ) : (
+          <h2 className="mt-0 mb-4 text-4xl">Armá tu próxima semana</h2>
+        )}
+        <OpcionesSiguiente ultima={ultima} onConflict={onConflict} />
+      </section>
       {pendiente !== null && (
         <section className="my-4 rounded-2xl border-2 border-disco-amarillo bg-card p-4">
           <p className="m-0 font-medium">Tenés una propuesta sin revisar</p>
@@ -168,9 +172,6 @@ function SinSemana({ pendiente, onConflict }: { pendiente: number | null; onConf
           </Button>
         </section>
       )}
-      <div className="mt-4">
-        <OpcionesSiguiente ultima={ultima} onConflict={onConflict} />
-      </div>
     </>
   );
 }
