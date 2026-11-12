@@ -1,6 +1,20 @@
 # Spotter
 
-> Un entrenador que mira tu progreso real y te arma la semana siguiente.
+> Un entrenador que mira tu progreso real y te arma la semana siguiente. **La IA propone, vos decidís.**
+
+**Probala:** [spotter-vert.vercel.app](https://spotter-vert.vercel.app) (se instala en el teléfono como una app)
+
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL_+_pgvector-4169E1?logo=postgresql&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini-plan_gratuito-8E75B2?logo=googlegemini&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel_+_Neon-000000?logo=vercel&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-667_con_pytest-2E9E5B)
+
+| La IA propone la semana | Modo entrenar | Inicio | Mapa muscular |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/capturas/propuesta.png" width="200" alt="Propuesta de la IA: los ejercicios del día con series, repeticiones y peso, y los botones Aceptar y Descartar"> | <img src="docs/capturas/entrenar.png" width="200" alt="Modo entrenar: la serie en grande con repeticiones y peso, y el botón Serie hecha"> | <img src="docs/capturas/inicio.png" width="200" alt="Inicio: el saludo, la tarjeta del día que toca con el botón Empezar y los accesos a rutinas y progreso"> | <img src="docs/capturas/mapa-muscular.png" width="200" alt="Mapa muscular: el cuerpo con los músculos trabajados en la semana pintados de azul"> |
 
 Spotter es una aplicación web para quienes entrenan solos en el gimnasio. El usuario registra lo que entrena y, cuando cierra la semana, una IA analiza su historial y le propone la siguiente: qué subir, qué mantener y qué cambiar. El usuario siempre decide si acepta o descarta lo que la IA propone.
 
@@ -15,11 +29,11 @@ Personas que entrenan por su cuenta (de principiante a intermedio) y no pueden p
 ## Cómo funciona
 
 1. **Registro con correo verificado.** La persona se registra, toca el enlace que le llega por correo (la cuenta se crea al tocarlo) y completa su perfil en un asistente de una pregunta por pantalla: nombre, fecha de nacimiento, peso, altura, sexo, lesiones o limitaciones y aviso legal.
-2. **Cada rutina nueva se arma con cuatro elecciones:** **nivel** (principiante, intermedio o avanzado), **objetivo** (ganar masa, ganar fuerza, perder grasa o mantenerse activo), **días por semana** (de 2 a 6; un principiante, 2 o 3) y **estructura** (cuerpo completo, torso y pierna o empuje, tirón y piernas, según los días y el nivel). No están en el perfil, porque cambian de una rutina a otra. Se da por hecho un gimnasio completo.
+2. **Cada rutina nueva se arma con cuatro elecciones:** **nivel** (principiante, intermedio o avanzado), **objetivo** (ganar masa, ganar fuerza, perder grasa o mantenerse activo), **días por semana** (de 3 a 6) y **estructura** (cuerpo completo, torso y pierna o empuje, tirón y piernas, según los días y el nivel). No están en el perfil, porque cambian de una rutina a otra. Se da por hecho un gimnasio completo.
 3. **La IA arma la rutina.** Elige solo ejercicios de un catálogo de 127 (recuperados con embeddings y pgvector) y el código valida que cumpla las reglas de entrenamiento. La persona ve una vista previa y **acepta o descarta**; recién al aceptar se escribe en el plan. En la propuesta puede **cambiar un ejercicio** por otro del catálogo. Después puede **continuar** la rutina (objetivo y nivel quedan fijos) o empezar otra. No se carga una rutina propia.
 4. **La semana se organiza en días** ("Día 1", "Día 2"...), no en lunes o martes: la persona entrena a su ritmo.
-5. **Entrenar.** Desde "Empezar" se abre el modo entrenar, un ejercicio a la vez, con la serie en grande, un reloj de descanso y un contador de la sesión. Cada serie se marca como hecha o se corrige con lo que realmente se hizo. Cada ejercicio trae su "Cómo hacerlo" y por qué está en la rutina.
-6. **Día completado.** Cierra la sesión (se puede reabrir con una confirmación).
+5. **Entrenar.** Desde "Empezar" se abre el modo entrenar, un ejercicio a la vez, con la serie en grande, un reloj de descanso y un contador de la sesión que se puede detener y retomar. La entrada en calor y el cardio se hacen con cronómetro. Cada serie se marca como hecha o se corrige con lo que realmente se hizo. Cada ejercicio trae su "Cómo hacerlo" y por qué está en la rutina.
+6. **Día completado.** Cierra la sesión. Se puede hacer más de un día en la misma fecha, y reabrir un día lo deja sin hacer (con una confirmación).
 7. **Cerrar semana** (siempre manual, nunca por fecha): avisa los días sin hacer, que cuentan como no hechos, y permite cargar el peso, la grasa corporal y un comentario sobre cómo se sintió, todo opcional. Con eso, la IA compara lo planificado con lo real y propone la semana siguiente, que la persona acepta o descarta.
 
 ## Estado actual
@@ -28,15 +42,17 @@ El proyecto se construye por etapas. Hoy funciona de punta a punta:
 
 - **Cuenta:** registro con correo verificado, inicio de sesión con la casilla "Recordarme" (sesión de 30 días o de 12 horas), recuperar la contraseña, cambiar la contraseña y el correo, y borrar la cuenta. La sesión es un JWT en una cookie `httpOnly` y las contraseñas llevan hash argon2.
 - **Perfil** en dos pestañas (Perfil y Cuenta): cada dato se edita por separado.
-- **Generar rutina** con vista previa, avisos de las reglas, aceptar o descartar, y cambiar un ejercicio sin IA. Una sola generación a la vez, con topes de uso de la IA que se aplican antes de cada llamada.
+- **Generar rutina** con vista previa, avisos de las reglas, aceptar o descartar, y cambiar un ejercicio sin IA. Una sola generación a la vez, con topes de uso de la IA que se aplican antes de cada llamada. Si algo falla, una pantalla explica el motivo (la IA no respondió, se llegó al tope por minuto o del día, o la rutina no cumplió las reglas) y cuándo se puede probar de nuevo.
 - **Inicio, Entrenar y Rutinas:** la semana en curso, el modo entrenar con reloj de descanso, las rutinas con sus semanas y días (mirar sin registrar) y reabrir semanas o días cerrados.
 - **Semana nueva:** al continuar una rutina, la IA lee lo planificado frente a lo real (con una señal por ejercicio: superó, cumplió o no llegó) y el comentario de cierre, y propone la siguiente. Sube la carga si superaste lo planificado, la mantiene si no llegaste y, si el comentario cuenta fatiga o cargas altas, baja un escalón: el peso lo calcula el código, no la IA.
 - **Progreso:** resúmenes por día, semana, mes y año (con "Cómo te fue": superaste, cumpliste, no llegaste o subiste y bajaste en cada ejercicio, y números que se tocan para ver su gráfico), radar de músculos, mapa muscular sobre el cuerpo, evolución por ejercicio, calendario y seguimiento del peso con IMC. Solo se continúa la rutina más reciente.
 - **Interfaz** con el estilo "Disco" (inspirado en los discos de pesas) sobre shadcn/ui y Tailwind; ver [docs/sistema-de-diseno.md](docs/sistema-de-diseno.md).
 
-**Desplegada** (2026-11-07) en Vercel (frontend y backend) con la base en Neon; ver "Despliegue en la nube" más abajo.
+- **App instalable (PWA):** desde la Bienvenida se instala en el teléfono (probado en Android).
 
-**Todavía no está:** las capturas de pantalla en este archivo, "Generar rutina" probada en la web publicada, la app instalable en el teléfono y la revisión de los criterios y del catálogo por una persona con formación en educación física.
+**Desplegada** (2026-11-07) en Vercel (frontend y backend) con la base en Neon, abierta al público y probada con cuentas reales; ver "Despliegue en la nube" más abajo.
+
+**Todavía no está:** la prueba de la app instalada en un iPhone, la página completa del aviso legal y la revisión de los criterios y del catálogo por una persona con formación en educación física.
 
 **Descartado por ahora:** el ajuste conversando durante la semana, la nota de cómo me sentí por día, el esfuerzo por serie y el semáforo de dolor con escala. En su lugar, la IA deduce el esfuerzo de la carga y las repeticiones y lee el comentario de cierre. El plan no se edita a mano: lo único editable es lo realizado, y el plan solo cambia con la semana nueva. El detalle y el orden están en [docs/backlog.md](docs/backlog.md) y en el tablero del proyecto.
 
@@ -181,7 +197,7 @@ Las dependencias de desarrollo (pytest) están en `backend/requirements-dev.txt`
 docker compose -f docker-compose.dev.yml run --rm --no-deps backend python -m pytest -q
 ```
 
-Los tests usan una base SQLite en memoria y un Gemini simulado: no necesitan PostgreSQL ni gastan cuota de la IA.
+Son 667 tests. Usan una base SQLite en memoria y un Gemini simulado: no necesitan PostgreSQL ni gastan cuota de la IA.
 
 ## Documentación
 
