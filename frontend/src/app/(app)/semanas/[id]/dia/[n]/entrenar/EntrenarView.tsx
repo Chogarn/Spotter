@@ -466,13 +466,7 @@ export default function EntrenarView({
       ) : (
         <section className="rounded-2xl bg-card p-5">
           {actual.finished_at === null ? (
-            <>
-              <h1 className="mt-0 text-4xl">Terminaste los {total} ejercicios</h1>
-              <p className="text-muted-foreground">Cerrá el día para que cuente como hecho.</p>
-              <Button size="xl" className="w-full" type="button" onClick={completarDia} disabled={trabajando}>
-                Día completado
-              </Button>
-            </>
+            <ListoElDia dia={actual} trabajando={trabajando} onCompletar={completarDia} />
           ) : festejo ? (
             <FestejoDelDia dia={actual} />
           ) : (
@@ -492,6 +486,61 @@ export default function EntrenarView({
         onCancelar={() => setConfirmarReinicio(false)}
       />
     </main>
+  );
+}
+
+// Antes de cerrar el día, con los ejercicios terminados (diseño 1 de la maqueta del 2026-11-12):
+// "¡Listo el Día N!", el nombre y los minutos que lleva la sesión, un disco por paso (C la entrada
+// en calor, en amarillo; los ejercicios hechos en verde y los que quedaron sin hacer, punteados),
+// cuánto se hizo y el botón "Día completado", que sigue siendo lo que cierra el día.
+function ListoElDia({
+  dia,
+  trabajando,
+  onCompletar,
+}: {
+  dia: DayDetail;
+  trabajando: boolean;
+  onCompletar: () => void;
+}) {
+  // Los minutos de la sesión hasta ahora, sin lo detenido; se calculan una vez, al mostrarse.
+  const [minutos] = useState(() => {
+    if (!dia.started_at) return null;
+    const ms = Date.now() - new Date(dia.started_at).getTime() - (dia.paused_seconds ?? 0) * 1000;
+    return Math.max(0, Math.round(ms / 60000));
+  });
+  const conCalor = Boolean(dia.mobility_notes);
+  const calor = conCalor && calorHecha(dia);
+  const total = dia.exercises.length;
+  const hechos = dia.exercises.filter(estaHecho).length;
+  const texto =
+    (hechos === total ? `${total} ejercicio${total === 1 ? "" : "s"} hecho${total === 1 ? "" : "s"}` : `${hechos} de ${total} ejercicios hechos`);
+
+  return (
+    <div className="text-center">
+      <h1 className="mt-1 mb-0.5 text-4xl">¡Listo el Día {dia.day_index}!</h1>
+      <p className="m-0 text-muted-foreground">
+        {tituloDia(dia.title)}
+        {minutos !== null && minutos > 0 && ` · ${minutos} min`}
+      </p>
+      <div className="my-3 flex flex-wrap justify-center gap-1.5" role="img" aria-label={texto}>
+        {conCalor && (
+          <Disco estado={calor ? "aviso" : "pendiente"} className={cn("size-9", calor && "bg-disco-amarillo")}>
+            C
+          </Disco>
+        )}
+        {dia.exercises.map((e, i) => (
+          <Disco key={e.id ?? i} estado={estaHecho(e) ? "completo" : "pendiente"} className="size-9">
+            {i + 1}
+          </Disco>
+        ))}
+      </div>
+      <p className="mt-0 mb-4 text-muted-foreground">
+        {calor ? `Entrada en calor y ${texto.charAt(0).toLowerCase()}${texto.slice(1)}` : texto.charAt(0).toUpperCase() + texto.slice(1)}
+      </p>
+      <Button size="xl" className="w-full" type="button" onClick={onCompletar} disabled={trabajando}>
+        Día completado
+      </Button>
+    </div>
   );
 }
 
