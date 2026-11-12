@@ -5,8 +5,10 @@ import { useState } from "react";
 
 import { CampoAcceso, CampoContrasena, PantallaAcceso } from "@/components/Acceso";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { PieLegal } from "@/components/PieLegal";
 import { Button } from "@/components/ui/button";
 import { API, errorText, readError } from "@/lib/api";
+import { RESPONSABLE } from "@/lib/legal";
 
 export default function RegistroPage() {
   const [name, setName] = useState("");
@@ -115,6 +117,12 @@ export default function RegistroPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
         {error && <ErrorMessage>{error}</ErrorMessage>}
+        {/* Primera capa de información (art. 11 LOPDGDD): acá se pide el correo. */}
+        <p className="mt-0 mb-2 rounded-xl border-l-4 border-disco-azul bg-card px-3.5 py-2.5 text-sm leading-snug text-muted-foreground">
+          <b className="text-foreground">Responsable:</b> {RESPONSABLE}. Usamos tu correo para crear tu cuenta y mandarte el
+          enlace de verificación. Podés ver, corregir o borrar tus datos.{" "}
+          <Link href="/aviso-legal" className="font-medium text-disco-azul underline underline-offset-2">Más información</Link>
+        </p>
         <Button type="submit" size="xl" className="mt-2 w-full" disabled={ocupado}>
           {ocupado ? "Creando..." : "Crear cuenta"}
         </Button>
@@ -122,6 +130,7 @@ export default function RegistroPage() {
       <p className="mt-5 text-center text-muted-foreground">
         ¿Ya tenés cuenta? <Link href="/login" className="font-medium text-foreground">Entrá</Link>
       </p>
+      <PieLegal />
     </PantallaAcceso>
   );
 }

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { CampoAcceso, CampoContrasena, PantallaAcceso } from "@/components/Acceso";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { PieLegal } from "@/components/PieLegal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -21,8 +22,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   // "Recordarme": con la casilla tildada la sesión dura 30 días y no hay que volver a escribir la
-  // contraseña; sin tildar se cierra al cerrar el navegador. Viene tildada: la app se abre a diario.
-  const [recordar, setRecordar] = useState(true);
+  // contraseña; sin tildar se cierra al cerrar el navegador. Viene SIN tildar (2026-11-12, reemplaza
+  // a la decisión 98): la cookie de 30 días necesita que la persona la elija (criterio europeo).
+  const [recordar, setRecordar] = useState(false);
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
 
@@ -82,11 +84,22 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <div className="mb-4 flex items-center gap-3">
-          <Checkbox id="recordarme" checked={recordar} onCheckedChange={(v) => setRecordar(v === true)} />
-          <Label htmlFor="recordarme" className="font-normal">
-            Recordarme en este aparato
-          </Label>
+        <div className="mb-4 flex items-start gap-3">
+          <Checkbox
+            id="recordarme"
+            className="mt-0.5"
+            checked={recordar}
+            onCheckedChange={(v) => setRecordar(v === true)}
+            aria-describedby="recordarme-ayuda"
+          />
+          <div>
+            <Label htmlFor="recordarme" className="font-normal">
+              Recordarme en este aparato
+            </Label>
+            <p id="recordarme-ayuda" className="m-0 text-sm text-muted-foreground">
+              Guarda una cookie 30 días para no volver a escribir la contraseña.
+            </p>
+          </div>
         </div>
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <Button type="submit" size="xl" className="mt-2 w-full" disabled={ocupado}>
@@ -99,6 +112,8 @@ export default function LoginPage() {
       <p className="mt-5 text-center text-muted-foreground">
         ¿No tenés cuenta? <Link href="/registro" className="font-medium text-foreground">Creala</Link>
       </p>
+      <PieLegal />
+
     </PantallaAcceso>
   );
 }

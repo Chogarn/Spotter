@@ -1,7 +1,7 @@
 "use client";
 
 import { InfoTexto } from "@/components/InfoTexto";
-import { Check, LogOut, Pencil } from "lucide-react";
+import { LogOut, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -11,6 +11,7 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { Franja } from "@/components/Franja";
 import { type DatosPerfil, type PasoPerfil, PerfilAsistente, SEXOS } from "@/components/PerfilAsistente";
 import { BorrarCuenta } from "@/components/BorrarCuenta";
+import { type EstadoLegal, FilasLegales } from "@/components/FilasLegales";
 import { CambiarContrasena } from "@/components/CambiarContrasena";
 import { CambiarCorreo } from "@/components/CambiarCorreo";
 import { cn } from "cn";
@@ -45,6 +46,7 @@ export default function PerfilPage() {
   const [editando, setEditando] = useState<Tarjeta | null>(null);
   const [guardando, setGuardando] = useState(false);
   const [pestana, setPestana] = useState<"perfil" | "cuenta">("perfil");
+  const [legal, setLegal] = useState<EstadoLegal>({ avisoAceptadoEl: null, avisoVersion: null, saludConsentidaEl: null });
 
   useEffect(() => {
     apiFetch(`/auth/me`)
@@ -75,8 +77,14 @@ export default function PerfilPage() {
           sex: p.sex ?? "",
           limitations: p.limitations ?? "",
           accept_legal_notice: p.legal_notice_accepted,
+          accept_health_consent: p.health_consent,
         };
         setGuardado(leido);
+        setLegal({
+          avisoAceptadoEl: p.legal_notice_accepted_at,
+          avisoVersion: p.legal_notice_version,
+          saludConsentidaEl: p.health_consent_at,
+        });
       })
       .catch((e) => setError(e.message))
       .finally(() => setCargando(false));
@@ -98,13 +106,20 @@ export default function PerfilPage() {
           sex: datos.sex || null,
           limitations: datos.limitations || null,
           accept_legal_notice: datos.accept_legal_notice,
+          accept_health_consent: datos.accept_health_consent,
         }),
       });
       if (!res.ok) {
         setError(errorText((await res.json()).detail));
         return false;
       }
+      const p = await res.json();
       setGuardado(datos);
+      setLegal({
+        avisoAceptadoEl: p.legal_notice_accepted_at,
+        avisoVersion: p.legal_notice_version,
+        saludConsentidaEl: p.health_consent_at,
+      });
       return true;
     } catch {
       setError("No se pudo conectar con el servidor");
@@ -252,10 +267,6 @@ export default function PerfilPage() {
         <p className="m-0 whitespace-pre-wrap">{form.limitations || "Ninguna indicada."}</p>
       </section>
 
-      {/* El aviso médico: una vez aceptado no se puede desmarcar (lo exige el backend). */}
-      <p className="mb-4 flex items-center gap-2 px-1 text-sm text-muted-foreground">
-        <Check className="size-4" aria-hidden="true" /> Aceptaste que la app no da consejo médico.
-      </p>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       </div>
       ) : (
@@ -265,6 +276,9 @@ export default function PerfilPage() {
           <p className="m-0 text-sm text-muted-foreground">Correo</p>
           <p className="m-0 break-all">{usuario?.email ?? "—"}</p>
         </section>
+
+        {/* El aviso aceptado y el consentimiento de salud (2026-11-12). */}
+        <FilasLegales estado={legal} onCambio={setLegal} />
 
         {/* Cada fila se abre sola: contraseña, correo y borrar la cuenta (decisiones 75, 80 y 96). */}
         <section className="mb-3 rounded-2xl bg-card px-4 py-1">

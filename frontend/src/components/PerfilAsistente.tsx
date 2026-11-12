@@ -4,10 +4,10 @@ import { Mars, Venus, VenusAndMars, type LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { GrupoOpciones, OpcionAsistente, PasoAsistente, ReglaNumero, RuedaNumero } from "@/components/Asistente";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CasillasLegales } from "@/components/Consentimiento";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { EDAD_MINIMA } from "@/lib/legal";
 
 // Los datos del perfil tal como los guarda la pantalla de Perfil.
 export type DatosPerfil = {
@@ -20,6 +20,8 @@ export type DatosPerfil = {
   sex: string;
   limitations: string;
   accept_legal_notice: boolean;
+  // El consentimiento de datos de salud (casilla aparte, obligatoria para crear el perfil).
+  accept_health_consent: boolean;
 };
 
 export const SEXOS = [
@@ -165,12 +167,13 @@ export function PerfilAsistente({
   const [sexo, setSexo] = useState(borrador?.sexo ?? inicial?.sex ?? "");
   const [limitaciones, setLimitaciones] = useState(borrador?.limitaciones ?? inicial?.limitations ?? "");
   const [acepta, setAcepta] = useState(inicial?.accept_legal_notice ?? false);
+  const [aceptaSalud, setAceptaSalud] = useState(inicial?.accept_health_consent ?? false);
 
   // Si el mes elegido tiene menos días (31 de enero y se pasa a febrero), el día se ajusta.
   const dias = diasDelMes(fecha.mes, fecha.anio);
   const dia = Math.min(fecha.dia, dias);
   const edad = edadHoy(dia, fecha.mes, fecha.anio);
-  const edadValida = edad >= 14 && edad <= 100;
+  const edadValida = edad >= EDAD_MINIMA && edad <= 100;
   const fechaIso = `${fecha.anio}-${String(fecha.mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
   const paso = pasos[indice];
   const ultimo = indice === pasos.length - 1;
@@ -190,6 +193,7 @@ export function PerfilAsistente({
       sex: sexo,
       limitations: limitaciones.trim(),
       accept_legal_notice: acepta,
+      accept_health_consent: aceptaSalud,
     }).then((ok) => {
       // Guardado: el borrador ya no hace falta.
       if (ok && claveBorrador) {
@@ -238,7 +242,7 @@ export function PerfilAsistente({
             ? "Saltar"
             : "Continuar"
       }
-      deshabilitado={(paso === "nombre" && !nombreLimpio) || (paso === "edad" && !edadValida) || (paso === "sexo" && !sexo) || (paso === "aviso" && !acepta)}
+      deshabilitado={(paso === "nombre" && !nombreLimpio) || (paso === "edad" && !edadValida) || (paso === "sexo" && !sexo) || (paso === "aviso" && !(acepta && aceptaSalud))}
       ocupado={guardando}
       error={ultimo ? error : undefined}
       nota="Tus datos son privados y están protegidos."
@@ -263,14 +267,14 @@ export function PerfilAsistente({
             <RuedaNumero compacta valor={fecha.mes} min={1} max={12} unidad="" etiqueta="el mes"
               formato={(n) => MESES[n - 1]} onChange={(v) => setFecha((f) => ({ ...f, mes: v }))} />
             <RuedaNumero compacta valor={fecha.anio} min={new Date().getFullYear() - 100}
-              max={new Date().getFullYear() - 14} unidad="" etiqueta="el año"
+              max={new Date().getFullYear() - EDAD_MINIMA} unidad="" etiqueta="el año"
               onChange={(v) => setFecha((f) => ({ ...f, anio: v }))} />
           </div>
           <p className="mt-4 mb-0 text-center text-lg" role="status">
             {edadValida ? (
               <>Tenés <b className="font-heading text-2xl">{edad}</b> años</>
             ) : (
-              "Tenés que tener entre 14 y 100 años"
+              `Para usar Spotter tenés que tener ${EDAD_MINIMA} años o más`
             )}
           </p>
         </div>
@@ -318,13 +322,7 @@ export function PerfilAsistente({
         />
       )}
       {paso === "aviso" && (
-        <div className="flex items-start gap-3 rounded-2xl bg-card p-4">
-          <Checkbox id="aviso-legal" checked={acepta} onCheckedChange={(v) => setAcepta(v === true)}
-            className="mt-0.5" />
-          <Label htmlFor="aviso-legal" className="leading-snug font-normal">
-            Entiendo que la app no da consejo médico.
-          </Label>
-        </div>
+        <CasillasLegales aviso={acepta} salud={aceptaSalud} onAviso={setAcepta} onSalud={setAceptaSalud} />
       )}
     </PasoAsistente>
   );

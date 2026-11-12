@@ -1,3 +1,4 @@
+import { AceptarAviso } from "@/components/AceptarAviso";
 import { BarraNavegacion } from "@/components/BarraNavegacion";
 import { DescansoProvider } from "@/components/Descanso";
 
@@ -10,6 +11,8 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
       {/* Espacio al final para que la barra fija (y la franja del descanso) no tapen el contenido. */}
       <div className="flex flex-1 flex-col pb-40">{children}</div>
       <BarraNavegacion />
+      {/* Cuentas que no aceptaron la versión vigente del aviso legal (2026-11-12). */}
+      <AceptarAviso />
     </DescansoProvider>
   );
 }
