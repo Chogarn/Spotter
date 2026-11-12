@@ -17,7 +17,7 @@ from app.models import AiCall, Exercise, PlanDay, PlanExercise, PlanProposal, Pl
 PERFIL = {
     "name": "Bruno", "age": 30, "weight_kg": "80.5", "height_cm": 178, "sex": None,
     "limitations": None,
-    "accept_legal_notice": True,
+    "accept_legal_notice": True, "accept_health_consent": True,
 }
 ELECCION = {"goal": "masa", "level": "principiante", "days": 3, "minutes": 60}
 GRANDES = [
@@ -475,3 +475,15 @@ def test_descartar_no_crea_semana_activa(api, entorno, monkeypatch):
 )
 def test_normalize_name(nombre, esperado):
     assert normalize_name(nombre) == esperado
+
+
+def test_sin_consentimiento_de_salud_no_se_llama_a_la_ia(api, monkeypatch):
+    con_perfil(api)
+    falso = usar_gemini(monkeypatch)
+    api.delete("/profile/consent/health")
+
+    respuesta = api.post("/proposals/generate", json=ELECCION)
+
+    assert respuesta.status_code == 403
+    assert respuesta.headers["X-Error-Code"] == "sin_consentimiento"
+    assert contar(api, AiCall) == 0

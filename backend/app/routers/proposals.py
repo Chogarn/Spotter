@@ -82,6 +82,14 @@ def generate(
 ) -> ProposalOut:
     """Pide a la IA una semana: de una rutina existente o de una nueva. Solo guarda una propuesta."""
     goal, level = data.goal, data.level
+    # Sin consentimiento de salud no se manda nada a la IA (art. 9 RGPD; decisión del 2026-11-12).
+    if user.profile is not None and user.profile.health_consent_at is None:
+        raise HTTPException(
+            status_code=403,
+            detail="Para generar rutinas hace falta tu consentimiento para los datos de salud. "
+            "Podés darlo en Perfil › Cuenta › Datos de salud.",
+            headers={ERROR_CODE: "sin_consentimiento"},
+        )
     if data.routine_id is not None:
         routine = db.get(Routine, data.routine_id)
         if routine is None or routine.user_id != user.id:

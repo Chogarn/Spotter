@@ -15,7 +15,7 @@ PERFIL = {
     "height_cm": 178,
     "sex": None,
     "limitations": None,
-    "accept_legal_notice": True,
+    "accept_legal_notice": True, "accept_health_consent": True,
 }
 
 
@@ -119,7 +119,7 @@ def test_la_edad_no_sube_hasta_el_cumpleanos(client):
     assert client.get("/profile").json()["age"] == 30
 
 
-@pytest.mark.parametrize("anios", [5, 13, 101, 120])
+@pytest.mark.parametrize("anios", [5, 13, 17, 101, 120])
 def test_la_fecha_fuera_de_rango_devuelve_422(client, anios):
     assert client.put("/profile", json=_con_fecha(_fecha(anios))).status_code == 422
 
@@ -139,3 +139,58 @@ def test_guardar_solo_con_edad_no_borra_la_fecha(client):
     leido = client.get("/profile").json()
     assert leido["name"] == "Bruno B"
     assert leido["birth_date"] == _fecha(30, dias_extra=7).isoformat()
+
+
+# --- aviso legal versionado y consentimiento de salud ------------------------------------
+
+
+def test_crear_el_perfil_sin_consentimiento_de_salud_da_422(client):
+    sin = {**PERFIL, "accept_health_consent": False}
+    assert client.put("/profile", json=sin).status_code == 422
+    assert client.get("/profile").status_code == 404
+
+
+def test_crear_el_perfil_guarda_la_version_y_el_consentimiento(client):
+    from app.legal import LEGAL_VERSION
+
+    leido = client.put("/profile", json=PERFIL).json()
+    assert leido["legal_notice_accepted"] is True
+    assert leido["legal_notice_version"] == LEGAL_VERSION
+    assert leido["legal_notice_accepted_at"] is not None
+    assert leido["health_consent"] is True
+    assert leido["health_consent_at"] is not None
+
+
+def test_editar_sin_la_casilla_no_retira_el_consentimiento(client):
+    client.put("/profile", json=PERFIL)
+    leido = client.put("/profile", json={**PERFIL, "name": "Otro", "accept_health_consent": False}).json()
+    assert leido["health_consent"] is True
+
+
+def test_retirar_y_volver_a_dar_el_consentimiento(client):
+    client.put("/profile", json=PERFIL)
+    retirado = client.delete("/profile/consent/health").json()
+    assert retirado["health_consent"] is False
+    assert retirado["legal_notice_accepted"] is True  # el aviso sigue aceptado
+
+    vuelto = client.post(
+        "/profile/consent", json={"accept_legal_notice": True, "accept_health_consent": True}
+    ).json()
+    assert vuelto["health_consent"] is True
+
+
+def test_una_version_vieja_del_aviso_no_cuenta_como_aceptada(client, monkeypatch):
+    client.put("/profile", json=PERFIL)
+    import app.routers.profile as rutas
+
+    monkeypatch.setattr(rutas, "LEGAL_VERSION", "2.0")
+    assert client.get("/profile").json()["legal_notice_accepted"] is False
+
+    leido = client.post("/profile/consent", json={"accept_legal_notice": True}).json()
+    assert leido["legal_notice_accepted"] is True
+    assert leido["legal_notice_version"] == "2.0"
+
+
+def test_aceptar_sin_perfil_da_404(client):
+    assert client.post("/profile/consent", json={"accept_legal_notice": True}).status_code == 404
+    assert client.delete("/profile/consent/health").status_code == 404

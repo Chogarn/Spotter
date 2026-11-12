@@ -325,7 +325,7 @@ def test_cada_usuario_tiene_su_propio_perfil(cliente):
     registrar(cliente, ANA)
     perfil = {
         "name": "Ana", "age": 30, "weight_kg": "60", "height_cm": 165, "sex": None,
-        "limitations": None, "accept_legal_notice": True,
+        "limitations": None, "accept_legal_notice": True, "accept_health_consent": True,
     }
     assert cliente.put("/profile", json=perfil).status_code == 200
 

@@ -152,6 +152,12 @@ class Profile(Base):
     legal_notice_accepted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True)
     )
+    # La versión del aviso aceptada (`app/legal.py`). Sin versión, o con otra, la app pide aceptar.
+    legal_notice_version: Mapped[str | None] = mapped_column(String(20))
+    # Consentimiento explícito para los datos de salud (art. 9 RGPD). Retirarlo lo deja en blanco y
+    # apaga "Generar rutina"; los datos quedan guardados (decisión del usuario, 2026-11-12).
+    health_consent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    health_consent_version: Mapped[str | None] = mapped_column(String(20))
 
     user: Mapped[User] = relationship(back_populates="profile")
 

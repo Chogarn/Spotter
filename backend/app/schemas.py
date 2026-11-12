@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from app.ai.routine import RoutineProposal
 from app.enums import Goal, Level, LoadFeel, PainLevel, RoutineSplit
+from app.legal import MIN_AGE
 from app.models import age_on
 
 
@@ -110,6 +111,9 @@ class ProfileIn(BaseModel):
     limitations: str | None = Field(default=None, max_length=1000)
     # Sin el tilde del aviso legal no se guarda nada.
     accept_legal_notice: Literal[True]
+    # El consentimiento de salud: obligatorio para crear el perfil. Al editar, `False` no lo retira
+    # (para eso está `DELETE /profile/consent/health`).
+    accept_health_consent: bool = False
 
     @model_validator(mode="after")
     def age_from_birth_date(self):
@@ -118,8 +122,8 @@ class ProfileIn(BaseModel):
                 raise ValueError("Falta la fecha de nacimiento")
             return self
         age = age_on(self.birth_date, date.today())
-        if age < 14:
-            raise ValueError("Tenés que tener al menos 14 años")
+        if age < MIN_AGE:
+            raise ValueError(f"Para usar Spotter tenés que tener {MIN_AGE} años o más")
         if age > 100:
             raise ValueError("La fecha de nacimiento no es válida")
         self.age = age
@@ -136,7 +140,19 @@ class ProfileOut(BaseModel):
     height_cm: int
     sex: str | None
     limitations: str | None
+    # Aceptó la versión vigente del aviso (si no, la app muestra la pantalla para aceptar).
     legal_notice_accepted: bool
+    legal_notice_accepted_at: datetime | None = None
+    legal_notice_version: str | None = None
+    health_consent: bool = False
+    health_consent_at: datetime | None = None
+
+
+class ConsentIn(BaseModel):
+    """Aceptar el aviso vigente y, si se marca, dar el consentimiento de salud."""
+
+    accept_legal_notice: Literal[True]
+    accept_health_consent: bool = False
 
 
 class GenerateIn(BaseModel):
