@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react";
 
+import { CerrarSemana } from "@/components/CerrarSemana";
 import { Confirmar } from "@/components/Confirmar";
 import { PasoConReloj, PasoHecho } from "@/components/Cronometro";
 import { ContadorSesion } from "@/components/ContadorSesion";
@@ -494,28 +495,64 @@ export default function EntrenarView({
   );
 }
 
-// Justo después de tocar "Día completado": el confeti de la semana completada, "Día N completado",
-// el nombre del día, los días de la semana en discos y la duración (si se midió). Las series y los
-// kilos quedan para el Resumen del día, al que se llega con "Ver cómo te fue".
+// Justo después de tocar "Día completado": el confeti, "Día N completado", el nombre del día, los
+// días de la semana en discos y la duración (si se midió). Las series y los kilos quedan para el
+// Resumen del día, al que se llega con "Ver cómo te fue". Si era el último día que faltaba, es el
+// festejo de la semana, con "Cerrar semana" ahí mismo (un solo festejo, no dos seguidos).
 function FestejoDelDia({ dia }: { dia: DayDetail }) {
   const router = useRouter();
   const [, setPeriodo] = usePeriodo();
-  const [estados, setEstados] = useState<DayState[] | null>(null);
+  const [semana, setSemana] = useState<WeekDetail | null>(null);
+  // Si la semana no llega, queda el festejo del día (sin discos).
+  const [sinSemana, setSinSemana] = useState(false);
 
   useEffect(() => {
     apiFetch(`/weeks/${dia.week_id}`)
       .then(async (res) => {
-        if (!res.ok) return;
-        const semana: WeekDetail = await res.json();
-        setEstados(semana.days.map((d) => d.state));
+        if (res.ok) setSemana(await res.json());
+        else setSinSemana(true);
       })
-      .catch(() => {});
+      .catch(() => setSinSemana(true));
   }, [dia.week_id]);
 
   const minutos =
     dia.started_at && dia.finished_at
       ? Math.round((new Date(dia.finished_at).getTime() - new Date(dia.started_at).getTime()) / 60000)
       : null;
+  const estados: DayState[] | null = semana ? semana.days.map((d) => d.state) : null;
+  const semanaCompleta = semana !== null && semana.status === "active" && semana.days.every((d) => d.finished_at);
+  const verComoTeFue = () => {
+    setPeriodo("day");
+    router.push("/progreso/resumenes");
+  };
+
+  // Mientras llega la semana no se sabe cuál de los dos festejos va: se espera, así no cambia el título.
+  if (!semana && !sinSemana) return <div className="h-64" aria-hidden="true" />;
+
+  if (semanaCompleta && semana) {
+    return (
+      <div className="text-center">
+        <Festejo />
+        <h1 className="mt-0 mb-1 text-4xl">Semana {semana.number} completada</h1>
+        <p className="m-0 text-muted-foreground">
+          Día {dia.day_index} · {tituloDia(dia.title)}
+          {minutos !== null && minutos > 0 && ` · ${minutos} min`}
+        </p>
+        <div className="mt-3 mb-5 flex h-4 justify-center">{estados && <DiscosSemana estados={estados} />}</div>
+        {/* Al cerrarla, Inicio ofrece "Generar la semana siguiente". */}
+        <CerrarSemana weekId={semana.id} pendientes={[]} destacado grande onCerrada={() => router.push("/")} />
+        <Button size="xl" variant="outline" className="mt-2 w-full" type="button" onClick={verComoTeFue}>
+          Ver cómo te fue
+        </Button>
+        <Link
+          href="/"
+          className="mt-3 inline-block rounded-lg px-2 py-1 text-sm text-muted-foreground underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          Ir a Inicio
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="text-center">
@@ -526,15 +563,7 @@ function FestejoDelDia({ dia }: { dia: DayDetail }) {
         {minutos !== null && minutos > 0 && ` · ${minutos} min`}
       </p>
       <div className="mt-3 flex h-4 justify-center">{estados && <DiscosSemana estados={estados} />}</div>
-      <Button
-        size="xl"
-        className="mt-5 w-full"
-        type="button"
-        onClick={() => {
-          setPeriodo("day");
-          router.push("/progreso/resumenes");
-        }}
-      >
+      <Button size="xl" className="mt-5 w-full" type="button" onClick={verComoTeFue}>
         Ver cómo te fue
       </Button>
       <Button size="xl" variant="outline" className="mt-2 w-full" nativeButton={false} render={<Link href="/" />}>

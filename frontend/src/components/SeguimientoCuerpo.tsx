@@ -20,14 +20,6 @@ import { ErrorMessage, InlineError } from "@/components/ErrorMessage";
 import { errorText, readError, apiFetch, type Measurement } from "@/lib/api";
 import { shortDate } from "@/lib/format";
 
-// Un número escrito a mano ("78,4" o "78.4") a número; null si está vacío o no es un número.
-export function aNumero(texto: string): number | null {
-  const limpio = texto.trim().replace(",", ".");
-  if (limpio === "") return null;
-  const n = Number(limpio);
-  return Number.isFinite(n) ? n : null;
-}
-
 function numero(v: number | string, decimales = 1): string {
   return Number(v).toLocaleString("es-AR", { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
 }
@@ -274,7 +266,7 @@ export function Formulario({
       <AlertDialogContent className="sm:max-w-lg">
         <AlertDialogHeader>
           <AlertDialogTitle className="font-heading text-2xl font-bold">
-            {medicion ? "Corregir medición" : "Cargar peso"}
+            {medicion ? "Corregir medición" : "Cargar medición"}
           </AlertDialogTitle>
         </AlertDialogHeader>
         <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
@@ -320,7 +312,7 @@ export function Formulario({
                 ) : (
                   <>
                     <div className="mb-1 flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Grasa corporal · opcional</span>
+                      <span className="text-muted-foreground">Grasa corporal</span>
                       <button
                         type="button"
                         onClick={() => setGrasa(null)}
