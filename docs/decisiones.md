@@ -968,6 +968,28 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decidió la IA sin preguntarte:** el resumen y las notas van arriba de la semana, con el mismo recuadro (amarillo el resumen); la duración de cada día ya se veía en el día ("~75 min"), así que no se agregó nada por ella; las subidas de peso de más de 10 % no se muestran en ningún lado (la pestaña Cambios ya muestra cada carga con su "antes"); el backend no cambió.
 - **Ojo:** comprobado con los tipos y el lint; no visto en el navegador (el de pruebas no dibuja las páginas con parámetros).
 
+### 135. El cronómetro de la entrada en calor y el cardio es un anillo
+- **Fecha:** 2026-11-12
+- **Decisión:** cambia el aspecto de la 122. En el modo entrenar, el cronómetro va dentro de un aro, como los discos: sin empezar, el aro gris con lo planificado en el centro; corriendo, se llena en rojo hacia los minutos planificados ("de 25 min" debajo); al llegar, queda entero en verde y el tiempo sigue contando ("25 min · +2 min"); con el día detenido, todo en gris y "detenido". "Empezar", "Saltar" y "Finalizar" no cambiaron.
+- **Por qué:** *(completar)*
+- **Descartaste:** una cuenta regresiva desde lo planificado y el anillo que se vacía mientras baja el tiempo (como el reloj de descanso).
+- **Decidió la IA sin preguntarte:** con un rango ("5 a 10 min") el aro apunta al número más alto; sin número, no se llena y solo cuenta; el "+N min" cuenta minutos enteros; pasada la hora, el tiempo se achica para entrar; con el día detenido ya no se aclara la tarjeta entera (lo marca el gris).
+- **Ojo:** comprobado con los tipos y el lint; no visto en el navegador.
+
+### 136. Cerrar el día con los discos del día
+- **Fecha:** 2026-11-12
+- **Decisión:** al terminar los ejercicios en el modo entrenar, antes de "Día completado", la tarjeta muestra "¡Listo el Día N!", el nombre del día con los minutos de la sesión, un disco por paso (C, en amarillo, la entrada en calor; los ejercicios hechos en verde y los que quedaron sin hacer, punteados) y "Entrada en calor y 4 ejercicios hechos". El botón "Día completado" sigue siendo lo que cierra el día (diseño 1 de la maqueta).
+- **Por qué:** *(completar)*
+- **Descartaste:** un resumen con números (minutos, series, kilos y cardio) y un tilde grande; que el día se cierre solo al terminar el último ejercicio.
+- **Decidió la IA sin preguntarte:** los ejercicios hechos en verde (el rojo es de las series); los minutos se calculan una vez, al aparecer la tarjeta, sin lo detenido; si quedó uno sin hacer dice "3 de 4 ejercicios hechos".
+- **Ojo:** comprobado con los tipos y el lint; no visto en el navegador.
+
+### 137. El tilde de los ejercicios hechos también en lectura
+- **Fecha:** 2026-11-12
+- **Decisión:** en la pantalla del día, cada ejercicio hecho lleva el disco con el tilde también con el día completado o visto desde Rutinas (antes solo se veía mientras el día se podía registrar, y en lectura solo la entrada en calor lo tenía).
+- **Por qué:** *(completar)*
+- **Ojo:** comprobado con los tipos y el lint; no visto en el navegador.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
