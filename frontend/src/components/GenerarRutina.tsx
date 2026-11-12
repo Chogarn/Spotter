@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { readError, type Routine, apiFetch } from "@/lib/api";
 import { GrupoOpciones, OpcionAsistente, PasoAsistente, RuedaNumero } from "@/components/Asistente";
@@ -179,17 +179,20 @@ export function GenerarRutina({
   // Una generación que falló por la IA, un tope, las reglas o la conexión: tapa el asistente con una
   // pantalla que explica qué pasó (`ErrorGeneracion`). Los demás errores siguen en el asistente.
   const [fallo, setFallo] = useState<{ motivo: MotivoFallo; detalle?: string } | null>(null);
-  // `pidiendo`: esperando a la IA. `navegando`: abriendo la propuesta; se apaga solo cuando la
-  // nueva página está lista (así esta pantalla no queda "generando" al volver a ella).
+  // `pidiendo`: esperando a la IA, y después abriendo la propuesta (la pantalla de carga sigue
+  // hasta que el navegador cambia de página).
   const [pidiendo, setPidiendo] = useState(false);
-  const [navegando, startTransition] = useTransition();
-  const generando = pidiendo || navegando;
+  const generando = pidiendo;
+  // Ya se va a la propuesta: el aviso de "salir de la página" no tiene que saltar.
+  const saliendo = useRef(false);
 
   // Mientras la IA trabaja, el navegador avisa antes de recargar o cerrar la pestaña: se perdería
   // la espera (y la generación ya gastó cuota de la IA).
   useEffect(() => {
     if (!generando) return;
-    const avisar = (e: BeforeUnloadEvent) => e.preventDefault();
+    const avisar = (e: BeforeUnloadEvent) => {
+      if (!saliendo.current) e.preventDefault();
+    };
     window.addEventListener("beforeunload", avisar);
     return () => window.removeEventListener("beforeunload", avisar);
   }, [generando]);
@@ -340,8 +343,12 @@ export function GenerarRutina({
       if (res.ok) {
         const propuesta = await res.json();
         borrarBorrador();
-        startTransition(() => router.push(`/rutina/propuesta/${propuesta.id}`));
-        setPidiendo(false);
+        // Navegación completa, no `router.push`: en producción el router de Next se quedaba sin
+        // abrir la propuesta y la pantalla de carga no se iba hasta recargar (como pasó con el
+        // login, ver CLAUDE.md, trampas de Vercel). La pantalla de carga queda hasta que cambia la página.
+        saliendo.current = true;
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a propósito, ver arriba
+        window.location.assign(`/rutina/propuesta/${propuesta.id}`);
         return;
       }
       const motivo = res.headers.get("X-Error-Code") as MotivoFallo | null;
