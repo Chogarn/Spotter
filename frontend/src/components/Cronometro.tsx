@@ -3,7 +3,7 @@
 import { Check, Play } from "lucide-react";
 import { useState } from "react";
 
-import { ContadorSesion } from "@/components/ContadorSesion";
+import { formato, useSegundos } from "@/components/ContadorSesion";
 import { Button } from "@/components/ui/button";
 import type { DayDetail } from "@/lib/api";
 import { borrarCrono, empezarCrono, leerCrono, minutosDelCrono, pausaDelCrono } from "@/lib/cronometro";
@@ -42,30 +42,28 @@ export function PasoConReloj({
 
   return (
     <>
-      <section className={cn("mt-3 rounded-2xl bg-card p-5 text-center", pausado && "opacity-55")}>
+      <section className="mt-3 rounded-2xl bg-card p-5 text-center">
         {crono ? (
-          <>
-            <ContadorSesion
-              desde={crono.inicio}
-              pausa={pausaDelCrono(crono, dia)}
-              detenidoEn={dia.paused_at ?? null}
-              etiqueta="Cronómetro"
-              className={cn(
-                "my-2 block font-heading text-7xl leading-none font-bold tabular-nums",
-                pausado ? "text-muted-foreground" : "text-disco-rojo",
-              )}
-            />
-            {planificado && <p className="m-0 text-muted-foreground">Planificado: {planificado}</p>}
-          </>
+          <AnilloCorriendo
+            desde={crono.inicio}
+            pausa={pausaDelCrono(crono, dia)}
+            detenidoEn={dia.paused_at ?? null}
+            pausado={pausado}
+            planificado={planificado}
+          />
         ) : (
-          planificado && (
-            <>
-              <p className="m-0 text-muted-foreground">Planificado</p>
-              <p className="my-2 font-heading text-7xl leading-none font-bold">{planificado}</p>
-            </>
-          )
+          <Anillo progreso={0}>
+            {planificado ? (
+              <>
+                <span className="font-heading text-5xl leading-none font-bold">{planificado}</span>
+                <span className="mt-1 text-sm text-muted-foreground">planificado</span>
+              </>
+            ) : (
+              <span className="font-heading text-6xl leading-none font-bold tabular-nums">00:00</span>
+            )}
+          </Anillo>
         )}
-        {texto && <p className={cn("mb-0 text-muted-foreground", planificado ? "mt-2" : "mt-0")}>{texto}</p>}
+        {texto && <p className="mt-2 mb-0 text-muted-foreground">{texto}</p>}
       </section>
 
       {pausado ? (
@@ -104,6 +102,103 @@ export function PasoConReloj({
         </>
       )}
     </>
+  );
+}
+
+// Los minutos a los que apunta el anillo: el último número de lo planificado ("5 a 10 min" → 10,
+// "25 min" → 25). Null si no hay número: el anillo no se llena y solo cuenta.
+function minutosObjetivo(planificado: string | null): number | null {
+  const numeros = planificado?.match(/\d+/g);
+  const n = numeros ? Number(numeros[numeros.length - 1]) : NaN;
+  return n > 0 ? n : null;
+}
+
+// Un aro como los discos (maqueta del 2026-11-12): gris de fondo y, encima, la parte hecha
+// (`progreso` de 0 a 1) en el color que se pase. Lo de adentro va en el centro.
+const RADIO = 52;
+const VUELTA = 2 * Math.PI * RADIO;
+function Anillo({
+  progreso,
+  color = "var(--disco-rojo)",
+  children,
+}: {
+  progreso: number;
+  color?: string;
+  children: React.ReactNode;
+}) {
+  const p = Math.min(1, Math.max(0, progreso));
+  return (
+    <div className="relative mx-auto my-1 size-56">
+      <svg viewBox="0 0 120 120" className="size-full -rotate-90" aria-hidden="true">
+        <circle cx="60" cy="60" r={RADIO} fill="none" stroke="var(--background)" strokeWidth="10" />
+        {p > 0 && (
+          <circle
+            cx="60"
+            cy="60"
+            r={RADIO}
+            fill="none"
+            stroke={color}
+            strokeWidth="10"
+            strokeLinecap={p < 1 ? "round" : "butt"}
+            strokeDasharray={VUELTA}
+            strokeDashoffset={VUELTA * (1 - p)}
+            className="transition-[stroke-dashoffset] duration-700 ease-linear motion-reduce:transition-none"
+          />
+        )}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">{children}</div>
+    </div>
+  );
+}
+
+// Corriendo: el aro rojo se llena hacia lo planificado; al llegar se pone verde, entero, y el
+// tiempo sigue contando con "+N min" de más. Con el día detenido, todo en gris y "detenido".
+function AnilloCorriendo({
+  desde,
+  pausa,
+  detenidoEn,
+  pausado,
+  planificado,
+}: {
+  desde: string;
+  pausa: number;
+  detenidoEn: string | null;
+  pausado: boolean;
+  planificado: string | null;
+}) {
+  const segundos = useSegundos(desde, pausa, detenidoEn) ?? 0;
+  const objetivo = minutosObjetivo(planificado);
+  const progreso = objetivo ? segundos / (objetivo * 60) : 0;
+  const cumplido = objetivo !== null && progreso >= 1;
+  const color = pausado
+    ? "var(--muted-foreground)"
+    : cumplido
+      ? "var(--disco-verde)"
+      : "var(--disco-rojo)";
+  const deMas = cumplido ? Math.floor((segundos - objetivo * 60) / 60) : 0;
+  return (
+    <Anillo progreso={progreso} color={color}>
+      <span
+        role="timer"
+        aria-label="Cronómetro"
+        className={cn(
+          "font-heading leading-none font-bold tabular-nums",
+          segundos >= 3600 ? "text-5xl" : "text-6xl",
+          pausado ? "text-muted-foreground" : cumplido ? "text-disco-verde" : "text-disco-rojo",
+        )}
+      >
+        {formato(segundos)}
+      </span>
+      <span className="mt-1 text-sm text-muted-foreground">
+        {pausado
+          ? "detenido"
+          : cumplido
+            ? `${planificado}${deMas > 0 ? ` · +${deMas} min` : ""}`
+            : planificado
+              ? `de ${planificado}`
+              : null}
+      </span>
+    </Anillo>
   );
 }
 

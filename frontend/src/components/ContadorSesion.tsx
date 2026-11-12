@@ -11,8 +11,17 @@ const segundosAhora = () => Math.floor(Date.now() / 1000);
 // En el servidor no hay hora que mostrar (Next 16 con cacheComponents no deja leerla al preparar).
 const sinHora = () => null;
 
+// Los segundos que lleva corriendo un reloj que arrancó en `desde`, sin lo detenido. Null en el
+// servidor (no hay hora). Lo usan el contador y el anillo del cronómetro.
+export function useSegundos(desde: string, pausa = 0, detenidoEn: string | null = null): number | null {
+  const ahora = useSyncExternalStore(suscribirse, segundosAhora, sinHora);
+  if (ahora === null) return null;
+  const hasta = detenidoEn ? Math.floor(new Date(detenidoEn).getTime() / 1000) : ahora;
+  return Math.max(0, hasta - Math.floor(new Date(desde).getTime() / 1000) - pausa);
+}
+
 // "47:05" o "1:02:09".
-function formato(total: number): string {
+export function formato(total: number): string {
   const h = Math.floor(total / 3600);
   const m = Math.floor((total % 3600) / 60);
   const s = total % 60;
@@ -37,10 +46,8 @@ export function ContadorSesion({
   className?: string;
   etiqueta?: string;
 }) {
-  const ahora = useSyncExternalStore(suscribirse, segundosAhora, sinHora);
-  if (ahora === null) return null;
-  const hasta = detenidoEn ? Math.floor(new Date(detenidoEn).getTime() / 1000) : ahora;
-  const segundos = Math.max(0, hasta - Math.floor(new Date(desde).getTime() / 1000) - pausa);
+  const segundos = useSegundos(desde, pausa, detenidoEn);
+  if (segundos === null) return null;
   return (
     <span
       role="timer"
