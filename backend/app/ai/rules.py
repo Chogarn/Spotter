@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from app.ai.catalog import MUSCLE_TEXT, find
 from app.ai.plan_writer import normalize_name
 from app.ai.routine import DayProposal, RoutineProposal
-from app.enums import ExerciseKind, Goal, Level, Muscle, RoutineSplit
+from app.enums import ExerciseDirection, ExerciseKind, Goal, Level, Muscle, RoutineSplit
 from app.ai.splits import compatible_splits
 
 # Los isométricos (plancha) cuentan como fuerza: suman días de fuerza y series por músculo.
@@ -249,6 +249,7 @@ def split_issues(routine: RoutineProposal, split: RoutineSplit) -> list[str]:
     """Comprueba que los músculos principales de cada día respeten el split seleccionado."""
     issues: list[str] = []
     for number, day in enumerate(routine.days, start=1):
+        phase = (number - 1) % 3  # solo cuenta en PPL: 0 empuje, 1 tirón, 2 piernas
         if split == RoutineSplit.FULL_BODY:
             expected = set(BIG_GROUPS)
         elif split == RoutineSplit.UPPER_LOWER:
@@ -258,7 +259,6 @@ def split_issues(routine: RoutineProposal, split: RoutineSplit) -> list[str]:
                 else {Muscle.QUADRICEPS, Muscle.HAMSTRINGS, Muscle.GLUTES}
             )
         else:  # PPL es seis días: empuje, tirón, piernas, repetidos dos veces.
-            phase = (number - 1) % 3
             expected = (
                 {Muscle.CHEST, Muscle.SHOULDERS}
                 if phase == 0
@@ -266,13 +266,16 @@ def split_issues(routine: RoutineProposal, split: RoutineSplit) -> list[str]:
                 if phase == 1
                 else {Muscle.QUADRICEPS, Muscle.HAMSTRINGS, Muscle.GLUTES}
             )
-        actual = {
-            e.primary_muscle
-            for e in day.exercises
-            if e.kind in STRENGTH_KINDS and e.primary_muscle in BIG_GROUPS
-        }
+        strength = [e for e in day.exercises if e.kind in STRENGTH_KINDS and e.primary_muscle in BIG_GROUPS]
+        actual = {e.primary_muscle for e in strength}
         missing = expected - actual
         misplaced = actual - expected
+        # Decisión 132: en el tirón de PPL entran los hombros de tirón (deltoides posterior: face pull,
+        # pájaros), sin ser obligatorios. Un press o una elevación de hombros ahí sigue siendo aviso.
+        if split == RoutineSplit.PPL and phase == 1 and all(
+            e.direction == ExerciseDirection.PULL for e in strength if e.primary_muscle == Muscle.SHOULDERS
+        ):
+            misplaced.discard(Muscle.SHOULDERS)
         if missing:
             issues.append(
                 f"Día {number} ({day.title}): faltan grupos grandes del split: "

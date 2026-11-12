@@ -3,9 +3,9 @@
 from copy import deepcopy
 
 from app.ai.routine import RoutineProposal
-from app.ai.rules import validate_routine
+from app.ai.rules import split_issues, validate_routine
 from app.ai.splits import compatible_splits
-from app.enums import Goal, Level, RoutineSplit
+from app.enums import ExerciseDirection, Goal, Level, Muscle, RoutineSplit
 from tests.test_proposals import (
     GRANDES,
     api,
@@ -117,3 +117,38 @@ def test_un_dia_que_no_trabaja_los_grupos_de_su_foco_es_aviso_y_no_rechazo():
     assert not [e for e in resultado.errors if e.rule == "Split"]
     assert any(i.rule == "Split" and "Hombros" in i.message for i in resultado.warnings)
     assert any(i.rule == "Split" for i in resultado.soft_issues)  # se pide de nuevo una vez
+
+
+def _con_hombros_en_tiron(nombre: str, direccion: ExerciseDirection) -> RoutineProposal:
+    """PPL de 6 días con un ejercicio de hombros (copiado del Día 1, empuje) sumado al Día 2 (tirón)."""
+    ruti = propuesta(RoutineSplit.PPL, 6)
+    hombros = next(e for e in ruti.days[0].exercises if e.primary_muscle == Muscle.SHOULDERS)
+    ruti.days[1].exercises.append(hombros.model_copy(update={"name": nombre, "direction": direccion}))
+    return ruti
+
+
+def test_ppl_acepta_hombros_de_tiron_en_el_dia_de_tiron():
+    # Decisión 132: el face pull o los pájaros (deltoides posterior) entran en el tirón sin aviso.
+    ruti = _con_hombros_en_tiron("Face pull en polea", ExerciseDirection.PULL)
+    assert split_issues(ruti, RoutineSplit.PPL) == []
+
+
+def test_ppl_sigue_avisando_un_press_de_hombros_en_el_dia_de_tiron():
+    ruti = _con_hombros_en_tiron("Press de hombros con mancuernas", ExerciseDirection.PUSH)
+    avisos = split_issues(ruti, RoutineSplit.PPL)
+    assert len(avisos) == 1 and avisos[0].startswith("Día 2") and "Hombros" in avisos[0]
+
+
+def test_ppl_no_exige_hombros_en_el_dia_de_tiron():
+    # Sin hombros en el tirón no falta nada: el deltoides posterior es opcional.
+    assert split_issues(propuesta(RoutineSplit.PPL, 6), RoutineSplit.PPL) == []
+
+
+def test_torso_pierna_sigue_rechazando_hombros_en_el_dia_de_pierna():
+    # La excepción es solo del tirón de PPL: en un día de pierna, el face pull sigue siendo aviso.
+    ruti = propuesta(RoutineSplit.UPPER_LOWER, 4)
+    hombros = next(e for e in ruti.days[0].exercises if e.primary_muscle == Muscle.SHOULDERS)
+    ruti.days[1].exercises.append(
+        hombros.model_copy(update={"name": "Face pull en polea", "direction": ExerciseDirection.PULL})
+    )
+    assert any("Día 2" in a and "Hombros" in a for a in split_issues(ruti, RoutineSplit.UPPER_LOWER))

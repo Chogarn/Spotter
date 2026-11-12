@@ -58,6 +58,8 @@ def split_prompt(split: RoutineSplit, days: int) -> str:
     schedule = " · ".join(f"Día {i + 1}: {focus}" for i, focus in enumerate(pattern[:days]))
     return (
         "**Estructura elegida: empuje, tirón y piernas (PPL, dos vueltas).** Seguí este orden: "
-        f"{schedule}. Empuje trabaja pecho y hombros; tirón, espalda; piernas, cuádriceps, isquios y "
-        "glúteos. Los músculos chicos siguen siendo complemento."
+        f"{schedule}. Empuje trabaja pecho y hombros; tirón, espalda (y puede sumar el deltoides "
+        "posterior con ejercicios de hombros de tirón, como el face pull o los pájaros; nunca un press "
+        "ni una elevación de hombros); piernas, cuádriceps, isquios y glúteos. Los músculos chicos "
+        "siguen siendo complemento."
     )
