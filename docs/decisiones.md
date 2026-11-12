@@ -580,7 +580,7 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 
 ### 87. Seguimiento semanal del peso, cargado a mano
 - **Fecha:** 2026-10-23
-- **Decisión:** el peso deja de ser un solo valor y pasa a ser un **historial de mediciones con fecha** (tabla `body_measurements`, migración 0023): peso y, opcional, **grasa corporal %** (la que da una balanza biométrica), una por día. Se carga **al cerrar la semana** (dos campos opcionales en el recuadro de "Cerrar semana"; si hay peso queda una medición ligada a esa semana; la grasa sola no se guarda) o cuando quieras con "Cargar peso" en la pestaña nueva **Cuerpo** de Progreso. Cada medición se puede **corregir y borrar** (con confirmación). El **IMC** se calcula con el peso de cada medición y la altura del perfil: no se guarda, no se carga y es solo informativo. La **cintura** no se pide. La **IA no usa** estos datos por ahora. El peso del perfil es siempre la última medición, y cambiar el peso desde el perfil suma una medición de hoy. Lo pidió el profesor.
+- **Decisión:** el peso deja de ser un solo valor y pasa a ser un **historial de mediciones con fecha** (tabla `body_measurements`, migración 0023): peso y, opcional, **grasa corporal %** (la que da una balanza biométrica), una por día. Se carga **al cerrar la semana** (dos campos opcionales en el recuadro de "Cerrar semana"; si hay peso queda una medición ligada a esa semana; la grasa sola no se guarda; **desde la decisión 131 ya no**) o cuando quieras con "Cargar peso" en la pestaña nueva **Cuerpo** de Progreso. Cada medición se puede **corregir y borrar** (con confirmación). El **IMC** se calcula con el peso de cada medición y la altura del perfil: no se guarda, no se carga y es solo informativo. La **cintura** no se pide. La **IA no usa** estos datos por ahora. El peso del perfil es siempre la última medición, y cambiar el peso desde el perfil suma una medición de hoy. Lo pidió el profesor.
 - **Por qué:** *(completar)*
 - **Descartaste:** atar el recordatorio a una fecha ("hace 7 días que no cargás tu peso"); pedir la cintura; que la IA use la tendencia de peso (haría falta una regla nueva aprobada: las únicas permitidas son R1 a R36).
 - **Decidió la IA sin preguntarte:** una medición por día (cargar otra el mismo día la reemplaza); no se aceptan fechas futuras; pesos de 30 a 300 kg y grasa de 2 a 70 %; las mediciones nuevas toman la fecha del servidor, que está en UTC (de noche en la Argentina puede quedar un día adelantada; en "Cargar peso" la fecha se puede elegir); al aplicar la migración, el peso actual de cada perfil quedó como primera medición con la fecha de ese día; borrar la última medición deja el peso del perfil como estaba.
@@ -935,6 +935,38 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Descartaste:** uno solo por fecha (bloquear empezar otro día hasta mañana); permitirlo solo desde Entrenar sin ofrecerlo en Inicio; dejar "Ver cómo te fue" como link debajo de "Volver a entrenar".
 - **Decidió la IA sin preguntarte:** si después de "Volver a entrenar" hay un día empezado, Inicio deja de festejar y muestra ese día con "Seguir entrenando" (o "Retomar"), como cualquier día en curso; el botón empieza el día siguiente sin pasar por Entrenar.
 - **Ojo:** visto en el navegador en ancho de celular con un usuario descartable (ya borrado); no en un teléfono real.
+
+### 131. El peso sale del recuadro de "Cerrar semana"
+- **Fecha:** 2026-11-12
+- **Decisión:** cambia una parte de la 87. El recuadro de "Cerrar semana" ya no tiene el desplegable "Tu peso": queda solo el comentario opcional ("¿Cómo te sentiste?"). El peso y la grasa corporal se cargan únicamente con **"Cargar peso"**, desde Inicio o desde Progreso › Cuerpo (la regla con − y +).
+- **Por qué:** *(completar)* (el recuadro del cierre tenía otro formato que "Cargar peso": dos casillas para escribir en lugar de la regla).
+- **Descartaste:** dejar el peso en el cierre con el mismo formato que "Cargar peso" (la regla, arrancando en el último peso y sin elegir la fecha).
+- **Decidió la IA sin preguntarte:** el servidor no cambió: `POST /weeks/{id}/close` sigue aceptando `weight_kg` y `body_fat_pct` (la pantalla ya no los manda); el comentario sigue dentro de su desplegable, aunque ahora sea el único.
+- **Ojo:** comprobado con los tipos de TypeScript y el lint; no visto en el navegador.
+
+### 132. En PPL, el día de tirón acepta los hombros de tirón
+- **Fecha:** 2026-11-12
+- **Decisión:** cambia una parte de la 91. En empuje/tirón/piernas, los hombros van los dos días: en empuje, el deltoides anterior y lateral (press, elevaciones), como hasta ahora; en tirón, el **deltoides posterior**, con los ejercicios de hombros marcados como tirón en el catálogo (`direction: pull`: Face pull en polea, Pájaros con mancuernas y Pájaros en máquina). En tirón son **permitidos, no obligatorios**: el día sigue exigiendo espalda. Un press o una elevación de hombros en el día de tirón sigue dando el aviso.
+- **Por qué:** *(completar)* (lo viste en producción: la semana nueva de una rutina PPL avisaba "estos grupos grandes no corresponden a este foco: Hombros" en los días 2 y 5, de tirón).
+- **Descartaste:** aceptar cualquier ejercicio de hombros en el tirón (también un press).
+- **Decidió la IA sin preguntarte:** la regla mira la etiqueta `direction` del ejercicio, no su nombre; la excepción es solo del tirón de PPL (en torso/pierna, un face pull en el día de pierna sigue siendo aviso); el prompt de PPL ahora le dice a la IA que en tirón puede sumar el deltoides posterior, nunca un press ni una elevación; el texto de la opción en el asistente ("tirón: espalda") no cambió.
+- **Ojo:** probado con tests (los del backend son 671); no con Gemini real.
+
+### 133. Un solo festejo al terminar la semana
+- **Fecha:** 2026-11-12
+- **Decisión:** cambia una parte de la 128. Al tocar "Día completado" en el último día que faltaba, el modo entrenar muestra directamente el festejo de la semana: confeti, "Semana N completada", "Día N · nombre · minutos", los discos, el botón oscuro **Cerrar semana** (el recuadro de siempre; al cerrarla se va a Inicio), "Ver cómo te fue" con borde e "Ir a Inicio" como texto chico. Los demás días siguen con "Día N completado". La tarjeta "Semana completada" de Inicio queda para cuando se entra sin haber cerrado la semana.
+- **Por qué:** *(completar)* (antes se veían dos festejos seguidos: "Día N completado" en el modo entrenar y "Semana completada" en Inicio).
+- **Descartaste:** la misma pantalla sin "Ir a Inicio".
+- **Decidió la IA sin preguntarte:** la semana se da por completa si todos sus días tienen "Día completado" y la semana está activa; mientras llega la semana no se muestra ningún título (para que no cambie de uno a otro), y si no llega queda el festejo del día; el botón "Cerrar semana" de esta pantalla es del tamaño de los demás (`grande` en `CerrarSemana.tsx`).
+- **Ojo:** comprobado con los tipos y el lint; no visto en el navegador (el de pruebas no dibuja las páginas con parámetros).
+
+### 134. La propuesta ya no muestra la sección de avisos
+- **Fecha:** 2026-11-12
+- **Decisión:** la persona no ve la pestaña **Avisos** de la propuesta. Quedan "Semana" y, en una semana nueva, "Cambios" (en una rutina nueva no hay pestañas). El **resumen de la IA** y sus **notas** pasan arriba de los días, en la pestaña Semana. Los avisos del código (split, reparto, volumen, duración de un día y subidas de peso de más de 10 %) se siguen calculando, se siguen usando para pedir la rutina de nuevo una vez y se guardan en la propuesta (`warnings`), pero no se muestran.
+- **Por qué:** *(completar)* (los pensaste como algo de desarrollo y dudabas de que debieran verse en producción).
+- **Descartaste:** dejar la pestaña solo con los avisos útiles (resumen, notas, duración y subidas de peso); plegar los técnicos en "Ver detalle técnico".
+- **Decidió la IA sin preguntarte:** el resumen y las notas van arriba de la semana, con el mismo recuadro (amarillo el resumen); la duración de cada día ya se veía en el día ("~75 min"), así que no se agregó nada por ella; las subidas de peso de más de 10 % no se muestran en ningún lado (la pestaña Cambios ya muestra cada carga con su "antes"); el backend no cambió.
+- **Ojo:** comprobado con los tipos y el lint; no visto en el navegador (el de pruebas no dibuja las páginas con parámetros).
 
 ## Decisiones abiertas
 
