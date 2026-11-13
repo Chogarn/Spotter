@@ -16,6 +16,7 @@ export function PasoConReloj({
   dia,
   paso,
   planificado,
+  etiqueta = "Entrada en calor",
   texto,
   pausado,
   trabajando,
@@ -26,6 +27,7 @@ export function PasoConReloj({
   dia: DayDetail;
   paso: string; // "calor" o el ejercicio y la serie: con eso se guarda el cronómetro
   planificado: string | null; // "5 a 10 min", "20 min"
+  etiqueta?: string; // el título chico arriba del reloj
   texto?: string | null;
   pausado: boolean;
   trabajando: boolean;
@@ -42,7 +44,7 @@ export function PasoConReloj({
 
   return (
     <>
-      <section className="mt-3 rounded-2xl bg-card p-5 text-center">
+      <section className="mt-3 flex flex-col items-center text-center">
         {crono ? (
           <AnilloCorriendo
             desde={crono.inicio}
@@ -50,13 +52,15 @@ export function PasoConReloj({
             detenidoEn={dia.paused_at ?? null}
             pausado={pausado}
             planificado={planificado}
+            etiqueta={etiqueta}
           />
         ) : (
           <Anillo progreso={0}>
+            <span className="text-sm text-muted-foreground">{etiqueta}</span>
             {planificado ? (
               <>
                 <span className="font-heading text-5xl leading-none font-bold">{planificado}</span>
-                <span className="mt-1 text-sm text-muted-foreground">planificado</span>
+                <span className="text-sm text-muted-foreground">planificado</span>
               </>
             ) : (
               <span className="font-heading text-6xl leading-none font-bold tabular-nums">00:00</span>
@@ -115,11 +119,11 @@ function minutosObjetivo(planificado: string | null): number | null {
 
 // Un aro como los discos (maqueta del 2026-11-12): gris de fondo y, encima, la parte hecha
 // (`progreso` de 0 a 1) en el color que se pase. Lo de adentro va en el centro.
-const RADIO = 52;
+const RADIO = 80;
 const VUELTA = 2 * Math.PI * RADIO;
 function Anillo({
   progreso,
-  color = "var(--disco-rojo)",
+  color = "var(--disco-tinta)",
   children,
 }: {
   progreso: number;
@@ -128,17 +132,17 @@ function Anillo({
 }) {
   const p = Math.min(1, Math.max(0, progreso));
   return (
-    <div className="relative mx-auto my-1 size-56">
-      <svg viewBox="0 0 120 120" className="size-full -rotate-90" aria-hidden="true">
-        <circle cx="60" cy="60" r={RADIO} fill="none" stroke="var(--background)" strokeWidth="10" />
+    <div className="relative my-3 size-56">
+      <svg viewBox="0 0 190 190" className="size-full -rotate-90" aria-hidden="true">
+        <circle cx="95" cy="95" r={RADIO} className="fill-card stroke-border" strokeWidth="14" />
         {p > 0 && (
           <circle
-            cx="60"
-            cy="60"
+            cx="95"
+            cy="95"
             r={RADIO}
             fill="none"
             stroke={color}
-            strokeWidth="10"
+            strokeWidth="14"
             strokeLinecap={p < 1 ? "round" : "butt"}
             strokeDasharray={VUELTA}
             strokeDashoffset={VUELTA * (1 - p)}
@@ -151,7 +155,7 @@ function Anillo({
   );
 }
 
-// Corriendo: el aro rojo se llena hacia lo planificado; al llegar se pone verde, entero, y el
+// Corriendo: el aro en tinta se llena hacia lo planificado; al llegar se pone verde, entero, y el
 // tiempo sigue contando con "+N min" de más. Con el día detenido, todo en gris y "detenido".
 function AnilloCorriendo({
   desde,
@@ -159,12 +163,14 @@ function AnilloCorriendo({
   detenidoEn,
   pausado,
   planificado,
+  etiqueta,
 }: {
   desde: string;
   pausa: number;
   detenidoEn: string | null;
   pausado: boolean;
   planificado: string | null;
+  etiqueta: string;
 }) {
   const segundos = useSegundos(desde, pausa, detenidoEn) ?? 0;
   const objetivo = minutosObjetivo(planificado);
@@ -174,22 +180,23 @@ function AnilloCorriendo({
     ? "var(--muted-foreground)"
     : cumplido
       ? "var(--disco-verde)"
-      : "var(--disco-rojo)";
+      : "var(--disco-tinta)";
   const deMas = cumplido ? Math.floor((segundos - objetivo * 60) / 60) : 0;
   return (
     <Anillo progreso={progreso} color={color}>
+      <span className="text-sm text-muted-foreground">{etiqueta}</span>
       <span
         role="timer"
         aria-label="Cronómetro"
         className={cn(
           "font-heading leading-none font-bold tabular-nums",
           segundos >= 3600 ? "text-5xl" : "text-6xl",
-          pausado ? "text-muted-foreground" : cumplido ? "text-disco-verde" : "text-disco-rojo",
+          pausado ? "text-muted-foreground" : cumplido ? "text-disco-verde" : "text-foreground",
         )}
       >
         {formato(segundos)}
       </span>
-      <span className="mt-1 text-sm text-muted-foreground">
+      <span className="text-sm text-muted-foreground">
         {pausado
           ? "detenido"
           : cumplido
@@ -219,21 +226,23 @@ export function PasoHecho({
   texto?: string | null;
 }) {
   return (
-    <section className="mt-3 rounded-2xl bg-card p-5 text-center">
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-disco-verde px-3 py-1 text-sm font-semibold text-white">
-        <Check className="size-4" aria-hidden="true" /> {etiqueta}
-      </span>
-      {minutos !== null ? (
-        <p className={cn("my-2 font-heading text-7xl leading-none font-bold", distinto && "text-disco-azul")}>{minutos} min</p>
-      ) : (
-        planificado && <p className="my-2 font-heading text-7xl leading-none font-bold">{planificado}</p>
-      )}
-      {minutos !== null && planificado && (
-        <p className="m-0 text-muted-foreground">
-          {distinto ? "tocaba" : "Planificado:"} {planificado}
-        </p>
-      )}
-      {texto && <p className="mt-2 mb-0 text-muted-foreground">{texto}</p>}
+    <section className="mt-3 rounded-2xl bg-card p-4">
+      <div className="flex items-center gap-3">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-disco-verde text-white">
+          <Check className="size-5" aria-hidden="true" />
+        </span>
+        <div className="min-w-0">
+          <p className={cn("m-0 font-heading text-2xl leading-tight font-bold", distinto && "text-disco-azul")}>
+            {minutos !== null ? `${minutos} min` : (planificado ?? etiqueta)}
+          </p>
+          {minutos !== null && planificado && (
+            <p className="m-0 text-sm text-muted-foreground">
+              {distinto ? "tocaba" : "planificado"} {planificado}
+            </p>
+          )}
+        </div>
+      </div>
+      {texto && <p className="mt-3 mb-0 border-t border-border pt-3 text-muted-foreground">{texto}</p>}
     </section>
   );
 }

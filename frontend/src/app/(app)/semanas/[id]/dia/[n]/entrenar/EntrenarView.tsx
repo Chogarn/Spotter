@@ -312,7 +312,10 @@ export default function EntrenarView({
         localStorage.removeItem(claveDePosicion(id, n));
       } catch {}
       borrarCronosDelDia(actual.week_id, actual.day_index);
-      router.push("/entrenar");
+      // Navegación completa, no `router.push`: Next deja esta pantalla oculta con su estado (el
+      // cronómetro de la entrada en calor, el día con lo registrado) y al volver a entrar la
+      // reutilizaría, con el reloj todavía corriendo.
+      window.location.assign("/entrenar");
     } catch {
       setError("No se pudo conectar con el servidor");
     } finally {
@@ -772,6 +775,7 @@ function Ejercicio({
           key={`${pos.ej}-${pos.serie}`}
           dia={dia}
           paso={`${pos.ej}-${pos.serie}`}
+          etiqueta="Cardio"
           planificado={`${ejercicio.sets[pos.serie].duration_minutes} min`}
           pausado={pausado}
           trabajando={trabajando}
