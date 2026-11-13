@@ -26,7 +26,9 @@ export function AceptarAviso() {
         const p = await res.json();
         if (!p.legal_notice_accepted) {
           setPendiente(true);
-          setSalud(Boolean(p.health_consent));
+          // Sin tildar aunque ya lo hubiera dado: si el aviso cambió (por ejemplo, de proveedor de IA),
+          // el permiso se da de nuevo.
+          setSalud(false);
         }
       })
       .catch(() => {});
@@ -66,7 +68,7 @@ export function AceptarAviso() {
       <div className="mx-auto flex min-h-full w-full max-w-md flex-col px-4 pt-10 pb-10">
         <h1 id="aceptar-aviso-titulo" className="mt-0 mb-2 text-4xl">Antes de seguir</h1>
         <p className="mt-0 mb-4 text-muted-foreground">
-          Sumamos el aviso legal y la privacidad de Spotter. Para seguir usando la app, leelo y aceptá las dos casillas.
+          Actualizamos el aviso legal y la privacidad de Spotter. Para seguir usando la app, leelo y aceptá las dos casillas.
         </p>
         <CasillasLegales aviso={aviso} salud={salud} onAviso={setAviso} onSalud={setSalud} />
         {error && <ErrorMessage>{error}</ErrorMessage>}

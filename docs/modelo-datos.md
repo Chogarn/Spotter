@@ -39,6 +39,7 @@ Las migraciones de Alembic crean estas tablas por etapas:
 | `0030` pausa del día | Agrega `workout_sessions.paused_at` (desde cuándo está detenido el día) y `paused_seconds` (los segundos detenidos acumulados, que no cuentan en la duración; decisión 121) | Implementada |
 | `0031` entrada en calor | Agrega `workout_sessions.warmup_minutes`: los minutos que midió el cronómetro de la entrada en calor al tocar "Finalizar" (vacío si no se hizo; decisión 122) | Implementada |
 | `0032` consentimientos | Agrega `profiles.legal_notice_version` (la versión del aviso aceptada), `health_consent_at` y `health_consent_version` (el consentimiento de datos de salud; en blanco si se retiró; decisión 138) | Implementada |
+| `0033` vectores de consulta | Crea `query_embeddings`: el vector de la consulta del RAG por objetivo y nivel (12), para no llamar a una API de embeddings al generar (decisión 139) | Implementada |
 | `0020` cambio de contraseña | Suma `users.password_changed_at` (nula): al cambiar la contraseña se cierran las sesiones de los demás aparatos (decisión 80) | Implementada |
 | Cuando haga falta | `body_weight_logs` | Pendiente |
 
@@ -434,7 +435,7 @@ Lo que propone la IA antes de aplicarse.
 | resolved_at | Cuándo el usuario aceptó o descartó |
 
 ### ai_calls
-Una fila por cada llamada a Gemini. Los topes diario y por minuto se calculan contando estas filas. `user_id` es opcional: al borrar una cuenta las filas quedan sin dueño (migración 0025) y no se borran nunca.
+Una fila por cada llamada a la IA (Gemini o Cloudflare, decisión 139; `model` dice cuál). Los topes diario y por minuto se calculan contando estas filas. `user_id` es opcional: al borrar una cuenta las filas quedan sin dueño (migración 0025) y no se borran nunca.
 
 ### catalog_embeddings
 El vector de cada ejercicio del catálogo (`backend/app/ai/exercises.json`), para recuperarlo por similitud (RAG, decisión 58). Es un dato **derivado**: se puede borrar y volver a generar con `python -m app.scripts.index_catalog`.
@@ -445,6 +446,17 @@ El vector de cada ejercicio del catálogo (`backend/app/ai/exercises.json`), par
 | text_hash | Resumen del texto con el que se calculó el vector: detecta qué ejercicios hay que reindexar |
 | model | El modelo de embeddings (`gemini-embedding-001`) |
 | embedding | `vector(768)` de pgvector en PostgreSQL (una lista JSON en los tests con SQLite) |
+| created_at | Cuándo se calculó |
+
+### query_embeddings
+El vector de la consulta del RAG para cada objetivo y nivel (decisión 139). La consulta sale solo del objetivo y el nivel, así que hay 12 filas; las calcula `python -m app.scripts.index_catalog` con el mismo modelo que el catálogo y `retrieve.py` solo las lee. Dato **derivado**.
+
+| Campo | Detalle |
+|---|---|
+| goal, level | **Clave.** Los valores de los enumerados, como texto |
+| text_hash | Resumen del texto de la consulta: si cambia, se recalcula |
+| model | El modelo de embeddings (tiene que ser el mismo que el del catálogo) |
+| embedding | `vector(768)` de pgvector (una lista JSON en los tests) |
 | created_at | Cuándo se calculó |
 
 En `ai_calls`, una llamada de embeddings ocupa **una fila por texto** (Google cuenta cada texto de un lote como un pedido), con `kind = embed`.

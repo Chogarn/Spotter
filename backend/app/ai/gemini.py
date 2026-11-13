@@ -1,7 +1,11 @@
-"""Llamadas a Gemini con los topes del plan gratuito.
+"""Llamadas a la IA con los topes del plan gratuito: Gemini o Cloudflare Workers AI.
+
+El proveedor de "Generar rutina" se elige por entorno con `AI_PROVIDER` (`gemini` o `cloudflare`,
+decisión 139): las condiciones de Gemini no permiten el plan gratis para usuarios del EEE, Suiza o el
+Reino Unido. Los embeddings siguen en Gemini, pero solo se calculan a mano con `index_catalog`.
 
 Regla dura del proyecto: la IA nunca debe generar costo. Por eso:
-- Los topes (por minuto y por día) se aplican ANTES de llamar a Gemini.
+- Los topes (por minuto y por día) se aplican ANTES de llamar a la IA.
 - Cada llamada escribe una fila en `ai_calls` ANTES de enviarse, y esa tabla no se borra.
 - Si falta algún dato de configuración, no se llama (no hay valores por defecto).
 
@@ -26,8 +30,11 @@ from app.models import EMBEDDING_DIM, AiCall
 # Cuánto espera la app a Gemini antes de cortar (las llamadas tardan de 20 a 90 segundos).
 REQUEST_TIMEOUT_MS = 120_000
 
-# Google reinicia la cuota diaria a medianoche, hora del Pacífico.
+# Google reinicia la cuota diaria a medianoche, hora del Pacífico; Cloudflare, a las 00:00 UTC.
 GOOGLE_TZ = ZoneInfo("America/Los_Angeles")
+UTC_TZ = ZoneInfo("UTC")
+
+PROVIDERS = ("gemini", "cloudflare")
 
 
 class AiConfigError(Exception):
@@ -37,9 +44,10 @@ class AiConfigError(Exception):
 class AiLimitError(Exception):
     """Se alcanzó el tope por minuto o por día. No se llamó a Gemini."""
 
-    def __init__(self, scope: str, limit: int):
+    def __init__(self, scope: str, limit: int, reset_at: datetime | None = None):
         self.scope = scope  # "minute" o "day"
         self.limit = limit
+        self.reset_at = reset_at  # en el tope diario: cuándo empieza el día siguiente del proveedor
         super().__init__(f"Tope de llamadas a la IA alcanzado ({scope}: {limit})")
 
 
@@ -49,6 +57,7 @@ class AiSettings:
     model: str
     daily_limit: int
     rpm_limit: int
+    day_tz: ZoneInfo = GOOGLE_TZ  # dónde empieza el día de la cuota
 
 
 @dataclass(frozen=True)
@@ -59,6 +68,7 @@ class EmbeddingSettings:
     model: str
     daily_limit: int
     rpm_limit: int
+    day_tz: ZoneInfo = GOOGLE_TZ
 
 
 def _required(name: str) -> str:
@@ -79,6 +89,14 @@ def _positive_int(name: str) -> int:
     return value
 
 
+def load_provider() -> str:
+    """El proveedor de generación. Sin valor por defecto: si falta o es otro, no se llama."""
+    provider = _required("AI_PROVIDER").lower()
+    if provider not in PROVIDERS:
+        raise AiConfigError(f"AI_PROVIDER debe ser uno de: {', '.join(PROVIDERS)}")
+    return provider
+
+
 def load_settings() -> AiSettings:
     return AiSettings(
         api_key=_required("GEMINI_API_KEY"),
@@ -97,11 +115,16 @@ def load_embedding_settings() -> EmbeddingSettings:
     )
 
 
-def start_of_google_day(now: datetime) -> datetime:
-    """Medianoche del Pacífico más reciente, en UTC."""
-    local = now.astimezone(GOOGLE_TZ)
+def start_of_day(now: datetime, tz: ZoneInfo) -> datetime:
+    """La medianoche más reciente en `tz`, en UTC."""
+    local = now.astimezone(tz)
     midnight = local.replace(hour=0, minute=0, second=0, microsecond=0)
     return midnight.astimezone(timezone.utc)
+
+
+def start_of_google_day(now: datetime) -> datetime:
+    """Medianoche del Pacífico más reciente, en UTC."""
+    return start_of_day(now, GOOGLE_TZ)
 
 
 def _count_since(db: Session, since: datetime, model: str) -> int:
@@ -121,7 +144,7 @@ def reserve_calls(
     db: Session,
     user_id: int,
     kind: AiCallKind,
-    settings: AiSettings | EmbeddingSettings,
+    settings: Any,  # AiSettings, EmbeddingSettings o CloudflareSettings: model, topes y day_tz
     units: int = 1,
     now: datetime | None = None,
 ) -> list[AiCall]:
@@ -135,9 +158,15 @@ def reserve_calls(
     last_minute = _count_since(db, now - timedelta(seconds=60), settings.model)
     if last_minute + units > settings.rpm_limit:
         raise AiLimitError("minute", settings.rpm_limit)
-    today = _count_since(db, start_of_google_day(now), settings.model)
+    day_start = start_of_day(now, settings.day_tz)
+    today = _count_since(db, day_start, settings.model)
     if today + units > settings.daily_limit:
-        raise AiLimitError("day", settings.daily_limit)
+        # El día siguiente empieza 24 h después en UTC; en el Pacífico, a la medianoche local
+        # (un cambio de horario puede hacer ese día de 23 o 25 horas).
+        next_local = (day_start.astimezone(settings.day_tz) + timedelta(days=1)).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        raise AiLimitError("day", settings.daily_limit, next_local.astimezone(timezone.utc))
 
     calls = [
         AiCall(user_id=user_id, kind=kind, model=settings.model, created_at=now)
@@ -152,7 +181,7 @@ def reserve_call(
     db: Session,
     user_id: int,
     kind: AiCallKind,
-    settings: AiSettings | EmbeddingSettings,
+    settings: Any,
     now: datetime | None = None,
 ) -> AiCall:
     """Una sola unidad: revisa los topes y deja registrada la llamada ANTES de hacerla."""
@@ -175,11 +204,27 @@ def generate_json(
     kind: AiCallKind,
     prompt: str,
     json_schema: dict[str, Any],
+    timeout_seconds: float | None = None,
 ) -> str:
-    """Pide a Gemini una respuesta en JSON y devuelve el texto sin validar.
+    """Pide a la IA del entorno (`AI_PROVIDER`) una respuesta en JSON y devuelve el texto sin validar.
 
     Quien llama valida el JSON con Pydantic. Cada intento es una llamada y cuenta en los topes.
+    `timeout_seconds` lo usa Cloudflare (el reintento tiene menos tiempo); Gemini corta a los 120 s.
     """
+    if load_provider() == "cloudflare":
+        from app.ai import cloudflare  # aparte: cloudflare.py usa reserve_call de este módulo
+
+        return cloudflare.generate_json(db, user_id, kind, prompt, json_schema, timeout_seconds)
+    return _gemini_generate_json(db, user_id, kind, prompt, json_schema)
+
+
+def _gemini_generate_json(
+    db: Session,
+    user_id: int,
+    kind: AiCallKind,
+    prompt: str,
+    json_schema: dict[str, Any],
+) -> str:
     settings = load_settings()
     call = reserve_call(db, user_id, kind, settings)
     try:

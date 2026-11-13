@@ -12,8 +12,12 @@ export const MOTIVOS: MotivoFallo[] = ["ia_no_respondio", "tope_minuto", "tope_d
 
 const ESPERA_MINUTO = 60; // segundos; es lo que dice el `Retry-After` del servidor
 
-// El tope diario de Gemini se reinicia a medianoche del Pacífico: la hora local de ese momento.
-function proximoReinicio(ahora: Date): { hora: string; manana: boolean } {
+// Cuándo vuelve la cuota, en hora local. El servidor la manda en `X-Reset-At` (cada proveedor
+// reinicia a otra hora, decisión 139); si no llega, se supone la medianoche del Pacífico de Gemini.
+function proximoReinicio(ahora: Date, resetAt?: string): { hora: string; manana: boolean } {
+  const delServidor = resetAt ? new Date(resetAt) : null;
+  if (delServidor && !Number.isNaN(delServidor.getTime())) return comoHora(delServidor, ahora);
+
   const partes = Object.fromEntries(
     new Intl.DateTimeFormat("en-US", {
       timeZone: "America/Los_Angeles",
@@ -30,7 +34,10 @@ function proximoReinicio(ahora: Date): { hora: string; manana: boolean } {
   );
   const relojPacifico = Date.UTC(partes.year, partes.month - 1, partes.day, partes.hour, partes.minute, partes.second);
   const diferencia = relojPacifico - Math.floor(ahora.getTime() / 1000) * 1000;
-  const reinicio = new Date(Date.UTC(partes.year, partes.month - 1, partes.day + 1) - diferencia);
+  return comoHora(new Date(Date.UTC(partes.year, partes.month - 1, partes.day + 1) - diferencia), ahora);
+}
+
+function comoHora(reinicio: Date, ahora: Date): { hora: string; manana: boolean } {
   return {
     hora: reinicio.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }),
     manana: reinicio.toDateString() !== ahora.toDateString(),
@@ -52,12 +59,14 @@ function Guardadas({ children }: { children: React.ReactNode }) {
 export function ErrorGeneracion({
   motivo,
   detalle,
+  resetAt,
   onReintentar,
   onVolver,
   onInicio,
 }: {
   motivo: MotivoFallo;
   detalle?: string;
+  resetAt?: string;
   onReintentar: () => void;
   onVolver: () => void;
   onInicio: () => void;
@@ -74,7 +83,7 @@ export function ErrorGeneracion({
     }, 250);
     return () => clearInterval(reloj);
   }, [motivo, hasta]);
-  const [reinicio] = useState(() => proximoReinicio(new Date()));
+  const [reinicio] = useState(() => proximoReinicio(new Date(), resetAt));
 
   const color = {
     ia_no_respondio: "border-disco-amarillo",

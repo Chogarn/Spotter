@@ -34,6 +34,13 @@ services:
       GEMINI_EMBEDDING_MODEL: ${GEMINI_EMBEDDING_MODEL:-}
       GEMINI_EMBEDDING_RPM_LIMIT: ${GEMINI_EMBEDDING_RPM_LIMIT:-}
       GEMINI_EMBEDDING_DAILY_LIMIT: ${GEMINI_EMBEDDING_DAILY_LIMIT:-}
+      # Cloudflare Workers AI (decisión 139); AI_PROVIDER elige entre "cloudflare" y "gemini".
+      AI_PROVIDER: ${AI_PROVIDER:-}
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-}
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
+      CLOUDFLARE_MODEL: ${CLOUDFLARE_MODEL:-}
+      CLOUDFLARE_DAILY_LIMIT: ${CLOUDFLARE_DAILY_LIMIT:-}
+      CLOUDFLARE_RPM_LIMIT: ${CLOUDFLARE_RPM_LIMIT:-}
       # Correos (decisión 81). En desarrollo salen a Mailpit (un buzón falso, ver abajo): no hace falta
       # configurar nada. Para probar con Gmail de verdad, poner las variables SMTP_* en el .env.
       SMTP_HOST: ${SMTP_HOST:-mailpit}

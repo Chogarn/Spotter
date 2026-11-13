@@ -22,7 +22,7 @@ export function CasillasLegales({
   return (
     <div>
       <p className="mt-0 mb-3 text-[15px] leading-snug text-muted-foreground">
-        Spotter es un proyecto de {RESPONSABLE}. Registramos tu entrenamiento y una IA de Google (Gemini) te propone rutinas que
+        Spotter es un proyecto de {RESPONSABLE}. Registramos tu entrenamiento y una IA de Cloudflare te propone rutinas que
         vos aceptás o descartás. A la IA no le llega tu nombre ni tu correo. Podés retirar tu permiso o borrar todo cuando quieras,
         y reclamar ante la AEPD.
       </p>

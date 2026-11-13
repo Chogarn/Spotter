@@ -20,6 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.ai.catalog import CatalogExercise, embedding_text, load_catalog, text_hash
+from app.ai.retrieve import query_hash, query_text
 from app.ai.gemini import (
     EMBED_BATCH_SIZE,
     AiLimitError,
@@ -27,7 +28,8 @@ from app.ai.gemini import (
     load_embedding_settings,
 )
 from app.db import get_sessionmaker
-from app.models import CatalogEmbedding, User
+from app.enums import Goal, Level
+from app.models import CatalogEmbedding, QueryEmbedding, User
 
 
 # El tope por minuto (80) es menor que el catálogo entero: se espera a que pase el minuto.
@@ -40,6 +42,7 @@ class IndexResult:
     indexed: int = 0
     unchanged: int = 0
     removed: int = 0
+    queries: int = 0  # vectores de consulta calculados (decisión 139)
 
 
 def exercises_to_index(db: Session, model: str) -> tuple[list[CatalogExercise], int]:
@@ -54,6 +57,39 @@ def exercises_to_index(db: Session, model: str) -> tuple[list[CatalogExercise], 
         if row is None or row.text_hash != text_hash(exercise) or row.model != model:
             pending.append(exercise)
     return pending, len(load_catalog()) - len(pending)
+
+
+def queries_to_index(db: Session, model: str) -> list[tuple[Goal, Level]]:
+    """Las combinaciones de objetivo y nivel sin vector, con el texto cambiado o con otro modelo."""
+    pending = []
+    for goal in Goal:
+        for level in Level:
+            row = db.get(QueryEmbedding, (goal.value, level.value))
+            if row is None or row.text_hash != query_hash(goal, level) or row.model != model:
+                pending.append((goal, level))
+    return pending
+
+
+def index_queries(db: Session, user_id: int) -> int:
+    """Calcula y guarda los vectores de consulta pendientes (decisión 139). Devuelve cuántos."""
+    pending = queries_to_index(db, _model())
+    if not pending:
+        return 0
+    vectors = embed_texts(
+        db, user_id, [query_text(goal, level) for goal, level in pending], "RETRIEVAL_QUERY"
+    )
+    for (goal, level), vector in zip(pending, vectors, strict=True):
+        db.merge(
+            QueryEmbedding(
+                goal=goal.value,
+                level=level.value,
+                text_hash=query_hash(goal, level),
+                model=_model(),
+                embedding=vector,
+            )
+        )
+    db.commit()
+    return len(pending)
 
 
 def remove_orphans(db: Session) -> int:
@@ -92,6 +128,7 @@ def index_catalog(db: Session, user_id: int) -> IndexResult:
             )
         db.commit()
         result.indexed += len(batch)
+    result.queries = index_queries(db, user_id)
     return result
 
 
@@ -126,6 +163,8 @@ def main() -> int:
         calls = -(-len(pending) // EMBED_BATCH_SIZE)
         print(f"Modelo: {model}")
         print(f"Catálogo: {len(load_catalog())} ejercicios; {unchanged} ya indexados, {len(pending)} pendientes.")
+        pending_queries = queries_to_index(db, model)
+        print(f"Consultas (objetivo y nivel): {len(pending_queries)} de {len(Goal) * len(Level)} pendientes.")
         if pending:
             print(
                 f"Harían falta {calls} pedido(s) a Gemini de hasta {EMBED_BATCH_SIZE} textos; "
@@ -150,10 +189,11 @@ def main() -> int:
             total.indexed += result.indexed
             total.unchanged = result.unchanged
             total.removed += result.removed
+            total.queries += result.queries
             break
         print(
             f"Listo: {total.indexed} indexados, {total.unchanged} sin cambios, "
-            f"{total.removed} vectores huérfanos borrados."
+            f"{total.removed} vectores huérfanos borrados, {total.queries} consultas calculadas."
         )
     return 0
 

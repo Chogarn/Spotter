@@ -10,8 +10,8 @@ from app.ai import gemini
 from app.ai.catalog import load_catalog, text_hash
 from app.ai.gemini import EMBED_BATCH_SIZE, AiLimitError
 from app.db import Base
-from app.models import EMBEDDING_DIM, AiCall, CatalogEmbedding, User
-from app.scripts.index_catalog import exercises_to_index, index_catalog
+from app.models import EMBEDDING_DIM, AiCall, CatalogEmbedding, QueryEmbedding, User
+from app.scripts.index_catalog import exercises_to_index, index_catalog, queries_to_index
 
 MODELO = "gemini-embedding-001"
 
@@ -60,8 +60,20 @@ def test_la_primera_corrida_indexa_todo_el_catalogo(db, cliente):
     resultado = index_catalog(db, 1)
     assert resultado.indexed == n and resultado.unchanged == 0
     assert db.query(CatalogEmbedding).count() == n
-    assert cliente.pedidos == -(-n // EMBED_BATCH_SIZE)
-    assert db.query(AiCall).count() == n  # una fila por texto: así lo cuenta Google
+    # Decisión 139: también los 12 vectores de consulta (4 objetivos × 3 niveles), en un pedido más.
+    assert resultado.queries == 12
+    assert db.query(QueryEmbedding).count() == 12
+    assert cliente.pedidos == -(-n // EMBED_BATCH_SIZE) + 1
+    assert db.query(AiCall).count() == n + 12  # una fila por texto: así lo cuenta Google
+
+
+def test_las_consultas_se_recalculan_solo_si_cambian(db, cliente):
+    index_catalog(db, 1)
+    fila = db.query(QueryEmbedding).first()
+    fila.text_hash = "viejo"
+    db.commit()
+    assert len(queries_to_index(db, MODELO)) == 1
+    assert index_catalog(db, 1).queries == 1
 
 
 def test_la_segunda_corrida_no_llama_a_gemini(db, cliente):

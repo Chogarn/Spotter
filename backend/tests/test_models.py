@@ -18,6 +18,7 @@ TABLAS_ESPERADAS = {
     "set_entries",
     "exercise_completions",
     "catalog_embeddings",
+    "query_embeddings",
     "pending_registrations",
     "password_resets",
     "email_changes",

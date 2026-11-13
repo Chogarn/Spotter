@@ -59,14 +59,14 @@ export default function AvisoLegalPage() {
       <Franja titulo="Aviso legal, privacidad y cookies" aros="verde" volver={{ href: "/" }} compacta />
       <div className="mx-auto w-full max-w-xl px-4 pt-5">
         <p className="mt-0 mb-4 text-sm text-muted-foreground">
-          Versión {VERSION_AVISO} · Última actualización: {FECHA_AVISO} · Primera versión.
+          Versión {VERSION_AVISO} · Última actualización: {FECHA_AVISO} · Cambio: la IA pasa de Google Gemini a Cloudflare Workers AI.
         </p>
 
         <section aria-labelledby="resumen" className="rounded-2xl bg-card px-4 pt-4 pb-1">
           <h2 id="resumen" className="mt-0 mb-3 text-2xl">En resumen</h2>
           <ul className="m-0 grid gap-2.5 pl-5 text-[15px] leading-snug">
             <li>Spotter es un proyecto personal de aprendizaje, gratuito y sin fines comerciales. <b>No es consejo médico.</b></li>
-            <li>Una inteligencia artificial (Google Gemini) te propone la semana. <b>Puede equivocarse, y nada cambia hasta que lo aceptás.</b></li>
+            <li>Una inteligencia artificial (Cloudflare Workers AI) te propone la semana. <b>Puede equivocarse, y nada cambia hasta que lo aceptás.</b></li>
             <li>Para tus datos de salud (limitaciones, peso, grasa corporal y lo que cuentes de dolor o cansancio) te pedimos un <b>permiso aparte</b>, que podés retirar.</li>
             <li>A la IA nunca le mandamos tu nombre, tu correo ni tu contraseña.</li>
             <li>No hay publicidad ni analítica: solo la cookie de tu sesión y lo que tu navegador guarda para que no pierdas lo que cargás.</li>
@@ -116,7 +116,7 @@ export default function AvisoLegalPage() {
 
         <Seccion id="ia" titulo="4. Las propuestas de la IA">
           <p>
-            &quot;Generar rutina&quot; usa una inteligencia artificial de Google (Gemini) para proponerte la semana a partir de tus datos
+            &quot;Generar rutina&quot; usa una inteligencia artificial de Cloudflare (Workers AI) para proponerte la semana a partir de tus datos
             (ver la sección 8) y de reglas de entrenamiento que aplica el propio código de Spotter (cantidad mínima de series,
             reparto entre días y subidas de peso de a poco, entre otras). <b>La IA puede equivocarse.</b> Los pesos, las series y las
             repeticiones son sugerencias: ajustalos a cómo te sentís y a tu técnica.
@@ -168,7 +168,7 @@ export default function AvisoLegalPage() {
 
         <Seccion id="que-se-manda" titulo="8. Qué se manda a la IA">
           <p>
-            Cuando tocás &quot;Generar rutina&quot;, y solo entonces, se manda a Google Gemini: tu edad, peso, altura, sexo, las limitaciones
+            Cuando tocás &quot;Generar rutina&quot;, y solo entonces, se manda a Cloudflare Workers AI: tu edad, peso, altura, sexo, las limitaciones
             que escribiste, el objetivo, el nivel, los días y la estructura elegidos y, si continuás una rutina, lo planificado y lo
             realizado de la semana anterior y tu comentario de cierre. <b>Nunca se mandan tu nombre, tu correo, tu contraseña ni tus
             mediciones de grasa corporal.</b> Para elegir ejercicios del catálogo también se manda un texto con el objetivo y el nivel,
@@ -182,7 +182,7 @@ export default function AvisoLegalPage() {
             filas={[
               ["Vercel Inc. (EE. UU.)", "Aloja la app y el servidor", "Frankfurt (Alemania)"],
               ["Neon / Databricks, Inc. (EE. UU.)", "Base de datos", "Frankfurt (Alemania)"],
-              ["Google LLC: Gemini API (EE. UU.)", "Genera la propuesta", "Servidores de Google"],
+              ["Cloudflare, Inc.: Workers AI (EE. UU.)", "Genera la propuesta. Según Cloudflare, no usa tu contenido para entrenar modelos ni lo guarda después de responder", "Sin ubicación fija: puede procesarse fuera de la UE"],
               ["Google LLC: Gmail (EE. UU.)", "Manda los correos de verificación, recuperación y cambio de correo", "Servidores de Google"],
             ]}
           />

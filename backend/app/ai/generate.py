@@ -1,10 +1,11 @@
-"""Genera una propuesta de rutina: prompt, llamada a Gemini, validación y un reintento.
+"""Genera una propuesta de rutina: prompt, llamada a la IA, validación y un reintento.
 
 Sin FastAPI: el endpoint solo traduce las excepciones de acá a códigos HTTP.
 """
 
 import logging
 import threading
+import time
 from datetime import datetime, timedelta, timezone
 
 from pydantic import ValidationError
@@ -23,6 +24,11 @@ from app.enums import AiCallKind, Goal, Level, ProposalKind, ProposalStatus, Rou
 from app.models import AiCall, PlanProposal, User
 
 MAX_ATTEMPTS = 2  # la primera llamada y un reintento; cada intento cuenta en los topes
+
+# Decisión 139: una función de Vercel corta a los 300 s y una llamada a Cloudflare tarda hasta unos
+# 130. El reintento se hace solo si queda tiempo para otra llamada parecida a la primera, y con el
+# tiempo que queda como corte.
+TOTAL_BUDGET_SECONDS = 280
 
 
 # Una sola generación a la vez por persona. Cada una gasta cuota de la IA y la que termina última
@@ -65,11 +71,11 @@ logger = logging.getLogger(__name__)
 
 
 class AiUpstreamError(Exception):
-    """Gemini falló o no respondió a tiempo."""
+    """La IA falló o no respondió a tiempo."""
 
     @property
     def overloaded(self) -> bool:
-        """Google dijo que está saturado (503) o que se pasó de pedidos (429): conviene esperar."""
+        """El proveedor dijo que está saturado (503) o que se pasó de pedidos o de cuota (429)."""
         text = str(self).lower()
         return any(s in text for s in ("503", "429", "high demand", "unavailable", "overloaded"))
 
@@ -151,16 +157,18 @@ def _generate_proposal(
     )
     prompt = base_prompt
     problems: list[str] = []
+    started = time.monotonic()
+    timeout: float | None = None
 
     for attempt in range(MAX_ATTEMPTS):
         try:
             text = generate_json(
-                db, user.id, call_kind, prompt, RoutineProposal.model_json_schema()
+                db, user.id, call_kind, prompt, RoutineProposal.model_json_schema(), timeout
             )
         except (AiConfigError, AiLimitError):
             raise
         except Exception as error:
-            logger.error("Gemini falló en el intento %s: %s: %s", attempt + 1, type(error).__name__, error)
+            logger.error("La IA falló en el intento %s: %s: %s", attempt + 1, type(error).__name__, error)
             raise AiUpstreamError(str(error)) from error
 
         try:
@@ -177,19 +185,29 @@ def _generate_proposal(
                 minutes=minutes,
                 split=split,
             )
-            if result.ok and (not result.soft_issues or attempt + 1 >= MAX_ATTEMPTS):
-                # Sin problemas, o con días fuera del tiempo o mal repartidos en el último intento: se
-                # acepta con el aviso (no se bloquea la generación por eso).
+            if result.ok:
+                # Decisión 139: el reparto de series desparejo (soft_issues) ya no pide otra rutina:
+                # se acepta con su aviso. Solo los errores y el JSON inválido gastan un reintento.
                 if previous is not None:
                     result.warnings += [
                         Issue(rule, message) for rule, message in weight_jump_warnings(routine, previous)
                     ]
                 return _save(db, user, routine, result, goal, level, routine_id, kind, days, minutes, split)
-            # Decisión 90: el reparto de series se vuelve a pedir mientras queden intentos;
-            # la duración es orientativa y solo produce un aviso.
-            problems = [f"{i.rule}: {i.message}" for i in (result.errors or result.soft_issues)]
+            problems = [f"{i.rule}: {i.message}" for i in result.errors]
 
         if attempt + 1 < MAX_ATTEMPTS:
+            elapsed = time.monotonic() - started
+            remaining = TOTAL_BUDGET_SECONDS - elapsed
+            if remaining < elapsed:
+                # No entra otra llamada como la primera antes del corte de Vercel.
+                logger.warning("Sin reintento: la primera llamada tardó %.0f s", elapsed)
+                break
+            timeout = remaining
+            # Para saber por qué falla el primer intento (con Cloudflare pasó en las dos pruebas
+            # del 2026-11-12 y no quedó registrado).
+            logger.warning(
+                "Reintento tras %.0f s por: %s", elapsed, " | ".join(problems[:5]) or "sin detalle"
+            )
             prompt = base_prompt + _correction(problems)
 
     raise GenerationFailed(problems)

@@ -1,4 +1,6 @@
-"""Recuperación del catálogo: filtros fijos del código + orden por similitud (decisión 58)."""
+"""Recuperación del catálogo: filtros fijos del código + orden por similitud (decisión 58).
+
+Desde la decisión 139 el vector de la consulta se lee de `query_embeddings`: no se llama a la IA."""
 
 import pytest
 from sqlalchemy import create_engine
@@ -8,11 +10,10 @@ from sqlalchemy.pool import StaticPool
 from app import models  # noqa: F401
 from app.ai import retrieve
 from app.ai.catalog import find, load_catalog
-from app.ai.gemini import AiLimitError
-from app.ai.retrieve import PER_GROUP, query_text, retrieve_candidates
+from app.ai.retrieve import PER_GROUP, query_hash, query_text, retrieve_candidates, stored_query_vector
 from app.db import Base
 from app.enums import ExerciseKind, Goal, Level, Muscle
-from app.models import EMBEDDING_DIM, CatalogEmbedding, User
+from app.models import EMBEDDING_DIM, CatalogEmbedding, QueryEmbedding, User
 
 CATALOGO = list(load_catalog())
 
@@ -47,7 +48,7 @@ def consulta(monkeypatch, *ids: str):
     v = [0.0] * EMBEDDING_DIM
     for catalog_id in ids:
         v[next(i for i, e in enumerate(CATALOGO) if e.id == catalog_id)] = 1.0
-    monkeypatch.setattr(retrieve, "embed_texts", lambda db, uid, texts, task: [v])
+    monkeypatch.setattr(retrieve, "stored_query_vector", lambda db, goal, level: v)
 
 
 def test_el_principiante_no_ve_ejercicios_de_nivel_mas_alto(db, monkeypatch):
@@ -121,13 +122,9 @@ def test_los_ejercicios_de_la_semana_anterior_se_conservan(db, monkeypatch):
     assert find(pedido).id in {e.id for e in r.exercises}
 
 
-def test_si_el_tope_de_embeddings_se_alcanzo_se_devuelve_todo_lo_permitido(db, monkeypatch):
-    def tope(*args, **kwargs):
-        raise AiLimitError("minute", 80)
-
-    monkeypatch.setattr(retrieve, "embed_texts", tope)
+def test_sin_vector_de_consulta_guardado_se_devuelve_todo_lo_permitido(db):
     r = retrieve_candidates(db, 1, Goal.MASA, Level.PRINCIPIANTE)
-    assert not r.ranked
+    assert not r.ranked and "falta el vector" in r.reason
     esperado = {e.id for e in CATALOGO if e.level == Level.PRINCIPIANTE and e.kind != ExerciseKind.CARDIO}
     assert {e.id for e in r.exercises} == esperado  # los filtros fijos siguen valiendo
 
@@ -150,3 +147,34 @@ def test_la_consulta_lleva_objetivo_y_nivel_pero_no_las_limitaciones():
     import inspect
 
     assert "limitations" not in inspect.signature(retrieve_candidates).parameters
+
+
+def guardar_consulta(db, goal=Goal.MASA, level=Level.INTERMEDIO, **cambios):
+    datos = dict(
+        goal=goal.value, level=level.value, text_hash=query_hash(goal, level), model="m",
+        embedding=base_vector(next(i for i, e in enumerate(CATALOGO) if e.id == "press_banca_barra")),
+    )
+    datos.update(cambios)
+    db.add(QueryEmbedding(**datos))
+    db.commit()
+
+
+def test_el_vector_guardado_ordena_sin_llamar_a_la_ia(db):
+    guardar_consulta(db)
+    r = retrieve_candidates(db, 1, Goal.MASA, Level.INTERMEDIO)
+    assert r.ranked
+    pecho = [e for e in r.exercises if e.primary_muscle == Muscle.CHEST]
+    assert pecho[0].id == "press_banca_barra"
+
+
+def test_un_vector_de_consulta_con_otro_texto_no_se_usa(db):
+    guardar_consulta(db, text_hash="viejo")
+    with pytest.raises(LookupError, match="cambió el texto"):
+        stored_query_vector(db, Goal.MASA, Level.INTERMEDIO)
+    assert not retrieve_candidates(db, 1, Goal.MASA, Level.INTERMEDIO).ranked
+
+
+def test_un_vector_de_consulta_de_otro_modelo_que_el_catalogo_no_se_usa(db):
+    guardar_consulta(db, model="otro")
+    with pytest.raises(LookupError, match="modelos distintos"):
+        stored_query_vector(db, Goal.MASA, Level.INTERMEDIO)

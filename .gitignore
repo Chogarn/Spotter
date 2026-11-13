@@ -26,3 +26,6 @@ Thumbs.db
 
 # Respaldos de la base (tienen datos reales)
 backups/
+
+# Resultados de la prueba de Cloudflare (respuestas de la IA)
+backend/cloudflare_prueba/

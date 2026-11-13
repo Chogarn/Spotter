@@ -69,9 +69,12 @@ def require_pending(proposal: PlanProposal) -> None:
 
 
 # Encabezado con el motivo de una generación fallida, para que la pantalla explique cada caso a su
-# manera: "ia_no_respondio" (Gemini caído, saturado o lento), "tope_minuto", "tope_dia" y "reglas" (la
+# manera: "ia_no_respondio" (la IA caída, saturada o lenta), "tope_minuto", "tope_dia" y "reglas" (la
 # rutina no pasó la validación). El mensaje (`detail`) sigue igual para quien lea la API.
 ERROR_CODE = "X-Error-Code"
+# En el tope diario: cuándo vuelve a haber cuota (ISO 8601, UTC). Cada proveedor reinicia a otra hora
+# (Gemini, medianoche del Pacífico; Cloudflare, 00:00 UTC; decisión 139).
+RESET_AT = "X-Reset-At"
 
 
 @router.post("/generate", response_model=ProposalOut, status_code=201)
@@ -146,27 +149,30 @@ def generate(
                 detail="Llegaste al tope de llamadas por minuto. Probá de nuevo en un minuto.",
                 headers={"Retry-After": "60", ERROR_CODE: "tope_minuto"},
             ) from None
+        headers = {ERROR_CODE: "tope_dia"}
+        if error.reset_at is not None:
+            headers[RESET_AT] = error.reset_at.isoformat()
         raise HTTPException(
             status_code=429,
             detail="Llegaste al tope diario de la IA. Probá mañana.",
-            headers={ERROR_CODE: "tope_dia"},
+            headers=headers,
         ) from None
     except AiUpstreamError as error:
         if error.overloaded:
-            detail = "Google tiene la IA saturada en este momento. Probá de nuevo en un rato."
+            detail = "La IA está saturada en este momento. Probá de nuevo en un rato."
         else:
             detail = "La IA no respondió (puede haber tardado demasiado). Probá de nuevo."
         raise HTTPException(status_code=502, detail=detail, headers={ERROR_CODE: "ia_no_respondio"}) from None
     except GenerationFailed as error:
         # Mostrar algunos motivos concretos evita que un rechazo por reglas parezca una caída
-        # de Gemini. La respuesta de la IA ya se recibió; se agotaron los intentos de corrección.
+        # de la IA. La respuesta de la IA ya se recibió; se agotaron los intentos de corrección.
         motivos = " ".join(error.problems[:3])
         if len(error.problems) > 3:
             motivos += f" (y {len(error.problems) - 3} problemas más)"
         raise HTTPException(
             status_code=502,
             detail=(
-                "Gemini respondió, pero la rutina no pasó las reglas después de varios intentos. "
+                "La IA respondió, pero la rutina no pasó las reglas. "
                 f"Motivos: {motivos or 'la propuesta no cumplió la validación.'}"
             ),
             headers={ERROR_CODE: "reglas"},

@@ -4,7 +4,7 @@ Cuando el texto de `/aviso-legal` cambie en algo importante, subir esta versión
 `lib/legal.ts`): las cuentas que aceptaron otra versión vuelven a ver la pantalla para aceptar.
 """
 
-LEGAL_VERSION = "1.0"
+LEGAL_VERSION = "1.1"  # 1.1 (2026-11-13): la IA pasa de Google Gemini a Cloudflare Workers AI (decisión 139)
 
 # Edad mínima para usar Spotter (decisión del usuario, 2026-11-12): la piden las condiciones de los
 # proveedores de IA, aunque en España se consiente desde los 14.

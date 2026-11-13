@@ -1,4 +1,5 @@
-"""Generar rutina con RAG (decisión 58): una llamada de embedding y después la de generación."""
+"""Generar rutina con RAG (decisión 58). Desde la decisión 139 el vector de la consulta está
+guardado: al generar hay una sola llamada, la de generación, y ninguna de embeddings."""
 
 import pytest
 from sqlalchemy import select
@@ -88,19 +89,16 @@ def test_sin_candidatos_el_prompt_lleva_el_catalogo_entero():
 # --- el flujo completo ---
 
 
-def test_con_embeddings_hay_una_llamada_de_embedding_y_despues_la_de_generacion(
-    api, con_embeddings, monkeypatch
-):
+def test_generar_no_llama_a_embeddings_aunque_esten_configurados(api, con_embeddings, monkeypatch):
     con_perfil(api)
     cliente = usar(monkeypatch, ClienteConEmbeddings([rutina()]))
 
     respuesta = api.post("/proposals/generate", json=ELECCION)
 
     assert respuesta.status_code == 201
-    assert tipos_de_llamada(api) == ["embed", "generate"]
-    assert len(cliente.textos_embebidos) == 1  # la consulta de la persona, no el catálogo
-    assert "principiante" in cliente.textos_embebidos[0]
-    assert cliente.llamadas == 1  # una sola generación
+    assert tipos_de_llamada(api) == ["generate"]
+    assert cliente.textos_embebidos == []  # el vector de la consulta se lee de la base
+    assert cliente.llamadas == 1
 
 
 def test_el_prompt_de_un_principiante_no_ofrece_ejercicios_de_otro_nivel(
@@ -117,22 +115,6 @@ def test_el_prompt_de_un_principiante_no_ofrece_ejercicios_de_otro_nivel(
     assert "Dominadas con bajada lenta" not in prompt  # intermedio
     assert "Sentadilla frontal con barra" not in prompt  # avanzado
     assert "Trote en cinta" not in prompt  # masa no lleva cardio
-
-
-def test_si_el_embedding_falla_la_rutina_se_genera_igual(api, con_embeddings, monkeypatch):
-    con_perfil(api)
-    cliente = usar(
-        monkeypatch, ClienteConEmbeddings([rutina()], error_embedding=RuntimeError("cayó"))
-    )
-
-    respuesta = api.post("/proposals/generate", json=ELECCION)
-
-    assert respuesta.status_code == 201
-    assert "Press de pecho en máquina" in cliente.prompts[0]  # todo lo permitido por nivel
-    assert tipos_de_llamada(api) == ["embed", "generate"]  # el intento quedó contado
-    with api.session() as db:
-        fallida = db.scalars(select(AiCall).where(AiCall.kind == AiCallKind.EMBED)).one()
-        assert fallida.succeeded is False
 
 
 def test_sin_configuracion_de_embeddings_no_se_llama_y_se_genera_igual(api, entorno, monkeypatch):

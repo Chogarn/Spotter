@@ -6,14 +6,20 @@ Dos etapas:
 2. Los VECTORES ordenan lo que queda por parecido con la persona (objetivo y nivel) y se toman los
    mejores de cada grupo muscular, para que todos queden cubiertos.
 
+Desde la decisión 139 el vector de la consulta no se calcula al generar: la consulta sale solo del
+objetivo y el nivel, así que los 12 posibles se guardan en `query_embeddings` (los calcula
+`index_catalog`, con el mismo modelo que el catálogo) y acá solo se leen. Al generar no se llama a
+ninguna API de embeddings: las condiciones de Gemini no permiten el plan gratis para usuarios del EEE.
+
 Las lesiones y limitaciones NO entran en la consulta: un vector mide parecido de significado, no
 "evitar". Verificado el 2026-10-14: con "me duele la rodilla" quedaban primero la sentadilla y la
 prensa, los que más cargan la rodilla. Las limitaciones las razona la IA con el perfil del prompt.
 
-Si no se puede calcular el vector de la consulta (tope, error o catálogo sin indexar), se devuelve
-todo lo permitido sin ordenar: la generación no se cae por una pieza auxiliar.
+Si falta el vector de la consulta (sin indexar, texto cambiado u otro modelo) o el catálogo no está
+indexado, se devuelve todo lo permitido sin ordenar: la generación no se cae por una pieza auxiliar.
 """
 
+import hashlib
 import logging
 import math
 from collections.abc import Iterable
@@ -23,10 +29,9 @@ from sqlalchemy import select, type_coerce
 from sqlalchemy.orm import Session
 
 from app.ai.catalog import CatalogExercise, find, load_catalog
-from app.ai.gemini import embed_texts
 from app.ai.prompt import GOAL_TEXT
 from app.enums import ExerciseKind, Goal, Level, Muscle
-from app.models import EMBEDDING_DIM, CatalogEmbedding
+from app.models import EMBEDDING_DIM, CatalogEmbedding, QueryEmbedding
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +54,24 @@ class Candidates:
 def query_text(goal: Goal, level: Level) -> str:
     """El texto que se convierte en vector: el objetivo y el nivel de la persona."""
     return f"Persona de nivel {level.value} con este objetivo: {GOAL_TEXT[goal.value]}."
+
+
+def query_hash(goal: Goal, level: Level) -> str:
+    """Cambia si cambia el texto de la consulta: así se sabe que hay que recalcular su vector."""
+    return hashlib.sha256(query_text(goal, level).encode("utf-8")).hexdigest()
+
+
+def stored_query_vector(db: Session, goal: Goal, level: Level) -> list[float]:
+    """El vector guardado de la consulta, o un error que explica por qué no sirve."""
+    row = db.get(QueryEmbedding, (goal.value, level.value))
+    if row is None:
+        raise LookupError("falta el vector de la consulta (correr index_catalog)")
+    if row.text_hash != query_hash(goal, level):
+        raise LookupError("cambió el texto de la consulta (correr index_catalog)")
+    catalog_models = set(db.scalars(select(CatalogEmbedding.model).distinct()))
+    if catalog_models and catalog_models != {row.model}:
+        raise LookupError("la consulta y el catálogo se indexaron con modelos distintos")
+    return list(row.embedding)
 
 
 def allowed(exercise: CatalogExercise, goal: Goal, level: Level) -> bool:
@@ -107,11 +130,9 @@ def retrieve_candidates(
     keep = {e.id for e in (find(n) for n in keep_names) if e is not None and allowed(e, goal, level)}
 
     try:
-        query_vector = embed_texts(
-            db, user_id, [query_text(goal, level)], "RETRIEVAL_QUERY"
-        )[0]
+        query_vector = stored_query_vector(db, goal, level)
         order = rank(db, query_vector)
-    except Exception as error:  # tope, configuración, red, Gemini caído...
+    except Exception as error:  # sin vector guardado, base sin pgvector...
         logger.warning("Sin ranking por vectores, se usa el catálogo permitido: %s", error)
         return Candidates(permitted, ranked=False, reason=str(error) or error.__class__.__name__)
 

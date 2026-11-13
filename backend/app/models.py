@@ -587,6 +587,29 @@ class CatalogEmbedding(Base):
     )
 
 
+class QueryEmbedding(Base):
+    """El vector de la consulta del RAG para un objetivo y un nivel (decisión 139).
+
+    La consulta sale solo del objetivo y el nivel (las limitaciones no entran), así que hay 12
+    posibles: se calculan una vez con `app.scripts.index_catalog`, con el mismo modelo que el
+    catálogo, y al generar no se llama a ninguna API de embeddings. `goal` y `level` son los valores
+    de los enumerados, como texto. Es un dato derivado: se puede borrar y volver a generar.
+    """
+
+    __tablename__ = "query_embeddings"
+
+    goal: Mapped[str] = mapped_column(String(32), primary_key=True)
+    level: Mapped[str] = mapped_column(String(32), primary_key=True)
+    text_hash: Mapped[str] = mapped_column(String(64))
+    model: Mapped[str] = mapped_column(String(64))
+    embedding: Mapped[list[float]] = mapped_column(
+        JSON().with_variant(Vector(EMBEDDING_DIM), "postgresql")
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class ExerciseCompletion(Base):
     """Un ejercicio que el usuario cerró con "Marcar como hecho".
 

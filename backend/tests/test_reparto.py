@@ -138,28 +138,17 @@ def generar(api, cuerpo=ELECCION):
     return api.post("/proposals/generate", json=cuerpo)
 
 
-def test_si_el_reparto_esta_mal_se_pide_de_nuevo_y_se_le_dice_cual(api, entorno, monkeypatch):
+def test_el_reparto_desparejo_se_acepta_al_primer_intento_con_el_aviso(api, entorno, monkeypatch):
+    """Decisión 139: el reparto desparejo ya no gasta un reintento (la cuota de Cloudflare es chica)."""
     con_perfil(api)
-    falso = usar_gemini(monkeypatch, rutina_catalogo(chest=9), rutina_catalogo())
+    falso = usar_gemini(monkeypatch, rutina_catalogo(chest=9))
 
     respuesta = generar(api)
 
     assert respuesta.status_code == 201
-    assert falso.llamadas == 2
-    assert "Reparto" in falso.prompts[1]
-    assert "Pecho tiene 9 series el Día 1 y 3 el Día 2" in falso.prompts[1]
-    assert not any(w["rule"] == "Reparto" for w in respuesta.json()["warnings"])
-
-
-def test_si_el_segundo_intento_sigue_mal_repartido_se_acepta_con_el_aviso(api, entorno, monkeypatch):
-    con_perfil(api)
-    falso = usar_gemini(monkeypatch, rutina_catalogo(chest=9), rutina_catalogo(chest=9))
-
-    respuesta = generar(api)
-
-    assert respuesta.status_code == 201
-    assert falso.llamadas == 2
-    assert any(w["rule"] == "Reparto" for w in respuesta.json()["warnings"])
+    assert falso.llamadas == 1
+    avisos = [w["message"] for w in respuesta.json()["warnings"] if w["rule"] == "Reparto"]
+    assert any("Pecho tiene 9 series el Día 1 y 3 el Día 2" in m for m in avisos)
 
 
 # --- el tiempo apagado (decisión 90) ---

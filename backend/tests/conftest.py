@@ -37,6 +37,13 @@ def sin_embeddings_del_entorno(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def proveedor_gemini(monkeypatch):
+    """Los tests de generación simulan a Gemini; el .env del contenedor puede decir otra cosa.
+    Los de Cloudflare lo cambian ellos mismos (decisión 139)."""
+    monkeypatch.setenv("AI_PROVIDER", "gemini")
+
+
+@pytest.fixture(autouse=True)
 def usuario_inyectado():
     app.dependency_overrides[get_current_user] = _usuario_de_prueba
     yield

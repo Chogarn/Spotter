@@ -22,7 +22,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
     # Desde otro origen (desarrollo: 3001 contra 8000) el navegador solo deja leer estos encabezados.
-    expose_headers=["X-Error-Code", "Retry-After"],
+    expose_headers=["X-Error-Code", "Retry-After", "X-Reset-At"],
 )
 
 app.include_router(auth.router)

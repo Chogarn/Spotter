@@ -1,4 +1,4 @@
-"""Convierte un esquema JSON de Pydantic a uno que Gemini acepte.
+"""Convierte un esquema JSON de Pydantic a uno que acepte la IA (Gemini o Cloudflare).
 
 Pydantic genera `$ref`/`$defs`, `anyOf` con `null`, `default` y `title`, y la API de Gemini
 rechaza el pedido (400) con ese formato. Acá se aplana: las referencias se reemplazan por su
@@ -43,5 +43,37 @@ def gemini_schema(schema: dict[str, Any]) -> dict[str, Any]:
             else:
                 result[key] = walk(value)
         return result
+
+    return walk(schema)
+
+
+def strict_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """Esquema JSON estándar sin `$ref`, para Cloudflare (formato de OpenAI, no el de Gemini).
+
+    Todos los campos pasan a obligatorios, como el modo estricto de OpenAI: en la prueba del
+    2026-11-12 los modelos de Cloudflare salteaban los opcionales (por ejemplo `rest_seconds`, que el
+    validador exige según el tipo de ejercicio). Un opcional sigue aceptando `null` por su `anyOf`,
+    pero el modelo tiene que escribirlo. Se dejan los límites: Pydantic los comprueba igual.
+    """
+    defs = schema.get("$defs", {})
+
+    def walk(node: Any) -> Any:
+        if isinstance(node, list):
+            return [walk(item) for item in node]
+        if not isinstance(node, dict):
+            return node
+        if "$ref" in node:
+            return walk(defs[node["$ref"].rsplit("/", 1)[-1]])
+        out = {}
+        for key, value in node.items():
+            if key in ("$defs", "title", "default"):
+                continue
+            if key == "properties":
+                out[key] = {name: walk(sub) for name, sub in value.items()}
+            else:
+                out[key] = walk(value)
+        if "properties" in out:
+            out["required"] = list(out["properties"])
+        return out
 
     return walk(schema)

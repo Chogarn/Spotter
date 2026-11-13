@@ -178,7 +178,7 @@ export function GenerarRutina({
   const [error, setError] = useState("");
   // Una generación que falló por la IA, un tope, las reglas o la conexión: tapa el asistente con una
   // pantalla que explica qué pasó (`ErrorGeneracion`). Los demás errores siguen en el asistente.
-  const [fallo, setFallo] = useState<{ motivo: MotivoFallo; detalle?: string } | null>(null);
+  const [fallo, setFallo] = useState<{ motivo: MotivoFallo; detalle?: string; resetAt?: string } | null>(null);
   // `pidiendo`: esperando a la IA, y después abriendo la propuesta (la pantalla de carga sigue
   // hasta que el navegador cambia de página).
   const [pidiendo, setPidiendo] = useState(false);
@@ -354,7 +354,11 @@ export function GenerarRutina({
       const motivo = res.headers.get("X-Error-Code") as MotivoFallo | null;
       if (motivo && MOTIVOS.includes(motivo)) {
         // El mensaje técnico (los motivos de las reglas) queda plegado en "Ver detalle".
-        setFallo({ motivo, detalle: motivo === "reglas" ? await readError(res) : undefined });
+        setFallo({
+          motivo,
+          detalle: motivo === "reglas" ? await readError(res) : undefined,
+          resetAt: res.headers.get("X-Reset-At") ?? undefined,
+        });
         void guardarBorrador();
       } else {
         setError(await readError(res));
@@ -516,6 +520,7 @@ export function GenerarRutina({
         <ErrorGeneracion
           motivo={fallo.motivo}
           detalle={fallo.detalle}
+          resetAt={fallo.resetAt}
           onReintentar={generar}
           onVolver={() => setFallo(null)}
           onInicio={() => {
