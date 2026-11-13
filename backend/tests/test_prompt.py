@@ -33,6 +33,13 @@ def test_el_prompt_incluye_los_datos_del_perfil():
     assert "ninguna indicada" in texto
 
 
+def test_el_prompt_aclara_que_un_dia_de_descanso_no_es_un_ejercicio():
+    # La IA llegó a devolver "Descanso activo" como ejercicio y el catálogo rechazó toda la rutina.
+    texto = armar(perfil())
+    assert "Un día de descanso no es un día de la rutina ni un ejercicio" in texto
+    assert "Descanso activo" in texto
+
+
 def test_sin_sexo_no_se_manda_la_linea():
     assert "Sexo:" not in armar(perfil(sex=None))
 

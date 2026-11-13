@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from app.ai.catalog import MUSCLE_TEXT, find
 from app.ai.plan_writer import normalize_name
 from app.ai.routine import DayProposal, RoutineProposal
-from app.enums import ExerciseDirection, ExerciseKind, Goal, Level, Muscle, RoutineSplit
+from app.enums import ExerciseDirection, ExerciseEquipment, ExerciseKind, Goal, Level, Muscle, RoutineSplit
 from app.ai.splits import compatible_splits
 
 # Los isométricos (plancha) cuentan como fuerza: suman días de fuerza y series por músculo.
@@ -245,6 +245,36 @@ def volume_issues(routine: RoutineProposal, goal: Goal) -> list[str]:
     return issues
 
 
+# Equipos con carga externa: ahí el peso orientativo es obligatorio (peso corporal y bandas no lo llevan).
+LOADED_EQUIPMENT = {
+    ExerciseEquipment.BARBELL,
+    ExerciseEquipment.DUMBBELL,
+    ExerciseEquipment.MACHINE,
+    ExerciseEquipment.CABLE,
+    ExerciseEquipment.KETTLEBELL,
+}
+
+
+def weight_issues(routine: RoutineProposal) -> list[str]:
+    """Faltan los pesos orientativos: más de la mitad de los ejercicios de fuerza con carga externa
+    vienen sin peso en todas sus series (con Cloudflare llegó una rutina de masa sin ningún peso)."""
+    loaded = [
+        e
+        for d in routine.days
+        for e in d.exercises
+        if e.kind == ExerciseKind.STRENGTH and e.equipment in LOADED_EQUIPMENT
+    ]
+    missing = [e for e in loaded if all(s.target_weight_kg is None for s in e.sets)]
+    if not loaded or len(missing) * 2 <= len(loaded):
+        return []
+    examples = ", ".join(sorted({e.name for e in missing})[:3])
+    return [
+        f"Faltan los pesos orientativos: {len(missing)} de {len(loaded)} ejercicios con carga externa "
+        f"vienen sin target_weight_kg en ninguna serie (por ejemplo: {examples}). "
+        "Poné un peso prudente en kilos en cada serie de esos ejercicios."
+    ]
+
+
 def split_issues(routine: RoutineProposal, split: RoutineSplit) -> list[str]:
     """Comprueba que los músculos principales de cada día respeten el split seleccionado."""
     issues: list[str] = []
@@ -433,6 +463,9 @@ def validate_routine(
     for message in volume_issues(routine, goal):  # decisión 126
         warn("Volumen", message)
         result.soft_issues.append(Issue("Volumen", message))
+    for message in weight_issues(routine):  # 2026-11-13: se reintenta una vez, como el split
+        warn("Peso", message)
+        result.soft_issues.append(Issue("Peso", message))
 
     # Decisión 90: `minutes` se conserva solo para compatibilidad; R18 es referencia y no límite.
     reference = reference_minutes(goal, level)

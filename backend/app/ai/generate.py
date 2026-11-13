@@ -30,6 +30,10 @@ MAX_ATTEMPTS = 2  # la primera llamada y un reintento; cada intento cuenta en lo
 # tiempo que queda como corte.
 TOTAL_BUDGET_SECONDS = 280
 
+# Los únicos avisos "blandos" que gastan un reintento: la estructura elegida no se respeta o faltan los
+# pesos. Los demás (reparto, volumen, duración) se aceptan con su aviso.
+RETRY_RULES = {"Split", "Peso"}
+
 
 # Una sola generación a la vez por persona. Cada una gasta cuota de la IA y la que termina última
 # pisaría a la otra. El cliente corta a los 120 s: pasado ese margen, una fila "en curso" que quedó
@@ -159,15 +163,30 @@ def _generate_proposal(
     problems: list[str] = []
     started = time.monotonic()
     timeout: float | None = None
+    # Una rutina válida pero con el split mal: se guarda por si el reintento no se puede hacer o falla.
+    fallback = None
+
+    def accept(routine: RoutineProposal, result) -> PlanProposal:
+        if previous is not None:
+            result.warnings += [
+                Issue(rule, message) for rule, message in weight_jump_warnings(routine, previous)
+            ]
+        return _save(db, user, routine, result, goal, level, routine_id, kind, days, minutes, split)
 
     for attempt in range(MAX_ATTEMPTS):
         try:
             text = generate_json(
                 db, user.id, call_kind, prompt, RoutineProposal.model_json_schema(), timeout
             )
-        except (AiConfigError, AiLimitError):
-            raise
         except Exception as error:
+            if fallback is not None:
+                # El reintento falló (tope, corte de tiempo, la IA): ya hay una rutina usable con su aviso.
+                logger.warning(
+                    "El reintento falló (%s); se usa la rutina anterior con sus avisos", type(error).__name__
+                )
+                break
+            if isinstance(error, (AiConfigError, AiLimitError)):
+                raise
             logger.error("La IA falló en el intento %s: %s: %s", attempt + 1, type(error).__name__, error)
             raise AiUpstreamError(str(error)) from error
 
@@ -185,15 +204,26 @@ def _generate_proposal(
                 minutes=minutes,
                 split=split,
             )
+            # Decisión 139: el reparto, el volumen y la duración desparejos ya no piden otra rutina:
+            # se aceptan con su aviso. Gastan un reintento los errores, el JSON inválido, un split que
+            # no respeta lo que la persona eligió (decisión 91) y los pesos que faltan (2026-11-13),
+            # y esos dos últimos solo si queda un intento.
+            retry_problems = [i for i in result.soft_issues if i.rule in RETRY_RULES]
+            if result.ok and (not retry_problems or attempt + 1 >= MAX_ATTEMPTS):
+                return accept(routine, result)
             if result.ok:
-                # Decisión 139: el reparto de series desparejo (soft_issues) ya no pide otra rutina:
-                # se acepta con su aviso. Solo los errores y el JSON inválido gastan un reintento.
-                if previous is not None:
-                    result.warnings += [
-                        Issue(rule, message) for rule, message in weight_jump_warnings(routine, previous)
-                    ]
-                return _save(db, user, routine, result, goal, level, routine_id, kind, days, minutes, split)
-            problems = [f"{i.rule}: {i.message}" for i in result.errors]
+                fallback = (routine, result)
+                problems = [f"{i.rule}: {i.message}" for i in retry_problems]
+            else:
+                problems = [f"{i.rule}: {i.message}" for i in result.errors]
+            # Para saber qué devolvió la IA cuando la rutina no pasa las reglas (la rechazada no se
+            # guarda en ningún lado). Solo los nombres de los ejercicios, no datos de la persona.
+            logger.warning(
+                "Rutina rechazada en el intento %s: %s | ejercicios: %s",
+                attempt + 1,
+                " | ".join(problems[:5]),
+                [e.name for d in routine.days for e in d.exercises],
+            )
 
         if attempt + 1 < MAX_ATTEMPTS:
             elapsed = time.monotonic() - started
@@ -210,6 +240,9 @@ def _generate_proposal(
             )
             prompt = base_prompt + _correction(problems)
 
+    if fallback is not None:
+        # No se pudo (o no se logró) mejorar el split: se muestra la rutina con el aviso y la persona decide.
+        return accept(*fallback)
     raise GenerationFailed(problems)
 
 

@@ -158,6 +158,25 @@ def test_un_ejercicio_inventado_se_rechaza_y_se_reintenta(api, entorno, monkeypa
     assert "no están en la lista de ejercicios disponibles" in cliente.prompts[1]
 
 
+def test_una_rutina_rechazada_deja_en_el_log_los_motivos_y_los_nombres(
+    api, entorno, monkeypatch, caplog
+):
+    con_perfil(api)
+    usar(
+        monkeypatch,
+        ClienteConEmbeddings([rutina_con({"Sentadilla con barra": inventado()}), rutina()]),
+    )
+
+    with caplog.at_level("WARNING", logger="app.ai.generate"):
+        api.post("/proposals/generate", json=ELECCION)
+
+    rechazos = [r.getMessage() for r in caplog.records if "Rutina rechazada" in r.getMessage()]
+    assert len(rechazos) == 1  # solo el primer intento falló
+    assert "intento 1" in rechazos[0]
+    assert "no están en la lista de ejercicios disponibles" in rechazos[0]
+    assert "Sentadilla con tres patas" in rechazos[0]
+
+
 def test_si_insiste_con_ejercicios_inventados_no_se_guarda_nada(api, entorno, monkeypatch):
     con_perfil(api)
     mala = rutina_con({"Sentadilla con barra": inventado()})

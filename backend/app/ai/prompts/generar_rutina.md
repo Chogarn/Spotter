@@ -19,7 +19,7 @@ Respondé **solo** con el JSON pedido, sin texto antes ni después. Todo el text
   - `cardio` (cinta, bicicleta, remo, caminata): cada serie lleva `duration_minutes` (minutos), sin peso y sin `rest_seconds`. Usá `region: full_body`, `primary_muscle: full_body` y `direction: none`.
 - Una entrada en `sets` por **serie**. Si las series difieren (por ejemplo 10 × 50 kg, 8 × 55 kg, 6 × 60 kg), cada una lleva sus propias repeticiones y su propio peso.
 - `rest_seconds`: descanso entre series, en segundos. Obligatorio en fuerza e isométricos; vacío en cardio.
-- `target_weight_kg`: peso **orientativo** en kilos, prudente según nivel, peso corporal y sexo (si lo indicó). Vacío en ejercicios con peso corporal y en cardio. El usuario lo corrige.
+- `target_weight_kg`: peso **orientativo** en kilos, prudente según nivel, peso corporal y sexo (si lo indicó). **Es obligatorio en cada serie de todo ejercicio de fuerza con carga externa** (`equipment`: `barbell`, `dumbbell`, `machine`, `cable` o `kettlebell`): nunca lo dejes vacío ahí, ni siquiera en una rutina larga. Va vacío solo en ejercicios con peso corporal o banda (`bodyweight`, `band`), en isométricos y en cardio. El usuario lo corrige. Si el peso falta en la mayoría de los ejercicios con carga, el código rechaza la rutina y te pide armarla de nuevo.
 - Etiquetas de cada ejercicio (listas cerradas, no inventes valores):
   - `region`: upper, lower, core, full_body.
   - `direction`: push, pull, none (piernas, core y cardio).
@@ -47,7 +47,7 @@ Elegí los ejercicios **solo de esta lista**. Cada línea trae el nombre, las et
 
 # Días de la semana
 
-- {{DIAS}} Siempre al menos un día de descanso en la semana.
+- {{DIAS}} Siempre al menos un día de descanso en la semana. **Un día de descanso no es un día de la rutina ni un ejercicio:** los días que devolvés son solo los de entrenamiento, y no escribas "Descanso", "Descanso activo" ni nada parecido como ejercicio ni como día. Un ejercicio que no está en la lista hace que el código rechace toda la rutina.
 - **Estructura de entrenamiento:**
 
 {{SPLIT}}

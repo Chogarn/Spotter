@@ -119,6 +119,69 @@ def test_un_dia_que_no_trabaja_los_grupos_de_su_foco_es_aviso_y_no_rechazo():
     assert any(i.rule == "Split" for i in resultado.soft_issues)  # se pide de nuevo una vez
 
 
+ELECCION_TORSO_PIERNA = {"goal": "fuerza", "level": "avanzado", "days": 4, "split": "upper_lower"}
+
+
+def _torso_pierna_sin_hombros_el_dia_3() -> dict:
+    """Torso/pierna de 4 días con el Día 3 (torso) sin hombros: el split no respeta lo elegido."""
+    ruti = propuesta(RoutineSplit.UPPER_LOWER, 4)
+    ruti.days[2].exercises = [e for e in ruti.days[2].exercises if e.primary_muscle != Muscle.SHOULDERS]
+    return ruti.model_dump(mode="json")
+
+
+def _avisos_de_split(respuesta) -> list[str]:
+    return [w["message"] for w in respuesta.json()["warnings"] if w["rule"] == "Split"]
+
+
+def test_un_split_que_no_respeta_lo_elegido_se_reintenta_una_vez(api, entorno, monkeypatch):
+    """Decisión 139 (B): es lo único "blando" que sí gasta un reintento (la persona eligió esa estructura)."""
+    con_perfil(api)
+    buena = propuesta(RoutineSplit.UPPER_LOWER, 4).model_dump(mode="json")
+    falso = usar_gemini(monkeypatch, _torso_pierna_sin_hombros_el_dia_3(), buena)
+
+    respuesta = api.post("/proposals/generate", json=ELECCION_TORSO_PIERNA)
+
+    assert respuesta.status_code == 201
+    assert falso.llamadas == 2
+    assert "Split" in falso.prompts[1] and "Hombros" in falso.prompts[1]  # la corrección nombra el problema
+    assert _avisos_de_split(respuesta) == []  # la que se guardó es la buena
+
+
+def test_si_el_split_sigue_mal_en_el_reintento_se_acepta_con_el_aviso(api, entorno, monkeypatch):
+    con_perfil(api)
+    mala = _torso_pierna_sin_hombros_el_dia_3()
+    falso = usar_gemini(monkeypatch, mala, mala)
+
+    respuesta = api.post("/proposals/generate", json=ELECCION_TORSO_PIERNA)
+
+    assert respuesta.status_code == 201
+    assert falso.llamadas == 2  # un solo reintento
+    assert any("Hombros" in m for m in _avisos_de_split(respuesta))
+
+
+def test_si_el_reintento_falla_se_usa_la_primera_rutina_con_su_aviso(api, entorno, monkeypatch):
+    con_perfil(api)
+    falso = usar_gemini(monkeypatch, _torso_pierna_sin_hombros_el_dia_3(), RuntimeError("la IA no respondió"))
+
+    respuesta = api.post("/proposals/generate", json=ELECCION_TORSO_PIERNA)
+
+    assert respuesta.status_code == 201  # no se pierde una rutina usable por un reintento que falló
+    assert falso.llamadas == 2
+    assert any("Hombros" in m for m in _avisos_de_split(respuesta))
+
+
+def test_si_no_queda_tiempo_para_reintentar_se_acepta_con_el_aviso(api, entorno, monkeypatch):
+    con_perfil(api)
+    monkeypatch.setattr("app.ai.generate.TOTAL_BUDGET_SECONDS", 0)  # el corte de Vercel ya pasó
+    falso = usar_gemini(monkeypatch, _torso_pierna_sin_hombros_el_dia_3())
+
+    respuesta = api.post("/proposals/generate", json=ELECCION_TORSO_PIERNA)
+
+    assert respuesta.status_code == 201
+    assert falso.llamadas == 1
+    assert any("Hombros" in m for m in _avisos_de_split(respuesta))
+
+
 def _con_hombros_en_tiron(nombre: str, direccion: ExerciseDirection) -> RoutineProposal:
     """PPL de 6 días con un ejercicio de hombros (copiado del Día 1, empuje) sumado al Día 2 (tirón)."""
     ruti = propuesta(RoutineSplit.PPL, 6)
