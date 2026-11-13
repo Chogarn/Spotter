@@ -40,6 +40,26 @@ def test_el_prompt_aclara_que_un_dia_de_descanso_no_es_un_ejercicio():
     assert "Descanso activo" in texto
 
 
+def test_el_prompt_pide_sumar_y_verificar_los_minutos_de_cardio_de_cada_dia():
+    # La IA se equivocó dos veces en R17 (15 y 10 min de cardio en un día) pese a la regla escrita.
+    texto = armar(perfil(), goal=Goal.PERDER_GRASA, level=Level.INTERMEDIO)
+    assert "Chequeo del cardio" in texto
+    assert "uno por uno" in texto
+    assert "entre 20 y 30" in texto
+
+
+def test_cuerpo_completo_prohibe_los_dias_de_solo_cardio():
+    # Salió una rutina de 5 días con dos días "Cardio y movilidad" que rompían el cuerpo completo.
+    from app.ai.splits import split_prompt
+    from app.enums import RoutineSplit
+
+    texto = split_prompt(RoutineSplit.FULL_BODY, 5)
+    assert "no armes un día solo de cardio" in texto
+    assert "no reemplaza a ningún día" in texto
+    # Las otras estructuras no cambian.
+    assert "no armes un día solo" not in split_prompt(RoutineSplit.UPPER_LOWER, 4)
+
+
 def test_sin_sexo_no_se_manda_la_linea():
     assert "Sexo:" not in armar(perfil(sex=None))
 

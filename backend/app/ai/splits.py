@@ -41,7 +41,9 @@ def split_prompt(split: RoutineSplit, days: int) -> str:
         return (
             "**Estructura elegida: cuerpo completo.** Cada día de fuerza trabaja directamente los seis "
             "grupos grandes (pecho, espalda, hombros, cuádriceps, isquios y glúteos). Repartí sus series "
-            "parejo y respetá los topes de la sección de reparto."
+            "parejo y respetá los topes de la sección de reparto. **Todos los días de la rutina son de "
+            "cuerpo completo:** no armes un día solo de cardio, de movilidad o de abdominales. El cardio, "
+            "si el objetivo lo pide, va al final de cada día de fuerza y no reemplaza a ningún día."
         )
     if split == RoutineSplit.UPPER_LOWER:
         pattern = ["torso", "pierna"] * ((days + 1) // 2)
