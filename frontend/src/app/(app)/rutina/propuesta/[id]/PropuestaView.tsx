@@ -189,9 +189,19 @@ export default function PropuestaView({
       <Franja
         aros="amarillo"
         volver={{ href: "/" }}
-        arriba={<p className="m-0 mb-1 text-sm text-primary-foreground/70">Propuesta de la IA</p>}
-        titulo={`${days.length} días · ${propuesta.split ? SPLIT_LABELS[propuesta.split] : "Rutina"} · ~${Math.round(propuesta.day_minutes.reduce((a, b) => a + b, 0) / days.length)} min`}
-        subtitulo="La IA propone, vos decidís: nada se guarda hasta que aceptes."
+        titulo={propuesta.split ? SPLIT_LABELS[propuesta.split] : "Rutina"}
+        subtitulo={
+          <div className="flex flex-wrap gap-2">
+            {[
+              `${days.length} días`,
+              `~${Math.round(propuesta.day_minutes.reduce((a, b) => a + b, 0) / days.length)} min por día`,
+            ].map((texto) => (
+              <span key={texto} className="rounded-full bg-primary-foreground/15 px-3 py-1 text-sm font-semibold text-primary-foreground">
+                {texto}
+              </span>
+            ))}
+          </div>
+        }
       />
       <div style={{ ...contenedor, width: "100%", paddingTop: "1.25rem" }}>
 
