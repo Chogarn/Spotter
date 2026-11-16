@@ -24,7 +24,7 @@
 
 ## Escena 3 · Cerrar la semana y la semana nueva (≈ 50 s)
 
-**Pantalla:** Entrenar → Cerrar semana → escribir el comentario (por ejemplo: "La sentadilla me costó, estuve cansado") y el peso → confirmar → "Generar la semana siguiente" → carga (cortar) → la propuesta con las etiquetas "↑ antes 40 kg" y la pestaña Cambios y el resumen de la IA → Aceptar.
+**Pantalla:** Entrenar → Cerrar semana → escribir el comentario (por ejemplo: "Me sentí bien, pude completar los cuatro días") → confirmar → "Generar la semana siguiente" → carga (cortar) → la propuesta con las etiquetas "↑ antes 40 kg" y la pestaña Cambios y el resumen de la IA → Aceptar.
 
 **Voz:** "Al final de la semana la cierro con un botón y le cuento cómo me sentí. La IA lee ejercicio por ejercicio qué superé, qué cumplí y dónde no llegué. Si superé, sube el peso; si no llegué y conté que estaba cansado, baja un escalón, y ese peso lo calcula el código, no la IA. Antes de aceptar veo exactamente qué cambió respecto de la semana pasada."
 
@@ -32,13 +32,15 @@
 
 **Pantalla:** Inicio → Progreso → Resúmenes (Semana) → Mapa muscular → Radar de músculos → Evolución de un ejercicio → Calendario → Cuerpo y peso.
 
-**Voz:** "En Progreso veo el resumen de cada semana, qué músculos trabajé en el mapa del cuerpo, cómo evolucionó cada ejercicio, los días que entrené y mi peso."
+**Voz:** "En Progreso veo el resumen de cada semana, qué músculos trabajé en el mapa del cuerpo, cómo evolucionó cada ejercicio, mi peso y los días que entrené."
+
+(En el video, el orden de pantallas es: Resúmenes, Mapa, Radar, Evolución, Cuerpo y peso y, al final, Calendario: ajustá la frase si querés que coincida.)
 
 ## Escena 5 · Cierre técnico (≈ 25 s)
 
 **Pantalla:** (a definir) una placa con el stack, o la app de fondo.
 
-**Voz:** "Por dentro: el frontend es Next.js, el backend FastAPI con PostgreSQL, y la IA es Gemini en su plan gratuito, con topes que el código aplica antes de cada llamada para que nunca genere costo. Está publicada en Vercel y se puede instalar en el teléfono. Gracias."
+**Voz:** "Por dentro: el frontend es Next.js, el backend FastAPI con PostgreSQL, y la IA es Cloudflare Workers AI en su plan gratuito, con topes que el código aplica antes de cada llamada para que nunca genere costo. Está publicada en Vercel y se puede instalar en el teléfono. Gracias."
 
 ## Orden de grabación (no es el orden del video)
 
