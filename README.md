@@ -4,13 +4,15 @@
 
 **Probala:** [spotter-vert.vercel.app](https://spotter-vert.vercel.app) (se instala en el teléfono como una app)
 
+**Mirá la demo (3 min):** [youtu.be/lNjnzj29kY4](https://youtu.be/lNjnzj29kY4)
+
 ![Next.js](https://img.shields.io/badge/Next.js_16-000000?logo=nextdotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL_+_pgvector-4169E1?logo=postgresql&logoColor=white)
-![Gemini](https://img.shields.io/badge/Gemini-plan_gratuito-8E75B2?logo=googlegemini&logoColor=white)
+![Cloudflare Workers AI](https://img.shields.io/badge/Cloudflare_Workers_AI-plan_gratuito-F38020?logo=cloudflare&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel_+_Neon-000000?logo=vercel&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-667_con_pytest-2E9E5B)
+![Tests](https://img.shields.io/badge/tests-717_con_pytest-2E9E5B)
 
 | La IA propone la semana | Modo entrenar | Inicio | Mapa muscular |
 |:---:|:---:|:---:|:---:|
@@ -197,7 +199,7 @@ Las dependencias de desarrollo (pytest) están en `backend/requirements-dev.txt`
 docker compose -f docker-compose.dev.yml run --rm --no-deps backend python -m pytest -q
 ```
 
-Son 667 tests. Usan una base SQLite en memoria y un Gemini simulado: no necesitan PostgreSQL ni gastan cuota de la IA.
+Son 717 tests. Usan una base SQLite en memoria y un Gemini simulado: no necesitan PostgreSQL ni gastan cuota de la IA.
 
 ## Documentación
 
