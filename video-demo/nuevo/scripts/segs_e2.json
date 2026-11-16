@@ -1,0 +1,6 @@
+[
+  {"desde": ["inicio visible", 0.3], "hasta": ["toque: Empezar (Hoy te toca)", 0.5]},
+  {"desde": ["toque: Empezar (Hoy te toca)", 0.5], "hasta": ["ejercicio 1 hecho", 0.0]},
+  {"desde": ["rapidos desde", 0.0], "hasta": ["rapidos hasta", 0.0], "vel": 5.0},
+  {"desde": ["rapidos hasta", 0.0], "hasta": ["FIN", 0.0]}
+]

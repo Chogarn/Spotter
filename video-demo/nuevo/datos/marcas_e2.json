@@ -1,0 +1,207 @@
+[
+  {
+    "nombre": "inicio visible",
+    "s": 0,
+    "epoch": 1794668158.202
+  },
+  {
+    "nombre": "toque: Empezar (Hoy te toca)",
+    "s": 2.88,
+    "epoch": 1794668161.086
+  },
+  {
+    "nombre": "entrada en calor",
+    "s": 4.06,
+    "epoch": 1794668162.259
+  },
+  {
+    "nombre": "toque: ▶ Empezar cronómetro",
+    "s": 5.91,
+    "epoch": 1794668164.113
+  },
+  {
+    "nombre": "toque: ✓ Finalizar",
+    "s": 11.77,
+    "epoch": 1794668169.974
+  },
+  {
+    "nombre": "ejercicio 1",
+    "s": 13.58,
+    "epoch": 1794668171.781
+  },
+  {
+    "nombre": "toque: abrir Series · kilos y reps",
+    "s": 15.54,
+    "epoch": 1794668173.744
+  },
+  {
+    "nombre": "kilos serie 1 escritos",
+    "s": 17.07,
+    "epoch": 1794668175.276
+  },
+  {
+    "nombre": "toque: Serie hecha (1)",
+    "s": 18.15,
+    "epoch": 1794668176.354
+  },
+  {
+    "nombre": "toque: Iniciar descanso",
+    "s": 20.18,
+    "epoch": 1794668178.386
+  },
+  {
+    "nombre": "descanso a la vista",
+    "s": 23.98,
+    "epoch": 1794668182.186
+  },
+  {
+    "nombre": "toque: Saltar descanso",
+    "s": 24.27,
+    "epoch": 1794668182.467
+  },
+  {
+    "nombre": "toque: Serie hecha (2)",
+    "s": 25.94,
+    "epoch": 1794668184.138
+  },
+  {
+    "nombre": "toque: Serie hecha (3)",
+    "s": 27.96,
+    "epoch": 1794668186.166
+  },
+  {
+    "nombre": "ejercicio 1 hecho",
+    "s": 30.17,
+    "epoch": 1794668188.368
+  },
+  {
+    "nombre": "rapidos desde",
+    "s": 30.17,
+    "epoch": 1794668188.368
+  },
+  {
+    "nombre": "toque: rápida 2.1",
+    "s": 30.38,
+    "epoch": 1794668188.582
+  },
+  {
+    "nombre": "toque: rápida 2.2",
+    "s": 31.69,
+    "epoch": 1794668189.887
+  },
+  {
+    "nombre": "toque: rápida 2.3",
+    "s": 33.01,
+    "epoch": 1794668191.216
+  },
+  {
+    "nombre": "reintento ejercicio 2",
+    "s": 39.12,
+    "epoch": 1794668197.325
+  },
+  {
+    "nombre": "toque: rápida 2.extra",
+    "s": 39.33,
+    "epoch": 1794668197.528
+  },
+  {
+    "nombre": "toque: rápida 3.1",
+    "s": 40.65,
+    "epoch": 1794668198.854
+  },
+  {
+    "nombre": "toque: rápida 3.2",
+    "s": 41.96,
+    "epoch": 1794668200.16
+  },
+  {
+    "nombre": "toque: rápida 3.3",
+    "s": 43.27,
+    "epoch": 1794668201.476
+  },
+  {
+    "nombre": "toque: rápida 4.1",
+    "s": 44.61,
+    "epoch": 1794668202.81
+  },
+  {
+    "nombre": "toque: rápida 4.2",
+    "s": 45.92,
+    "epoch": 1794668204.125
+  },
+  {
+    "nombre": "toque: rápida 4.3",
+    "s": 47.24,
+    "epoch": 1794668205.441
+  },
+  {
+    "nombre": "toque: rápida 5.1",
+    "s": 48.58,
+    "epoch": 1794668206.78
+  },
+  {
+    "nombre": "toque: rápida 5.2",
+    "s": 49.89,
+    "epoch": 1794668208.088
+  },
+  {
+    "nombre": "toque: rápida 5.3",
+    "s": 51.2,
+    "epoch": 1794668209.405
+  },
+  {
+    "nombre": "toque: rápida 6.1",
+    "s": 52.52,
+    "epoch": 1794668210.72
+  },
+  {
+    "nombre": "toque: rápida 6.2",
+    "s": 53.82,
+    "epoch": 1794668212.021
+  },
+  {
+    "nombre": "toque: rápida 6.3",
+    "s": 55.12,
+    "epoch": 1794668213.32
+  },
+  {
+    "nombre": "rapidos hasta",
+    "s": 56.23,
+    "epoch": 1794668214.435
+  },
+  {
+    "nombre": "cardio",
+    "s": 56.24,
+    "epoch": 1794668214.439
+  },
+  {
+    "nombre": "toque: ▶ Empezar cardio",
+    "s": 58.1,
+    "epoch": 1794668216.298
+  },
+  {
+    "nombre": "toque: ✓ Finalizar cardio",
+    "s": 62.98,
+    "epoch": 1794668221.178
+  },
+  {
+    "nombre": "listo el día",
+    "s": 64.48,
+    "epoch": 1794668222.686
+  },
+  {
+    "nombre": "toque: Día completado",
+    "s": 68.35,
+    "epoch": 1794668226.552
+  },
+  {
+    "nombre": "festejo",
+    "s": 68.86,
+    "epoch": 1794668227.059
+  },
+  {
+    "nombre": "FIN",
+    "s": 73.36,
+    "epoch": 1794668231.559
+  }
+]

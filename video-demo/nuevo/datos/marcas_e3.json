@@ -1,0 +1,102 @@
+[
+  {
+    "nombre": "entrenar visible",
+    "s": 0,
+    "epoch": 1794702738.032
+  },
+  {
+    "nombre": "toque: Cerrar semana (botón)",
+    "s": 4.02,
+    "epoch": 1794702742.049
+  },
+  {
+    "nombre": "recuadro cerrar",
+    "s": 4.54,
+    "epoch": 1794702742.567
+  },
+  {
+    "nombre": "toque: ¿Cómo te sentiste?",
+    "s": 7.89,
+    "epoch": 1794702745.921
+  },
+  {
+    "nombre": "comentario escrito",
+    "s": 12.12,
+    "epoch": 1794702750.147
+  },
+  {
+    "nombre": "toque: Cerrar semana (confirmar)",
+    "s": 14.2,
+    "epoch": 1794702752.234
+  },
+  {
+    "nombre": "semana cerrada",
+    "s": 15.56,
+    "epoch": 1794702753.596
+  },
+  {
+    "nombre": "toque: Generar la semana siguiente",
+    "s": 18.45,
+    "epoch": 1794702756.483
+  },
+  {
+    "nombre": "paso días",
+    "s": 19.67,
+    "epoch": 1794702757.698
+  },
+  {
+    "nombre": "toque: Continuar (días)",
+    "s": 22.16,
+    "epoch": 1794702760.189
+  },
+  {
+    "nombre": "paso estructura",
+    "s": 23.66,
+    "epoch": 1794702761.693
+  },
+  {
+    "nombre": "toque: Generar",
+    "s": 26.16,
+    "epoch": 1794702764.196
+  },
+  {
+    "nombre": "generando…",
+    "s": 26.67,
+    "epoch": 1794702764.706
+  },
+  {
+    "nombre": "propuesta visible",
+    "s": 161.76,
+    "epoch": 1794702899.796
+  },
+  {
+    "nombre": "toque: pestaña Cambios",
+    "s": 165.64,
+    "epoch": 1794702903.669
+  },
+  {
+    "nombre": "cambios a la vista",
+    "s": 170.15,
+    "epoch": 1794702908.183
+  },
+  {
+    "nombre": "toque: pestaña Semana",
+    "s": 173.53,
+    "epoch": 1794702911.56
+  },
+  {
+    "nombre": "toque: Aceptar",
+    "s": 176.52,
+    "epoch": 1794702914.547
+  },
+  {
+    "nombre": "aceptada",
+    "s": 177.03,
+    "epoch": 1794702915.058
+  },
+  {
+    "nombre": "FIN",
+    "s": 180.04,
+    "epoch": 1794702918.071
+  }
+]

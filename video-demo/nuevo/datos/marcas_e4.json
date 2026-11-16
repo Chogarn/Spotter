@@ -1,0 +1,117 @@
+[
+  {
+    "nombre": "inicio visible",
+    "s": 0,
+    "epoch": 1794737755.764
+  },
+  {
+    "nombre": "toque: Resúmenes",
+    "s": 2.9,
+    "epoch": 1794737758.659
+  },
+  {
+    "nombre": "resumenes visible",
+    "s": 4.13,
+    "epoch": 1794737759.89
+  },
+  {
+    "nombre": "toque: barra del día",
+    "s": 7.14,
+    "epoch": 1794737762.901
+  },
+  {
+    "nombre": "toque: Volver",
+    "s": 10.79,
+    "epoch": 1794737766.554
+  },
+  {
+    "nombre": "toque: Estadísticas",
+    "s": 16.68,
+    "epoch": 1794737772.44
+  },
+  {
+    "nombre": "estadisticas visible",
+    "s": 17.39,
+    "epoch": 1794737773.153
+  },
+  {
+    "nombre": "toque: Mapa muscular",
+    "s": 19.26,
+    "epoch": 1794737775.02
+  },
+  {
+    "nombre": "mapa visible",
+    "s": 20.77,
+    "epoch": 1794737776.53
+  },
+  {
+    "nombre": "toque: Volver",
+    "s": 25.02,
+    "epoch": 1794737780.785
+  },
+  {
+    "nombre": "toque: Radar de músculos",
+    "s": 26.61,
+    "epoch": 1794737782.369
+  },
+  {
+    "nombre": "radar visible",
+    "s": 28.42,
+    "epoch": 1794737784.182
+  },
+  {
+    "nombre": "toque: Volver",
+    "s": 32.67,
+    "epoch": 1794737788.436
+  },
+  {
+    "nombre": "toque: Evolución por ejercicio",
+    "s": 34.24,
+    "epoch": 1794737790.001
+  },
+  {
+    "nombre": "evolucion visible",
+    "s": 35.77,
+    "epoch": 1794737791.534
+  },
+  {
+    "nombre": "toque: Volver",
+    "s": 40.22,
+    "epoch": 1794737795.985
+  },
+  {
+    "nombre": "toque: Cuerpo y peso",
+    "s": 41.79,
+    "epoch": 1794737797.551
+  },
+  {
+    "nombre": "cuerpo visible",
+    "s": 43.3,
+    "epoch": 1794737799.065
+  },
+  {
+    "nombre": "toque: Volver",
+    "s": 47.75,
+    "epoch": 1794737803.518
+  },
+  {
+    "nombre": "toque: Volver",
+    "s": 49.32,
+    "epoch": 1794737805.084
+  },
+  {
+    "nombre": "toque: Calendario",
+    "s": 51.11,
+    "epoch": 1794737806.872
+  },
+  {
+    "nombre": "calendario visible",
+    "s": 52.64,
+    "epoch": 1794737808.404
+  },
+  {
+    "nombre": "FIN",
+    "s": 56.14,
+    "epoch": 1794737811.907
+  }
+]

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=390,initial-scale=1">
+<title>Placa de cierre</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--tinta:#172033;--rojo:#D7263D;--azul:#1F5FBF;--amarillo:#F2C230;--verde:#2E9E5B}
+  *{box-sizing:border-box;margin:0}
+  html,body{background:var(--tinta);color:#fff;font-family:Barlow,sans-serif;overflow:hidden;width:390px;height:844px}
+  .aro{position:absolute;border-radius:50%;border-style:solid}
+  .logo{font:700 64px/1 "Barlow Condensed",sans-serif;letter-spacing:1px;text-align:center;margin-top:52px}
+  .logo i{display:inline-block;width:.62em;height:.62em;border:.13em solid var(--rojo);border-radius:50%;vertical-align:.02em;margin:0 .03em}
+  .sub{text-align:center;color:#cbd2e0;font-size:19px;margin-top:10px}
+  .por{text-align:center;color:var(--amarillo);font:700 15px "Barlow Condensed";letter-spacing:3px;margin:22px 0 10px}
+  .lista{padding:0 22px}
+  .c{border:2px solid #3a4560;border-radius:18px;padding:9px 18px;margin-bottom:8px;opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+  .c.on{opacity:1;transform:none}
+  .c b{display:block;font:600 24px/1.1 "Barlow Condensed"}
+  .c span{color:#aab3c7;font-size:15px}
+  .c.ia{border-color:var(--amarillo)}
+  .pie{position:absolute;left:0;right:0;bottom:34px;text-align:center;opacity:0;transition:opacity .8s}
+  .pie.on{opacity:1}
+  .pie p{font:500 19px Barlow}
+  .pie h2{font:700 40px "Barlow Condensed";margin-top:6px}
+</style></head><body>
+<div class="aro" style="width:230px;height:230px;border-width:30px;border-color:var(--rojo);left:215px;top:-150px"></div>
+<div class="aro" style="width:150px;height:150px;border-width:22px;border-color:var(--azul);left:340px;top:-20px"></div>
+<div class="aro" style="width:150px;height:150px;border-width:22px;border-color:var(--verde);left:330px;top:690px"></div>
+<div class="aro" style="width:150px;height:150px;border-width:30px;border-color:var(--amarillo);left:-60px;top:760px"></div>
+<div class="logo">SP<i></i>TTER</div>
+<p class="sub">La IA propone, vos decidís.</p>
+<p class="por">POR DENTRO</p>
+<div class="lista">
+  <div class="c"><b>Next.js + TypeScript</b><span>Frontend, instalable en el teléfono</span></div>
+  <div class="c"><b>FastAPI + Python</b><span>Backend y reglas de entrenamiento</span></div>
+  <div class="c"><b>PostgreSQL + pgvector</b><span>Datos y catálogo de 127 ejercicios</span></div>
+  <div class="c ia"><b>Cloudflare Workers AI</b><span>Plan gratuito, con topes antes de cada llamada</span></div>
+  <div class="c"><b>Vercel + Neon</b><span>Publicada en la web</span></div>
+  <div class="c"><b>717 tests</b><span>Las reglas las comprueba el código</span></div>
+</div>
+<div class="pie"><p>spotter-vert.vercel.app</p><h2>¡Gracias!</h2></div>
+<script>
+  const cs=[...document.querySelectorAll('.c')];
+  window.__listo=document.fonts.ready.then(()=>true);
+  window.arrancar=(ds,pie)=>{cs.forEach((c,i)=>setTimeout(()=>c.classList.add('on'),ds[i]*1000));setTimeout(()=>document.querySelector('.pie').classList.add('on'),pie*1000)};
+</script>
+</body></html>

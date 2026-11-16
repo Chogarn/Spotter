@@ -1,0 +1,5 @@
+[
+  {"desde": ["entrenar visible", 1.5], "hasta": ["generando…", 3.0]},
+  {"desde": ["generando…", 50.0], "hasta": ["generando…", 53.0]},
+  {"desde": ["propuesta visible", -0.3], "hasta": ["FIN", 0.0]}
+]

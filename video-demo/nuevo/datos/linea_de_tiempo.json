@@ -1,0 +1,165 @@
+{
+ "total": 200.4472244002473,
+ "inicio": [
+  0.0,
+  15.073808785714286,
+  62.807141785714286,
+  106.68395309006212,
+  142.4555582752473,
+  174.4138914002473
+ ],
+ "escenas": [
+  15.573808785714286,
+  48.233333,
+  44.376811304347825,
+  36.27160518518518,
+  32.458333124999996,
+  26.033333
+ ],
+ "voz": [
+  {
+   "escena": 0,
+   "desde": 0.3,
+   "hasta": 14.95,
+   "pedido": 0.0,
+   "ubicado": 0.0,
+   "corrida": 0.0,
+   "fin": 14.65
+  },
+  {
+   "escena": 1,
+   "desde": 0.8,
+   "hasta": 7.95,
+   "pedido": 17.08,
+   "ubicado": 17.08,
+   "corrida": 0.0,
+   "fin": 24.23
+  },
+  {
+   "escena": 1,
+   "desde": 8.6,
+   "hasta": 22.4,
+   "pedido": 26.31,
+   "ubicado": 26.31,
+   "corrida": 0.0,
+   "fin": 40.11
+  },
+  {
+   "escena": 1,
+   "desde": 23.4,
+   "hasta": 27.95,
+   "pedido": 38.4,
+   "ubicado": 40.41,
+   "corrida": 2.01,
+   "fin": 44.96
+  },
+  {
+   "escena": 1,
+   "desde": 28.3,
+   "hasta": 36.8,
+   "pedido": 45.55,
+   "ubicado": 45.55,
+   "corrida": 0.0,
+   "fin": 54.05
+  },
+  {
+   "escena": 2,
+   "desde": 0.7,
+   "hasta": 13.55,
+   "pedido": 65.73,
+   "ubicado": 65.73,
+   "corrida": 0.0,
+   "fin": 78.58
+  },
+  {
+   "escena": 2,
+   "desde": 14.15,
+   "hasta": 16.9,
+   "pedido": 78.88,
+   "ubicado": 78.88,
+   "corrida": 0.0,
+   "fin": 81.63
+  },
+  {
+   "escena": 2,
+   "desde": 17.35,
+   "hasta": 24.7,
+   "pedido": 98.57,
+   "ubicado": 98.57,
+   "corrida": 0.0,
+   "fin": 105.92
+  },
+  {
+   "escena": 3,
+   "desde": 0.75,
+   "hasta": 23.85,
+   "pedido": 107.81,
+   "ubicado": 107.81,
+   "corrida": 0.0,
+   "fin": 130.91
+  },
+  {
+   "escena": 3,
+   "desde": 24.0,
+   "hasta": 29.5,
+   "pedido": 131.53,
+   "ubicado": 131.53,
+   "corrida": 0.0,
+   "fin": 137.03
+  },
+  {
+   "escena": 4,
+   "desde": 1.1,
+   "hasta": 4.45,
+   "pedido": 145.22,
+   "ubicado": 145.22,
+   "corrida": 0.0,
+   "fin": 148.57
+  },
+  {
+   "escena": 4,
+   "desde": 4.8,
+   "hasta": 8.9,
+   "pedido": 152.6,
+   "ubicado": 152.6,
+   "corrida": 0.0,
+   "fin": 156.7
+  },
+  {
+   "escena": 4,
+   "desde": 9.4,
+   "hasta": 11.8,
+   "pedido": 162.16,
+   "ubicado": 162.16,
+   "corrida": 0.0,
+   "fin": 164.56
+  },
+  {
+   "escena": 4,
+   "desde": 12.15,
+   "hasta": 13.2,
+   "pedido": 166.99,
+   "ubicado": 166.99,
+   "corrida": 0.0,
+   "fin": 168.04
+  },
+  {
+   "escena": 4,
+   "desde": 13.55,
+   "hasta": 15.0,
+   "pedido": 172.71,
+   "ubicado": 172.71,
+   "corrida": 0.0,
+   "fin": 174.16
+  },
+  {
+   "escena": 5,
+   "desde": 0.0,
+   "hasta": 23.7,
+   "pedido": 174.41,
+   "ubicado": 174.41,
+   "corrida": 0.0,
+   "fin": 198.11
+  }
+ ]
+}

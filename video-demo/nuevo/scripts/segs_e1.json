@@ -1,0 +1,7 @@
+[
+  {"desde": ["inicio visible", 1.2], "hasta": ["toque: Nueva rutina", -0.05]},
+  {"desde": ["toque: Nueva rutina", -0.05], "hasta": ["generando…", 3.0]},
+  {"desde": ["generando…", 50.0], "hasta": ["generando…", 53.0]},
+  {"desde": ["propuesta visible", -0.3], "hasta": ["toque: Aceptar", -0.05]},
+  {"desde": ["toque: Aceptar", -0.05], "hasta": ["FIN", 0.0]}
+]
