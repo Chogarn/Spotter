@@ -561,6 +561,41 @@ class AiCall(Base):
     )
 
 
+class GenerationLog(Base):
+    """Una fila por intento de "Generar rutina", solo para nosotros (decisión 141, 2026-11-14).
+
+    Guarda los parámetros pedidos, el resultado del intento y los CÓDIGOS de las reglas que fallaron
+    (los de `Issue.rule`: R1, R3, Catálogo, Reparto, Split, Peso…, o JSON e IA). Sin mensajes, sin
+    nombres de ejercicios y sin datos de la persona. Ninguna pantalla la muestra. Se consulta con
+    `python -m app.scripts.resumen_fallos`. Como `ai_calls`, borrar la cuenta no la arrastra.
+    """
+
+    __tablename__ = "generation_logs"
+    __table_args__ = (Index("ix_generation_logs_created_at", "created_at"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    kind: Mapped[str] = mapped_column(String(32))  # generate (rutina nueva) o week_close (continuar)
+    goal: Mapped[str] = mapped_column(String(32))
+    level: Mapped[str] = mapped_column(String(32))
+    days: Mapped[int | None] = mapped_column(SmallInteger)
+    split: Mapped[str | None] = mapped_column(String(32))
+    provider: Mapped[str | None] = mapped_column(String(32))
+    model: Mapped[str | None] = mapped_column(String(96))
+    attempt: Mapped[int] = mapped_column(SmallInteger)
+    # ok, ok_con_avisos, reintentada, rechazada o error_ia
+    outcome: Mapped[str] = mapped_column(String(24))
+    codes: Mapped[list[str]] = mapped_column(
+        JSON().with_variant(JSONB(), "postgresql"), default=list, server_default="[]"
+    )
+    duration_ms: Mapped[int] = mapped_column(Integer)
+    # ¿La rutina de este intento fue la que se le mostró a la persona?
+    shown: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+
+
 # gemini-embedding-001 a 768 dimensiones (una de las recomendadas por Google). Cambiarla exige
 # una migración y reindexar el catálogo.
 EMBEDDING_DIM = 768

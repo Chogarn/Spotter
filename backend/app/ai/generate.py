@@ -4,6 +4,7 @@ Sin FastAPI: el endpoint solo traduce las excepciones de acá a códigos HTTP.
 """
 
 import logging
+import os
 import threading
 import time
 from datetime import datetime, timedelta, timezone
@@ -21,7 +22,7 @@ from app.ai.retrieve import retrieve_candidates
 from app.ai.routine import RoutineProposal
 from app.ai.rules import Issue, validate_routine
 from app.enums import AiCallKind, Goal, Level, ProposalKind, ProposalStatus, RoutineSplit
-from app.models import AiCall, PlanProposal, User
+from app.models import AiCall, GenerationLog, PlanProposal, User
 
 MAX_ATTEMPTS = 2  # la primera llamada y un reintento; cada intento cuenta en los topes
 
@@ -130,6 +131,50 @@ def generate_proposal(
             _running.discard(user.id)
 
 
+def _ms_since(start: datetime) -> int:
+    # Con el reloj de datetime y no con `time.monotonic`: los tests reemplazan ese reloj lectura por lectura.
+    return int((datetime.now(timezone.utc) - start).total_seconds() * 1000)
+
+
+def _error_code(error: Exception) -> str:
+    """Código corto de por qué falló la llamada a la IA (para el registro de generaciones)."""
+    if isinstance(error, AiLimitError):
+        return "IA_tope"
+    if isinstance(error, AiConfigError):
+        return "IA_config"
+    text = str(error).lower()
+    if any(s in text for s in ("503", "429", "high demand", "unavailable", "overloaded")):
+        return "IA_saturada"
+    if "timeout" in text or "timed out" in text:
+        return "IA_tiempo"
+    return "IA"
+
+
+def _register(
+    db: Session, user: User, kind: ProposalKind, goal: Goal, level: Level,
+    days: int | None, split: RoutineSplit | None, attempts: list[dict],
+) -> None:
+    """Escribe una fila por intento en `generation_logs`. Nunca rompe la generación."""
+    if not attempts:
+        return
+    provider = os.environ.get("AI_PROVIDER", "").lower() or None
+    model = os.environ.get("CLOUDFLARE_MODEL" if provider == "cloudflare" else "GEMINI_MODEL") or None
+    try:
+        for a in attempts:
+            db.add(
+                GenerationLog(
+                    user_id=user.id, kind=kind.value, goal=goal.value, level=level.value, days=days,
+                    split=split.value if split is not None else None, provider=provider, model=model,
+                    attempt=a["attempt"], outcome=a["outcome"], codes=sorted(set(a["codes"])),
+                    duration_ms=a["ms"], shown=a.get("shown", False),
+                )
+            )
+        db.commit()
+    except Exception:
+        db.rollback()
+        logger.warning("No se pudo escribir el registro de generaciones", exc_info=True)
+
+
 def _generate_proposal(
     db: Session,
     user: User,
@@ -140,6 +185,28 @@ def _generate_proposal(
     minutes: int | None = None,
     split: RoutineSplit | None = None,
 ) -> PlanProposal:
+    attempts: list[dict] = []
+    kind_box: list[ProposalKind] = []
+    try:
+        return _generate_proposal_inner(
+            db, user, goal, level, routine_id, days, minutes, split, attempts, kind_box
+        )
+    finally:
+        _register(db, user, kind_box[0] if kind_box else ProposalKind.GENERATE, goal, level, days, split, attempts)
+
+
+def _generate_proposal_inner(
+    db: Session,
+    user: User,
+    goal: Goal,
+    level: Level,
+    routine_id: int | None,
+    days: int | None,
+    minutes: int | None,
+    split: RoutineSplit | None,
+    attempts: list[dict],
+    kind_box: list[ProposalKind],
+) -> PlanProposal:
     if user.profile is None:
         raise ProfileMissing
     if active_week(db, user.id) is not None:
@@ -149,6 +216,7 @@ def _generate_proposal(
     # Continuar una rutina: la IA lee lo planificado frente a lo real de su última semana cerrada.
     previous = build_previous_week(db, routine_id) if routine_id is not None else None
     kind = ProposalKind.WEEK_CLOSE if previous is not None else ProposalKind.GENERATE
+    kind_box.append(kind)
     call_kind = AiCallKind.WEEK_CLOSE if previous is not None else AiCallKind.GENERATE
     # RAG (decisión 58): 1 embedding de la consulta y los ejercicios más adecuados de cada grupo.
     # Si no se puede, devuelve todo lo permitido por nivel y objetivo: no se cae la generación.
@@ -166,19 +234,27 @@ def _generate_proposal(
     # Una rutina válida pero con el split mal: se guarda por si el reintento no se puede hacer o falla.
     fallback = None
 
-    def accept(routine: RoutineProposal, result) -> PlanProposal:
+    def accept(routine: RoutineProposal, result, entry: dict) -> PlanProposal:
         if previous is not None:
             result.warnings += [
                 Issue(rule, message) for rule, message in weight_jump_warnings(routine, previous)
             ]
+        # Registro de generaciones: la rutina que se muestra y sus avisos (solo códigos).
+        entry["shown"] = True
+        entry["codes"] = [w.rule for w in result.warnings]
+        entry["outcome"] = "ok_con_avisos" if result.warnings else "ok"
         return _save(db, user, routine, result, goal, level, routine_id, kind, days, minutes, split)
 
     for attempt in range(MAX_ATTEMPTS):
+        attempt_start = datetime.now(timezone.utc)
+        entry = {"attempt": attempt + 1, "outcome": "rechazada", "codes": [], "ms": 0}
+        attempts.append(entry)
         try:
             text = generate_json(
                 db, user.id, call_kind, prompt, RoutineProposal.model_json_schema(), timeout
             )
         except Exception as error:
+            entry.update(outcome="error_ia", codes=[_error_code(error)], ms=_ms_since(attempt_start))
             if fallback is not None:
                 # El reintento falló (tope, corte de tiempo, la IA): ya hay una rutina usable con su aviso.
                 logger.warning(
@@ -190,10 +266,12 @@ def _generate_proposal(
             logger.error("La IA falló en el intento %s: %s: %s", attempt + 1, type(error).__name__, error)
             raise AiUpstreamError(str(error)) from error
 
+        entry["ms"] = _ms_since(attempt_start)
         try:
             routine = RoutineProposal.model_validate_json(text)
         except ValidationError as error:
             problems = _pydantic_problems(error)
+            entry["codes"] = ["JSON"]
         else:
             # Decisión 58: los ejercicios salen del catálogo y sus etiquetas las pone el catálogo.
             # Al continuar, los de la semana anterior se pueden mantener aunque sean viejos.
@@ -210,12 +288,15 @@ def _generate_proposal(
             # y esos dos últimos solo si queda un intento.
             retry_problems = [i for i in result.soft_issues if i.rule in RETRY_RULES]
             if result.ok and (not retry_problems or attempt + 1 >= MAX_ATTEMPTS):
-                return accept(routine, result)
+                return accept(routine, result, entry)
             if result.ok:
-                fallback = (routine, result)
+                fallback = (routine, result, entry)
                 problems = [f"{i.rule}: {i.message}" for i in retry_problems]
+                # Quedó una rutina usable que se muestra solo si el reintento no la mejora.
+                entry.update(outcome="reintentada", codes=[i.rule for i in result.warnings + result.soft_issues])
             else:
                 problems = [f"{i.rule}: {i.message}" for i in result.errors]
+                entry["codes"] = [i.rule for i in result.errors]
             # Para saber qué devolvió la IA cuando la rutina no pasa las reglas (la rechazada no se
             # guarda en ningún lado). Solo los nombres de los ejercicios, no datos de la persona.
             logger.warning(

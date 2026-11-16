@@ -1,7 +1,7 @@
 "use client";
 
 import { tituloDia } from "@/lib/format";
-import { Check, MessageSquare, Sparkles } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -165,7 +165,7 @@ export default function PropuestaView({
     );
   }
 
-  const { days, notices, summary } = propuesta.routine;
+  const { days, summary } = propuesta.routine;
   const dia = days[diaActual] ?? days[0];
   const conBase = cambios?.has_base ? cambios : null;
   const cambioPorClave = new Map(conBase?.exercises.map((c) => [claveEjercicio(c.name), c]) ?? []);
@@ -228,21 +228,16 @@ export default function PropuestaView({
 
       {pestana === "semana" ? (
         <section role={pestanas.length > 1 ? "tabpanel" : undefined} aria-label="Semana">
-          {/* El resumen y las notas de la IA, arriba de los días. */}
-          {(summary || notices.length > 0) && (
+          {/* Solo el resumen de la IA, arriba de los días. Las notas de la IA (`notices`) y los
+              avisos del código (`warnings`) no los ve el usuario (2026-11-14); en desarrollo se
+              muestran con colores para detectar fallas (ver `AvisosDev`). */}
+          <AvisosDev notas={propuesta.routine.notices} avisos={propuesta.warnings} />
+          {summary && (
             <div className="mb-4 grid gap-2.5">
-              {summary && (
-                <Aviso Icono={Sparkles} destacado>
-                  <span className="font-medium">Resumen de la IA</span>
-                  <span className="block text-sm text-muted-foreground">{summary}</span>
-                </Aviso>
-              )}
-              {notices.map((n, i) => (
-                <Aviso key={`n${i}`} Icono={MessageSquare}>
-                  <span className="text-muted-foreground">Nota de la IA: </span>
-                  {n}
-                </Aviso>
-              ))}
+              <Aviso Icono={Sparkles} destacado>
+                <span className="font-medium">Resumen de la IA</span>
+                <span className="block text-sm text-muted-foreground">{summary}</span>
+              </Aviso>
             </div>
           )}
           {/* Una barra por día y flechas, como en el modo entrenar: se ve un día por vez. */}
@@ -355,6 +350,36 @@ export default function PropuestaView({
 }
 
 // El resumen o una nota de la IA, arriba de la semana, con su ícono. El resumen de la IA va destacado en amarillo.
+// Solo en desarrollo (NODE_ENV se fija al compilar: en producción no se dibuja nada). Avisos del
+// código en amarillo (con la regla que falló) y notas de la IA en azul. Para grabar videos se
+// apaga con `localStorage["spotter:sin-avisos-dev"] = "1"`.
+function AvisosDev({ notas, avisos }: { notas: string[]; avisos: { rule: string; message: string }[] }) {
+  if (process.env.NODE_ENV === "production") return null;
+  try {
+    if (window.localStorage.getItem("spotter:sin-avisos-dev") === "1") return null;
+  } catch {
+    // sin almacenamiento: se muestra igual
+  }
+  if (!notas?.length && !avisos?.length) return null;
+  return (
+    <div className="mb-4 grid gap-2 rounded-2xl border-2 border-dashed border-disco-tinta/30 p-2.5">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Solo en desarrollo</p>
+      {avisos?.map((a, i) => (
+        <div key={`a${i}`} className="rounded-xl border-2 border-disco-amarillo bg-disco-amarillo/20 p-3 text-sm">
+          <span className="font-medium">Aviso del código · {a.rule}: </span>
+          {a.message}
+        </div>
+      ))}
+      {notas?.map((n, i) => (
+        <div key={`n${i}`} className="rounded-xl border-2 border-disco-azul bg-disco-azul/10 p-3 text-sm">
+          <span className="font-medium">Nota de la IA: </span>
+          {n}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Aviso({
   Icono,
   destacado = false,
