@@ -210,3 +210,9 @@ Son 717 tests. Usan una base SQLite en memoria y una IA simulada: no necesitan P
 - [Criterios de entrenamiento](docs/criterios-entrenamiento.md): lo que dice la evidencia, con sus fuentes, como base de las reglas de la IA.
 - [Backlog](docs/backlog.md): tareas e ideas para más adelante.
 - [CLAUDE.md](CLAUDE.md): decisiones y convenciones del proyecto para asistentes de IA.
+
+## Autor y licencia
+
+Hecho por **Bruno Muzzio** ([@Chogarn](https://github.com/Chogarn)) como proyecto de aprendizaje.
+
+El código se publica bajo la [licencia MIT](LICENSE). Los criterios de entrenamiento y el catálogo de ejercicios todavía no los revisó una persona con formación en educación física: la app no reemplaza a un entrenador ni da consejo médico.
