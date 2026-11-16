@@ -90,7 +90,8 @@ Nutrición, wearables, video y consejos médicos. La app pide aceptar el aviso l
 | Next.js + TypeScript | Frontend |
 | pytest | Tests automáticos del backend |
 | Docker Compose | Entornos de desarrollo y producción en contenedores |
-| Gemini | IA (modelo `gemini-3.5-flash-lite`, plan gratuito) y embeddings (`gemini-embedding-001`): respuestas en JSON validadas con Pydantic, con topes de uso diarios y por minuto que se aplican antes de cada llamada |
+| Cloudflare Workers AI | IA que arma la rutina (modelo `@cf/openai/gpt-oss-120b`, plan gratuito sin tarjeta): respuestas en JSON validadas con Pydantic, con topes de uso diarios y por minuto que se aplican antes de cada llamada |
+| Gemini | Embeddings del catálogo de ejercicios (`gemini-embedding-001`, se calculan una sola vez al indexar) y alternativa de IA con `AI_PROVIDER=gemini` |
 
 ## Estructura de carpetas
 
@@ -100,9 +101,9 @@ spotter/
 │   ├── app/                  # API: main.py, db.py, deps.py, security.py, enums.py, models.py, schemas.py
 │   │   ├── routers/          # Endpoints: auth, calendar, exercises, measurements, period, profile, proposals, routines y weeks
 │   │   ├── scripts/          # Tareas de una sola vez (reclamar el usuario de desarrollo e indexar el catálogo)
-│   │   └── ai/               # IA: Gemini con topes, catálogo de ejercicios y RAG, reglas de la rutina, prompt
+│   │   └── ai/               # IA: Cloudflare o Gemini con topes, catálogo de ejercicios y RAG, reglas de la rutina, prompt
 │   ├── migrations/           # Migraciones de Alembic
-│   ├── tests/                # Tests con pytest (no llaman a Gemini de verdad)
+│   ├── tests/                # Tests con pytest (no llaman a la IA de verdad)
 │   ├── Dockerfile            # Imagen de desarrollo
 │   ├── Dockerfile.prod       # Imagen de producción
 │   ├── requirements.txt      # Dependencias de producción
@@ -161,7 +162,7 @@ En desarrollo las migraciones **no se aplican solas**: se corren a mano para no 
 
 ### Variables de entorno
 
-Para levantar la app, registrarse (los correos llegan a Mailpit) y usar el registro del día alcanzan los valores por defecto. Para **Generar rutina** hace falta la IA: copiá `.env.example` a `.env` y completá `GEMINI_API_KEY` (una clave del plan gratuito, de preferencia en un proyecto propio de Google AI Studio, porque los límites son por proyecto), `GEMINI_MODEL`, los topes `GEMINI_DAILY_LIMIT` y `GEMINI_RPM_LIMIT`, y los de los embeddings (`GEMINI_EMBEDDING_*`). Después hay que indexar el catálogo una vez: `docker compose -f docker-compose.dev.yml exec backend python -m app.scripts.index_catalog`. No hay valores por defecto a propósito: si falta alguno, la app se niega a llamar a Gemini. El archivo `.env` no se sube al repositorio.
+Para levantar la app, registrarse (los correos llegan a Mailpit) y usar el registro del día alcanzan los valores por defecto. Para **Generar rutina** hace falta la IA: copiá `.env.example` a `.env` y completá `AI_PROVIDER=cloudflare`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_MODEL` y los topes `CLOUDFLARE_DAILY_LIMIT` y `CLOUDFLARE_RPM_LIMIT` (el `.env.example` trae los valores de la app: 7 por día y 2 por minuto, por el cupo gratuito de Cloudflare). Para conseguir los datos: creá una cuenta gratis en Cloudflare (no pide tarjeta), copiá el ID de cuenta y creá un API token con permiso de Workers AI. Las variables `GEMINI_*` (una clave del plan gratuito de Google AI Studio, el modelo y los topes de embeddings) solo hacen falta para indexar el catálogo una vez (`docker compose -f docker-compose.dev.yml exec backend python -m app.scripts.index_catalog`) o si elegís `AI_PROVIDER=gemini`. No hay valores por defecto a propósito: si falta alguno, la app se niega a llamar a la IA. El archivo `.env` no se sube al repositorio.
 
 **Cuenta y sesión.** La API exige sesión (excepto `/health` y `/auth/*`): creá tu cuenta en `/registro` (el enlace de verificación llega a Mailpit en desarrollo; en producción hacen falta `SMTP_*`, `APP_URL` y `EMAIL_DAILY_LIMIT`) e iniciá sesión en `/login`. `JWT_SECRET` firma la sesión (sin valor por defecto en producción; usá 32 caracteres o más) y `COOKIE_SECURE=true` hace que la cookie solo viaje por HTTPS. Si ya tenías datos del desarrollo previo al login, `docker compose -f docker-compose.dev.yml exec backend python -m app.scripts.claim_user` convierte el usuario de desarrollo en tu cuenta (una sola vez; la contraseña la escribís por teclado).
 
@@ -187,7 +188,7 @@ Este compose corre la aplicación completa como en producción, en tu PC o en un
 
 La web pública corre en **Vercel**: un solo proyecto con dos servicios, definidos en [`vercel.json`](vercel.json). El frontend (Next.js) atiende todo y `/api/*` va al backend (FastAPI); como Vercel no quita el prefijo, [`backend/app/vercel_entry.py`](backend/app/vercel_entry.py) monta la API bajo `/api`. La base es **PostgreSQL en Neon** (con pgvector). Cada `git push` a `main` despliega solo.
 
-- **Variables en Vercel** (Settings, Environment Variables; tras cambiar una hay que volver a desplegar): `DATABASE_URL` (la dirección **con pool** de Neon), `JWT_SECRET`, `COOKIE_SECURE=true`, `APP_ENV=production`, `APP_URL` (la dirección pública), `GEMINI_*` (clave, modelo y topes, incluidos los de embeddings) y `SMTP_*` más `EMAIL_DAILY_LIMIT`. No hace falta `NEXT_PUBLIC_API_URL`: el frontend usa `/api`.
+- **Variables en Vercel** (Settings, Environment Variables; tras cambiar una hay que volver a desplegar): `DATABASE_URL` (la dirección **con pool** de Neon), `JWT_SECRET`, `COOKIE_SECURE=true`, `APP_ENV=production`, `APP_URL` (la dirección pública), `AI_PROVIDER` y `CLOUDFLARE_*` (cuenta, token, modelo y topes; las `GEMINI_*` solo si usás Gemini) y `SMTP_*` más `EMAIL_DAILY_LIMIT`. No hace falta `NEXT_PUBLIC_API_URL`: el frontend usa `/api`.
 - **Migraciones:** no corren solas. Se aplican desde tu PC con la dirección **directa** de Neon (sin `-pooler`): `docker compose -f docker-compose.dev.yml run --rm --no-deps -e DATABASE_URL="<dirección directa>" backend alembic upgrade head`. Después se copian los vectores del catálogo (`catalog_embeddings`) con `pg_dump --data-only -t catalog_embeddings`, o se indexa con `index_catalog`.
 - **Plan gratis:** Vercel Hobby es solo para uso personal no comercial; Vercel Services está en Beta. La dirección de producción es pública (Standard Protection de Vercel); las previews y las direcciones largas de cada despliegue piden iniciar sesión en Vercel.
 
@@ -199,7 +200,7 @@ Las dependencias de desarrollo (pytest) están en `backend/requirements-dev.txt`
 docker compose -f docker-compose.dev.yml run --rm --no-deps backend python -m pytest -q
 ```
 
-Son 717 tests. Usan una base SQLite en memoria y un Gemini simulado: no necesitan PostgreSQL ni gastan cuota de la IA.
+Son 717 tests. Usan una base SQLite en memoria y una IA simulada: no necesitan PostgreSQL ni gastan cuota de la IA.
 
 ## Documentación
 
