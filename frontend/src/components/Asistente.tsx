@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, Minus, Plus } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -44,8 +44,17 @@ export function PasoAsistente({
   nota?: string;
   children: React.ReactNode;
 }) {
+  // El paso anterior sirve para saber hacia dónde se desliza la pregunta. La primera vez que se dibuja
+  // (al abrir el asistente) no se anima: entra ya puesta.
+  const [previo, setPrevio] = useState(paso);
+  const [sentido, setSentido] = useState<"adelante" | "atras" | null>(null);
+  if (paso !== previo) {
+    setSentido(paso > previo ? "adelante" : "atras");
+    setPrevio(paso);
+  }
+
   return (
-    <div className="fixed inset-0 z-[90] flex flex-col overflow-y-auto bg-background">
+    <div className="fixed inset-0 z-[90] flex flex-col overflow-x-hidden overflow-y-auto bg-background">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pt-4 pb-6">
         <div className="flex items-center gap-3">
           <button
@@ -89,10 +98,17 @@ export function PasoAsistente({
           )}
         </div>
 
-        <h1 className="mt-8 mb-1 text-4xl leading-tight">{titulo}</h1>
-        {ayuda && <p className="m-0 text-muted-foreground">{ayuda}</p>}
+        {/* Al cambiar de paso, solo la pregunta se anima; la barra de arriba y el botón quedan quietos.
+            La clave cambia con el paso y el título, así también se anima si cambia la lista de pasos. */}
+        <div
+          key={`${paso}-${titulo}`}
+          className={cn("flex flex-1 flex-col", sentido && `paso-${sentido === "adelante" ? "adelante" : "atras"}`)}
+        >
+          <h1 className="mt-8 mb-1 text-4xl leading-tight">{titulo}</h1>
+          {ayuda && <p className="m-0 text-muted-foreground">{ayuda}</p>}
 
-        <div className="flex flex-1 flex-col justify-center py-6">{children}</div>
+          <div className="flex flex-1 flex-col justify-center py-6">{children}</div>
+        </div>
 
         {error && <ErrorMessage>{error}</ErrorMessage>}
         {nota && <p className="mt-0 mb-3 text-center text-sm text-muted-foreground">{nota}</p>}
