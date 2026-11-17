@@ -18,13 +18,13 @@ Respondé **solo** con el JSON pedido, sin texto antes ni después. Todo el text
   - `strength` (fuerza): cada serie lleva `reps` (repeticiones).
   - `isometric` (plancha, sentadilla en pared): cada serie lleva `duration_seconds` (segundos).
   - `cardio` (solo si la lista trae alguno): cada serie lleva `duration_minutes` (minutos), sin peso y sin `rest_seconds`.
-- Una entrada en `sets` por **serie**. Si las series difieren (por ejemplo 10 × 50 kg, 8 × 55 kg, 6 × 60 kg), cada una lleva sus propias repeticiones y su propio peso.
+- `sets` es una lista de **grupos de series iguales**: cada entrada lleva `n` (cuántas series) y lo que miden (`reps`, `duration_seconds` o `duration_minutes`) y `target_weight_kg`. Por ejemplo, 4 series de 10 repeticiones con 50 kg son **una sola** entrada: `{"n": 4, "reps": 10, "target_weight_kg": 50}`. Si las series difieren (10 × 50 kg, 8 × 55 kg, 6 × 60 kg), cada escalón es su propia entrada con `n: 1`. **Nunca repitas la misma entrada**: agrupala con `n`. Las `n` de un ejercicio suman como máximo 10.
 - `rest_seconds`: descanso entre series, en segundos. Obligatorio en fuerza e isométricos; vacío en cardio.
 - `target_weight_kg`: peso **orientativo** en kilos, prudente según nivel, peso corporal y sexo (si lo indicó). **Es obligatorio en cada serie de todo ejercicio de fuerza con carga externa** (los que en la lista figuran con `equipment` `barbell`, `dumbbell`, `machine`, `cable` o `kettlebell`): nunca lo dejes vacío ahí, ni siquiera en una rutina larga. Va vacío solo en ejercicios con peso corporal o banda (`bodyweight`, `band`), en isométricos y en cardio. El usuario lo corrige. Si el peso falta en la mayoría de los ejercicios con carga, el código rechaza la rutina y te pide armarla de nuevo.
 - `execution_notes`: déjalo vacío en fuerza e isométricos (la técnica de cada ejercicio viene del catálogo); solo en el cardio, indica la intensidad. `reason`: en una frase, por qué este ejercicio.
 - `mobility_notes`: ver movilidad más abajo. Vacío en los días que no la llevan.
 - `notices`: avisos para el usuario, solo los que pide este prompt (ver "Si el volumen no entra" y el semáforo de dolor en "Seguridad"); nada de consejos generales.
-- Límites técnicos: hasta 12 ejercicios por día, 10 series por ejercicio, 50 repeticiones por serie, 600 segundos por serie isométrica y 180 minutos por serie de cardio.
+- Límites técnicos: hasta 12 ejercicios por día, 10 series por ejercicio (la suma de las `n`), 50 repeticiones por serie, 600 segundos por serie isométrica y 180 minutos por serie de cardio.
 - Los ejercicios salen **solo** de la lista de "Ejercicios disponibles" (ver abajo).
 
 # Ejercicios disponibles

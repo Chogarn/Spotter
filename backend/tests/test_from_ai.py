@@ -72,3 +72,33 @@ def test_las_series_tienen_que_medirse_como_pide_el_tipo_del_catalogo():
     cardio = next(n for n in ("Cinta", "Cinta de correr", "Bicicleta fija") if find(n) and find(n).kind == ExerciseKind.CARDIO)
     with pytest.raises(ValidationError):
         from_ai(semana(fuerza(cardio)))  # un cardio con repeticiones y peso
+
+
+def test_los_grupos_de_series_se_expanden_en_una_fila_por_serie():
+    """Decisión 145: la IA escribe "4 series de 10 con 50 kg" y el código arma las 4 filas."""
+    ejercicio = fuerza("Press de banca con barra", sets=[{"n": 4, "reps": 10, "target_weight_kg": 50}])
+    series = from_ai(semana(ejercicio)).days[0].exercises[0].sets
+
+    assert len(series) == 4
+    assert all((s.reps, s.target_weight_kg) == (10, 50) for s in series)
+
+
+def test_una_piramide_son_grupos_de_una_serie():
+    piramide = [
+        {"n": 1, "reps": 10, "target_weight_kg": 50},
+        {"n": 1, "reps": 8, "target_weight_kg": 55},
+        {"n": 2, "reps": 6, "target_weight_kg": 60},
+    ]
+    series = from_ai(semana(fuerza("Press de banca con barra", sets=piramide))).days[0].exercises[0].sets
+
+    assert [(s.reps, s.target_weight_kg) for s in series] == [(10, 50), (8, 55), (6, 60), (6, 60)]
+
+
+def test_sin_n_cuenta_como_una_serie():
+    series = from_ai(semana(fuerza("Press de banca con barra"))).days[0].exercises[0].sets
+    assert len(series) == 1
+
+
+def test_mas_de_diez_series_en_total_se_rechaza():
+    with pytest.raises(ValidationError):
+        semana(fuerza("Press de banca con barra", sets=[{"n": 6, "reps": 10}, {"n": 5, "reps": 8}]))

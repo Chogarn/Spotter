@@ -106,13 +106,34 @@ class RoutineProposal(BaseModel):
 # segundos de menos. Lo que se guarda y lo que leen las reglas sigue siendo `RoutineProposal`.
 
 
+class AiSetGroup(SetProposal):
+    # Sin docstring a propósito: Pydantic lo copia al esquema y viaja en cada pedido a la IA.
+    # N series iguales (decisión 145); una pirámide son varios grupos con n = 1.
+
+    n: int = Field(default=1, ge=1, le=10)
+
+
+def expand_sets(groups: list[AiSetGroup]) -> list[dict]:
+    """Una fila por serie, como las guarda `plan_sets`."""
+    return [
+        g.model_dump(exclude={"n"}) for g in groups for _ in range(g.n)
+    ]
+
+
 class AiExercise(BaseModel):
     name: str = Field(min_length=1, max_length=150)
     # Solo sirve en el cardio (la intensidad); en el resto el "Cómo hacerlo" sale del catálogo.
     execution_notes: str | None = Field(default=None, max_length=500)
     rest_seconds: int | None = Field(default=None, ge=0, le=600)
     reason: str | None = Field(default=None, max_length=500)
-    sets: list[SetProposal] = Field(min_length=1, max_length=10)
+    # Grupos de series iguales; el total no pasa de 10 series.
+    sets: list[AiSetGroup] = Field(min_length=1, max_length=10)
+
+    @model_validator(mode="after")
+    def at_most_ten_sets(self) -> Self:
+        if sum(g.n for g in self.sets) > 10:
+            raise ValueError("un ejercicio lleva 10 series como máximo")
+        return self
 
 
 class AiDay(BaseModel):

@@ -15,7 +15,7 @@ from typing import Any, Literal, get_args
 from pydantic import BaseModel, Field
 
 from app.ai.plan_writer import normalize_name
-from app.ai.routine import AiRoutine, RoutineProposal
+from app.ai.routine import AiRoutine, RoutineProposal, expand_sets
 from app.enums import (
     ExerciseDirection,
     ExerciseEquipment,
@@ -204,6 +204,7 @@ def from_ai(routine: AiRoutine, legacy: Mapping[str, Any] | None = None) -> Rout
                     unknown.append(item.name)
                 continue
             data = item.model_dump()
+            data["sets"] = expand_sets(item.sets)  # decisión 145: los grupos pasan a una fila por serie
             data["name"] = source.name
             for tag in TAG_FIELDS:
                 data[tag] = getattr(source, tag)

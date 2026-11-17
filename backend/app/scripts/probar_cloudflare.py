@@ -8,7 +8,8 @@ pedidos fallan con un error.
 
 Arma el prompt con las mismas funciones que la app, lo manda a cada modelo una sola vez (sin
 reintento, para medir cuántas pasan al primer intento) y le pasa a la respuesta las mismas pruebas
-que la app: Pydantic (`RoutineProposal`), `canonicalize` y `validate_routine`.
+que la app: Pydantic (`AiRoutine`, el formato corto de la decisión 142), `from_ai`, `canonicalize` y
+`validate_routine`.
 
 Necesita en el `.env`: CLOUDFLARE_ACCOUNT_ID y CLOUDFLARE_API_TOKEN (permiso de Workers AI).
 
@@ -34,10 +35,10 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from app.ai.catalog import CatalogExercise, canonicalize, load_catalog
+from app.ai.catalog import CatalogExercise, UnknownExercises, canonicalize, from_ai, load_catalog
 from app.ai.prompt import build_prompt
 from app.ai.retrieve import PER_GROUP, allowed
-from app.ai.routine import RoutineProposal
+from app.ai.routine import AiRoutine
 from app.ai.rules import validate_routine
 from app.ai.schema import strict_schema
 from app.enums import Goal, Level, Muscle, RoutineSplit
@@ -189,7 +190,7 @@ class Outcome:
 def run_one(account: str, token: str, model: str, case: Case, prompt: str, out_dir: Path) -> Outcome:
     outcome = Outcome(model=model, case=case.key)
     start = time.monotonic()
-    raw = call(account, token, model, prompt, strict_schema(RoutineProposal.model_json_schema()))
+    raw = call(account, token, model, prompt, strict_schema(AiRoutine.model_json_schema()))
     outcome.seconds = time.monotonic() - start
 
     safe = model.replace("@cf/", "").replace("/", "_")
@@ -211,12 +212,16 @@ def run_one(account: str, token: str, model: str, case: Case, prompt: str, out_d
         outcome.errors.append("La respuesta vino sin texto (ver el JSON guardado).")
         return outcome
 
+    # Como la app (decisión 142): la IA escribe `AiRoutine` y el catálogo completa tipo y etiquetas.
     try:
-        routine = RoutineProposal.model_validate_json(text)
+        routine = from_ai(AiRoutine.model_validate_json(text))
     except ValidationError as error:
         outcome.errors += [
             f"JSON: {'.'.join(str(p) for p in e['loc'])}: {e['msg']}" for e in error.errors()[:8]
         ]
+        return outcome
+    except UnknownExercises as error:
+        outcome.errors.append(f"Catálogo: {', '.join(error.names)}")
         return outcome
     outcome.json_ok = True
 
