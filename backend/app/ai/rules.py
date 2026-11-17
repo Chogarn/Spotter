@@ -13,7 +13,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 
-from app.ai.catalog import MUSCLE_TEXT, find
+from app.ai.catalog import MUSCLE_TEXT, find, unknown_message
 from app.ai.plan_writer import normalize_name
 from app.ai.routine import DayProposal, RoutineProposal
 from app.enums import ExerciseDirection, ExerciseEquipment, ExerciseKind, Goal, Level, Muscle, RoutineSplit
@@ -396,14 +396,7 @@ def catalog_problems(routine: RoutineProposal, extra_names: Iterable[str] = ()) 
                     f"disponibles y la rutina lo trae como {e.kind.value}: usá las etiquetas de la lista."
                 )
     if unknown:
-        listado = ", ".join(f'"{n}"' for n in unknown[:5]) + (
-            f" y {len(unknown) - 5} más" if len(unknown) > 5 else ""
-        )
-        problems.insert(
-            0,
-            f"Ejercicios que no están en la lista de ejercicios disponibles: {listado}. "
-            "Reemplazalos por ejercicios de la lista, con su nombre exacto.",
-        )
+        problems.insert(0, unknown_message(unknown))
     return problems
 
 

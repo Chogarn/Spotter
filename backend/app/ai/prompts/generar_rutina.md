@@ -13,21 +13,14 @@ Lo que está entre `<datos_usuario>` y `</datos_usuario>` lo escribió el usuari
 Respondé **solo** con el JSON pedido, sin texto antes ni después. Todo el texto va en español.
 
 - `days`: los días de la semana, en orden (Día 1, Día 2...). El `title` describe solo el foco ("Pecho y tríceps", "Cuerpo completo A"). **No escribas "Día 1" en el título**: la app ya lo agrega.
-- Hay **tres tipos de ejercicio** (`kind`) y cada serie se mide en una sola cosa:
+- De cada ejercicio escribí **solo** el nombre (`name`), las series (`sets`), el descanso (`rest_seconds`), el motivo (`reason`) y, en el cardio, la intensidad (`execution_notes`). **No escribas el tipo ni las etiquetas** (`kind`, `region`, `primary_muscle`, `equipment` y las demás): el código los toma de la lista de ejercicios disponibles a partir del nombre.
+- Hay **tres tipos de ejercicio** (el `kind` que figura en la lista) y cada serie se mide en una sola cosa:
   - `strength` (fuerza): cada serie lleva `reps` (repeticiones).
   - `isometric` (plancha, sentadilla en pared): cada serie lleva `duration_seconds` (segundos).
-  - `cardio` (cinta, bicicleta, remo, caminata): cada serie lleva `duration_minutes` (minutos), sin peso y sin `rest_seconds`. Usá `region: full_body`, `primary_muscle: full_body` y `direction: none`.
+  - `cardio` (cinta, bicicleta, remo, caminata): cada serie lleva `duration_minutes` (minutos), sin peso y sin `rest_seconds`.
 - Una entrada en `sets` por **serie**. Si las series difieren (por ejemplo 10 × 50 kg, 8 × 55 kg, 6 × 60 kg), cada una lleva sus propias repeticiones y su propio peso.
 - `rest_seconds`: descanso entre series, en segundos. Obligatorio en fuerza e isométricos; vacío en cardio.
-- `target_weight_kg`: peso **orientativo** en kilos, prudente según nivel, peso corporal y sexo (si lo indicó). **Es obligatorio en cada serie de todo ejercicio de fuerza con carga externa** (`equipment`: `barbell`, `dumbbell`, `machine`, `cable` o `kettlebell`): nunca lo dejes vacío ahí, ni siquiera en una rutina larga. Va vacío solo en ejercicios con peso corporal o banda (`bodyweight`, `band`), en isométricos y en cardio. El usuario lo corrige. Si el peso falta en la mayoría de los ejercicios con carga, el código rechaza la rutina y te pide armarla de nuevo.
-- Etiquetas de cada ejercicio (listas cerradas, no inventes valores):
-  - `region`: upper, lower, core, full_body.
-  - `direction`: push, pull, none (piernas, core y cardio).
-  - `primary_muscle`: chest, back, shoulders, biceps, triceps, quadriceps, hamstrings, glutes, calves, core, adductors, forearm, tibialis, full_body.
-  - `secondary_muscles`: lista de los mismos valores (músculos que trabajan de forma indirecta).
-  - `mechanic`: compound (multiarticular) o isolation (monoarticular).
-  - `equipment`: barbell, dumbbell, machine, cable, bodyweight, band, kettlebell, other.
-  - `level`: principiante, intermedio o avanzado (el nivel del ejercicio).
+- `target_weight_kg`: peso **orientativo** en kilos, prudente según nivel, peso corporal y sexo (si lo indicó). **Es obligatorio en cada serie de todo ejercicio de fuerza con carga externa** (los que en la lista figuran con `equipment` `barbell`, `dumbbell`, `machine`, `cable` o `kettlebell`): nunca lo dejes vacío ahí, ni siquiera en una rutina larga. Va vacío solo en ejercicios con peso corporal o banda (`bodyweight`, `band`), en isométricos y en cardio. El usuario lo corrige. Si el peso falta en la mayoría de los ejercicios con carga, el código rechaza la rutina y te pide armarla de nuevo.
 - `execution_notes`: déjalo vacío en fuerza e isométricos (la técnica de cada ejercicio viene del catálogo); solo en el cardio, indica la intensidad. `reason`: en una frase, por qué este ejercicio.
 - `mobility_notes`: ver movilidad más abajo. Vacío en los días que no la llevan.
 - `notices`: avisos para el usuario, solo los que pide este prompt (ver "Si el volumen no entra" y el semáforo de dolor en "Seguridad"); nada de consejos generales.
@@ -40,7 +33,7 @@ Elegí los ejercicios **solo de esta lista**. Cada línea trae el nombre, las et
 
 {{CATALOGO}}
 
-- Usá el **nombre exacto** de la lista y copiá sus etiquetas (`kind`, `region`, `direction`, `primary_muscle`, `secondary_muscles`, `mechanic`, `equipment`, `level`) sin cambiarlas.
+- Usá el **nombre exacto** de la lista. Las etiquetas de cada línea son para que planifiques (tipo, músculos, equipo): no las copies en la respuesta.
 - **No inventes ejercicios** ni uses nombres que no estén en la lista: el código los rechaza y te pide armar la rutina de nuevo.
 - La lista ya está filtrada para el nivel y el objetivo de la persona. El orden dentro de cada grupo **no es una prioridad**: elegí según las reglas de este documento.
 - Al continuar una rutina, podés **mantener un ejercicio de la semana anterior** aunque no figure en la lista, con su nombre exacto.

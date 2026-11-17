@@ -97,3 +97,33 @@ class RoutineProposal(BaseModel):
     notices: list[str] = Field(default_factory=list, max_length=10)
     # Resumen de evolución respecto de la semana anterior (qué subió, qué se mantuvo, qué no se hizo).
     summary: str | None = Field(default=None, max_length=1200)
+
+
+# --- Lo que escribe la IA ---
+# La IA elige el ejercicio por su nombre y decide las series, el descanso y el motivo. El tipo y las
+# etiquetas (R13) no los escribe: los pone el catálogo (`catalog.from_ai`). Medido el 2026-11-16: las
+# etiquetas eran un tercio de la respuesta y el código las pisaba igual; cada token de menos son
+# segundos de menos. Lo que se guarda y lo que leen las reglas sigue siendo `RoutineProposal`.
+
+
+class AiExercise(BaseModel):
+    name: str = Field(min_length=1, max_length=150)
+    # Solo sirve en el cardio (la intensidad); en el resto el "Cómo hacerlo" sale del catálogo.
+    execution_notes: str | None = Field(default=None, max_length=500)
+    rest_seconds: int | None = Field(default=None, ge=0, le=600)
+    reason: str | None = Field(default=None, max_length=500)
+    sets: list[SetProposal] = Field(min_length=1, max_length=10)
+
+
+class AiDay(BaseModel):
+    title: str = Field(min_length=1, max_length=100)
+    mobility_notes: str | None = Field(default=None, max_length=500)
+    exercises: list[AiExercise] = Field(min_length=1, max_length=12)
+
+
+class AiRoutine(BaseModel):
+    """La semana como la devuelve la IA. El orden de `days` es Día 1, Día 2..."""
+
+    days: list[AiDay] = Field(min_length=1, max_length=7)
+    notices: list[str] = Field(default_factory=list, max_length=10)
+    summary: str | None = Field(default=None, max_length=1200)

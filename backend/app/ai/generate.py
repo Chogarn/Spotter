@@ -14,15 +14,15 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.ai.gemini import AiConfigError, AiLimitError, generate_json
-from app.ai.catalog import canonicalize
+from app.ai.catalog import UnknownExercises, canonicalize, find, from_ai
 from app.ai.history import PreviousWeek, build_previous_week, weight_jump_warnings
-from app.ai.plan_writer import active_week
+from app.ai.plan_writer import active_week, normalize_name
 from app.ai.prompt import build_prompt
 from app.ai.retrieve import retrieve_candidates
-from app.ai.routine import RoutineProposal
+from app.ai.routine import AiRoutine, RoutineProposal
 from app.ai.rules import Issue, validate_routine
 from app.enums import AiCallKind, Goal, Level, ProposalKind, ProposalStatus, RoutineSplit
-from app.models import AiCall, GenerationLog, PlanProposal, User
+from app.models import AiCall, Exercise, GenerationLog, PlanProposal, User
 
 MAX_ATTEMPTS = 2  # la primera llamada y un reintento; cada intento cuenta en los topes
 
@@ -105,6 +105,16 @@ def _correction(problems: list[str]) -> str:
         "\n\n# Corrección\nLa respuesta anterior tenía estos problemas. Armá la rutina de nuevo "
         f"corrigiéndolos y respetando todo lo anterior:\n{lista}\n"
     )
+
+
+def _legacy_exercises(db: Session, names: list[str]) -> dict[str, Exercise]:
+    """Los ejercicios de la semana anterior que no están en el catálogo (rutinas viejas), con sus
+    etiquetas guardadas, por nombre normalizado. La IA ya no las escribe: salen de acá."""
+    wanted = {normalize_name(n) for n in names if find(n) is None}
+    if not wanted:
+        return {}
+    rows = db.scalars(select(Exercise).where(Exercise.name_normalized.in_(wanted)))
+    return {row.name_normalized: row for row in rows}
 
 
 def generate_proposal(
@@ -228,6 +238,7 @@ def _generate_proposal_inner(
         minutes, split,
     )
     prompt = base_prompt
+    legacy = _legacy_exercises(db, previous.exercise_names) if previous else {}
     problems: list[str] = []
     started = time.monotonic()
     timeout: float | None = None
@@ -251,7 +262,7 @@ def _generate_proposal_inner(
         attempts.append(entry)
         try:
             text = generate_json(
-                db, user.id, call_kind, prompt, RoutineProposal.model_json_schema(), timeout
+                db, user.id, call_kind, prompt, AiRoutine.model_json_schema(), timeout
             )
         except Exception as error:
             entry.update(outcome="error_ia", codes=[_error_code(error)], ms=_ms_since(attempt_start))
@@ -268,13 +279,25 @@ def _generate_proposal_inner(
 
         entry["ms"] = _ms_since(attempt_start)
         try:
-            routine = RoutineProposal.model_validate_json(text)
+            # La IA escribe solo el nombre, las series, el descanso y el motivo; el tipo y las
+            # etiquetas los pone el catálogo (decisión 58). Al continuar, los ejercicios de la semana
+            # anterior se pueden mantener aunque sean viejos: sus etiquetas salen de lo guardado.
+            ai_routine = AiRoutine.model_validate_json(text)
+            routine = from_ai(ai_routine, legacy)
         except ValidationError as error:
             problems = _pydantic_problems(error)
             entry["codes"] = ["JSON"]
+        except UnknownExercises as error:
+            problems = [f"Catálogo: {error}"]
+            entry["codes"] = ["Catálogo"]
+            # La rechazada no se guarda en ningún lado: solo los nombres, no datos de la persona.
+            logger.warning(
+                "Rutina rechazada en el intento %s: %s | ejercicios: %s",
+                attempt + 1,
+                problems[0],
+                [e.name for d in ai_routine.days for e in d.exercises],
+            )
         else:
-            # Decisión 58: los ejercicios salen del catálogo y sus etiquetas las pone el catálogo.
-            # Al continuar, los de la semana anterior se pueden mantener aunque sean viejos.
             routine = canonicalize(routine)
             result = validate_routine(
                 routine, goal, level, days,

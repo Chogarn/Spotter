@@ -8,12 +8,13 @@ import hashlib
 import json
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal, get_args
+from collections.abc import Iterable, Mapping
+from typing import Any, Literal, get_args
 
 from pydantic import BaseModel, Field
 
 from app.ai.plan_writer import normalize_name
-from app.ai.routine import RoutineProposal
+from app.ai.routine import AiRoutine, RoutineProposal
 from app.enums import (
     ExerciseDirection,
     ExerciseEquipment,
@@ -130,6 +131,62 @@ def how_to_text(exercise: CatalogExercise, ai_note: str | None) -> str | None:
     if exercise.kind != ExerciseKind.CARDIO or not ai_note:
         return exercise.how_to or None
     return f"{exercise.how_to} {ai_note.strip()}".strip()
+
+
+def unknown_message(names: Iterable[str]) -> str:
+    """El pedido de corrección cuando la IA usa ejercicios que no están en la lista."""
+    unknown = list(names)
+    listado = ", ".join(f'"{n}"' for n in unknown[:5]) + (
+        f" y {len(unknown) - 5} más" if len(unknown) > 5 else ""
+    )
+    return (
+        f"Ejercicios que no están en la lista de ejercicios disponibles: {listado}. "
+        "Reemplazalos por ejercicios de la lista, con su nombre exacto."
+    )
+
+
+class UnknownExercises(Exception):
+    """La IA nombró ejercicios que no están en el catálogo ni en la semana anterior."""
+
+    def __init__(self, names: list[str]):
+        self.names = names
+        super().__init__(unknown_message(names))
+
+
+TAG_FIELDS = ("kind", "region", "direction", "primary_muscle", "mechanic", "equipment", "level")
+
+
+def from_ai(routine: AiRoutine, legacy: Mapping[str, Any] | None = None) -> RoutineProposal:
+    """Completa lo que escribió la IA con el tipo y las etiquetas del catálogo.
+
+    `legacy`: ejercicios de la semana anterior que no están en el catálogo (rutinas viejas), por
+    nombre normalizado; cada uno trae sus etiquetas guardadas. Un nombre que no está en ninguno de
+    los dos lados no tiene etiquetas: se rechaza con `UnknownExercises`. Si las series no se miden
+    como pide el tipo (minutos en fuerza, por ejemplo), Pydantic lanza `ValidationError`.
+    """
+    legacy = legacy or {}
+    unknown: list[str] = []
+    days = []
+    for day in routine.days:
+        exercises = []
+        for item in day.exercises:
+            source = find(item.name) or legacy.get(normalize_name(item.name))
+            if source is None:
+                if item.name not in unknown:
+                    unknown.append(item.name)
+                continue
+            data = item.model_dump()
+            data["name"] = source.name
+            for tag in TAG_FIELDS:
+                data[tag] = getattr(source, tag)
+            data["secondary_muscles"] = list(source.secondary_muscles or [])
+            exercises.append(data)
+        days.append({"title": day.title, "mobility_notes": day.mobility_notes, "exercises": exercises})
+    if unknown:
+        raise UnknownExercises(unknown)
+    return RoutineProposal.model_validate(
+        {"days": days, "notices": routine.notices, "summary": routine.summary}
+    )
 
 
 def canonicalize(routine: RoutineProposal) -> RoutineProposal:

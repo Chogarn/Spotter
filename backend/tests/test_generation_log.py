@@ -58,7 +58,7 @@ def test_si_el_reintento_falla_se_muestra_la_primera_con_su_aviso(api, entorno, 
 def test_una_rutina_rechazada_guarda_los_codigos_y_no_los_mensajes(api, entorno, monkeypatch):
     con_perfil(api)
     mala = rutina()
-    mala["days"][0]["exercises"][0]["name"] = "Cinta (treadmill)"
+    mala["days"][0]["exercises"][0]["name"] = "Salto del treadmill inventado"
     usar_gemini(monkeypatch, mala, mala)
 
     assert api.post("/proposals/generate", json=ELECCION).status_code == 502
