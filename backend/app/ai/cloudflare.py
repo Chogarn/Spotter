@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy.orm import Session
 
 from app.ai.gemini import UTC_TZ, _positive_int, _required, reserve_call
-from app.ai.schema import strict_schema
+from app.ai.schema import OMITTABLE_FIELDS, strict_schema
 from app.enums import AiCallKind
 
 logger = logging.getLogger(__name__)
@@ -119,7 +119,7 @@ def generate_json(
     call = reserve_call(db, user_id, kind, settings)
     body = {
         "messages": [{"role": "user", "content": prompt}],
-        "response_format": {"type": "json_schema", "json_schema": strict_schema(json_schema)},
+        "response_format": {"type": "json_schema", "json_schema": strict_schema(json_schema, OMITTABLE_FIELDS)},
         "max_tokens": MAX_OUTPUT_TOKENS,
         "reasoning_effort": REASONING_EFFORT,
     }

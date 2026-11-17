@@ -102,3 +102,14 @@ def test_sin_n_cuenta_como_una_serie():
 def test_mas_de_diez_series_en_total_se_rechaza():
     with pytest.raises(ValidationError):
         semana(fuerza("Press de banca con barra", sets=[{"n": 6, "reps": 10}, {"n": 5, "reps": 8}]))
+
+
+def test_en_el_esquema_para_cloudflare_las_duraciones_se_pueden_omitir_pero_las_repeticiones_no():
+    """Probado con la IA real (2026-11-17): si `reps` es opcional, la IA lo omite también en la fuerza."""
+    from app.ai.schema import OMITTABLE_FIELDS, strict_schema
+
+    esquema = strict_schema(AiRoutine.model_json_schema(), OMITTABLE_FIELDS)
+    serie = esquema["properties"]["days"]["items"]["properties"]["exercises"]["items"]["properties"]["sets"]["items"]
+
+    assert {"reps", "target_weight_kg", "n"} <= set(serie["required"])
+    assert not {"duration_minutes", "duration_seconds"} & set(serie["required"])

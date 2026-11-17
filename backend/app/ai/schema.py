@@ -47,13 +47,23 @@ def gemini_schema(schema: dict[str, Any]) -> dict[str, Any]:
     return walk(schema)
 
 
-def strict_schema(schema: dict[str, Any]) -> dict[str, Any]:
+# Campos que van vacíos casi siempre y que la IA puede omitir en vez de escribir `null` (decisión 145):
+# los minutos y segundos de la serie (la fuerza no los usa) y la intensidad (solo del cardio). `reps` sigue
+# obligatorio: probado el 2026-11-17, si es opcional la IA lo omite también en la fuerza.
+# Si falta la que corresponde, Pydantic lo rechaza ("repeticiones, minutos o segundos: una sola").
+OMITTABLE_FIELDS = frozenset({"duration_minutes", "duration_seconds", "execution_notes"})
+
+
+def strict_schema(
+    schema: dict[str, Any], omittable: frozenset[str] = frozenset()
+) -> dict[str, Any]:
     """Esquema JSON estándar sin `$ref`, para Cloudflare (formato de OpenAI, no el de Gemini).
 
     Todos los campos pasan a obligatorios, como el modo estricto de OpenAI: en la prueba del
     2026-11-12 los modelos de Cloudflare salteaban los opcionales (por ejemplo `rest_seconds`, que el
     validador exige según el tipo de ejercicio). Un opcional sigue aceptando `null` por su `anyOf`,
     pero el modelo tiene que escribirlo. Se dejan los límites: Pydantic los comprueba igual.
+    `omittable`: nombres de campo que quedan fuera de `required` (se pueden omitir).
     """
     defs = schema.get("$defs", {})
 
@@ -73,7 +83,7 @@ def strict_schema(schema: dict[str, Any]) -> dict[str, Any]:
             else:
                 out[key] = walk(value)
         if "properties" in out:
-            out["required"] = list(out["properties"])
+            out["required"] = [name for name in out["properties"] if name not in omittable]
         return out
 
     return walk(schema)

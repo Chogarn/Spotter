@@ -40,7 +40,7 @@ from app.ai.prompt import build_prompt
 from app.ai.retrieve import PER_GROUP, allowed
 from app.ai.routine import AiRoutine
 from app.ai.rules import validate_routine
-from app.ai.schema import strict_schema
+from app.ai.schema import OMITTABLE_FIELDS, strict_schema
 from app.enums import Goal, Level, Muscle, RoutineSplit
 from app.models import Profile
 
@@ -190,7 +190,7 @@ class Outcome:
 def run_one(account: str, token: str, model: str, case: Case, prompt: str, out_dir: Path) -> Outcome:
     outcome = Outcome(model=model, case=case.key)
     start = time.monotonic()
-    raw = call(account, token, model, prompt, strict_schema(AiRoutine.model_json_schema()))
+    raw = call(account, token, model, prompt, strict_schema(AiRoutine.model_json_schema(), OMITTABLE_FIELDS))
     outcome.seconds = time.monotonic() - start
 
     safe = model.replace("@cf/", "").replace("/", "_")
