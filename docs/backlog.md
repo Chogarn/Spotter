@@ -118,6 +118,8 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 
 ## Plan de cierre (armado el 2026-11-16, para retomar)
 
+> **#35 en curso (2026-11-17):** hecho el workflow de GitHub Actions y los primeros tests del frontend (decisión 147); falta verlo correr en GitHub y sumar tests de pantallas.
+
 En orden. Lo que dice **Vos** es una decisión o una prueba del usuario; lo que dice **IA**, trabajo del asistente, que muestra antes de construir.
 
 ### Bloque 1: que "Generar rutina" no falle en la demo

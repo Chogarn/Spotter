@@ -13,7 +13,7 @@ Las decisiones importantes del producto, con quién las tomó, por qué y qué s
 - **IA y generación de rutinas:** 9, 32, 35, 37, 58, 63 a 65, 71, 74, 129, 134, 139 a 146.
 - **Pantallas y diseño:** 38, 41 a 44, 46 a 49, 51, 54 a 57, 68, 69, 75 a 79, 83 a 85, 92 a 95, 99, 103, 108 a 112, 116 a 122, 128, 131, 133, 135 a 137.
 - **Cuenta, seguridad y legal:** 39, 80, 81, 96 a 98, 106, 107, 138.
-- **Despliegue:** 113 a 115, 127.
+- **Despliegue y calidad:** 113 a 115, 127, 147.
 
 ## Decisiones
 
@@ -1070,6 +1070,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Arreglo asociado (de la 145):** `AiSetGroup` ya no exige una sola medida por serie; `from_ai` deja la que pide el tipo del catálogo (una plancha con `reps` y segundos queda en segundos) y `RoutineProposal` comprueba que quede una. Sin esto, 2 de 3 corridas se rechazaban por una plancha con `reps: 45` y `duration_seconds: 45`.
 - **Probado con Cloudflare real, torso/pierna de 4 días:** 3 corridas, 3 sin ningún aviso (R3, reparto ni duración), de 63 a 164 s. La prueba del prompt solo con esa estructura y ese nivel: **no se probó con cuerpo completo, PPL ni otros objetivos**.
 - **Por qué:** R3 fallaba en 7 de 11 intentos porque 2 ejercicios por grupo con 3 a 4 series dan 8, no 10. El prompt ahora hace la cuenta y pide al menos 3 ejercicios por grupo grande. *(borrador IA)*
+
+### 147. Revisión automática en cada push, con GitHub Actions
+- **Fecha:** 2026-11-17
+- **Decisión:** el repo tiene `.github/workflows/ci.yml`: en cada push y pull request, GitHub corre en una computadora limpia los tests del backend (`pytest`) y, en el frontend, `next typegen`, `tsc --noEmit`, `npm run lint` y `npm test` (Vitest, con tests de funciones puras de `src/lib`: `filas.test.ts` y `format.test.ts`). Si algo se rompe, el commit queda con una ✗ roja. Es la tarea #35. Se subió `@types/node` de la 20 a la 24 (Vitest la pedía y el proyecto corre con Node 24).
+- **Origen:** tuya (el profesor te habló de una herramienta de GitHub que revisa el código antes de los push para que no se rompa; elegiste construirla).
+- **Por qué:** una ✓ o ✗ automática avisa enseguida si lo subido rompió algo, sin depender de acordarse de correr los tests, y Vercel despliega solo con cada push a `main`. *(borrador IA)*
+- **Descartaste:** por ahora, los tests de pantallas completas (iniciar sesión, "Día completado"): son más caros y se rompen más; un hook local antes del push (otra herramienta).
+- **Ojo:** GitHub Actions corre **después** de subir, no antes: avisa, pero el código ya llegó a `main`. Para que frene antes haría falta trabajar con pull requests. No se probó todavía en GitHub: el primer push dirá si algo falla en un entorno limpio.
 
 ## Decisiones abiertas
 
