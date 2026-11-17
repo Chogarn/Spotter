@@ -112,6 +112,13 @@ class AiSetGroup(SetProposal):
 
     n: int = Field(default=1, ge=1, le=10)
 
+    @model_validator(mode="after")
+    def reps_or_duration(self) -> Self:
+        # Pisa la comprobación de SetProposal: acá la IA puede escribir dos medidas (la plancha con
+        # `reps` y segundos); `from_ai` deja la que pide el tipo del catálogo y `RoutineProposal`
+        # comprueba que quede una sola.
+        return self
+
 
 def expand_sets(groups: list[AiSetGroup]) -> list[dict]:
     """Una fila por serie, como las guarda `plan_sets`."""

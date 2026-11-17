@@ -113,3 +113,13 @@ def test_en_el_esquema_para_cloudflare_las_duraciones_se_pueden_omitir_pero_las_
 
     assert {"reps", "target_weight_kg", "n"} <= set(serie["required"])
     assert not {"duration_minutes", "duration_seconds"} & set(serie["required"])
+
+
+def test_una_plancha_con_repeticiones_y_segundos_queda_medida_en_segundos():
+    """Probado con la IA real (2026-11-17): copia los segundos de la plancha también en `reps`."""
+    plancha = next(e for e in ("Plancha abdominal", "Plancha") if find(e) and find(e).kind == ExerciseKind.ISOMETRIC)
+    ejercicio = fuerza(plancha, sets=[{"n": 3, "reps": 45, "duration_seconds": 45}])
+    series = from_ai(semana(ejercicio)).days[0].exercises[0].sets
+
+    assert len(series) == 3
+    assert all((s.reps, s.duration_seconds) == (None, 45) for s in series)

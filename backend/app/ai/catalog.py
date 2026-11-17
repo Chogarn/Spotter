@@ -184,6 +184,22 @@ class UnknownExercises(Exception):
 TAG_FIELDS = ("kind", "region", "direction", "primary_muscle", "mechanic", "equipment", "level")
 
 
+_MEASURE_BY_KIND = {
+    "strength": "reps",
+    "isometric": "duration_seconds",
+    "cardio": "duration_minutes",
+}
+
+
+def _measure_by_kind(serie: dict[str, Any], kind: Any) -> dict[str, Any]:
+    """Si la serie trae la medida que corresponde al tipo, borra las otras (la IA a veces escribe
+    dos). Si no la trae, queda como está y Pydantic la rechaza."""
+    keep = _MEASURE_BY_KIND.get(getattr(kind, "value", kind))
+    if keep is None or serie.get(keep) is None:
+        return serie
+    return {k: (v if k == keep or k not in _MEASURE_BY_KIND.values() else None) for k, v in serie.items()}
+
+
 def from_ai(routine: AiRoutine, legacy: Mapping[str, Any] | None = None) -> RoutineProposal:
     """Completa lo que escribió la IA con el tipo y las etiquetas del catálogo.
 
@@ -204,7 +220,9 @@ def from_ai(routine: AiRoutine, legacy: Mapping[str, Any] | None = None) -> Rout
                     unknown.append(item.name)
                 continue
             data = item.model_dump()
-            data["sets"] = expand_sets(item.sets)  # decisión 145: los grupos pasan a una fila por serie
+            # Decisión 145: los grupos pasan a una fila por serie, y cada serie se mide como pide el
+            # tipo del catálogo (la IA a veces copia los segundos de una plancha también en `reps`).
+            data["sets"] = [_measure_by_kind(s, source.kind) for s in expand_sets(item.sets)]
             data["name"] = source.name
             for tag in TAG_FIELDS:
                 data[tag] = getattr(source, tag)
