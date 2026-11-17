@@ -141,6 +141,45 @@ def test_ningun_nombre_ni_alias_apunta_a_dos_ejercicios(ejercicios):
     assert choques == []
 
 
+def test_sin_plurales_ningun_nombre_ni_alias_apunta_a_dos_ejercicios(ejercicios):
+    """`find` también busca sin plurales: dos ejercicios que solo difieran en una "s" chocarían."""
+    from app.ai.catalog import sin_plural
+
+    dueno: dict[str, str] = {}
+    choques = []
+    for e in ejercicios:
+        for texto in [e["name"], *e["aliases"]]:
+            clave = sin_plural(texto)
+            if clave in dueno and dueno[clave] != e["id"]:
+                choques.append((texto, dueno[clave], e["id"]))
+            dueno.setdefault(clave, e["id"])
+    assert choques == []
+
+
+@pytest.mark.parametrize(
+    "escrito, esperado",
+    [
+        ("Zancada con peso corporal", "Zancadas con peso corporal"),
+        ("zancada con mancuerna", "Zancadas con mancuernas"),
+        ("Elevacion lateral con mancuerna", "Elevaciones laterales con mancuernas"),
+        ("Press de banca con barra", "Press de banca con barra"),
+    ],
+)
+def test_find_tolera_singular_y_plural(escrito, esperado):
+    from app.ai.catalog import find
+
+    encontrado = find(escrito)
+    assert encontrado is not None and encontrado.name == esperado
+
+
+@pytest.mark.parametrize("escrito", ["Curl femoral en máquina", "Cinta de correr", "Cardio"])
+def test_find_no_adivina_lo_que_no_es_un_plural(escrito):
+    # "Curl femoral en máquina" es ambiguo (sentado o acostado): se sigue rechazando.
+    from app.ai.catalog import find
+
+    assert find(escrito) is None
+
+
 def test_hay_mas_de_un_ejercicio_por_grupo_y_nivel_para_que_la_ia_elija(ejercicios):
     for grupo in BIG_GROUPS:
         del_grupo = [e for e in ejercicios if e["primary_muscle"] == grupo]

@@ -6,6 +6,7 @@ lee y se valida; los vectores (RAG) se arman a partir de `embedding_text`.
 
 import hashlib
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
 from collections.abc import Iterable, Mapping
@@ -112,9 +113,36 @@ def _by_name() -> dict[str, CatalogExercise]:
     return index
 
 
+def sin_plural(text: str) -> str:
+    """El nombre normalizado sin la "s" o "es" final de cada palabra: "Zancada" = "Zancadas".
+
+    Solo para buscar en el catálogo (no reemplaza a `normalize_name`, que también deduplica la
+    tabla `exercises`). Las palabras de 3 letras o menos ("con", "de", "en") quedan como están.
+    Ningún par de ejercicios del catálogo choca así (lo comprueba un test).
+    """
+    return " ".join(
+        re.sub(r"(es|s)$", "", word) if len(word) > 3 else word
+        for word in normalize_name(text).split()
+    )
+
+
+@lru_cache
+def _by_singular() -> dict[str, CatalogExercise]:
+    """Nombre y alias sin plurales -> ejercicio."""
+    index: dict[str, CatalogExercise] = {}
+    for exercise in load_catalog():
+        for text in (exercise.name, *exercise.aliases):
+            index.setdefault(sin_plural(text), exercise)
+    return index
+
+
 def find(name: str) -> CatalogExercise | None:
-    """Busca por nombre o alias, sin importar mayúsculas ni tildes. None si no está."""
-    return _by_name().get(normalize_name(name))
+    """Busca por nombre o alias, sin importar mayúsculas, tildes ni plurales. None si no está.
+
+    Primero el nombre exacto; solo si no está, sin plurales (la IA escribió "Zancada con
+    mancuernas" y el catálogo dice "Zancadas con mancuernas", 2026-11-16).
+    """
+    return _by_name().get(normalize_name(name)) or _by_singular().get(sin_plural(name))
 
 
 def detail_muscles_of(name: str) -> list[str]:
