@@ -116,6 +116,40 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 - [ ] Publicación LinkedIn final con la demo `docs`
 - [ ] Plan a 30 días `docs`
 
+## Plan de cierre (armado el 2026-11-16, para retomar)
+
+En orden. Lo que dice **Vos** es una decisión o una prueba del usuario; lo que dice **IA**, trabajo del asistente, que muestra antes de construir.
+
+### Bloque 1: que "Generar rutina" no falle en la demo
+
+Medido el 2026-11-16 con Cloudflare (3 llamadas reales): ese día escribió unos 35 tokens por segundo (el 12/11, unas tres veces más rápido) y la duración depende de cuánto escribe. Perder grasa de 3 días: 150 s. Masa de 4 días: 230 s (la app corta a los 200). Perder grasa de 6 días: Cloudflare la cortó (408) a los 236 s. La respuesta era 42 % series, 32 % etiquetas, 10 % "por qué" y 4 % "cómo hacerlo".
+
+- [x] **La IA no escribe el tipo ni las etiquetas** (commit `057da6d`, 2026-11-16): los pone el catálogo (`from_ai` en `ai/catalog.py`, modelo `AiRoutine`). Masa de 4 días: de 230 s a 97 s. **Falta:** el push (despliega en producción) y probar "Generar rutina" desde la pantalla, rutina nueva y continuar.
+- [ ] **El cardio inventado en masa** `ia` (**IA** investiga, **Vos** decidís). Las dos rutinas de masa medidas se rechazaron por un cardio que no está en la lista ("Cinta de correr", "Ciclismo estático"); en masa la lista no trae cardio. Para qué: que el primer intento no se rechace. Qué hacer: leer qué partes del prompt nombran cardio cuando el objetivo es masa o fuerza y mostrar el cambio de texto. Criterio: 3 generaciones de masa seguidas sin rechazo por "Catálogo".
+- [ ] **Decidir: nombre parecido se corrige en vez de rechazar** (**Vos**). En desarrollo, 4 de 8 intentos registrados se rechazaron (3 por "Catálogo"). Opción: si el nombre se parece mucho a uno de la lista, usar ese. Riesgo: que elija un ejercicio distinto del que quiso la IA.
+- [ ] **Decidir: series agrupadas** (**Vos**). Que la IA escriba "N series de X repeticiones con Y kg" y el código arme las filas. En masa las 100 series eran 36 grupos (esa parte baja de 42 % a 18 %); en perder grasa casi no ahorra. Toca cómo se expresan las pirámides.
+- [ ] **Probar en producción** (**Vos**, después del push): una rutina nueva de 4 días o más y una semana siguiente; mirar `generation_logs` en Neon.
+- [ ] Poner al día `app/scripts/probar_cloudflare.py`, que sigue pidiendo el formato viejo con etiquetas (**IA**, chico).
+
+### Bloque 2: ver lo que nunca se vio
+
+- [ ] Recorrer en desarrollo, con una cuenta descartable, y pasar capturas (**IA**): el festejo de fin de semana en el modo entrenar (decisión 133), la propuesta sin pestaña Avisos (134), el cronómetro (135 y el retoque del 2026-11-13), "¡Listo el Día N!" (136), el tilde en lectura (137) y reiniciar el día.
+- [ ] Confirmar en producción que, después de generar, la propuesta se abre sola (**Vos**, al probar el bloque 1).
+- [ ] Probar la app instalada en un iPhone: instalar, iniciar sesión, cerrar y volver a abrir (**Vos**; la IA pasa la lista de qué mirar).
+- [ ] "Cerrar sesión lleva a la Bienvenida" (definida en S5). **Falta decidir (Vos):** si la sesión vencida también va a la Bienvenida o sigue yendo al Login.
+
+### Bloque 3: documentos
+
+- [ ] Decisión 141 (registro de generaciones) y una decisión nueva para "la IA no escribe las etiquetas": la **IA** escribe el qué, **Vos** el por qué.
+- [ ] Los `(completar)` de `docs/decisiones.md` (120 al 2026-11-16): son de **Vos**. La IA puede ordenarlos por importancia para el tutor.
+- [ ] Tablero de GitHub: cerrar #34 y los que correspondan. Antes, iniciar sesión en `gh` en la terminal (`gh auth login`).
+
+### Bloque 4: cierre de S6
+
+- [ ] Decidir si el video pasa a público (**Vos**).
+- [ ] Publicación LinkedIn final con la demo (la **IA** propone el texto con el molde de siempre).
+- [ ] Plan a 30 días. Candidatos: revisión de un abogado, revisión de una persona de educación física, tests del frontend y una revisión automática en cada push, y partir `routers/weeks.py` (1.129 líneas) y `EntrenarView.tsx` (1.001).
+
 ## Tareas definidas que siguen (resumen)
 
 La definición completa de cada una está en su issue de GitHub.
