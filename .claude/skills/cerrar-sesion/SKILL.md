@@ -44,7 +44,12 @@ Solo lo que cambió de verdad. Editá, no agregues párrafos nuevos a lo loco: `
 - **`docs/flujo-app.md`**: si cambió una pantalla o un recorrido del usuario.
 - **`docs/modelo-datos.md`**: si hubo una migración o cambió una tabla (y si es nueva, que el número coincida con `backend/migrations/`).
 - **`docs/sistema-de-diseno.md`**: si se creó o cambió un componente o patrón visual reutilizable.
-- **`docs/decisiones.md`**: agregá una entrada **solo por cada decisión que el usuario tomó** en la sesión (con el número que sigue al último, qué se decidió y la fecha). **Nunca escribas el "por qué"**: dejá `(completar)`, porque esa parte muestra el criterio del estudiante y la escribe él. Si no estás seguro de que algo haya sido una decisión suya y no un detalle, no la agregues.
+- **`docs/decisiones.md`** (revisalo **siempre**, aunque no hayas tocado nada más; el usuario lo pidió el 2026-11-17): repasá las decisiones que el usuario tomó en la sesión y, para cada una, resolvé cuál de estas cuatro corresponde:
+  - **Agregar** una entrada nueva (con el número que sigue al último, qué se decidió, la fecha y qué se descartó).
+  - **Modificar** una existente si la decisión la cambia en parte (actualizá el texto y anotá "Actualizada por la decisión N").
+  - **Marcar como reemplazada** una que quedó sin efecto (`~~título~~ (reemplazada por la N)`), sin borrarla ni renumerar: el código y los docs citan los números.
+  - **Borrar** solo si el usuario lo pide expresamente; si crees que sobra, proponelo en el resumen.
+  El "por qué": si el usuario lo dijo en la sesión, ponelo entre comillas, con sus palabras. Si no, redactá un borrador corto con el contexto y marcalo `*(borrador IA)*`; si no hay contexto suficiente, dejá `(completar)`. Si no estás seguro de que algo haya sido una decisión suya y no un detalle, preguntale en el resumen en vez de agregarla. Mantené el índice por tema del principio del archivo al día.
 - Si hubo un número de rutas, tests o tablas en `CLAUDE.md` que cambió (por ejemplo "hasta la 0028" o la cantidad de ejercicios), actualizalo.
 
 No inventes nada: si no sabés qué actualizar, mirá el diff y `git log` de la sesión.
@@ -80,7 +85,7 @@ Si en la sesión el usuario te corrigió o confirmó una forma de trabajar que c
 Tu mensaje final debe decir, en español rioplatense y sin vueltas:
 
 - Qué commits hiciste (hash corto y título) y que el push salió bien (o el error).
-- Qué documentos actualizaste y qué cambiaste en cada uno.
+- Qué documentos actualizaste y qué cambiaste en cada uno. En particular, **qué decisiones agregaste, modificaste o marcaste como reemplazadas** (o que repasaste y no hacía falta tocar nada).
 - Qué verificaste (tipos, tests) y qué **no** pudiste verificar (por ejemplo, pantallas que no viste en un celular).
 - Qué quedó afuera a propósito (borradores sin subir, etc.).
 - **Qué debería revisar el usuario** y **qué decidiste vos sin preguntar** (como pide `CLAUDE.md` al terminar cada entrega).
