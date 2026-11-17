@@ -147,8 +147,8 @@ Medido el 2026-11-16 con Cloudflare (3 llamadas reales): ese día escribió unos
 
 ### Bloque 4: cierre de S6
 
-- [ ] Decidir si el video pasa a público (**Vos**).
-- [ ] Publicación LinkedIn final con la demo (la **IA** propone el texto con el molde de siempre).
+- [x] El video pasó a público en YouTube, con la descripción y el crédito de la música (hecho el 2026-11-17).
+- [x] Publicación LinkedIn final con la demo (hecha el 2026-11-17; el texto no se guarda en el repo).
 - [ ] Plan a 30 días. Candidatos: revisión de un abogado, revisión de una persona de educación física, tests del frontend y una revisión automática en cada push, y partir `routers/weeks.py` (1.129 líneas) y `EntrenarView.tsx` (1.001).
 
 ## Tareas definidas que siguen (resumen)
