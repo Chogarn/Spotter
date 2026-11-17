@@ -33,6 +33,21 @@ def test_el_prompt_incluye_los_datos_del_perfil():
     assert "ninguna indicada" in texto
 
 
+@pytest.mark.parametrize("goal", [Goal.MASA, Goal.FUERZA])
+def test_en_masa_y_fuerza_el_prompt_dice_que_no_lleva_cardio(goal):
+    # La IA inventaba "Cinta de correr" o "Ciclismo estático" en masa y el catálogo rechazaba todo.
+    texto = armar(perfil(), goal)
+    assert "Esta rutina no lleva cardio" in texto
+    assert "{{CARDIO}}" not in texto
+
+
+@pytest.mark.parametrize("goal", [Goal.PERDER_GRASA, Goal.MANTENERME_ACTIVO])
+def test_con_cardio_el_prompt_no_lo_prohibe(goal):
+    texto = armar(perfil(), goal)
+    assert "no lleva cardio" not in texto
+    assert "{{CARDIO}}" not in texto
+
+
 def test_el_prompt_aclara_que_un_dia_de_descanso_no_es_un_ejercicio():
     # La IA llegó a devolver "Descanso activo" como ejercicio y el catálogo rechazó toda la rutina.
     texto = armar(perfil())

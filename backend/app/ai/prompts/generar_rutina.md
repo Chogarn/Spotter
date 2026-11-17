@@ -17,7 +17,7 @@ Respondé **solo** con el JSON pedido, sin texto antes ni después. Todo el text
 - Hay **tres tipos de ejercicio** (el `kind` que figura en la lista) y cada serie se mide en una sola cosa:
   - `strength` (fuerza): cada serie lleva `reps` (repeticiones).
   - `isometric` (plancha, sentadilla en pared): cada serie lleva `duration_seconds` (segundos).
-  - `cardio` (cinta, bicicleta, remo, caminata): cada serie lleva `duration_minutes` (minutos), sin peso y sin `rest_seconds`.
+  - `cardio` (solo si la lista trae alguno): cada serie lleva `duration_minutes` (minutos), sin peso y sin `rest_seconds`.
 - Una entrada en `sets` por **serie**. Si las series difieren (por ejemplo 10 × 50 kg, 8 × 55 kg, 6 × 60 kg), cada una lleva sus propias repeticiones y su propio peso.
 - `rest_seconds`: descanso entre series, en segundos. Obligatorio en fuerza e isométricos; vacío en cardio.
 - `target_weight_kg`: peso **orientativo** en kilos, prudente según nivel, peso corporal y sexo (si lo indicó). **Es obligatorio en cada serie de todo ejercicio de fuerza con carga externa** (los que en la lista figuran con `equipment` `barbell`, `dumbbell`, `machine`, `cable` o `kettlebell`): nunca lo dejes vacío ahí, ni siquiera en una rutina larga. Va vacío solo en ejercicios con peso corporal o banda (`bodyweight`, `band`), en isométricos y en cardio. El usuario lo corrige. Si el peso falta en la mayoría de los ejercicios con carga, el código rechaza la rutina y te pide armarla de nuevo.
@@ -35,7 +35,7 @@ Elegí los ejercicios **solo de esta lista**. Cada línea trae el nombre, las et
 
 - Usá el **nombre exacto** de la lista. Las etiquetas de cada línea son para que planifiques (tipo, músculos, equipo): no las copies en la respuesta.
 - **No inventes ejercicios** ni uses nombres que no estén en la lista: el código los rechaza y te pide armar la rutina de nuevo.
-- La lista ya está filtrada para el nivel y el objetivo de la persona. El orden dentro de cada grupo **no es una prioridad**: elegí según las reglas de este documento.
+{{CARDIO}}- La lista ya está filtrada para el nivel y el objetivo de la persona. El orden dentro de cada grupo **no es una prioridad**: elegí según las reglas de este documento.
 - Al continuar una rutina, podés **mantener un ejercicio de la semana anterior** aunque no figure en la lista, con su nombre exacto.
 
 # Días de la semana

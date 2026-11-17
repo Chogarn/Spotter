@@ -29,7 +29,7 @@ from sqlalchemy import select, type_coerce
 from sqlalchemy.orm import Session
 
 from app.ai.catalog import CatalogExercise, find, load_catalog
-from app.ai.prompt import GOAL_TEXT
+from app.ai.prompt import CARDIO_GOALS, GOAL_TEXT
 from app.enums import ExerciseKind, Goal, Level, Muscle
 from app.models import EMBEDDING_DIM, CatalogEmbedding, QueryEmbedding
 
@@ -40,8 +40,6 @@ PER_GROUP = 6
 
 LEVEL_ORDER = {Level.PRINCIPIANTE: 0, Level.INTERMEDIO: 1, Level.AVANZADO: 2}
 
-# Objetivos que llevan cardio según `generar_rutina.md` (R17); masa y fuerza no.
-CARDIO_GOALS = {Goal.PERDER_GRASA, Goal.MANTENERME_ACTIVO}
 
 
 @dataclass

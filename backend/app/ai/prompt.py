@@ -89,6 +89,23 @@ def volume_text(minutes: int | None) -> str:
     )
 
 
+# Objetivos que llevan cardio según `generar_rutina.md` (R17); masa y fuerza no.
+# `retrieve.py` lo usa para sacar el cardio de la lista.
+CARDIO_GOALS = {Goal.PERDER_GRASA, Goal.MANTENERME_ACTIVO}
+
+NO_CARDIO = (
+    "- **Esta rutina no lleva cardio.** En masa y fuerza la lista no trae ningún ejercicio de cardio: "
+    "no agregues cinta, bicicleta, elíptica, remo en ergómetro, caminata ni ningún otro, tampoco como "
+    "entrada en calor ni al final del día. La entrada en calor va como texto en `mobility_notes`, no "
+    "como ejercicio. Si agregás un cardio, el código rechaza toda la rutina.\n"
+)
+
+
+def cardio_text(goal: Goal) -> str:
+    """En masa y fuerza la lista no trae cardio (`CARDIO_GOALS`): se le dice que no lo invente."""
+    return "" if goal in CARDIO_GOALS else NO_CARDIO
+
+
 def catalog_block(candidates: Sequence[CatalogExercise]) -> str:
     """La lista de ejercicios que se le ofrece a la IA, agrupada por músculo principal."""
     by_muscle: dict[Muscle, list[CatalogExercise]] = {}
@@ -128,6 +145,7 @@ def build_prompt(
         default_split(days, level, goal) if days is not None else RoutineSplit.FULL_BODY
     )
     text = text.replace("{{SPLIT}}", split_prompt(selected_split, days or 3))
+    text = text.replace("{{CARDIO}}", cardio_text(goal))
     text = text.replace("{{TIEMPO}}", minutes_text(minutes))
     text = text.replace("{{VOLUMEN_NO_ENTRA}}", volume_text(minutes))
     text = text.replace(
