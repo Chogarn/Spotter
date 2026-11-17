@@ -1,0 +1,45 @@
+# Revisión automática: en cada push y en cada pull request, GitHub corre estos chequeos
+# en una computadora limpia. Si algo se rompió, el commit queda con una ✗ roja.
+# Los tests del backend nunca llaman a la IA real ni necesitan claves.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+      - run: pip install -r backend/requirements-dev.txt
+      - run: python -m pytest -q
+        working-directory: backend
+
+  frontend:
+    name: Frontend (tipos, lint y tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      # Genera los tipos de Next (LayoutProps y otros) que tsc necesita en una copia limpia.
+      - run: npx next typegen
+        working-directory: frontend
+      - run: npx tsc --noEmit
+        working-directory: frontend
+      - run: npm run lint
+        working-directory: frontend
+      - run: npm test
+        working-directory: frontend

@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { readError, type DayDetail, type DayState, type ExerciseItem, type SetItem, type WeekDetail, apiFetch } from "@/lib/api";
 import { calorHecha, estaHecho, realAsSet, setText, summarize, tituloDia } from "@/lib/format";
 import { borrarCronosDelDia } from "@/lib/cronometro";
+import { repartirEnFilas } from "@/lib/filas";
 import { cn } from "cn";
 import { Cargando } from "@/components/Cargando";
 
@@ -534,10 +535,7 @@ function ListoElDia({
       </Disco>
     )),
   ];
-  const MAX_POR_FILA = 7;
-  const cantidadFilas = Math.max(1, Math.ceil(discos.length / MAX_POR_FILA));
-  const porFila = Math.ceil(discos.length / cantidadFilas);
-  const filas = Array.from({ length: cantidadFilas }, (_, f) => discos.slice(f * porFila, (f + 1) * porFila));
+  const filas = repartirEnFilas(discos);
 
   return (
     <div className="text-center">
