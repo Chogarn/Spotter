@@ -1037,7 +1037,17 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Fecha:** 2026-11-16
 - **Decisión:** medido con 3 llamadas reales a Cloudflare, las etiquetas eran un tercio de la respuesta y el código las reemplazaba igual por las del catálogo. Ahora la IA escribe de cada ejercicio solo el nombre, las series, el descanso, el motivo y, en el cardio, la intensidad (`AiRoutine` en `ai/routine.py`); el código completa el tipo y las etiquetas de R13 desde el catálogo o, al continuar, desde los ejercicios guardados de la semana anterior (`from_ai` en `ai/catalog.py`). Un nombre que no está en ninguno de los dos se rechaza con el código "Catálogo". Lo que se guarda y lo que leen las reglas no cambia. Una rutina de masa de 4 días bajó de 230 s a 97 s.
 - **Por qué:** *(completar)*
-- **Queda abierto:** agrupar las series ("N series de X repeticiones con Y kg") y corregir por parecido un nombre casi igual al del catálogo.
+- **Queda abierto:** agrupar las series ("N series de X repeticiones con Y kg"). Corregir un nombre casi igual al del catálogo se resolvió en parte con la decisión 144.
+
+### 143. En masa y fuerza el prompt dice que la rutina no lleva cardio
+- **Fecha:** 2026-11-17
+- **Decisión:** la lista de masa y fuerza ya no traía cardio, pero el prompt daba de ejemplo cinta, bicicleta, remo y caminata, y la IA inventaba "Cinta de correr" o "Ciclismo estático" (la regla "Catálogo" rechazaba la rutina). La línea de los tipos de ejercicio dice ahora "solo si la lista trae alguno" y, en masa y fuerza, el código agrega un aviso: la rutina no lleva cardio, ni como entrada en calor ni al final (`cardio_text` en `ai/prompt.py`; `CARDIO_GOALS` pasó a ese archivo). Probado con Cloudflare en desarrollo: 3 de 3 rutinas de masa de 4 días en el primer intento, sin cardio (las 3 con aviso R3).
+- **Por qué:** *(completar)*
+
+### 144. El catálogo tolera singular y plural; la corrección por parecido queda para después
+- **Fecha:** 2026-11-17
+- **Decisión:** `find` (`ai/catalog.py`) busca primero el nombre exacto y, si no está, sin la "s" o "es" final de cada palabra (`sin_plural`): "Zancada con peso corporal" encuentra "Zancadas con peso corporal". `normalize_name` no cambia (también deduplica la tabla `exercises`). Ningún par del catálogo choca así (un test lo comprueba). Un nombre ambiguo como "Curl femoral en máquina" (sentado o acostado) se sigue rechazando. La corrección por parecido (`difflib`, umbral 0,90, ganador con 0,05 de ventaja y solo dentro de la lista de esa generación) **no se hace por ahora**: queda para cuando aparezcan errores que no sean de plural.
+- **Por qué:** *(completar)*
 
 ## Decisiones abiertas
 
