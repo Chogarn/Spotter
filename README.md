@@ -4,7 +4,8 @@
 
 **Probala:** [spotter-vert.vercel.app](https://spotter-vert.vercel.app) (se instala en el teléfono como una app)
 
-**Mirá la demo (3 min):** [youtu.be/lNjnzj29kY4](https://youtu.be/lNjnzj29kY4)
+**Mirá la demo (3 min):** [youtu.be/lNjnzj29kY4](https://youtu.be/lNjnzj29kY4)  
+*Música: "Upbeat Motivation" de AtlasAudio, vía Pixabay.*
 
 ![Next.js](https://img.shields.io/badge/Next.js_16-000000?logo=nextdotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
