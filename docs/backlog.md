@@ -84,7 +84,7 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 - [x] Sustitución de ejercicios en la propuesta: botón "Cambiar ejercicio" con las alternativas del catálogo, en todos los días donde aparece y sin IA (decisión 65, 2026-10-15) `backend` `frontend`. Cambiar un ejercicio ya aceptado en la semana activa **no se hace** (2026-10-26: sería anular el plan, no generarlo).
 - [x] Animación de carga mientras se genera la rutina: pantalla completa con el disco que gira y frases (decisiones 67 y 85) `frontend`
 - [x] Cambiar la contraseña desde la pestaña Cuenta: pide la actual y cierra las sesiones de los demás aparatos (decisión 80, 2026-10-16) `backend` `frontend` (#64)
-- [ ] Aviso legal visible en la app `frontend` (#34). **En espera por decisión del usuario (2026-10-16):** la app muestra solo lo que ya tiene (tilde del paso 7, letra chica en el día y la propuesta, aviso de dolor fuerte). El borrador del texto completo y la maqueta están en [docs/aviso-legal-borrador.md](aviso-legal-borrador.md); faltan decidir el borrado de cuenta, el contacto y la revisión legal
+- [x] Aviso legal visible en la app `frontend` (#34). **Hecho el 2026-11-12 (decisión 138), versión 1.1 el 2026-11-13 (decisión 139, nombra a Cloudflare):** página pública `/aviso-legal`, enlace al pie de Bienvenida, Login y Registro, dos casillas en el último paso del perfil (el aviso y el consentimiento de datos de salud) y pantalla para aceptar la versión vigente. **Falta:** la revisión de un abogado. El borrador original queda en [docs/aviso-legal-borrador.md](aviso-legal-borrador.md)
 - [ ] Más tests y revisión de errores `backend`
 - [ ] **Cerrar sesión lleva a la Bienvenida, no al Login** `frontend` (pedido del usuario, 2026-11-07; **para hacer después**)
   - **Para qué sirve:** hoy "Cerrar sesión" (pestaña Cuenta del Perfil, `perfil/page.tsx`, `cerrarSesion()`) manda a `/login`. El usuario quiere que vuelva a la **Bienvenida** (la portada sin sesión, con "Iniciar sesión" y "Crear cuenta").
@@ -108,11 +108,11 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
   - **Sigue sin verificar:** cómo se instala en iPhone paso a paso en la página de Apple (la que consulté solo cubre Mac), y qué funciones extra, como notificaciones, quedan disponibles en iPhone.
   - **Criterios de aceptación:** (1) en Android (Chrome) aparece "Instalar app" y queda un ícono con el nombre y el diseño elegidos; (2) abierta desde el ícono, no muestra la barra del navegador; (3) en iPhone se puede añadir a la pantalla de inicio con el mismo ícono; (4) el login y la sesión funcionan igual desde la app instalada; (5) comprobado en un teléfono real, no solo en el emulador.
 - [x] Deploy en producción: Vercel (frontend y backend) y Neon (PostgreSQL), abierta al público el 2026-11-07 (decisiones 113 y 115) `docker`
-- [ ] README completo (cómo levantar, capturas) `docs`
+- [x] README completo (cómo levantar, capturas) `docs`. **Hecho:** portada con link, insignias y 4 capturas (2026-11-12, rehechas el 2026-11-13), la IA descrita como Cloudflare Workers AI, link al video de la demo, y autor y licencia MIT (2026-11-16)
 - [x] Publicación LinkedIn 4: "Cuarto avance de Spotter" (la app en la web, instalable en el teléfono, modo entrenar renovado, mapa muscular por partes y la prueba con un amigo), publicada el 2026-11-10 `docs`
 
 ## S6: Demo Day y cierre
-- [ ] Video demo `docs`
+- [x] Video demo `docs`. **Hecho el 2026-11-15:** 3:21, vertical, grabado de la app real, subido a YouTube como oculto y enlazado en el README. **Falta decidir:** si pasa a público
 - [ ] Publicación LinkedIn final con la demo `docs`
 - [ ] Plan a 30 días `docs`
 
