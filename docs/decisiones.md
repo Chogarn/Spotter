@@ -1028,6 +1028,17 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Qué cambió en el prompt (2026-11-13):** un día de descanso no es un ejercicio (la IA devolvió "Descanso activo"); el peso es obligatorio con carga externa; en perder grasa y mantenerme activo hay que sumar los minutos de cardio de cada día antes de responder (R17 falló dos veces, con 15 y 10 min); y en cuerpo completo no hay días de solo cardio. Una rutina rechazada deja en el log los motivos y los nombres de los ejercicios.
 - **Ojo:** con reintento una generación puede tardar el doble y gasta 2 de las 7 llamadas diarias. El 2026-11-13 una primera llamada tardó 120 s y el reintento se cortó por timeout (502), porque la primera rutina tenía errores graves y no había nada que mostrar.
 
+### 141. Registro de cada intento de "Generar rutina"
+- **Fecha:** 2026-11-15
+- **Decisión:** cada intento de generación escribe una fila en `generation_logs` (migración 0034): tipo, objetivo, nivel, días, split, proveedor y modelo, número de intento, resultado (`ok`, `ok_con_avisos`, `reintentada`, `rechazada`, `error_ia`), los **códigos** de las reglas que fallaron (sin mensajes ni datos de la persona), la duración y si fue la rutina que se mostró. Si falla escribir el registro, la generación sigue. `resumen_fallos.py` lo resume y la propuesta muestra un panel de avisos **solo en desarrollo**.
+- **Por qué:** *(completar)*
+
+### 142. La IA no escribe el tipo ni las etiquetas de los ejercicios
+- **Fecha:** 2026-11-16
+- **Decisión:** medido con 3 llamadas reales a Cloudflare, las etiquetas eran un tercio de la respuesta y el código las reemplazaba igual por las del catálogo. Ahora la IA escribe de cada ejercicio solo el nombre, las series, el descanso, el motivo y, en el cardio, la intensidad (`AiRoutine` en `ai/routine.py`); el código completa el tipo y las etiquetas de R13 desde el catálogo o, al continuar, desde los ejercicios guardados de la semana anterior (`from_ai` en `ai/catalog.py`). Un nombre que no está en ninguno de los dos se rechaza con el código "Catálogo". Lo que se guarda y lo que leen las reglas no cambia. Una rutina de masa de 4 días bajó de 230 s a 97 s.
+- **Por qué:** *(completar)*
+- **Queda abierto:** agrupar las series ("N series de X repeticiones con Y kg") y corregir por parecido un nombre casi igual al del catálogo.
+
 ## Decisiones abiertas
 
 Ninguna sin decidir por ahora. Las cinco que quedaban (R5b, R20/R24/R25, R30, avisos y ejercicios repetidos) se cerraron el 2026-10-14 en las decisiones 60 a 64. El profesor dio el OK al RAG con pgvector de la tarea #52 (2026-10-26): solo preguntó qué se usaba y hay que saber decir que son los embeddings de Google. Cambiar un ejercicio ya aceptado en la semana activa no se hace: sería anular el plan, no generarlo.
