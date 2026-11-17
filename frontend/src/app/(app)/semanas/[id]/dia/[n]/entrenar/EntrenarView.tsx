@@ -518,6 +518,27 @@ function ListoElDia({
   const texto =
     (hechos === total ? `${total} ejercicio${total === 1 ? "" : "s"} hecho${total === 1 ? "" : "s"}` : `${hechos} de ${total} ejercicios hechos`);
 
+  // Los discos van en una fila si son hasta 7; si son más, se reparten parejo en filas (8 son 4 y 4,
+  // 9 son 5 y 4) para que no quede uno solo abajo (decisión 136, ajustada el 2026-11-17).
+  const discos = [
+    ...(conCalor
+      ? [
+          <Disco key="calor" estado={calor ? "aviso" : "pendiente"} className={cn("size-9", calor && "bg-disco-amarillo")}>
+            C
+          </Disco>,
+        ]
+      : []),
+    ...dia.exercises.map((e, i) => (
+      <Disco key={e.id ?? i} estado={estaHecho(e) ? "completo" : "pendiente"} className="size-9">
+        {i + 1}
+      </Disco>
+    )),
+  ];
+  const MAX_POR_FILA = 7;
+  const cantidadFilas = Math.max(1, Math.ceil(discos.length / MAX_POR_FILA));
+  const porFila = Math.ceil(discos.length / cantidadFilas);
+  const filas = Array.from({ length: cantidadFilas }, (_, f) => discos.slice(f * porFila, (f + 1) * porFila));
+
   return (
     <div className="text-center">
       <h1 className="mt-1 mb-0.5 text-4xl">¡Listo el Día {dia.day_index}!</h1>
@@ -525,16 +546,11 @@ function ListoElDia({
         {tituloDia(dia.title)}
         {minutos !== null && minutos > 0 && ` · ${minutos} min`}
       </p>
-      <div className="my-3 flex flex-wrap justify-center gap-1.5" role="img" aria-label={texto}>
-        {conCalor && (
-          <Disco estado={calor ? "aviso" : "pendiente"} className={cn("size-9", calor && "bg-disco-amarillo")}>
-            C
-          </Disco>
-        )}
-        {dia.exercises.map((e, i) => (
-          <Disco key={e.id ?? i} estado={estaHecho(e) ? "completo" : "pendiente"} className="size-9">
-            {i + 1}
-          </Disco>
+      <div className="my-3 flex flex-col items-center gap-1.5" role="img" aria-label={texto}>
+        {filas.map((fila, f) => (
+          <div key={f} className="flex justify-center gap-1.5">
+            {fila}
+          </div>
         ))}
       </div>
       <p className="mt-0 mb-4 text-muted-foreground">
