@@ -118,7 +118,7 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 
 ## Plan de cierre (armado el 2026-11-16, para retomar)
 
-> **#35 en curso (2026-11-17):** hecho el workflow de GitHub Actions y los primeros tests del frontend (decisión 147); falta verlo correr en GitHub y sumar tests de pantallas.
+> **#35 cerrada (2026-11-17):** workflow de GitHub Actions probado y en verde, y los primeros tests del frontend (decisión 147). Los tests de pantallas completas (iniciar sesión, Día completado, cerrar semana) y más funciones de `lib/format.ts` pasan al plan a 30 días (#41).
 
 En orden. Lo que dice **Vos** es una decisión o una prueba del usuario; lo que dice **IA**, trabajo del asistente, que muestra antes de construir.
 
@@ -151,7 +151,7 @@ Medido el 2026-11-16 con Cloudflare (3 llamadas reales): ese día escribió unos
 
 - [x] El video pasó a público en YouTube, con la descripción y el crédito de la música (hecho el 2026-11-17).
 - [x] Publicación LinkedIn final con la demo (hecha el 2026-11-17; el texto no se guarda en el repo).
-- [ ] Plan a 30 días. Candidatos: revisión de un abogado, revisión de una persona de educación física, tests del frontend y una revisión automática en cada push, y partir `routers/weeks.py` (1.129 líneas) y `EntrenarView.tsx` (1.001).
+- [ ] Plan a 30 días. Candidatos: tests de pantallas completas y más tests de `lib/format.ts`, revisión de un abogado, revisión de una persona de educación física, subir `actions/checkout` y `setup-node` a la versión que sigue (usan Node 20, en retiro) y partir `routers/weeks.py` (1.129 líneas) y `EntrenarView.tsx` (1.001).
 
 ## Tareas definidas que siguen (resumen)
 
