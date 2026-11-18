@@ -13,7 +13,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL_+_pgvector-4169E1?logo=postgresql&logoColor=white)
 ![Cloudflare Workers AI](https://img.shields.io/badge/Cloudflare_Workers_AI-plan_gratuito-F38020?logo=cloudflare&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel_+_Neon-000000?logo=vercel&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-741_con_pytest-2E9E5B)
+![Tests](https://img.shields.io/badge/tests-742_con_pytest-2E9E5B)
 
 | La IA propone la semana | Modo entrenar | Inicio | Mapa muscular |
 |:---:|:---:|:---:|:---:|
@@ -201,7 +201,7 @@ Las dependencias de desarrollo (pytest) están en `backend/requirements-dev.txt`
 docker compose -f docker-compose.dev.yml run --rm --no-deps backend python -m pytest -q
 ```
 
-Son 741 tests. Usan una base SQLite en memoria y una IA simulada: no necesitan PostgreSQL ni gastan cuota de la IA.
+Son 742 tests. Usan una base SQLite en memoria y una IA simulada: no necesitan PostgreSQL ni gastan cuota de la IA.
 
 ## Documentación
 
