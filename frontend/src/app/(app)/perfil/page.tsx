@@ -2,7 +2,6 @@
 
 import { InfoTexto } from "@/components/InfoTexto";
 import { LogOut, Pencil } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { errorText, apiFetch, type SessionUser } from "@/lib/api";
@@ -35,7 +34,6 @@ const PASOS: Record<Tarjeta, PasoPerfil[]> = {
 // de una pregunta por pantalla, con un solo paso). Un usuario sin perfil todavía (recién
 // registrado) lo completa todo de una vez.
 export default function PerfilPage() {
-  const router = useRouter();
   // Lo último guardado (null = todavía no hay perfil).
   const [guardado, setGuardado] = useState<Form | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -59,7 +57,9 @@ export default function PerfilPage() {
 
   async function cerrarSesion() {
     await apiFetch(`/auth/logout`, { method: "POST" }).catch(() => {});
-    router.push("/login");
+    // Navegación completa a "/": sin cookie, el proxy muestra la Bienvenida (y Next no reutiliza
+    // la versión de "/" guardada con sesión).
+    window.location.replace("/");
   }
 
   useEffect(() => {
