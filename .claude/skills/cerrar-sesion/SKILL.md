@@ -49,7 +49,7 @@ Solo lo que cambió de verdad. Editá, no agregues párrafos nuevos a lo loco: `
   - **Modificar** una existente si la decisión la cambia en parte (actualizá el texto y anotá "Actualizada por la decisión N").
   - **Marcar como reemplazada** una que quedó sin efecto (`~~título~~ (reemplazada por la N)`), sin borrarla ni renumerar: el código y los docs citan los números.
   - **Borrar** solo si el usuario lo pide expresamente; si crees que sobra, proponelo en el resumen.
-  El "por qué": si el usuario lo dijo en la sesión, ponelo entre comillas, con sus palabras. Si no, redactá un borrador corto con el contexto y marcalo `*(borrador IA)*`; si no hay contexto suficiente, dejá `(completar)`. Si no estás seguro de que algo haya sido una decisión suya y no un detalle, preguntale en el resumen en vez de agregarla. Mantené el índice por tema del principio del archivo al día.
+  El "por qué": si el usuario lo dijo en la sesión, ponelo entre comillas, con sus palabras. Si no, redactá un borrador corto con el contexto y marcalo `*(borrador IA)*` (el usuario se la saca cuando lo revisa); si no hay contexto suficiente, dejá `(completar)`. Si no estás seguro de que algo haya sido una decisión suya y no un detalle, preguntale en el resumen en vez de agregarla. Mantené el índice por tema del principio del archivo al día.
 - Si hubo un número de rutas, tests o tablas en `CLAUDE.md` que cambió (por ejemplo "hasta la 0028" o la cantidad de ejercicios), actualizalo.
 
 No inventes nada: si no sabés qué actualizar, mirá el diff y `git log` de la sesión.
