@@ -84,6 +84,13 @@ class AiUpstreamError(Exception):
         text = str(self).lower()
         return any(s in text for s in ("503", "429", "high demand", "unavailable", "overloaded"))
 
+    @property
+    def quota_exhausted(self) -> bool:
+        """Cloudflare dijo que se acabó el cupo gratis del día (error 4006). Es el tope diario del
+        proveedor, que cuenta toda la cuenta (también las pruebas de desarrollo), no solo la app."""
+        text = str(self).lower()
+        return "daily free allocation" in text or '"code":4006' in text
+
 
 class GenerationFailed(Exception):
     """Después de los intentos, la IA no devolvió una rutina válida."""
@@ -153,6 +160,8 @@ def _error_code(error: Exception) -> str:
     if isinstance(error, AiConfigError):
         return "IA_config"
     text = str(error).lower()
+    if "daily free allocation" in text or '"code":4006' in text:
+        return "IA_cupo"
     if any(s in text for s in ("503", "429", "high demand", "unavailable", "overloaded")):
         return "IA_saturada"
     if "timeout" in text or "timed out" in text:

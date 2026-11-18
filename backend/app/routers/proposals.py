@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -158,6 +158,16 @@ def generate(
             headers=headers,
         ) from None
     except AiUpstreamError as error:
+        if error.quota_exhausted:
+            # El cupo diario de Cloudflare se acabó (cuenta toda la cuenta, no solo la app): misma
+            # pantalla que el tope diario propio, con el reinicio de las 00:00 UTC.
+            ahora = datetime.now(timezone.utc)
+            reinicio = (ahora + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+            raise HTTPException(
+                status_code=429,
+                detail="Se acabó el cupo diario de la IA. Probá mañana.",
+                headers={ERROR_CODE: "tope_dia", RESET_AT: reinicio.isoformat()},
+            ) from None
         if error.overloaded:
             detail = "La IA está saturada en este momento. Probá de nuevo en un rato."
         else:

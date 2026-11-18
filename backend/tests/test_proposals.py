@@ -199,6 +199,24 @@ def test_si_gemini_falla_devuelve_502(api, entorno, monkeypatch):
     assert contar(api, PlanProposal) == 0
 
 
+def test_si_cloudflare_agota_su_cupo_diario_avisa_como_tope_dia(api, entorno, monkeypatch):
+    # El cupo gratis de Cloudflare es de toda la cuenta: lo puede gastar algo ajeno a la app.
+    con_perfil(api)
+    usar_gemini(
+        monkeypatch,
+        RuntimeError(
+            'HTTP 429: {"errors":[{"message":"AiError: you have used up your daily free allocation '
+            'of 10,000 neurons","code":4006}],"success":false}'
+        ),
+    )
+
+    response = api.post("/proposals/generate", json=ELECCION)
+
+    assert response.status_code == 429
+    assert response.headers["x-error-code"] == "tope_dia"
+    assert response.headers["x-reset-at"].endswith("T00:00:00+00:00")
+
+
 # --- reintento ---
 
 
