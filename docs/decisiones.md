@@ -12,7 +12,7 @@ Las decisiones importantes del producto, con quién las tomó, por qué y qué s
 - **Entrenamiento y reglas:** 14 a 31, 59 a 62, 72, 73, 82, 88 a 91, 100, 101, 104, 105, 125, 126, 132.
 - **IA y generación de rutinas:** 9, 32, 35, 37, 58, 63 a 65, 71, 74, 129, 134, 139 a 146.
 - **Pantallas y diseño:** 38, 41 a 44, 46 a 49, 51, 54 a 57, 68, 69, 75 a 79, 83 a 85, 92 a 95, 99, 103, 108 a 112, 116 a 122, 128, 131, 133, 135 a 137.
-- **Cuenta, seguridad y legal:** 39, 80, 81, 96 a 98, 106, 107, 138.
+- **Cuenta, seguridad y legal:** 39, 80, 81, 96 a 98, 106, 107, 138, 148.
 - **Despliegue y calidad:** 113 a 115, 127, 147.
 
 ## Decisiones
@@ -1078,6 +1078,13 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Por qué:** una ✓ o ✗ automática avisa enseguida si lo subido rompió algo, sin depender de acordarse de correr los tests, y Vercel despliega solo con cada push a `main`.
 - **Descartaste:** por ahora, los tests de pantallas completas (iniciar sesión, "Día completado"): son más caros y se rompen más; un hook local antes del push (otra herramienta).
 - **Ojo:** GitHub Actions corre **después** de subir, no antes: avisa, pero el código ya llegó a `main`. Para que frene antes haría falta trabajar con pull requests. No se probó todavía en GitHub: el primer push dirá si algo falla en un entorno limpio.
+
+### 148. "Cerrar sesión" lleva a la Bienvenida
+- **Fecha:** 2026-11-18
+- **Decisión:** al tocar "Cerrar sesión" en Perfil › Cuenta, la app cierra la sesión y va a la Bienvenida (`/`), con una navegación completa (`window.location.replace("/")`). Si la sesión **vence** (un 401 en `apiFetch`), la app sigue llevando al Login, como antes.
+- **Origen:** tuya (la tarea estaba anotada en S5; la confirmaste el 2026-11-18). Lo del Login para la sesión vencida lo elegí yo, sin preguntarte.
+- **Por qué:** quien cierra la sesión a propósito vuelve a la portada de la app, no a un formulario. En la sesión vencida la persona ya tenía cuenta y le sirve entrar directo. *(borrador IA)*
+- **Ojo:** va con navegación completa y no con el router porque Next reutiliza la versión de `/` guardada con sesión. No se probó todavía en producción.
 
 ## Decisiones abiertas
 
