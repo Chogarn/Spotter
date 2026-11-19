@@ -8,7 +8,7 @@ Las decisiones importantes del producto, con quién las tomó, por qué y qué s
 - **Los números no se renumeran:** el código y otros documentos nombran las decisiones por su número. Las reemplazadas se dejan, marcadas.
 
 **Por tema** (los números son las decisiones)
-- **Producto y flujo:** 1 a 8, 10 a 13, 33, 34, 36, 40, 45, 50, 52, 53, 66, 67, 70, 86, 87, 102, 123, 124, 130.
+- **Producto y flujo:** 1 a 8, 10 a 13, 33, 34, 36, 40, 45, 50, 52, 53, 66, 67, 70, 86, 87, 102, 123, 124, 130, 149.
 - **Entrenamiento y reglas:** 14 a 31, 59 a 62, 72, 73, 82, 88 a 91, 100, 101, 104, 105, 125, 126, 132.
 - **IA y generación de rutinas:** 9, 32, 35, 37, 58, 63 a 65, 71, 74, 129, 134, 139 a 146.
 - **Pantallas y diseño:** 38, 41 a 44, 46 a 49, 51, 54 a 57, 68, 69, 75 a 79, 83 a 85, 92 a 95, 99, 103, 108 a 112, 116 a 122, 128, 131, 133, 135 a 137.
@@ -1085,6 +1085,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Origen:** tuya (la tarea estaba anotada en S5; la confirmaste el 2026-11-18). Lo del Login para la sesión vencida lo elegí yo, sin preguntarte.
 - **Por qué:** quien cierra la sesión a propósito vuelve a la portada de la app, no a un formulario. En la sesión vencida la persona ya tenía cuenta y le sirve entrar directo. *(borrador IA)*
 - **Ojo:** va con navegación completa y no con el router porque Next reutiliza la versión de `/` guardada con sesión. No se probó todavía en producción.
+
+### 149. Eliminar una rutina que no tiene registros
+- **Fecha:** 2026-11-18
+- **Decisión:** en Rutinas, el ⓘ de cada tarjeta ofrece **"Eliminar rutina"** solo si la rutina no tiene nada registrado: ninguna serie hecha, ningún ejercicio marcado y ningún día empezado, completado o con entrada en calor. Tampoco se puede si hay una propuesta de esa rutina sin resolver. Se puede eliminar aunque la semana siga en curso, y también una rutina de varias semanas si todas están vacías. Borra la rutina con sus semanas, días, ejercicios y series planificadas; las llamadas a la IA (`ai_calls`) quedan. `DELETE /routines/{id}` responde 204, 409 (con registros o con propuesta pendiente) o 404 (de otra persona); `GET /routines` trae `deletable`, que calcula el servidor.
+- **Origen:** tuya.
+- **Por qué:** "si se creo una rutina y se toco el boton de completar (vacia) como estoy haciendo ahora en las pruebas, poder borrarla, pero solo cuando no tiene registros". Antes no había forma de borrar nada, y las pruebas dejaban rutinas vacías en la lista.
+- **Descartaste:** impedir cerrar una semana vacía, y borrar rutinas con historial (se perderían las estadísticas).
+- **Ojo:** un día completado sin series **cuenta como registro**. Las propuestas viejas ya aceptadas o descartadas de esa rutina quedan guardadas, sin efecto. No se vio todavía en el navegador.
 
 ## Decisiones abiertas
 
