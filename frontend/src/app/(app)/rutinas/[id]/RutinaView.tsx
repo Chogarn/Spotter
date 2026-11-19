@@ -68,7 +68,9 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
           <ul className="m-0 mt-5 grid list-none gap-2.5 p-0">
             {rutina.weeks.map((s) => {
               const enCurso = s.status === "active";
-              const completada = s.status === "closed";
+              const cerrada = s.status === "closed";
+              // Cerrada con algún día sin hacer o a medias es "Cerrada"; solo la que tiene todos los días completos es "Completada".
+              const completada = cerrada && s.day_states.every((d) => d === "completed");
               return (
                 <li key={s.id}>
                   <Link
@@ -81,15 +83,19 @@ export default function RutinaView({ params }: { params: Promise<{ id: string }>
                     <span className="min-w-0 flex-1">
                       <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
                         <span className="font-heading text-[1.35rem] leading-tight font-bold">Semana {s.number}</span>
-                        {(enCurso || completada) && (
+                        {(enCurso || cerrada) && (
                           <span
                             className={cn(
                               "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
-                              enCurso ? "bg-disco-amarillo text-disco-tinta" : "bg-disco-verde/15 text-disco-verde-texto",
+                              enCurso
+                                ? "bg-disco-amarillo text-disco-tinta"
+                                : completada
+                                  ? "bg-disco-verde/15 text-disco-verde-texto"
+                                  : "bg-muted text-muted-foreground",
                             )}
                           >
                             {completada && <Check className="size-3.5" aria-hidden="true" />}
-                            {enCurso ? "En curso" : "Completada"}
+                            {enCurso ? "En curso" : completada ? "Completada" : "Cerrada"}
                           </span>
                         )}
                       </span>

@@ -103,7 +103,13 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
                 semana.status === "active" ? "bg-disco-rojo text-white" : "bg-card text-muted-foreground",
               )}
             >
-              {semana.status === "active" ? "En curso" : semana.status === "closed" ? "Completada" : statusText[semana.status]}
+              {semana.status === "active"
+                ? "En curso"
+                : semana.status === "closed"
+                  ? semana.days.every((d) => d.state === "completed")
+                    ? "Completada"
+                    : "Cerrada"
+                  : statusText[semana.status]}
             </span>
             <span className="rounded-full bg-card px-3 py-1 text-sm">{semana.days.length} días</span>
             {semana.split_type && (
