@@ -8,7 +8,7 @@ Las decisiones importantes del producto, con quién las tomó, por qué y qué s
 - **Los números no se renumeran:** el código y otros documentos nombran las decisiones por su número. Las reemplazadas se dejan, marcadas.
 
 **Por tema** (los números son las decisiones)
-- **Producto y flujo:** 1 a 8, 10 a 13, 33, 34, 36, 40, 45, 50, 52, 53, 66, 67, 70, 86, 87, 102, 123, 124, 130, 149, 150, 151.
+- **Producto y flujo:** 1 a 8, 10 a 13, 33, 34, 36, 40, 45, 50, 52, 53, 66, 67, 70, 86, 87, 102, 123, 124, 130, 149, 150, 151, 152.
 - **Entrenamiento y reglas:** 14 a 31, 59 a 62, 72, 73, 82, 88 a 91, 100, 101, 104, 105, 125, 126, 132.
 - **IA y generación de rutinas:** 9, 32, 35, 37, 58, 63 a 65, 71, 74, 129, 134, 139 a 146.
 - **Pantallas y diseño:** 38, 41 a 44, 46 a 49, 51, 54 a 57, 68, 69, 75 a 79, 83 a 85, 92 a 95, 99, 103, 108 a 112, 116 a 122, 128, 131, 133, 135 a 137.
@@ -1084,7 +1084,7 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Decisión:** al tocar "Cerrar sesión" en Perfil › Cuenta, la app cierra la sesión y va a la Bienvenida (`/`), con una navegación completa (`window.location.replace("/")`). Si la sesión **vence** (un 401 en `apiFetch`), la app sigue llevando al Login, como antes.
 - **Origen:** tuya (la tarea estaba anotada en S5; la confirmaste el 2026-11-18). Lo del Login para la sesión vencida lo elegí yo, sin preguntarte.
 - **Por qué:** quien cierra la sesión a propósito vuelve a la portada de la app, no a un formulario. En la sesión vencida la persona ya tenía cuenta y le sirve entrar directo. *(borrador IA)*
-- **Ojo:** va con navegación completa y no con el router porque Next reutiliza la versión de `/` guardada con sesión. No se probó todavía en producción.
+- **Ojo:** va con navegación completa y no con el router porque Next reutiliza la versión de `/` guardada con sesión. Probado por el usuario en producción el 2026-11-19: cerrar sesión lleva a la Bienvenida.
 
 ### 149. Eliminar una rutina que no tiene registros
 - **Fecha:** 2026-11-18
@@ -1100,7 +1100,7 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Origen:** tuya.
 - **Por qué:** "si una semana se cerró 'sin entrenar', o sea sin datos, debería poder borrarla, utilizando ese criterio". Una semana vacía no aporta nada a las estadísticas y, como la etiqueta decía "Completada" igual que una entrenada, confundía.
 - **Descartaste:** borrar una semana del medio (cambiaría la numeración y la IA perdería la semana anterior de referencia) y borrar la única semana de una rutina (para eso está "Eliminar rutina", decisión 149).
-- **Ojo:** la etiqueta "Completada" de una semana cerrada con algunos días hechos sigue como estaba; no se decidió cambiarla. Un día completado sin series cuenta como registro. Probado por el usuario en producción el 2026-11-19: eliminó la semana vacía de su rutina anterior sin problemas.
+- **Ojo:** la etiqueta "Completada" de una semana cerrada con algunos días hechos quedaba igual; se cambió después en la decisión 152. Un día completado sin series cuenta como registro. Probado por el usuario en producción el 2026-11-19: eliminó la semana vacía de su rutina anterior sin problemas.
 
 ### 151. "Reabrir semana" solo aparece cuando se puede reabrir
 - **Fecha:** 2026-11-19
@@ -1108,6 +1108,13 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Origen:** tuya.
 - **Por qué:** "creo que solo debería aparecer en las elegibles para reabrirse". El botón aparecía en una semana de una rutina anterior, que no se podía reabrir, y la persona no sabía qué pasaría con su rutina actual.
 - **Ojo:** en una semana cerrada que no se puede reabrir, el texto "Andá a Entrenar para generar la siguiente" sigue apareciendo. No se vio todavía en el navegador.
+
+### 152. Una semana cerrada con días sin hacer dice "Cerrada", no "Completada"
+- **Fecha:** 2026-11-19
+- **Decisión:** la etiqueta de una semana cerrada depende de sus días. Si **todos** están completados, dice **"Completada"** (verde, con tilde). Si queda algún día sin hacer o a medias, dice **"Cerrada"** (gris, sin tilde). "En curso" no cambia. Se ve en la lista de semanas de una rutina (`RutinaView.tsx`) y en el detalle de la semana (`SemanaView.tsx`); se calcula en el frontend con `day_states` y `days[].state`, sin tocar el backend.
+- **Origen:** elegida entre opciones (te propuse "Cerrada" para lo que no esté completo y respondiste "Cerrada está bien").
+- **Por qué:** una semana cerrada con pocos días hechos decía "Completada" igual que una entrenada entera, y eso confundía (ya había aparecido al eliminar semanas vacías, decisión 150). *(borrador IA)*
+- **Ojo:** el gris sin tilde y el criterio de "todos los días completados" los elegí yo, sin preguntarte. Un día completado sin series cuenta como completado. No se vio todavía en producción.
 
 ## Decisiones abiertas
 
