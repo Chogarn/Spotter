@@ -8,7 +8,7 @@ Las decisiones importantes del producto, con quién las tomó, por qué y qué s
 - **Los números no se renumeran:** el código y otros documentos nombran las decisiones por su número. Las reemplazadas se dejan, marcadas.
 
 **Por tema** (los números son las decisiones)
-- **Producto y flujo:** 1 a 8, 10 a 13, 33, 34, 36, 40, 45, 50, 52, 53, 66, 67, 70, 86, 87, 102, 123, 124, 130, 149.
+- **Producto y flujo:** 1 a 8, 10 a 13, 33, 34, 36, 40, 45, 50, 52, 53, 66, 67, 70, 86, 87, 102, 123, 124, 130, 149, 150.
 - **Entrenamiento y reglas:** 14 a 31, 59 a 62, 72, 73, 82, 88 a 91, 100, 101, 104, 105, 125, 126, 132.
 - **IA y generación de rutinas:** 9, 32, 35, 37, 58, 63 a 65, 71, 74, 129, 134, 139 a 146.
 - **Pantallas y diseño:** 38, 41 a 44, 46 a 49, 51, 54 a 57, 68, 69, 75 a 79, 83 a 85, 92 a 95, 99, 103, 108 a 112, 116 a 122, 128, 131, 133, 135 a 137.
@@ -1092,7 +1092,15 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Origen:** tuya.
 - **Por qué:** "si se creo una rutina y se toco el boton de completar (vacia) como estoy haciendo ahora en las pruebas, poder borrarla, pero solo cuando no tiene registros". Antes no había forma de borrar nada, y las pruebas dejaban rutinas vacías en la lista.
 - **Descartaste:** impedir cerrar una semana vacía, y borrar rutinas con historial (se perderían las estadísticas).
-- **Ojo:** un día completado sin series **cuenta como registro**. Las propuestas viejas ya aceptadas o descartadas de esa rutina quedan guardadas, sin efecto. No se vio todavía en el navegador.
+- **Ojo:** un día completado sin series **cuenta como registro**. Las propuestas viejas ya aceptadas o descartadas de esa rutina quedan guardadas, sin efecto. Probado por el usuario en producción el 2026-11-19: eliminó las rutinas vacías sin problemas.
+
+### 150. Eliminar una semana sin registros
+- **Fecha:** 2026-11-19
+- **Decisión:** en la pantalla de una semana aparece **"Eliminar semana"** solo si se cumple todo esto: es la **última** semana de su rutina, **no es la única**, **no tiene nada registrado** (mismo criterio que la decisión 149: ninguna serie hecha, ningún ejercicio marcado, ningún día empezado, completado o con entrada en calor) y la rutina no tiene una propuesta sin resolver. Vale también para una semana en curso. Borra la semana con sus días, ejercicios y series planificadas, su comentario de cierre y el resumen de la IA; las llamadas a la IA (`ai_calls`) quedan. `DELETE /weeks/{id}` responde 204, 409 (con el motivo) o 404; `GET /weeks/{id}` trae `deletable`. Al borrar la última, la anterior vuelve a ser la última y se puede continuar desde ella.
+- **Origen:** tuya.
+- **Por qué:** "si una semana se cerró 'sin entrenar', o sea sin datos, debería poder borrarla, utilizando ese criterio". Una semana vacía no aporta nada a las estadísticas y, como la etiqueta decía "Completada" igual que una entrenada, confundía.
+- **Descartaste:** borrar una semana del medio (cambiaría la numeración y la IA perdería la semana anterior de referencia) y borrar la única semana de una rutina (para eso está "Eliminar rutina", decisión 149).
+- **Ojo:** la etiqueta "Completada" de una semana cerrada con algunos días hechos sigue como estaba; no se decidió cambiarla. Un día completado sin series cuenta como registro. No se vio todavía en el navegador.
 
 ## Decisiones abiertas
 
