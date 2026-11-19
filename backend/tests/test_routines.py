@@ -271,3 +271,121 @@ def test_la_ultima_semana_de_una_rutina_vieja_no_se_reabre(api, entorno, monkeyp
 
     assert res.status_code == 409
     assert "ya terminó" in res.json()["detail"]
+
+
+# --- eliminar una rutina sin registros (decisión 149) ---
+
+
+def filas(api, *modelos):
+    with api.session() as db:
+        return [db.scalar(select(func.count()).select_from(m)) for m in modelos]
+
+
+def test_una_rutina_sin_registros_se_elimina_con_todo_lo_planificado(api, entorno, monkeypatch):
+    from app.models import PlanDay, PlanExercise, PlanSet, WeekPlan
+
+    con_perfil(api)
+    generar_y_aceptar(api, monkeypatch)
+    cerrar_activa(api)  # el caso de las pruebas: se genera, se cierra sin entrenar
+    rutina_id = api.get("/routines").json()[0]["id"]
+    assert api.get("/routines").json()[0]["deletable"] is True
+
+    res = api.delete(f"/routines/{rutina_id}")
+
+    assert res.status_code == 204
+    assert api.get("/routines").json() == []
+    assert api.get(f"/routines/{rutina_id}").status_code == 404
+    assert filas(api, Routine, WeekPlan, PlanDay, PlanExercise, PlanSet) == [0, 0, 0, 0, 0]
+
+
+def test_una_rutina_con_la_semana_en_curso_pero_sin_registros_tambien_se_elimina(
+    api, entorno, monkeypatch
+):
+    con_perfil(api)
+    generar_y_aceptar(api, monkeypatch)
+    rutina_id = api.get("/routines").json()[0]["id"]
+
+    assert api.delete(f"/routines/{rutina_id}").status_code == 204
+    assert api.get("/weeks/active").status_code == 404
+
+
+def test_con_una_serie_hecha_no_se_puede_eliminar(api, entorno, monkeypatch):
+    con_perfil(api)
+    generar_y_aceptar(api, monkeypatch)
+    rutina_id = api.get("/routines").json()[0]["id"]
+    semana = api.get("/weeks/active").json()["id"]
+    serie = api.get(f"/weeks/{semana}/days/1").json()["exercises"][0]["sets"][0]["id"]
+    assert api.post(f"/weeks/{semana}/days/1/sets/{serie}/done").status_code == 200
+
+    res = api.delete(f"/routines/{rutina_id}")
+
+    assert res.status_code == 409
+    assert "registros" in res.json()["detail"]
+    assert api.get("/routines").json()[0]["deletable"] is False
+    assert api.get(f"/routines/{rutina_id}").status_code == 200
+
+
+def test_un_dia_completado_cuenta_como_registro_aunque_no_tenga_series(api, entorno, monkeypatch):
+    con_perfil(api)
+    generar_y_aceptar(api, monkeypatch)
+    rutina_id = api.get("/routines").json()[0]["id"]
+    semana = api.get("/weeks/active").json()["id"]
+    assert api.post(f"/weeks/{semana}/days/1/complete").status_code == 200
+
+    assert api.delete(f"/routines/{rutina_id}").status_code == 409
+
+
+def test_un_dia_reabierto_vuelve_a_estar_vacio_y_su_sesion_no_queda_suelta(
+    api, entorno, monkeypatch
+):
+    from app.models import WorkoutSession
+
+    con_perfil(api)
+    generar_y_aceptar(api, monkeypatch)
+    rutina_id = api.get("/routines").json()[0]["id"]
+    semana = api.get("/weeks/active").json()["id"]
+    api.post(f"/weeks/{semana}/days/1/complete")
+    assert api.post(f"/weeks/{semana}/days/1/reopen").status_code == 200
+    assert filas(api, WorkoutSession) == [1]  # la sesión quedó, pero vacía
+
+    assert api.delete(f"/routines/{rutina_id}").status_code == 204
+    assert filas(api, WorkoutSession) == [0]
+
+
+def test_con_una_propuesta_sin_resolver_de_esa_rutina_no_se_elimina(api, entorno, monkeypatch):
+    con_perfil(api)
+    generar_y_aceptar(api, monkeypatch)
+    cerrar_activa(api)
+    rutina_id = api.get("/routines").json()[0]["id"]
+    usar_gemini(monkeypatch, rutina())
+    propuesta = api.post("/proposals/generate", json={"routine_id": rutina_id, "days": 3, "minutes": 60})
+    assert propuesta.status_code == 201
+
+    res = api.delete(f"/routines/{rutina_id}")
+
+    assert res.status_code == 409
+    assert "propuesta" in res.json()["detail"]
+    assert api.get("/routines").json()[0]["deletable"] is False
+
+    api.post(f"/proposals/{propuesta.json()['id']}/discard")
+    assert api.get("/routines").json()[0]["deletable"] is True
+    assert api.delete(f"/routines/{rutina_id}").status_code == 204
+
+
+def test_eliminar_una_rutina_inexistente_o_ajena_da_404(api, entorno, monkeypatch):
+    con_perfil(api)
+    with api.session() as db:
+        from app.models import User
+
+        otro = User(email="otro@x.com", password_hash="x", name="otro")
+        db.add(otro)
+        db.flush()
+        ajena = Routine(user_id=otro.id, name="Ajena", goal=Goal.MASA, level="intermedio")
+        db.add(ajena)
+        db.commit()
+        ajena_id = ajena.id
+
+    assert api.delete("/routines/999").status_code == 404
+    assert api.delete(f"/routines/{ajena_id}").status_code == 404
+    with api.session() as db:
+        assert db.get(Routine, ajena_id) is not None

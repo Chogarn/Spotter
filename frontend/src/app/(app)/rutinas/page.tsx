@@ -78,7 +78,13 @@ export default function MisRutinasPage() {
                 <ChevronRight className="absolute right-4 bottom-4 size-5 text-muted-foreground" aria-hidden="true" />
               </Link>
               {/* El ⓘ va arriba a la derecha, fuera del enlace, y abre todos los datos de la rutina. */}
-              <InfoRutina rutina={r} activa={r.id === actualId} className="absolute top-2 right-3" />
+              <InfoRutina
+                rutina={r}
+                activa={r.id === actualId}
+                className="absolute top-2 right-3"
+                onEliminada={(id) => setRutinas((lista) => lista?.filter((x) => x.id !== id) ?? null)}
+                onError={setError}
+              />
             </li>
           ))}
         </ul>

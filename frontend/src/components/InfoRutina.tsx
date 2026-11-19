@@ -1,16 +1,43 @@
 "use client";
 
 import { Info, X } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
-import type { Routine } from "@/lib/api";
+import { Confirmar } from "@/components/Confirmar";
+import { readError, type Routine, apiFetch } from "@/lib/api";
 import { goalText, shortDate, splitText } from "@/lib/format";
 
 // El ícono ⓘ de una rutina de la lista: abre un panel con todo lo que la tarjeta no muestra (el
 // nombre completo, el objetivo, los días, la estructura, las semanas y cuándo se creó). Mismo
 // formato que el ⓘ de un ejercicio. Va fuera del enlace de la tarjeta (un botón no va dentro de un enlace).
-export function InfoRutina({ rutina, activa, className }: { rutina: Routine; activa: boolean; className?: string }) {
+// Si la rutina no tiene nada registrado (`deletable`), abajo ofrece "Eliminar rutina" (decisión 149).
+export function InfoRutina({
+  rutina,
+  activa,
+  className,
+  onEliminada,
+  onError,
+}: {
+  rutina: Routine;
+  activa: boolean;
+  className?: string;
+  onEliminada?: (id: number) => void;
+  onError?: (mensaje: string) => void;
+}) {
   const panel = useRef<HTMLDialogElement>(null);
+  const [confirmando, setConfirmando] = useState(false);
+
+  async function eliminar() {
+    setConfirmando(false);
+    try {
+      const res = await apiFetch(`/routines/${rutina.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(await readError(res));
+      onEliminada?.(rutina.id);
+    } catch (e) {
+      onError?.(e instanceof Error ? e.message : "No se pudo eliminar la rutina");
+    }
+  }
+
   const filas: [string, string][] = [
     ["Objetivo", goalText[rutina.goal] ?? rutina.goal],
     ["Nivel", rutina.level],
@@ -62,8 +89,29 @@ export function InfoRutina({ rutina, activa, className }: { rutina: Routine; act
               </div>
             ))}
           </dl>
+          {rutina.deletable && onEliminada && (
+            <button
+              type="button"
+              onClick={() => {
+                // El recuadro de confirmar se abre sobre la pantalla, no sobre este panel.
+                panel.current?.close();
+                setConfirmando(true);
+              }}
+              className="mt-5 w-full rounded-full border border-destructive/40 px-4 py-2.5 font-medium text-destructive outline-none hover:bg-destructive/10 focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              Eliminar rutina
+            </button>
+          )}
         </div>
       </dialog>
+      <Confirmar
+        abierto={confirmando}
+        titulo="¿Eliminar esta rutina?"
+        texto="Se elimina la rutina y sus semanas. No tiene nada registrado. No se puede deshacer."
+        accion="Eliminar"
+        onConfirmar={eliminar}
+        onCancelar={() => setConfirmando(false)}
+      />
     </>
   );
 }

@@ -127,6 +127,7 @@ export type Routine = {
   split_type: "full_body" | "upper_lower" | "ppl" | null;
   created_at: string; // cuándo se creó la rutina, "2026-10-26"
   last_week_day_states: DayState[]; // los días de la semana más nueva, en orden
+  deletable: boolean; // sin registros ni propuesta sin resolver: se puede eliminar (decisión 149)
 };
 
 export type RoutineDetail = {

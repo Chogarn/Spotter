@@ -1,11 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_current_user
-from app.enums import ExerciseKind, PlanStatus
-from app.models import Exercise, Routine, SetEntry, User
+from app.enums import ExerciseKind, PlanStatus, ProposalStatus
+from app.models import (
+    Exercise,
+    ExerciseCompletion,
+    PlanDay,
+    PlanProposal,
+    Routine,
+    SetEntry,
+    User,
+    WeekPlan,
+    WorkoutSession,
+)
 from app.routers.weeks import day_entries, week_day_states
 from app.schemas import (
     ExerciseHistoryOut,
@@ -20,8 +30,48 @@ from app.schemas import (
 router = APIRouter(prefix="/routines", tags=["routines"])
 
 
-def routine_summary(db: Session, user: User, routine: Routine) -> RoutineSummaryOut:
+def routines_with_records(db: Session, user: User) -> set[int]:
+    """Ids de las rutinas del usuario que tienen algo registrado (decisión 149): una serie
+    hecha, un ejercicio marcado, o un día empezado, completado o con entrada en calor. Son tres
+    consultas para todas las rutinas juntas, no una por rutina."""
+    base = (
+        select(WeekPlan.routine_id)
+        .join(PlanDay, PlanDay.week_plan_id == WeekPlan.id)
+        .join(WorkoutSession, WorkoutSession.plan_day_id == PlanDay.id)
+        .where(WeekPlan.user_id == user.id)
+    )
+    queries = [
+        base.join(SetEntry, SetEntry.session_id == WorkoutSession.id),
+        base.join(ExerciseCompletion, ExerciseCompletion.session_id == WorkoutSession.id),
+        base.where(
+            WorkoutSession.started_at.is_not(None)
+            | WorkoutSession.finished_at.is_not(None)
+            | WorkoutSession.warmup_minutes.is_not(None)
+        ),
+    ]
+    found: set[int] = set()
+    for query in queries:
+        found |= set(db.scalars(query.distinct()))
+    return found
+
+
+def routines_with_pending_proposal(db: Session, user: User) -> set[int]:
+    """Rutinas que tienen una propuesta de semana nueva sin resolver (se lee del JSON de la propuesta)."""
+    proposals = db.scalars(
+        select(PlanProposal).where(
+            PlanProposal.user_id == user.id, PlanProposal.status == ProposalStatus.PENDING
+        )
+    )
+    ids = {p.proposed_changes.get("routine_id") for p in proposals}
+    return {i for i in ids if i is not None}
+
+
+def routine_summary(
+    db: Session, user: User, routine: Routine, undeletable: set[int] | None = None
+) -> RoutineSummaryOut:
     weeks = routine.weeks  # de la más vieja a la más nueva
+    if undeletable is None:
+        undeletable = routines_with_records(db, user) | routines_with_pending_proposal(db, user)
     return RoutineSummaryOut(
         id=routine.id,
         name=routine.name,
@@ -34,6 +84,7 @@ def routine_summary(db: Session, user: User, routine: Routine) -> RoutineSummary
         split_type=routine.split_type,
         created_at=routine.created_at.date(),
         last_week_day_states=week_day_states(db, user, weeks[-1]) if weeks else [],
+        deletable=routine.id not in undeletable,
     )
 
 
@@ -54,7 +105,8 @@ def list_routines(
         .where(Routine.user_id == user.id)
         .order_by(Routine.created_at.desc(), Routine.id.desc())
     )
-    return [routine_summary(db, user, r) for r in routines]
+    undeletable = routines_with_records(db, user) | routines_with_pending_proposal(db, user)
+    return [routine_summary(db, user, r, undeletable) for r in routines]
 
 
 @router.get("/{routine_id}", response_model=RoutineDetailOut)
@@ -187,3 +239,31 @@ def rename_routine(
     routine.name = name
     db.commit()
     return routine_summary(db, user, routine)
+
+
+@router.delete("/{routine_id}", status_code=204)
+def delete_routine(
+    routine_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> None:
+    """Elimina una rutina sin registros (decisión 149): sus semanas, días, ejercicios y series
+    planificadas. Si hay algo registrado, o una propuesta de esa rutina sin resolver, responde 409."""
+    routine = get_own_routine(db, user, routine_id)
+    if routine.id in routines_with_records(db, user):
+        raise HTTPException(
+            status_code=409, detail="La rutina tiene registros: no se puede eliminar"
+        )
+    if routine.id in routines_with_pending_proposal(db, user):
+        raise HTTPException(
+            status_code=409,
+            detail="Tenés una propuesta de esta rutina sin resolver: aceptala o descartala antes",
+        )
+    # Las sesiones vacías de sus días (por ejemplo, un día que se empezó y se reinició) quedarían
+    # sueltas, porque la base solo les borra el vínculo al día. No tienen series ni marcas.
+    day_ids = (
+        select(PlanDay.id)
+        .join(WeekPlan, PlanDay.week_plan_id == WeekPlan.id)
+        .where(WeekPlan.routine_id == routine.id)
+    )
+    db.execute(delete(WorkoutSession).where(WorkoutSession.plan_day_id.in_(day_ids)))
+    db.delete(routine)  # las semanas, días, ejercicios y series se van por cascada
+    db.commit()

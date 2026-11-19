@@ -286,6 +286,9 @@ class RoutineSummaryOut(BaseModel):
     # Estado de cada día de la semana más nueva ("completed", "partial" o "pending"), en orden;
     # la lista "Tus rutinas" lo muestra como discos. Vacía si la rutina no tiene semanas.
     last_week_day_states: list[str] = []
+    # Se puede eliminar solo si no tiene nada registrado ni una propuesta sin resolver (decisión 149).
+    # Lo calcula el servidor: la pantalla solo muestra o esconde el botón.
+    deletable: bool = False
 
 
 class RoutineRenameIn(BaseModel):
