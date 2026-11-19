@@ -11,7 +11,7 @@ Las decisiones importantes del producto, con quién las tomó, por qué y qué s
 - **Producto y flujo:** 1 a 8, 10 a 13, 33, 34, 36, 40, 45, 50, 52, 53, 66, 67, 70, 86, 87, 102, 123, 124, 130, 149, 150, 151, 152.
 - **Entrenamiento y reglas:** 14 a 31, 59 a 62, 72, 73, 82, 88 a 91, 100, 101, 104, 105, 125, 126, 132.
 - **IA y generación de rutinas:** 9, 32, 35, 37, 58, 63 a 65, 71, 74, 129, 134, 139 a 146.
-- **Pantallas y diseño:** 38, 41 a 44, 46 a 49, 51, 54 a 57, 68, 69, 75 a 79, 83 a 85, 92 a 95, 99, 103, 108 a 112, 116 a 122, 128, 131, 133, 135 a 137.
+- **Pantallas y diseño:** 38, 41 a 44, 46 a 49, 51, 54 a 57, 68, 69, 75 a 79, 83 a 85, 92 a 95, 99, 103, 108 a 112, 116 a 122, 128, 131, 133, 135 a 137, 153.
 - **Cuenta, seguridad y legal:** 39, 80, 81, 96 a 98, 106, 107, 138, 148.
 - **Despliegue y calidad:** 113 a 115, 127, 147.
 
@@ -1115,6 +1115,14 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Origen:** elegida entre opciones (te propuse "Cerrada" para lo que no esté completo y respondiste "Cerrada está bien").
 - **Por qué:** una semana cerrada con pocos días hechos decía "Completada" igual que una entrenada entera, y eso confundía (ya había aparecido al eliminar semanas vacías, decisión 150). *(borrador IA)*
 - **Ojo:** el gris sin tilde y el criterio de "todos los días completados" los elegí yo, sin preguntarte. Un día completado sin series cuenta como completado. No se vio todavía en producción.
+
+### 153. El calendario muestra cuántas sesiones hubo en un día
+- **Fecha:** 2026-11-19
+- **Decisión:** en Progreso › Calendario, un día entrenado con **2 o más sesiones** lleva un numerito negro en la esquina superior derecha del disco verde, con la cantidad. Con una sola sesión el disco queda como antes. La pastilla de abajo al tocar el día no cambia (una fila por sesión). El texto accesible del día dice la cantidad ("18: entrenaste 3 sesiones"). Cambio solo de frontend (`Calendario.tsx`).
+- **Origen:** elegida entre opciones (viste una maqueta con tres: puntitos debajo del disco, la insignia con la cantidad y el color según el tipo de sesión, y elegiste la insignia).
+- **Por qué:** el disco era igual con 1 o con 3 sesiones, y solo se sabía cuántas hubo tocando el día. Como desde la decisión 130 se puede entrenar más de un día en la misma fecha, conviene que se vea en el calendario. *(borrador IA)*
+- **Descartaste:** los puntitos (más chicos, se leen peor) y el color por tipo (la app no tiene hoy un color por tipo de día y un día con fuerza y cardio no tendría un color claro).
+- **Ojo:** el numerito sale tal cual el conteo, sin tope; eso lo elegí yo sin preguntarte. Lo viste en desarrollo y dijiste que estaba bien.
 
 ## Decisiones abiertas
 
