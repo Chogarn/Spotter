@@ -114,7 +114,7 @@ Columnas del tablero: Todo, In Progress y Done (la columna "Esta semana" se quit
 ## S6: Demo Day y cierre
 - [x] Video demo `docs`. **Hecho el 2026-11-15:** 3:21, vertical, grabado de la app real, subido a YouTube como oculto y enlazado en el README. **Falta decidir:** si pasa a público
 - [ ] Publicación LinkedIn final con la demo `docs`
-- [ ] Plan a 30 días `docs`
+- [x] Plan a 30 días `docs` (armado el 2026-11-19; sus tareas están en el bloque 4 del plan de cierre)
 
 ## Plan de cierre (armado el 2026-11-16, para retomar)
 
@@ -151,7 +151,21 @@ Medido el 2026-11-16 con Cloudflare (3 llamadas reales): ese día escribió unos
 
 - [x] El video pasó a público en YouTube, con la descripción y el crédito de la música (hecho el 2026-11-17).
 - [x] Publicación LinkedIn final con la demo (hecha el 2026-11-17; el texto no se guarda en el repo).
-- [ ] Plan a 30 días. Candidatos: tests de pantallas completas y más tests de `lib/format.ts`, revisión de un abogado, revisión de una persona de educación física, subir `actions/checkout` y `setup-node` a la versión que sigue (usan Node 20, en retiro) y partir `routers/weeks.py` (1.129 líneas) y `EntrenarView.tsx` (1.001).
+- [x] Plan a 30 días **armado el 2026-11-19** (#41; el orden lo propuso la IA y el usuario lo aceptó; las tareas de abajo siguen abiertas). Va del 20/11 al 19/12:
+  - **Semana 1 (20 al 26/11): cerrar lo abierto y arrancar lo que depende de otros.**
+    - [ ] Sábado 21/11: probar la semana siguiente en producción (antes, cupo de Cloudflare y tope diario de 7; después, `generation_logs` y los logs de Vercel).
+    - [ ] Confirmar "Reabrir semana" solo si se puede (decisión 151) y la etiqueta "Cerrada" (decisión 152) en producción.
+    - [ ] Probar la app instalada en un iPhone (decisión 116).
+    - [ ] **Usuario:** conseguir y pedir las dos revisiones, la de un abogado (aviso legal, decisiones 138 y 139) y la de una persona de educación física (criterios `R1` a `R36` y catálogo de 127 ejercicios). **Todavía no hay nadie asignado.**
+    - [ ] Subir `actions/checkout` y `setup-node` (usan Node 20, en retiro).
+  - **Semana 2 (27/11 al 3/12): tests.**
+    - [ ] Tests de pantallas completas: iniciar sesión, "Día completado" y cerrar semana.
+    - [ ] Más tests de `lib/format.ts`.
+  - **Semana 3 (4 al 10/12):** [ ] partir `routers/weeks.py` (1.129 líneas), con los tests como red de seguridad.
+  - **Semana 4 (11 al 17/12):** [ ] partir `EntrenarView.tsx` (1.001 líneas) e [ ] incorporar lo que devuelvan las revisiones.
+  - **Cierre (18 y 19/12):** [ ] actualizar `CLAUDE.md` y este backlog y cerrar #41.
+  - **Orden:** las revisiones van primero porque dependen de terceros; los tests antes de partir archivos para no romper sin enterarnos.
+  - **Hecho desde que la demo pasó a público (17 al 19/11):** decisiones 143 a 153 (cardio fuera de masa y fuerza, singular y plural en el catálogo, series agrupadas, cuenta de R3, pantalla de cupo agotado de Cloudflare, Cerrar sesión a la Bienvenida, eliminar rutina y semana, "Reabrir semana" solo si se puede, etiqueta "Cerrada", cantidad de sesiones en el calendario), CI con GitHub Actions y Vitest, Next 16.4.6 y "¡Listo el Día N!" con los discos parejos.
 
 ## Tareas definidas que siguen (resumen)
 
