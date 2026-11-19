@@ -451,6 +451,7 @@ def get_week(
         closing_note=week.closing_note,
         split_type=week.routine.split_type,
         deletable=week_delete_block(db, user, week) is None,
+        reopenable=reopen_block(db, user, week) is None,
         days=[week_day_item(db, user, d) for d in week.days],
     )
 
@@ -623,6 +624,30 @@ def close_week(
     )
 
 
+def reopen_block(db: Session, user: User, week: WeekPlan) -> str | None:
+    """Por qué esta semana no se puede reabrir (decisión 66), o None si se puede. Lo usan el
+    endpoint y `reopenable` de la semana (decisión 151), para que el botón solo aparezca cuando
+    va a funcionar."""
+    if week.status != PlanStatus.CLOSED:
+        return "Esa semana ya está en curso"
+    if routine_weeks(db, week.routine_id)[-1].id != week.id:
+        return "Solo se puede reabrir la última semana de la rutina"
+    if week.routine_id != current_routine_id(db, user.id):
+        return "Esa rutina ya terminó: solo se reabre la rutina más reciente"
+    if active_week(db, user.id) is not None:
+        return "Ya tenés una semana en curso: cerrala antes de reabrir otra"
+    pending = db.scalar(
+        select(PlanProposal.id).where(
+            PlanProposal.user_id == user.id,
+            PlanProposal.kind.in_((ProposalKind.GENERATE, ProposalKind.WEEK_CLOSE)),
+            PlanProposal.status == ProposalStatus.PENDING,
+        )
+    )
+    if pending is not None:
+        return "Tenés una propuesta sin revisar: aceptala o descartala antes de reabrir esta semana"
+    return None
+
+
 @router.post("/{week_id}/reopen", response_model=WeekSummaryOut)
 def reopen_week(
     week_id: int,
@@ -636,32 +661,9 @@ def reopen_week(
     El comentario de cierre se borra: al volver a cerrarla se escribe uno nuevo.
     """
     week, number = get_own_week(db, user, week_id)
-    if week.status != PlanStatus.CLOSED:
-        raise HTTPException(status_code=409, detail="Esa semana ya está en curso")
-    if routine_weeks(db, week.routine_id)[-1].id != week.id:
-        raise HTTPException(
-            status_code=409, detail="Solo se puede reabrir la última semana de la rutina"
-        )
-    if week.routine_id != current_routine_id(db, user.id):
-        raise HTTPException(
-            status_code=409, detail="Esa rutina ya terminó: solo se reabre la rutina más reciente"
-        )
-    if active_week(db, user.id) is not None:
-        raise HTTPException(
-            status_code=409, detail="Ya tenés una semana en curso: cerrala antes de reabrir otra"
-        )
-    pending = db.scalar(
-        select(PlanProposal.id).where(
-            PlanProposal.user_id == user.id,
-            PlanProposal.kind.in_((ProposalKind.GENERATE, ProposalKind.WEEK_CLOSE)),
-            PlanProposal.status == ProposalStatus.PENDING,
-        )
-    )
-    if pending is not None:
-        raise HTTPException(
-            status_code=409,
-            detail="Tenés una propuesta sin revisar: aceptala o descartala antes de reabrir esta semana",
-        )
+    motivo = reopen_block(db, user, week)
+    if motivo is not None:
+        raise HTTPException(status_code=409, detail=motivo)
     week.status = PlanStatus.ACTIVE
     week.closed_at = None
     week.closing_note = None

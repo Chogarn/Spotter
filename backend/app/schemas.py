@@ -504,6 +504,9 @@ class WeekDetailOut(BaseModel):
     # Se puede eliminar solo si es la última semana de la rutina, no es la única y no tiene
     # registros ni una propuesta sin resolver (decisión 150). Lo calcula el servidor.
     deletable: bool = False
+    # Se puede reabrir ahora mismo (decisiones 66 y 151): cerrada, la última de la rutina más
+    # reciente, sin otra semana en curso ni propuesta sin revisar. Lo calcula el servidor.
+    reopenable: bool = False
     days: list[WeekDayItemOut]
 
 

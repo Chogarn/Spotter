@@ -112,3 +112,77 @@ def test_se_puede_cerrar_y_reabrir_varias_veces(api):
         assert api.post(f"/weeks/{semana}/reopen").status_code == 200
 
     assert estado(api, semana)[0] == PlanStatus.ACTIVE
+
+
+# --- reopenable: el botón solo aparece cuando se puede reabrir (decisión 151) ---
+
+
+def rutina_nueva(api):
+    from app.enums import Goal, Level
+    from app.models import Routine
+    from tests.test_weeks import DEV_USER_EMAIL
+
+    with api.session() as db:
+        user = db.scalar(select(User).where(User.email == DEV_USER_EMAIL))
+        rutina_ = Routine(user_id=user.id, name="Masa", goal=Goal.MASA, level=Level.INTERMEDIO)
+        db.add(rutina_)
+        db.commit()
+        return rutina_.id
+
+
+def reabrible(api, semana):
+    return api.get(f"/weeks/{semana}").json()["reopenable"]
+
+
+def test_la_ultima_semana_cerrada_de_la_rutina_actual_es_reabrible(api):
+    semana = crear_semana(api, date(2026, 9, 1))
+
+    assert reabrible(api, semana) is True
+
+
+def test_una_semana_en_curso_no_es_reabrible(api):
+    semana = crear_semana(api, date(2026, 9, 1), status=PlanStatus.ACTIVE)
+
+    assert reabrible(api, semana) is False
+
+
+def test_una_semana_que_no_es_la_ultima_no_es_reabrible(api):
+    vieja = crear_semana(api, date(2026, 9, 1))
+    nueva = crear_semana(api, date(2026, 9, 8))
+
+    assert reabrible(api, vieja) is False
+    assert reabrible(api, nueva) is True
+
+
+def test_una_semana_de_una_rutina_anterior_no_es_reabrible(api):
+    vieja = crear_semana(api, date(2026, 9, 1))
+    otra = rutina_nueva(api)
+    crear_semana(api, date(2026, 9, 8), rutina_id=otra)
+
+    assert reabrible(api, vieja) is False
+
+
+def test_con_otra_semana_en_curso_en_la_rutina_nueva_la_vieja_no_es_reabrible(api):
+    # El caso real: la rutina anterior con su última semana sin hacer, y una semana en curso en la actual.
+    vieja = crear_semana(api, date(2026, 9, 1))
+    otra = rutina_nueva(api)
+    crear_semana(api, date(2026, 9, 8), status=PlanStatus.ACTIVE, rutina_id=otra)
+
+    assert reabrible(api, vieja) is False
+    assert api.post(f"/weeks/{vieja}/reopen").status_code == 409
+
+
+def test_con_una_propuesta_sin_revisar_no_es_reabrible(api):
+    semana = crear_semana(api, date(2026, 9, 1))
+    proponer(api)
+
+    assert reabrible(api, semana) is False
+
+
+def test_reopenable_coincide_con_lo_que_responde_reabrir(api):
+    semana = crear_semana(api, date(2026, 9, 1))
+    assert reabrible(api, semana) is True
+
+    assert api.post(f"/weeks/{semana}/reopen").status_code == 200
+    # Ya en curso: deja de ser reabrible.
+    assert reabrible(api, semana) is False

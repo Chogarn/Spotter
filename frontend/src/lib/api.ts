@@ -284,6 +284,7 @@ export type WeekDetail = {
   week_start: string;
   split_type: "full_body" | "upper_lower" | "ppl" | null;
   deletable: boolean; // última semana sin registros y no la única: se puede eliminar (decisión 150)
+  reopenable: boolean; // cerrada, la última de la rutina más reciente y sin otra en curso: se puede reabrir (decisión 151)
   days: {
     day_index: number;
     title: string;

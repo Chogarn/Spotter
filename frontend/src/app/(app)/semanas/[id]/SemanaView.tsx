@@ -146,21 +146,24 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
                   Semana completada
                 </span>
               </section>
-              {/* Reabrir (decisión 66): vuelve a estar en curso; el servidor avisa si no se puede. */}
-              <p className="mb-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() => {
-                    setErrorReabrir("");
-                    setReabriendo(true);
-                  }}
-                >
-                  <LockOpen className="size-4" aria-hidden="true" />
-                  Reabrir semana
-                </Button>
-              </p>
+              {/* Reabrir (decisión 66): vuelve a estar en curso. Solo aparece si se puede (decisión 151):
+                  el servidor lo calcula en `reopenable`. */}
+              {semana.reopenable && (
+                <p className="mb-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => {
+                      setErrorReabrir("");
+                      setReabriendo(true);
+                    }}
+                  >
+                    <LockOpen className="size-4" aria-hidden="true" />
+                    Reabrir semana
+                  </Button>
+                </p>
+              )}
               <p>
                 <small className="text-muted-foreground">
                   <Link href="/entrenar">Andá a Entrenar</Link> para generar la siguiente.
