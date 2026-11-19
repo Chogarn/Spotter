@@ -151,12 +151,23 @@ function CalendarioMes({ hoy }: { hoy: string }) {
                     type="button"
                     onClick={() => setElegido(elegido === k ? null : k)}
                     aria-pressed={elegido === k}
-                    aria-label={`${c.d}: entrenaste${esHoy ? " (hoy)" : ""}`}
+                    aria-label={`${c.d}: entrenaste${sesiones.length > 1 ? ` ${sesiones.length} sesiones` : ""}${esHoy ? " (hoy)" : ""}`}
                     className="flex h-10 items-center justify-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                   >
-                    <Disco estado="completo" hoy={esHoy} className={elegido === k ? "size-9 text-base ring-2 ring-disco-tinta ring-offset-2" : "size-9 text-base"}>
-                      {c.d}
-                    </Disco>
+                    {/* Con más de una sesión el mismo día, un numerito en la esquina del disco dice cuántas. */}
+                    <span className="relative">
+                      <Disco estado="completo" hoy={esHoy} className={elegido === k ? "size-9 text-base ring-2 ring-disco-tinta ring-offset-2" : "size-9 text-base"}>
+                        {c.d}
+                      </Disco>
+                      {sesiones.length > 1 && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute -top-1 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full border-[1.5px] border-card bg-disco-tinta px-1 text-[10px] leading-none font-bold text-white"
+                        >
+                          {sesiones.length}
+                        </span>
+                      )}
+                    </span>
                   </button>
                 );
               })}
