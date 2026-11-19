@@ -8,7 +8,7 @@ Las decisiones importantes del producto, con quién las tomó, por qué y qué s
 - **Los números no se renumeran:** el código y otros documentos nombran las decisiones por su número. Las reemplazadas se dejan, marcadas.
 
 **Por tema** (los números son las decisiones)
-- **Producto y flujo:** 1 a 8, 10 a 13, 33, 34, 36, 40, 45, 50, 52, 53, 66, 67, 70, 86, 87, 102, 123, 124, 130, 149, 150.
+- **Producto y flujo:** 1 a 8, 10 a 13, 33, 34, 36, 40, 45, 50, 52, 53, 66, 67, 70, 86, 87, 102, 123, 124, 130, 149, 150, 151.
 - **Entrenamiento y reglas:** 14 a 31, 59 a 62, 72, 73, 82, 88 a 91, 100, 101, 104, 105, 125, 126, 132.
 - **IA y generación de rutinas:** 9, 32, 35, 37, 58, 63 a 65, 71, 74, 129, 134, 139 a 146.
 - **Pantallas y diseño:** 38, 41 a 44, 46 a 49, 51, 54 a 57, 68, 69, 75 a 79, 83 a 85, 92 a 95, 99, 103, 108 a 112, 116 a 122, 128, 131, 133, 135 a 137.
@@ -1101,6 +1101,13 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Por qué:** "si una semana se cerró 'sin entrenar', o sea sin datos, debería poder borrarla, utilizando ese criterio". Una semana vacía no aporta nada a las estadísticas y, como la etiqueta decía "Completada" igual que una entrenada, confundía.
 - **Descartaste:** borrar una semana del medio (cambiaría la numeración y la IA perdería la semana anterior de referencia) y borrar la única semana de una rutina (para eso está "Eliminar rutina", decisión 149).
 - **Ojo:** la etiqueta "Completada" de una semana cerrada con algunos días hechos sigue como estaba; no se decidió cambiarla. Un día completado sin series cuenta como registro. No se vio todavía en el navegador.
+
+### 151. "Reabrir semana" solo aparece cuando se puede reabrir
+- **Fecha:** 2026-11-19
+- **Decisión:** el botón "Reabrir semana" de la pantalla de una semana cerrada se muestra **solo si el servidor dice que se puede** (`reopenable` en `GET /weeks/{id}`): la semana está cerrada, es la última de su rutina, la rutina es la más reciente y no hay otra semana en curso ni una propuesta sin revisar. Antes aparecía siempre y el servidor respondía 409 recién al tocarlo. Las reglas para reabrir son las de la decisión 66 y 102; no cambian, solo se calculan en un lugar (`reopen_block` en `routers/weeks.py`) que usan el botón y el endpoint.
+- **Origen:** tuya.
+- **Por qué:** "creo que solo debería aparecer en las elegibles para reabrirse". El botón aparecía en una semana de una rutina anterior, que no se podía reabrir, y la persona no sabía qué pasaría con su rutina actual.
+- **Ojo:** en una semana cerrada que no se puede reabrir, el texto "Andá a Entrenar para generar la siguiente" sigue apareciendo. No se vio todavía en el navegador.
 
 ## Decisiones abiertas
 
