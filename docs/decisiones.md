@@ -1100,7 +1100,7 @@ En la pestaña **Cuenta** del Perfil, **Cambiar contraseña** abre un formulario
 - **Origen:** tuya.
 - **Por qué:** "si una semana se cerró 'sin entrenar', o sea sin datos, debería poder borrarla, utilizando ese criterio". Una semana vacía no aporta nada a las estadísticas y, como la etiqueta decía "Completada" igual que una entrenada, confundía.
 - **Descartaste:** borrar una semana del medio (cambiaría la numeración y la IA perdería la semana anterior de referencia) y borrar la única semana de una rutina (para eso está "Eliminar rutina", decisión 149).
-- **Ojo:** la etiqueta "Completada" de una semana cerrada con algunos días hechos sigue como estaba; no se decidió cambiarla. Un día completado sin series cuenta como registro. No se vio todavía en el navegador.
+- **Ojo:** la etiqueta "Completada" de una semana cerrada con algunos días hechos sigue como estaba; no se decidió cambiarla. Un día completado sin series cuenta como registro. Probado por el usuario en producción el 2026-11-19: eliminó la semana vacía de su rutina anterior sin problemas.
 
 ### 151. "Reabrir semana" solo aparece cuando se puede reabrir
 - **Fecha:** 2026-11-19
