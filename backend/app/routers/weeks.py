@@ -14,6 +14,7 @@ from app.db import get_db
 from app.deps import get_current_user
 from app.enums import ExerciseKind, LoadFeel, PainLevel, PlanStatus, ProposalKind, ProposalStatus
 from app.measurements import record
+from app.records import routines_with_pending_proposal, weeks_with_records
 from app.models import (
     ExerciseCompletion,
     PlanDay,
@@ -449,8 +450,42 @@ def get_week(
         week_start=week.week_start,
         closing_note=week.closing_note,
         split_type=week.routine.split_type,
+        deletable=week_delete_block(db, user, week) is None,
         days=[week_day_item(db, user, d) for d in week.days],
     )
+
+
+def week_delete_block(db: Session, user: User, week: WeekPlan) -> str | None:
+    """Por qué esta semana no se puede eliminar (decisión 150), o None si se puede. Solo se
+    elimina la última semana de una rutina que no tiene nada registrado, no es la única y no
+    tiene una propuesta sin resolver."""
+    if week.id in weeks_with_records(db, user):
+        return "La semana tiene registros: no se puede eliminar"
+    if week.routine_id in routines_with_pending_proposal(db, user):
+        return "Tenés una propuesta de esta rutina sin resolver: aceptala o descartala antes"
+    weeks = routine_weeks(db, week.routine_id)
+    if weeks[-1].id != week.id:
+        return "Solo se puede eliminar la última semana de la rutina"
+    if len(weeks) == 1:
+        return "Es la única semana de la rutina: eliminá la rutina"
+    return None
+
+
+@router.delete("/{week_id}", status_code=204)
+def delete_week(
+    week_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> None:
+    """Elimina la última semana de una rutina si no tiene registros (decisión 150): sus días,
+    ejercicios y series planificadas, el comentario de cierre y el resumen de la IA. 409 si no se puede."""
+    week, _ = get_own_week(db, user, week_id)
+    motivo = week_delete_block(db, user, week)
+    if motivo is not None:
+        raise HTTPException(status_code=409, detail=motivo)
+    # Las sesiones vacías de sus días quedarían sueltas (la base solo les borra el vínculo al día).
+    day_ids = select(PlanDay.id).where(PlanDay.week_plan_id == week.id)
+    db.execute(delete(WorkoutSession).where(WorkoutSession.plan_day_id.in_(day_ids)))
+    db.delete(week)  # los días, ejercicios y series se van por cascada
+    db.commit()
 
 
 def week_day_item(db: Session, user: User, day: PlanDay) -> WeekDayItemOut:

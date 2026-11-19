@@ -4,18 +4,9 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_current_user
-from app.enums import ExerciseKind, PlanStatus, ProposalStatus
-from app.models import (
-    Exercise,
-    ExerciseCompletion,
-    PlanDay,
-    PlanProposal,
-    Routine,
-    SetEntry,
-    User,
-    WeekPlan,
-    WorkoutSession,
-)
+from app.enums import ExerciseKind, PlanStatus
+from app.models import Exercise, PlanDay, Routine, SetEntry, User, WeekPlan, WorkoutSession
+from app.records import routines_with_pending_proposal, routines_with_records
 from app.routers.weeks import day_entries, week_day_states
 from app.schemas import (
     ExerciseHistoryOut,
@@ -28,42 +19,6 @@ from app.schemas import (
 )
 
 router = APIRouter(prefix="/routines", tags=["routines"])
-
-
-def routines_with_records(db: Session, user: User) -> set[int]:
-    """Ids de las rutinas del usuario que tienen algo registrado (decisión 149): una serie
-    hecha, un ejercicio marcado, o un día empezado, completado o con entrada en calor. Son tres
-    consultas para todas las rutinas juntas, no una por rutina."""
-    base = (
-        select(WeekPlan.routine_id)
-        .join(PlanDay, PlanDay.week_plan_id == WeekPlan.id)
-        .join(WorkoutSession, WorkoutSession.plan_day_id == PlanDay.id)
-        .where(WeekPlan.user_id == user.id)
-    )
-    queries = [
-        base.join(SetEntry, SetEntry.session_id == WorkoutSession.id),
-        base.join(ExerciseCompletion, ExerciseCompletion.session_id == WorkoutSession.id),
-        base.where(
-            WorkoutSession.started_at.is_not(None)
-            | WorkoutSession.finished_at.is_not(None)
-            | WorkoutSession.warmup_minutes.is_not(None)
-        ),
-    ]
-    found: set[int] = set()
-    for query in queries:
-        found |= set(db.scalars(query.distinct()))
-    return found
-
-
-def routines_with_pending_proposal(db: Session, user: User) -> set[int]:
-    """Rutinas que tienen una propuesta de semana nueva sin resolver (se lee del JSON de la propuesta)."""
-    proposals = db.scalars(
-        select(PlanProposal).where(
-            PlanProposal.user_id == user.id, PlanProposal.status == ProposalStatus.PENDING
-        )
-    )
-    ids = {p.proposed_changes.get("routine_id") for p in proposals}
-    return {i for i in ids if i is not None}
 
 
 def routine_summary(

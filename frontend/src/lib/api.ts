@@ -283,6 +283,7 @@ export type WeekDetail = {
   status: "draft" | "active" | "closed";
   week_start: string;
   split_type: "full_body" | "upper_lower" | "ppl" | null;
+  deletable: boolean; // última semana sin registros y no la única: se puede eliminar (decisión 150)
   days: {
     day_index: number;
     title: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Lock, LockOpen } from "lucide-react";
+import { ChevronRight, Lock, LockOpen, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { readError, type WeekDetail, apiFetch } from "@/lib/api";
 import { dayStateText, splitText, statusText, tituloDia } from "@/lib/format";
 import { cn } from "cn";
+import { Confirmar } from "@/components/Confirmar";
 import { Disco, estadoDia } from "@/components/Disco";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Franja } from "@/components/Franja";
@@ -32,6 +33,27 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
   const [reabriendo, setReabriendo] = useState(false);
   const [trabajando, setTrabajando] = useState(false);
   const [errorReabrir, setErrorReabrir] = useState("");
+  // Eliminar una semana sin registros (decisión 150).
+  const [eliminando, setEliminando] = useState(false);
+  const [errorEliminar, setErrorEliminar] = useState("");
+
+  async function eliminar() {
+    setEliminando(false);
+    setErrorEliminar("");
+    try {
+      const res = await apiFetch(`/weeks/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setErrorEliminar(await readError(res));
+        return;
+      }
+      // Carga completa y no router.push: Next conserva la página de la rutina guardada, y seguiría
+      // mostrando la semana que ya no existe.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a propósito, ver arriba
+      window.location.assign(`/rutinas/${semana?.routine_id ?? ""}`);
+    } catch {
+      setErrorEliminar("No se pudo conectar con el servidor");
+    }
+  }
 
   async function reabrir() {
     setErrorReabrir("");
@@ -174,6 +196,32 @@ export default function SemanaView({ params }: { params: Promise<{ id: string }>
               )}
             </>
           )}
+          {/* Solo la última semana de la rutina, sin registros y que no sea la única (decisión 150). */}
+          {semana.deletable && (
+            <div className="mt-8 mb-28">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2 border-destructive/40 text-destructive hover:bg-destructive/10"
+                onClick={() => {
+                  setErrorEliminar("");
+                  setEliminando(true);
+                }}
+              >
+                <Trash2 className="size-4" aria-hidden="true" />
+                Eliminar semana
+              </Button>
+              {errorEliminar && <ErrorMessage>{errorEliminar}</ErrorMessage>}
+            </div>
+          )}
+          <Confirmar
+            abierto={eliminando}
+            titulo={`¿Eliminar la semana ${semana.number}?`}
+            texto="Se elimina esta semana. No tiene nada registrado. No se puede deshacer."
+            accion="Eliminar"
+            onConfirmar={eliminar}
+            onCancelar={() => setEliminando(false)}
+          />
         </>
       )}
       </div>

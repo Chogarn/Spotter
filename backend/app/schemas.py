@@ -501,6 +501,9 @@ class WeekDetailOut(BaseModel):
     week_start: date
     closing_note: str | None = None
     split_type: RoutineSplit | None = None
+    # Se puede eliminar solo si es la última semana de la rutina, no es la única y no tiene
+    # registros ni una propuesta sin resolver (decisión 150). Lo calcula el servidor.
+    deletable: bool = False
     days: list[WeekDayItemOut]
 
 
